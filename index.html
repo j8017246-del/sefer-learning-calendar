@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sefer Learning Calendar — Demo V4</title>
+<title>Sefer Learning Calendar — Demo V6</title>
 <style>
 :root{
   --bg:#f4efe6;--surface:#fffdf9;--ink:#24251f;--muted:#756f63;--line:#ded6c8;
@@ -110,6 +110,21 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
 .dialog{width:min(740px,96vw);max-height:92vh;overflow:auto;background:var(--surface);border-radius:20px;padding:23px;box-shadow:0 25px 80px rgba(0,0,0,.35)}
 .dialog h1{font-family:Georgia,serif;font-size:27px;margin:0 0 16px}
 .dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.progress-summary{border:1px solid var(--line);background:#fbf7ef;border-radius:14px;padding:14px;margin-bottom:16px}
+.progress-summary strong{display:block;margin-bottom:4px}
+.status-choice{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:10px 0 18px}
+.status-choice button{border:1px solid var(--line);background:white;border-radius:12px;padding:12px 8px;color:var(--ink)}
+.status-choice button.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.strategy-list{display:grid;gap:9px}
+.strategy-option{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);background:white;border-radius:12px;padding:12px;cursor:pointer}
+.strategy-option:hover{border-color:#bfb5a4}
+.strategy-option.selected{border-color:var(--accent);background:var(--accent-soft)}
+.strategy-option input{margin-top:3px}
+.strategy-option b{display:block;margin-bottom:3px}
+.strategy-option span{display:block;font-size:12px;color:var(--muted);line-height:1.45}
+.adjustment-note{margin-top:12px;padding:10px 12px;border-left:4px solid var(--gold);background:#faf4e6;font-size:12px;color:#67552f}
+@media(max-width:650px){.status-choice{grid-template-columns:1fr}}
+
 .file-box{border:1px dashed #bdb2a1;background:#faf6ee;border-radius:12px;padding:13px}
 .file-box input{border:0;background:transparent;padding:0}
 .error{color:var(--danger);font-size:12px;margin-top:8px}
@@ -149,7 +164,7 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
         <p>Each project opens the original scanned sefer at your actual saved place and shows the assignment needed to reach your goal.</p>
       </div>
     </div>
-    <div class="notice"><b>Demo V4:</b> The setup and reader now change dynamically based on what the learner selects. Irrelevant options disappear automatically.</div>
+    <div class="notice"><b>Demo V6:</b> Save your actual place anywhere, then decide whether the remaining schedule should stay unchanged, redistribute to preserve the deadline, or change the completion date.</div>
     <div id="metrics" class="metrics"></div>
     <div class="section-head"><h2>Learning projects</h2><button class="btn soft" id="createProjectButton">Create project</button></div>
     <div id="projectGrid" class="grid"></div>
@@ -201,10 +216,10 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
         <button class="btn" id="nextPage">Next page</button>
         <label class="small" for="pageNumber">PDF page</label>
         <input id="pageNumber" type="number" min="1">
-        <button class="btn" id="savePlaceButton">Save this exact place</button>
+        <button class="btn" id="savePlaceButton">Save place & review schedule</button>
         <button class="btn" id="readerCompleteButton">Mark today complete</button>
         <button class="btn" id="toggleMarkersButton">Hide markers</button>
-        <p class="small">Tap or click the exact word or area where you stopped. A second marker appears only when the project includes both main text and commentary.</p>
+        <p class="small">Move to any page, then tap or click the exact word or area where you actually stopped. This may be before or after today’s planned stopping point. A second marker appears only when the project includes both main text and commentary.</p>
       </aside>
       <div class="reader-stage">
         <div id="loader" class="loader">Loading PDF…</div>
@@ -213,7 +228,7 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
           <div id="startMarker" class="marker start"><span>Continue here</span></div>
           <div id="commentaryMarker" class="marker commentary hidden"><span>Commentary place</span></div>
           <div id="stopMarker" class="marker stop"><span>Stop here today</span></div>
-          <div class="click-tip">Click the exact place to move the 2D marker</div>
+          <div class="click-tip">Actual place: choose any page, then click the exact point</div>
         </div>
       </div>
     </div>
@@ -235,7 +250,7 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
           <option value="commentary">Commentary only</option>
           <option value="custom">Custom text areas</option>
         </select>
-        <div class="small">Demo V3 records this choice. Automatic recognition of the separate text areas is the next mapping layer.</div>
+        <div class="small">The choice controls whether one or two progress markers appear. Automatic recognition of the text areas still requires OCR and layout analysis.</div>
       </div>
       <div class="field full">
         <label for="pdfFile">Scanned PDF</label>
@@ -264,6 +279,35 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
     <div class="dialog-actions"><button class="btn" id="cancelModal">Cancel</button><button class="btn primary" id="saveProjectButton">Create project</button></div>
   </div>
 </div>
+
+<div id="progressModal" class="modal">
+  <div class="dialog">
+    <h1>How should the schedule respond?</h1>
+    <div id="progressComparison" class="progress-summary"></div>
+
+    <div class="field full">
+      <label>Compared with today’s planned stopping point, I:</label>
+      <div class="status-choice">
+        <button type="button" id="statusEarly" data-status="early">Stopped before it</button>
+        <button type="button" id="statusTarget" data-status="target">Reached it</button>
+        <button type="button" id="statusAhead" data-status="ahead">Went past it</button>
+      </div>
+      <div class="small">The program suggests a status from the PDF page number. On complicated multi-column pages, you can correct it here.</div>
+    </div>
+
+    <div class="field full" style="margin-top:16px">
+      <label>What should happen now?</label>
+      <div id="strategyList" class="strategy-list"></div>
+    </div>
+
+    <div id="adjustmentExplanation" class="adjustment-note"></div>
+    <div class="dialog-actions">
+      <button class="btn" id="cancelProgress">Only save my place</button>
+      <button class="btn primary" id="applyProgress">Apply choice</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="toast" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -281,6 +325,7 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
   let chosenDays = [0,1,2,3,4,5];
   let currentPdf = null;
   let currentPage = 1;
+  let mainMarkerPage = 1;
   let currentX = 0.82;
   let currentY = 0.12;
   let commentaryPage = 1;
@@ -290,6 +335,9 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
   let markersVisible = true;
   let pendingPdfFile = null;
   let renderTask = null;
+  let pendingProgressStatus = "target";
+  let pendingProgressStrategy = "complete";
+
 
   const $ = id => document.getElementById(id);
 
@@ -355,31 +403,57 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
     const t=$("toast"); t.textContent=message; t.classList.add("show");
     setTimeout(()=>t.classList.remove("show"),2200);
   }
-  function scheduleFor(p){
-    const start=new Date(p.startDate+"T12:00:00");
-    const finish=new Date(p.endDate+"T12:00:00");
+  function learningDates(startValue,endValue,days){
+    const start=new Date(startValue+"T12:00:00");
+    const finish=new Date(endValue+"T12:00:00");
     const dates=[];
     const d=new Date(start);
     while(d<=finish){
-      if(p.days.includes(d.getDay())) dates.push(new Date(d));
+      if(days.includes(d.getDay())) dates.push(new Date(d));
       d.setDate(d.getDate()+1);
     }
-    if(!dates.length) return [];
-    const totalPages=p.endPage-p.startPage+1;
-    let cursor=p.startPage;
+    return dates;
+  }
+
+  function distributePages(startPage,endPage,dates,lighterFriday){
+    if(!dates.length || startPage>endPage) return [];
+    let cursor=startPage;
     const out=[];
     dates.forEach((date,index)=>{
-      const remaining=p.endPage-cursor+1;
+      const remaining=endPage-cursor+1;
       const slots=dates.length-index;
       let pageCount=Math.max(1,Math.round(remaining/slots));
-      if(p.lighterFriday==="yes" && date.getDay()===5 && slots>1) pageCount=Math.max(1,Math.floor(pageCount*0.7));
-      const end=Math.min(p.endPage,cursor+pageCount-1);
-      out.push({date:date.toISOString().slice(0,10),start:cursor,end});
+      if(lighterFriday==="yes" && date.getDay()===5 && slots>1){
+        pageCount=Math.max(1,Math.floor(pageCount*0.7));
+      }
+      const end=Math.min(endPage,cursor+pageCount-1);
+      out.push({
+        date:date.toISOString().slice(0,10),
+        start:cursor,
+        end,
+        plannedEndY:0.94
+      });
       cursor=end+1;
     });
-    if(out.length && out[out.length-1].end<p.endPage) out[out.length-1].end=p.endPage;
+    if(out.length && out[out.length-1].end<endPage) out[out.length-1].end=endPage;
     return out;
   }
+
+  function baseScheduleFor(p){
+    return distributePages(
+      p.startPage,
+      p.endPage,
+      learningDates(p.startDate,p.endDate,p.days),
+      p.lighterFriday
+    );
+  }
+
+  function scheduleFor(p){
+    return Array.isArray(p.schedulePlan) && p.schedulePlan.length
+      ? p.schedulePlan
+      : baseScheduleFor(p);
+  }
+
   function currentAssignment(p){
     const s=scheduleFor(p);
     if(!s.length) return {start:p.savedPage,end:p.savedPage,date:p.startDate};
@@ -452,6 +526,7 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
       <p><b>Learning stream:</b> ${escapeHtml(modeLabel(p.learningMode))}</p>
       <p><b>Progress markers:</b> ${p.learningMode==="main-and-commentary" ? "Separate main-text and commentary markers" : "One marker"}</p>
       <p><b>Notes:</b> ${escapeHtml(p.notes || "None")}</p>
+      <p><b>Latest schedule response:</b> ${escapeHtml(p.lastAdjustment || "None yet")}</p>
       <button class="btn danger" id="deleteProjectButton">Delete this project</button>`;
     $("deleteProjectButton").addEventListener("click",deleteCurrentProject);
     showTab("overview");
@@ -460,7 +535,10 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
 
   function renderSchedule(p){
     const s=scheduleFor(p);
-    $("scheduleList").innerHTML=s.slice(0,80).map((a,i)=>{
+    const adjustment=p.lastAdjustment
+      ? `<div class="adjustment-note"><b>Latest schedule update:</b> ${escapeHtml(p.lastAdjustment)}</div>`
+      : "";
+    $("scheduleList").innerHTML=adjustment+s.slice(0,80).map((a,i)=>{
       const cls=i<p.completed?"done":i===p.completed?"current":"";
       const label=i<p.completed?"Complete":i===p.completed?"Current":"Planned";
       return `<div class="schedule-row"><div>${formatDate(a.date)}</div><div>PDF pages ${a.start}–${a.end}</div><div class="status-pill ${cls}">${label}</div></div>`;
@@ -481,7 +559,8 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
     $("readerName").textContent=p.name;
     const a=currentAssignment(p);
     $("readerAssignment").textContent = p.learningMode==="main-and-commentary" ? `Today: PDF pages ${a.start}–${a.end}. Main text saved on page ${p.savedPage}; commentary saved on page ${p.commentaryPage || p.savedPage}.` : `Today: PDF pages ${a.start}–${a.end}. Stream: ${modeLabel(p.learningMode)}. Saved place: page ${p.savedPage}.`;
-    currentPage=Math.max(p.startPage,Math.min(p.endPage,p.savedPage));
+    mainMarkerPage=Math.max(p.startPage,Math.min(p.endPage,p.savedPage));
+    currentPage=mainMarkerPage;
     currentX=p.savedX ?? 0.82;
     currentY=p.savedY || 0.12;
     commentaryPage=p.commentaryPage || p.savedPage;
@@ -539,8 +618,8 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
     const multi=p.learningMode==="main-and-commentary";
     $("startMarker").querySelector("span").textContent = multi ? "Main text place" : markerLabelForMode(p.learningMode);
     $("startMarker").style.left=(currentX*100)+"%";
-    $("startMarker").style.top=(currentPage===p.savedPage ? (currentY*100) : 5)+"%";
-    $("startMarker").style.display=markersVisible && currentPage===p.savedPage ? "block":"none";
+    $("startMarker").style.top=(currentPage===mainMarkerPage ? (currentY*100) : 5)+"%";
+    $("startMarker").style.display=markersVisible && currentPage===mainMarkerPage ? "block":"none";
 
     $("commentaryMarker").style.left=(commentaryX*100)+"%";
     $("commentaryMarker").style.top=(currentPage===commentaryPage ? (commentaryY*100) : 5)+"%";
@@ -571,29 +650,283 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
       commentaryX=x;
       commentaryY=y;
     }else{
+      mainMarkerPage=currentPage;
       currentX=x;
       currentY=y;
     }
     updateMarkers();
   }
 
+  function persistDraftPlaces(p){
+    p.savedPage=mainMarkerPage;
+    p.savedX=currentX;
+    p.savedY=currentY;
+    if(p.learningMode==="main-and-commentary"){
+      p.commentaryPage=commentaryPage;
+      p.commentaryX=commentaryX;
+      p.commentaryY=commentaryY;
+    }
+    p.status="In progress";
+  }
+
+  function suggestedProgressStatus(p,a){
+    if(mainMarkerPage<a.end) return "early";
+    if(mainMarkerPage>a.end) return "ahead";
+    return "target";
+  }
+
   function savePlace(){
     const ps=getProjects();
     const p=ps.find(x=>x.id===currentId);
     if(!p) return;
-    if(p.learningMode==="main-and-commentary" && activeMarkerStream==="commentary"){
-      p.commentaryPage=commentaryPage;
-      p.commentaryX=commentaryX;
-      p.commentaryY=commentaryY;
-    }else{
-      p.savedPage=currentPage;
-      p.savedX=currentX;
-      p.savedY=currentY;
-    }
-    p.status="In progress";
+    persistDraftPlaces(p);
     setProjects(ps);
     renderDashboard();
-    toast(p.learningMode==="main-and-commentary" ? "Saved both learning-stream positions" : `Saved page ${currentPage} at the exact marked position`);
+    openProgressReview(p);
+  }
+
+  function openProgressReview(p){
+    const a=currentAssignment(p);
+    pendingProgressStatus=suggestedProgressStatus(p,a);
+    pendingProgressStrategy=pendingProgressStatus==="target" ? "complete" : "redistribute";
+    $("progressComparison").innerHTML=`
+      <strong>Planned today: PDF pages ${a.start}–${a.end}</strong>
+      <div>Actual main-text place: PDF page ${mainMarkerPage}, ${Math.round(currentX*100)}% across and ${Math.round(currentY*100)}% down.</div>
+      ${p.learningMode==="main-and-commentary"
+        ? `<div>Commentary place: PDF page ${commentaryPage}, ${Math.round(commentaryX*100)}% across and ${Math.round(commentaryY*100)}% down.</div>`
+        : ""}
+    `;
+    renderProgressChoices();
+    $("progressModal").classList.add("open");
+  }
+
+  function strategyDefinitions(status){
+    if(status==="early"){
+      return [
+        {
+          id:"redistribute",
+          title:"Keep my completion date",
+          detail:"Mark today finished and spread the remaining material across the remaining learning days."
+        },
+        {
+          id:"extend",
+          title:"Extend the completion date",
+          detail:"Mark today finished, add learning day(s), and keep the future assignments closer to their previous size."
+        },
+        {
+          id:"unchanged",
+          title:"Do not change the schedule",
+          detail:"Only save the actual place. Today’s assignment remains current."
+        }
+      ];
+    }
+    if(status==="ahead"){
+      return [
+        {
+          id:"redistribute",
+          title:"Keep my completion date",
+          detail:"Mark today finished and make the remaining assignments lighter."
+        },
+        {
+          id:"earlier",
+          title:"Move the completion date earlier",
+          detail:"Keep roughly the original daily pace and calculate an earlier finish."
+        },
+        {
+          id:"unchanged",
+          title:"Do not change the schedule",
+          detail:"Only save the actual place. Leave the planned calendar untouched."
+        }
+      ];
+    }
+    return [
+      {
+        id:"complete",
+        title:"Mark today complete",
+        detail:"Advance to the next planned assignment without changing the remaining calendar."
+      },
+      {
+        id:"redistribute",
+        title:"Recalculate from my exact place",
+        detail:"Use the saved point as the new starting place and preserve the completion date."
+      },
+      {
+        id:"unchanged",
+        title:"Only save my place",
+        detail:"Do not mark the assignment complete or change the schedule."
+      }
+    ];
+  }
+
+  function renderProgressChoices(){
+    document.querySelectorAll(".status-choice button").forEach(button=>{
+      button.classList.toggle("active",button.dataset.status===pendingProgressStatus);
+    });
+    const definitions=strategyDefinitions(pendingProgressStatus);
+    if(!definitions.some(item=>item.id===pendingProgressStrategy)){
+      pendingProgressStrategy=definitions[0].id;
+    }
+    $("strategyList").innerHTML=definitions.map(item=>`
+      <label class="strategy-option ${item.id===pendingProgressStrategy?"selected":""}">
+        <input type="radio" name="scheduleStrategy" value="${item.id}" ${item.id===pendingProgressStrategy?"checked":""}>
+        <span><b>${item.title}</b><span>${item.detail}</span></span>
+      </label>
+    `).join("");
+    document.querySelectorAll('input[name="scheduleStrategy"]').forEach(input=>{
+      input.addEventListener("change",()=>{
+        pendingProgressStrategy=input.value;
+        renderProgressChoices();
+      });
+    });
+    $("adjustmentExplanation").textContent=progressExplanation(pendingProgressStatus,pendingProgressStrategy);
+  }
+
+  function progressExplanation(status,strategy){
+    if(strategy==="unchanged"){
+      return "Your exact place will remain saved, but the current assignment and all future assignments will remain exactly as they were.";
+    }
+    if(status==="early" && strategy==="redistribute"){
+      return "The unfinished portion becomes part of the remaining plan. The final completion date stays the same.";
+    }
+    if(status==="early" && strategy==="extend"){
+      return "The final date moves later by enough selected learning day(s) to absorb today’s shortfall.";
+    }
+    if(status==="ahead" && strategy==="redistribute"){
+      return "Your extra progress is credited immediately. The remaining assignments become lighter while the deadline stays fixed.";
+    }
+    if(status==="ahead" && strategy==="earlier"){
+      return "Your extra progress is credited and the app estimates a new, earlier completion date at the original average pace.";
+    }
+    if(strategy==="complete"){
+      return "Today is marked complete and the original remaining schedule stays in place.";
+    }
+    return "The remaining calendar will be rebuilt from the exact saved position.";
+  }
+
+  function nextSelectedDateAfter(dateValue,days){
+    const d=new Date(dateValue+"T12:00:00");
+    for(let guard=0;guard<370;guard++){
+      d.setDate(d.getDate()+1);
+      if(days.includes(d.getDay())) return new Date(d);
+    }
+    return d;
+  }
+
+  function addSelectedLearningDays(dateValue,days,count){
+    let d=new Date(dateValue+"T12:00:00");
+    let added=0;
+    while(added<count){
+      d.setDate(d.getDate()+1);
+      if(days.includes(d.getDay())) added++;
+    }
+    return d.toISOString().slice(0,10);
+  }
+
+  function scheduleDatesAfterCurrent(p,endDateOverride=null){
+    const s=scheduleFor(p);
+    const index=Math.min(p.completed,s.length-1);
+    const current=s[index];
+    if(!current) return [];
+    const endDate=endDateOverride || p.endDate;
+    const first=nextSelectedDateAfter(current.date,p.days);
+    if(first>new Date(endDate+"T12:00:00")) return [];
+    return learningDates(first.toISOString().slice(0,10),endDate,p.days);
+  }
+
+  function rebuildRemainingFromSaved(p,newEndDate=null){
+    const oldSchedule=scheduleFor(p);
+    const index=Math.min(p.completed,Math.max(0,oldSchedule.length-1));
+    const prefix=oldSchedule.slice(0,index+1);
+    const effectiveEndDate=newEndDate || p.endDate;
+    const dates=scheduleDatesAfterCurrent(p,effectiveEndDate);
+    const remaining=distributePages(mainMarkerPage,p.endPage,dates,p.lighterFriday);
+    p.schedulePlan=[...prefix,...remaining];
+    p.completed=Math.min(index+1,p.schedulePlan.length);
+    p.endDate=effectiveEndDate;
+    p.status=p.completed>=p.schedulePlan.length ? "Completed":"Ready";
+  }
+
+  function completeWithoutChangingSchedule(p){
+    const s=scheduleFor(p);
+    p.completed=Math.min(s.length,p.completed+1);
+    if(p.completed<s.length){
+      const next=s[p.completed];
+      p.savedPage=Math.max(p.savedPage,next.start);
+      p.savedX=0.82;
+      p.savedY=0.08;
+      if(p.learningMode==="main-and-commentary"){
+        p.commentaryPage=Math.max(p.commentaryPage || p.savedPage,next.start);
+        p.commentaryX=0.18;
+        p.commentaryY=0.08;
+      }
+      p.status="Ready";
+    }else{
+      p.status="Completed";
+    }
+  }
+
+  function estimateExtensionDays(p,a){
+    const assigned=Math.max(1,a.end-a.start+1);
+    const missing=Math.max(1,a.end-mainMarkerPage);
+    return Math.max(1,Math.ceil(missing/assigned));
+  }
+
+  function estimatedEarlierDate(p,a){
+    const baseline=baseScheduleFor(p);
+    const average=Math.max(1,(p.endPage-p.startPage+1)/Math.max(1,baseline.length));
+    const remaining=Math.max(0,p.endPage-mainMarkerPage+1);
+    const remainingAssignments=Math.max(1,Math.ceil(remaining/average));
+    return addSelectedLearningDays(a.date,p.days,remainingAssignments);
+  }
+
+  function applyProgressChoice(){
+    const ps=getProjects();
+    const p=ps.find(x=>x.id===currentId);
+    if(!p) return;
+    const a=currentAssignment(p);
+
+    if(pendingProgressStrategy==="unchanged"){
+      p.lastAdjustment="Actual place saved; schedule left unchanged.";
+    }else if(pendingProgressStrategy==="complete"){
+      completeWithoutChangingSchedule(p);
+      p.lastAdjustment="Today marked complete; remaining schedule unchanged.";
+    }else if(pendingProgressStrategy==="extend"){
+      const extension=estimateExtensionDays(p,a);
+      const newEnd=addSelectedLearningDays(p.endDate,p.days,extension);
+      rebuildRemainingFromSaved(p,newEnd);
+      p.lastAdjustment=`Stopped early; deadline extended to ${formatDate(newEnd)}.`;
+    }else if(pendingProgressStrategy==="earlier"){
+      const newEnd=estimatedEarlierDate(p,a);
+      rebuildRemainingFromSaved(p,newEnd);
+      p.lastAdjustment=`Went farther; completion date moved to ${formatDate(newEnd)}.`;
+    }else{
+      rebuildRemainingFromSaved(p,p.endDate);
+      p.lastAdjustment=pendingProgressStatus==="early"
+        ? "Stopped early; remaining work redistributed to keep the deadline."
+        : pendingProgressStatus==="ahead"
+          ? "Went farther; remaining assignments lightened while keeping the deadline."
+          : "Schedule recalculated from the exact saved place.";
+    }
+
+    if(!Array.isArray(p.adjustmentHistory)) p.adjustmentHistory=[];
+    p.adjustmentHistory.push({
+      recordedAt:new Date().toISOString(),
+      status:pendingProgressStatus,
+      strategy:pendingProgressStrategy,
+      savedPage:p.savedPage,
+      endDate:p.endDate
+    });
+
+    setProjects(ps);
+    $("progressModal").classList.remove("open");
+    renderDashboard();
+    if($("readerView").classList.contains("active")){
+      const updated=projectById(currentId);
+      const next=currentAssignment(updated);
+      $("readerAssignment").textContent=`Next plan: PDF pages ${next.start}–${next.end}. Saved actual place: page ${updated.savedPage}.`;
+      updateMarkers();
+    }
+    toast("Place saved and schedule response applied");
   }
 
   function markComplete(){
@@ -612,12 +945,14 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
       p.commentaryY=0.08;
     }
     p.status=p.completed>=s.length || p.savedPage>=p.endPage ? "Completed":"Ready";
+    p.lastAdjustment="Today marked complete from the reader.";
     setProjects(ps);
     renderDashboard();
     toast("Today’s assignment marked complete");
     if($("projectView").classList.contains("active")) showProject(p.id);
     if($("readerView").classList.contains("active")){
-      currentPage=p.savedPage;
+      mainMarkerPage=p.savedPage;
+      currentPage=mainMarkerPage;
       currentX=p.savedX ?? 0.82;
       currentY=p.savedY;
       commentaryPage=p.commentaryPage || p.savedPage;
@@ -798,6 +1133,11 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
       lighterFriday:$("lighterFriday").value,
       notes:$("notes").value.trim()
     });
+    if(editingId){
+      p.schedulePlan=null;
+      p.completed=Math.min(p.completed,Math.max(0,baseScheduleFor(p).length-1));
+      p.lastAdjustment="Project settings changed; schedule regenerated.";
+    }
     p.savedPage=Math.max(startPage,Math.min(endPage,p.savedPage || startPage));
     setProjects(ps);
     $("projectModal").classList.remove("open");
@@ -882,8 +1222,8 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
     activeMarkerStream="main";
     const p=projectById(currentId);
     updateMarkerStreamControls(p);
-    if(p && currentPage!==p.savedPage){
-      currentPage=p.savedPage;
+    if(p && currentPage!==mainMarkerPage){
+      currentPage=mainMarkerPage;
       renderPdfPage();
     }
   });
@@ -894,6 +1234,24 @@ main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
     if(p && currentPage!==commentaryPage){
       currentPage=commentaryPage;
       renderPdfPage();
+    }
+  });
+  ["statusEarly","statusTarget","statusAhead"].forEach(id=>{
+    $(id).addEventListener("click",()=>{
+      pendingProgressStatus=$(id).dataset.status;
+      pendingProgressStrategy=pendingProgressStatus==="target" ? "complete":"redistribute";
+      renderProgressChoices();
+    });
+  });
+  $("cancelProgress").addEventListener("click",()=>{
+    $("progressModal").classList.remove("open");
+    toast("Actual place saved; schedule unchanged");
+  });
+  $("applyProgress").addEventListener("click",applyProgressChoice);
+  $("progressModal").addEventListener("click",event=>{
+    if(event.target===$("progressModal")){
+      $("progressModal").classList.remove("open");
+      toast("Actual place saved; schedule unchanged");
     }
   });
   $("pdfFile").addEventListener("change",inspectSelectedPdf);
