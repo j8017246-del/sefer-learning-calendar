@@ -3,1264 +3,486 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sefer Learning Calendar — Demo V6</title>
+<title>Sefer Learning Calendar — Demo 7</title>
 <style>
 :root{
-  --bg:#f4efe6;--surface:#fffdf9;--ink:#24251f;--muted:#756f63;--line:#ded6c8;
-  --accent:#294d3c;--accent-soft:#e3ece7;--gold:#b99245;--danger:#8c3e36;
-  --shadow:0 12px 32px rgba(45,39,28,.10);
+  --ink:#292720;--muted:#716d63;--paper:#f7f2e8;--card:#fffdf8;--line:#d9d0c1;
+  --accent:#466348;--accent2:#8a5f3c;--gold:#b8892e;--blue:#3e6684;--danger:#9a3e3e;
+  --main:#35734a;--commentary:#7b4e9a;--planned:#bd8a22;--shadow:0 12px 32px rgba(67,54,37,.10)
 }
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-.hidden{display:none!important}
-.topbar{position:sticky;top:0;z-index:50;height:72px;border-bottom:1px solid var(--line);background:rgba(255,253,249,.94);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:40px;height:40px;border:2px solid var(--accent);border-radius:12px;display:grid;place-items:center;color:var(--accent);font-family:Georgia,serif;font-size:20px;font-weight:700}
-.brand-title{font-weight:700}
-.brand-sub{font-size:12px;color:var(--muted)}
-.toolbar{display:flex;gap:8px;align-items:center}
-.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:11px;padding:10px 14px}
-.btn:hover{border-color:#bfb5a4}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:white}
-.btn.soft{background:var(--accent-soft);border-color:#cbdcd2;color:var(--accent)}
-.btn.danger{color:var(--danger)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-main{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
-.view{display:none}
-.view.active{display:block}
-.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}
-.hero h1{font-family:Georgia,serif;font-size:38px;line-height:1.1;margin:0 0 8px;font-weight:600}
-.hero p{margin:0;color:var(--muted);max-width:650px}
-.notice{background:#f8f3e8;border:1px solid #dfd1b1;border-radius:14px;padding:14px 16px;color:#65542f;margin-bottom:20px}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0 28px}
-.metric{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:16px}
-.metric strong{display:block;font-size:25px;margin-bottom:3px}
-.metric span{font-size:12px;color:var(--muted)}
-.section-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:26px 0 12px}
-.section-head h2{font-family:Georgia,serif;margin:0;font-size:25px;font-weight:600}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.project-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:315px}
-.project-cover{height:92px;background:linear-gradient(135deg,#294d3c,#8b7447);color:white;padding:16px;display:flex;justify-content:space-between;align-items:flex-end}
-.project-cover .hebrew{font-family:Georgia,serif;font-size:27px;direction:rtl}
-.badge{font-size:11px;border-radius:999px;padding:5px 8px;background:rgba(255,255,255,.18)}
-.card-body{padding:17px;display:flex;flex-direction:column;gap:12px;flex:1}
-.card-body h3{margin:0;font-size:19px}
-.small{font-size:12px;color:var(--muted)}
-.assignment{padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fbf7ef}
-.assignment b{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px}
-.progress-track{height:9px;border-radius:99px;background:#e9e2d7;overflow:hidden}
-.progress-fill{height:100%;background:var(--gold)}
-.card-actions{display:flex;gap:8px;margin-top:auto}
-.card-actions .btn{flex:1}
-.empty{border:1px dashed #bdb2a1;background:rgba(255,255,255,.38);border-radius:18px;padding:50px 22px;text-align:center}
-.empty h2{font-family:Georgia,serif;margin-top:0}
-.breadcrumb{font-size:13px;color:var(--muted);margin-bottom:16px}
-.link-btn{border:0;background:none;color:var(--accent);padding:0}
-.project-header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px}
-.project-header h1{font-family:Georgia,serif;font-size:34px;margin:0 0 6px;font-weight:600}
-.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px}
-.tab{border:0;background:transparent;padding:11px 13px;color:var(--muted);border-bottom:3px solid transparent}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:19px}
-.two-col{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
-.today{border:1px solid var(--line);border-radius:14px;background:#fbf7ef;padding:17px}
-.today h2,.panel h2{font-family:Georgia,serif;font-size:22px;margin:0 0 10px}
-.schedule-row{display:grid;grid-template-columns:145px 1fr 95px;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
-.schedule-row:last-child{border-bottom:0}
-.status-pill{font-size:11px;text-align:center;border-radius:999px;padding:5px 7px;background:#eee8dd;color:var(--muted)}
-.status-pill.done{background:#dcebe1;color:#315941}
-.status-pill.current{background:#f2dfb4;color:#6d531f}
-.reader-layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:15px}
-.reader-sidebar{background:#262820;color:white;border-radius:16px;padding:16px;align-self:start;position:sticky;top:88px}
-.reader-sidebar h2{font-family:Georgia,serif;font-size:21px;margin:0 0 6px}
-.reader-sidebar .small{color:#c7c8c1;line-height:1.5}
-.reader-sidebar .btn{display:block;width:100%;margin-top:8px;background:#36382f;border-color:#4e5146;color:white}
-.reader-sidebar input[type=number]{width:100%;border:0;border-radius:9px;padding:9px;margin-top:5px}
-.marker-choice{display:flex;gap:7px;margin:10px 0;flex-wrap:wrap}
-.marker-choice button{flex:1;border:1px solid #4e5146;background:#36382f;color:white;border-radius:9px;padding:8px}
-.marker-choice button.active{background:#e3ece7;color:#294d3c;border-color:#b9d0c1}
-.marker.commentary{background:#486b9c;color:#36547f}
-.marker.commentary span{color:#36547f}
-.conditional-note{font-size:12px;color:var(--muted);margin-top:5px}
-
-.reader-stage{background:#31322d;border-radius:16px;min-height:680px;padding:20px;display:flex;justify-content:center;align-items:flex-start;overflow:auto}
-.page-wrap{position:relative;display:inline-block;max-width:100%}
-#pdfCanvas{display:block;background:white;max-width:100%;height:auto;box-shadow:0 12px 34px rgba(0,0,0,.35)}
-.marker{position:absolute;width:22px;height:22px;border-radius:50% 50% 50% 0;transform:translate(-50%,-100%) rotate(-45deg);pointer-events:none;border:2px solid white;box-shadow:0 2px 7px rgba(0,0,0,.4)}
-.marker:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:white;left:5.5px;top:5.5px}
-.marker span{position:absolute;left:22px;top:-5px;transform:rotate(45deg);white-space:nowrap;background:white;border:1px solid currentColor;border-radius:7px;padding:4px 7px;font-size:11px;font-weight:700}
-.marker.start{background:#327758;color:#327758}
-.marker.stop{background:#b07e21;color:#8e651c}
-.click-tip{position:absolute;left:12px;bottom:12px;background:rgba(26,27,23,.85);color:white;padding:7px 9px;border-radius:8px;font-size:11px;pointer-events:none}
-.loader{color:white;padding:60px 20px;text-align:center}
-.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.field{display:flex;flex-direction:column;gap:6px}
-.field.full{grid-column:1/-1}
-.field label{font-size:13px;color:var(--muted)}
-.field input,.field select,.field textarea{border:1px solid var(--line);background:white;border-radius:10px;padding:10px 11px}
-.date-wrap{border:1px solid var(--line);background:white;border-radius:10px;padding:10px 11px}
-.date-wrap input{padding:0;border:0;background:transparent;width:100%}
-.weekdays{display:flex;gap:7px;flex-wrap:wrap}
-.day-toggle{border:1px solid var(--line);background:white;border-radius:9px;padding:8px 10px}
-.day-toggle.on{background:var(--accent);border-color:var(--accent);color:white}
-.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(20,21,18,.58);place-items:center;padding:18px}
-.modal.open{display:grid}
-.dialog{width:min(740px,96vw);max-height:92vh;overflow:auto;background:var(--surface);border-radius:20px;padding:23px;box-shadow:0 25px 80px rgba(0,0,0,.35)}
-.dialog h1{font-family:Georgia,serif;font-size:27px;margin:0 0 16px}
-.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
-.progress-summary{border:1px solid var(--line);background:#fbf7ef;border-radius:14px;padding:14px;margin-bottom:16px}
-.progress-summary strong{display:block;margin-bottom:4px}
-.status-choice{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:10px 0 18px}
-.status-choice button{border:1px solid var(--line);background:white;border-radius:12px;padding:12px 8px;color:var(--ink)}
-.status-choice button.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
-.strategy-list{display:grid;gap:9px}
-.strategy-option{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);background:white;border-radius:12px;padding:12px;cursor:pointer}
-.strategy-option:hover{border-color:#bfb5a4}
-.strategy-option.selected{border-color:var(--accent);background:var(--accent-soft)}
-.strategy-option input{margin-top:3px}
-.strategy-option b{display:block;margin-bottom:3px}
-.strategy-option span{display:block;font-size:12px;color:var(--muted);line-height:1.45}
-.adjustment-note{margin-top:12px;padding:10px 12px;border-left:4px solid var(--gold);background:#faf4e6;font-size:12px;color:#67552f}
-@media(max-width:650px){.status-choice{grid-template-columns:1fr}}
-
-.file-box{border:1px dashed #bdb2a1;background:#faf6ee;border-radius:12px;padding:13px}
-.file-box input{border:0;background:transparent;padding:0}
-.error{color:var(--danger);font-size:12px;margin-top:8px}
-.toast{position:fixed;right:20px;bottom:20px;background:#203229;color:white;border-radius:11px;padding:11px 14px;opacity:0;transform:translateY(12px);transition:.2s;z-index:150}
-.toast.show{opacity:1;transform:none}
-@media(max-width:900px){
-  .grid,.metrics,.two-col{grid-template-columns:1fr 1fr}
-  .reader-layout{grid-template-columns:1fr}
-  .reader-sidebar{position:static}
-}
-@media(max-width:650px){
-  .topbar{padding:0 12px}.brand-sub{display:none}.toolbar .btn:first-child{display:none}
-  main{padding:24px 13px 60px}.hero,.project-header{align-items:flex-start;flex-direction:column}
-  .hero h1{font-size:32px}.grid,.metrics,.two-col,.form-grid{grid-template-columns:1fr}
-  .field.full{grid-column:auto}.schedule-row{grid-template-columns:105px 1fr}.schedule-row .status-pill{grid-column:2}
-  .reader-stage{padding:8px;min-height:500px}
-}
+header{position:sticky;top:0;z-index:30;background:rgba(247,242,232,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.header-inner{max-width:1380px;margin:auto;padding:13px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:11px;align-items:center}.brand-mark{width:38px;height:38px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:20px}.brand b{display:block}.brand small{color:var(--muted)}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+main{max-width:1380px;margin:auto;padding:22px 18px 70px}
+.view{display:none}.view.active{display:block}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px 13px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.btn:hover{border-color:#b6aa99}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}.btn.danger{color:var(--danger);border-color:#ddbaba}.btn.small{padding:6px 9px;font-size:13px}.btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.hero{background:linear-gradient(135deg,#fffdf8,#f1eadc);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;justify-content:space-between;gap:22px;align-items:center;box-shadow:var(--shadow)}
+.hero h1{margin:0 0 7px;font-family:Georgia,serif;font-size:30px}.hero p{margin:0;color:var(--muted);max-width:780px;line-height:1.55}
+.section-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:26px 0 12px}.section-title h2{font-family:Georgia,serif;margin:0;font-size:23px}.section-title p{color:var(--muted);margin:3px 0 0}
+.grid{display:grid;gap:14px}.projects-grid{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(54,45,32,.05)}
+.project-card h3{margin:0 0 5px;font-family:Georgia,serif;font-size:21px}.project-meta{color:var(--muted);font-size:13px;line-height:1.5}.badges{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 8px;background:#efe9dc;font-size:12px}.badge.main{background:#e5f1e8;color:var(--main)}.badge.commentary{background:#eee4f4;color:var(--commentary)}.badge.warn{background:#f6ead0;color:#785617}.badge.done{background:#e1efe5;color:#2d633d}
+.progress{height:9px;background:#e8e0d2;border-radius:999px;overflow:hidden;margin:12px 0}.progress span{display:block;height:100%;background:var(--accent)}.card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.empty{border:1px dashed #bfb3a2;border-radius:16px;padding:34px;text-align:center;color:var(--muted);background:rgba(255,255,255,.35)}
+.notice{border-left:4px solid var(--gold);padding:11px 13px;background:#fbf3df;border-radius:6px;color:#62522e;font-size:14px;line-height:1.5}
+.setup-layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:18px;align-items:start}.setup-main{display:grid;gap:14px}.sticky-preview{position:sticky;top:82px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px}.step h2{font-family:Georgia,serif;margin:0 0 14px;font-size:21px}.step h3{margin:16px 0 10px;font-size:16px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field.full{grid-column:1/-1}.field label{display:block;font-weight:600;margin-bottom:6px;font-size:14px}.field small,.helper{display:block;color:var(--muted);font-size:12px;margin-top:5px;line-height:1.45}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px;color:var(--ink)}textarea{min-height:78px;resize:vertical}
+.check-row,.day-row{display:flex;gap:7px;flex-wrap:wrap}.day-chip{position:relative}.day-chip input{position:absolute;opacity:0}.day-chip span{display:block;border:1px solid var(--line);background:white;padding:8px 10px;border-radius:9px;font-size:13px}.day-chip input:checked+span{background:var(--accent);color:#fff;border-color:var(--accent)}
+.radio-row{display:grid;gap:8px}.radio-option{display:flex;gap:9px;border:1px solid var(--line);border-radius:11px;padding:10px;background:#fff}.radio-option input{margin-top:3px}.radio-option b{display:block;font-size:14px}.radio-option small{display:block;color:var(--muted);margin-top:2px}
+.conditional[hidden]{display:none!important}.subpanel{border:1px solid var(--line);background:#faf7f0;border-radius:12px;padding:13px;margin-top:12px}.stream-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stream-panel{border:1px solid var(--line);border-radius:13px;padding:13px;background:white}.stream-panel.main{border-top:4px solid var(--main)}.stream-panel.commentary{border-top:4px solid var(--commentary)}
+.exception-entry{display:grid;grid-template-columns:150px 1fr 1fr auto;gap:8px;align-items:end}.exception-list{display:grid;gap:7px;margin-top:10px}.exception-item{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--line);background:white;border-radius:10px;padding:9px 10px;font-size:13px}
+.preview-card h2{font-family:Georgia,serif;margin:0 0 12px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{border:1px solid var(--line);border-radius:11px;padding:10px;background:white}.metric b{display:block;font-size:19px}.metric span{display:block;color:var(--muted);font-size:12px;margin-top:2px}.preview-list{max-height:310px;overflow:auto;margin-top:12px;border-top:1px solid var(--line)}.preview-day{padding:9px 0;border-bottom:1px solid #ece5d9;font-size:12px}.preview-day b{display:block}.heavy{color:#8a5617}.preview-actions{display:flex;gap:8px;margin-top:13px}.validation{color:var(--danger);font-size:13px;margin-top:10px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.tab{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 12px}.tab.active{background:var(--accent);border-color:var(--accent);color:white}
+.reader-layout{display:grid;grid-template-columns:180px minmax(0,1fr) 320px;gap:13px;align-items:start}.thumb-panel,.reader-side{position:sticky;top:82px;max-height:calc(100vh - 100px);overflow:auto}.thumb-list{display:grid;gap:8px}.thumb{border:1px solid var(--line);background:white;border-radius:8px;padding:5px;text-align:center}.thumb.active{border:2px solid var(--accent)}.thumb canvas{display:block;width:100%;height:auto;background:#eee}.thumb span{font-size:11px;color:var(--muted)}
+.reader-center{min-width:0}.reader-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.toolbar-group{display:flex;gap:5px;align-items:center;border:1px solid var(--line);background:var(--card);border-radius:11px;padding:5px}.toolbar-label{font-size:12px;color:var(--muted);padding:0 3px}
+.pdf-stage{position:relative;display:flex;gap:12px;align-items:flex-start;justify-content:center;background:#d9d4ca;border:1px solid #c9c0b1;border-radius:14px;padding:16px;min-height:560px;overflow:auto}.page-wrap{position:relative;background:white;box-shadow:0 5px 18px rgba(0,0,0,.18);flex:0 0 auto}.page-wrap canvas{display:block;max-width:none}.marker{position:absolute;width:22px;height:22px;border-radius:50% 50% 50% 0;transform:translate(-50%,-100%) rotate(-45deg);border:3px solid white;box-shadow:0 2px 7px rgba(0,0,0,.3);z-index:6}.marker::after{content:"";position:absolute;width:6px;height:6px;background:white;border-radius:50%;left:5px;top:5px}.marker.main{background:var(--main)}.marker.commentary{background:var(--commentary)}.marker.planned-main{background:var(--planned);opacity:.92}.marker.planned-commentary{background:var(--blue);opacity:.92}.marker-label{position:absolute;transform:translate(-50%,5px);font-size:10px;font-weight:700;background:white;border:1px solid var(--line);padding:2px 4px;border-radius:4px;white-space:nowrap;z-index:7}
+.assignment-box{font-size:13px;line-height:1.5}.assignment-stream{border:1px solid var(--line);border-radius:11px;padding:10px;margin-top:8px}.assignment-stream.main{border-left:4px solid var(--main)}.assignment-stream.commentary{border-left:4px solid var(--commentary)}.assignment-stream.done{background:#edf5ef}.legend{display:grid;gap:6px;margin-top:12px}.legend-item{display:flex;align-items:center;gap:7px;font-size:12px}.dot{width:11px;height:11px;border-radius:50%}.dot.main{background:var(--main)}.dot.commentary{background:var(--commentary)}.dot.planned-main{background:var(--planned)}.dot.planned-commentary{background:var(--blue)}
+.schedule-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--line)}.schedule-table th,.schedule-table td{text-align:left;padding:10px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}.schedule-table th{background:#eee7da}.schedule-table tr:last-child td{border-bottom:none}.schedule-table .missed-row{background:#fbefef}.schedule-table .review-row{background:#eef3f6}
+.settings-layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}.data-actions{display:flex;gap:8px;flex-wrap:wrap}.data-note{font-size:12px;color:var(--muted);line-height:1.5}.history{display:grid;gap:6px;max-height:250px;overflow:auto}.history-item{border-left:3px solid var(--line);padding:6px 9px;font-size:12px}
+.modal{position:fixed;inset:0;background:rgba(35,31,26,.58);z-index:100;display:none;align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.dialog{width:min(620px,100%);max-height:90vh;overflow:auto;background:var(--card);border-radius:18px;padding:20px;box-shadow:0 22px 70px rgba(0,0,0,.32)}.dialog h2{font-family:Georgia,serif;margin:0 0 12px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px;flex-wrap:wrap}.choice-list{display:grid;gap:8px}.choice{display:flex;gap:9px;border:1px solid var(--line);border-radius:11px;padding:10px;background:white}.choice input{margin-top:3px}.choice b{display:block}.choice small{display:block;color:var(--muted);margin-top:3px}.modal-summary{background:#f5efe3;border:1px solid var(--line);padding:11px;border-radius:11px;margin-bottom:12px;font-size:13px;line-height:1.5}
+.toast{position:fixed;right:18px;bottom:18px;background:#25231e;color:#fff;border-radius:10px;padding:10px 14px;opacity:0;transform:translateY(12px);transition:.2s;z-index:200;pointer-events:none}.toast.show{opacity:1;transform:none}
+@media(max-width:1050px){.setup-layout{grid-template-columns:1fr}.sticky-preview{position:static}.reader-layout{grid-template-columns:1fr}.thumb-panel,.reader-side{position:static;max-height:none}.thumb-list{grid-template-columns:repeat(auto-fill,minmax(85px,1fr));max-height:260px;overflow:auto}.settings-layout{grid-template-columns:1fr}}
+@media(max-width:700px){.form-grid,.stream-grid,.metrics{grid-template-columns:1fr}.exception-entry{grid-template-columns:1fr 1fr}.exception-entry .btn{grid-column:1/-1}.hero{display:block}.hero .btn{margin-top:14px}.header-inner{align-items:flex-start}.reader-toolbar{align-items:stretch}.toolbar-group{flex-wrap:wrap}.pdf-stage{justify-content:flex-start;padding:8px}}
 </style>
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">
-    <div class="logo">ס</div>
-    <div><div class="brand-title">Sefer Learning Calendar</div><div class="brand-sub">A personal digital shtender</div></div>
-  </div>
-  <div class="toolbar">
-    <button class="btn" id="homeButton">My Shtender</button>
-    <button class="btn primary" id="addButton">+ Add a Sefer</button>
+<header>
+  <div class="header-inner">
+    <div class="brand"><div class="brand-mark">ס</div><div><b>Sefer Learning Calendar</b><small>Demo 7 — clean rebuild</small></div></div>
+    <div class="header-actions">
+      <button class="btn small" data-nav="dashboardView">Projects</button>
+      <button class="btn small" id="globalExport">Export backup</button>
+      <label class="btn small">Import backup<input id="globalImportFile" type="file" accept="application/json" hidden></label>
+      <button class="btn small primary" id="newProjectTop">New project</button>
+    </div>
   </div>
 </header>
-
 <main>
   <section id="dashboardView" class="view active">
     <div class="hero">
-      <div>
-        <h1>What will you learn today?</h1>
-        <p>Each project opens the original scanned sefer at your actual saved place and shows the assignment needed to reach your goal.</p>
-      </div>
+      <div><h1>Your personal digital shtender</h1><p>Plan scanned sefarim, keep an exact two-dimensional place for every learning stream, respond honestly to missed or uneven days, and keep the original page as the learning surface.</p></div>
+      <button class="btn primary" id="newProjectHero">Create a learning project</button>
     </div>
-    <div class="notice"><b>Demo V6:</b> Save your actual place anywhere, then decide whether the remaining schedule should stay unchanged, redistribute to preserve the deadline, or change the completion date.</div>
-    <div id="metrics" class="metrics"></div>
-    <div class="section-head"><h2>Learning projects</h2><button class="btn soft" id="createProjectButton">Create project</button></div>
-    <div id="projectGrid" class="grid"></div>
+    <div id="migrationNotice" class="notice" style="margin-top:14px" hidden></div>
+    <div class="section-title"><div><h2>Active projects</h2><p>Open any project exactly where you left it.</p></div></div>
+    <div id="projectGrid" class="grid projects-grid"></div>
+  </section>
+
+  <section id="setupView" class="view">
+    <div class="section-title"><div><h2 id="setupTitle">Create a project</h2><p>The schedule preview updates before anything is saved.</p></div><button class="btn" data-nav="dashboardView">Cancel</button></div>
+    <div class="setup-layout">
+      <div class="setup-main">
+        <div class="step">
+          <h2>1. Sefer and PDF</h2>
+          <div class="form-grid">
+            <div class="field"><label for="projectTitle">Project name</label><input id="projectTitle" type="text" placeholder="Netzach Yisrael"></div>
+            <div class="field"><label for="pdfFile">Scanned PDF</label><input id="pdfFile" type="file" accept="application/pdf"><small id="pdfInfo">Choose the scanned sefer PDF.</small></div>
+            <div class="field full"><label for="projectNotes">Notes</label><textarea id="projectNotes" placeholder="Edition, goals, or anything you want to remember"></textarea></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <h2>2. Learning streams</h2>
+          <div class="radio-row">
+            <label class="radio-option"><input type="radio" name="learningMode" value="single" checked><span><b>One learning stream</b><small>One actual marker and one planned endpoint.</small></span></label>
+            <label class="radio-option"><input type="radio" name="learningMode" value="multi"><span><b>Main text with commentary</b><small>Independent actual markers and planned endpoints for both streams.</small></span></label>
+          </div>
+          <div class="stream-grid" style="margin-top:12px">
+            <div class="stream-panel main">
+              <h3>Main text</h3>
+              <div class="form-grid">
+                <div class="field"><label for="mainLabel">Label</label><input id="mainLabel" type="text" value="Main text"></div>
+                <div></div>
+                <div class="field"><label for="mainStart">Starting PDF page</label><input id="mainStart" type="number" min="1" value="1"></div>
+                <div class="field"><label for="mainEnd">Ending PDF page</label><input id="mainEnd" type="number" min="1" value="10"></div>
+              </div>
+            </div>
+            <div id="commentaryPanel" class="stream-panel commentary conditional" hidden>
+              <h3>Commentary</h3>
+              <div class="form-grid">
+                <div class="field"><label for="commentaryLabel">Label</label><input id="commentaryLabel" type="text" value="Commentary"></div>
+                <div></div>
+                <div class="field"><label for="commentaryStart">Starting PDF page</label><input id="commentaryStart" type="number" min="1" value="1"></div>
+                <div class="field"><label for="commentaryEnd">Ending PDF page</label><input id="commentaryEnd" type="number" min="1" value="10"></div>
+              </div>
+            </div>
+          </div>
+          <div id="streamBehaviorPanel" class="subpanel conditional" hidden>
+            <label><b>How should the streams advance?</b></label>
+            <div class="radio-row" style="margin-top:8px">
+              <label class="radio-option"><input type="radio" name="streamBehavior" value="synchronized" checked><span><b>Synchronized</b><small>Both streams share the same learning dates. A day remains unfinished until both streams are complete.</small></span></label>
+              <label class="radio-option"><input type="radio" name="streamBehavior" value="independent"><span><b>Independent</b><small>Main text and commentary may move through different dates and finish independently.</small></span></label>
+            </div>
+            <div id="syncSettings" class="field" style="margin-top:10px"><label for="syncTolerance">Synchronized pace rule</label><select id="syncTolerance"><option value="same-day">Keep both on the same assignment date</option><option value="one-day">Allow one stream to trail by one learning day</option></select></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <h2>3. Calendar and recurring rules</h2>
+          <div class="form-grid">
+            <div class="field"><label for="startDate">Start date</label><input id="startDate" type="date"></div>
+            <div class="field"><label for="endDate">Completion date</label><input id="endDate" type="date"></div>
+            <div class="field full"><label>Regular learning weekdays</label><div id="learningDays" class="day-row"></div></div>
+            <div id="fridayOption" class="field conditional" hidden><label for="lighterFriday">Friday workload</label><select id="lighterFriday"><option value="normal">Normal workload</option><option value="light">Lighter Friday</option></select></div>
+            <div class="field full"><label>Permanently lighter weekdays</label><div id="lighterDays" class="day-row"></div><small>These days receive roughly 65% of a normal assignment.</small></div>
+            <div class="field full"><label>Recurring review-only weekdays</label><div id="reviewDays" class="day-row"></div></div>
+            <div id="reviewFrequencyField" class="field conditional" hidden><label for="reviewFrequency">Review frequency</label><select id="reviewFrequency"><option value="1">Every selected week</option><option value="2">Every other week</option><option value="4">Every fourth week</option></select></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <h2>4. Exceptions</h2>
+          <p class="helper">Add vacations, Yom Tov, one-time unavailable dates, or review-only dates. They are reflected immediately in the preview.</p>
+          <div class="exception-entry">
+            <div class="field"><label for="exceptionType">Type</label><select id="exceptionType"><option value="vacation">Vacation</option><option value="yomtov">Yom Tov</option><option value="unavailable">Unavailable</option><option value="review">Review only</option></select></div>
+            <div class="field"><label for="exceptionStart">Start</label><input id="exceptionStart" type="date"></div>
+            <div class="field"><label for="exceptionEnd">End</label><input id="exceptionEnd" type="date"></div>
+            <button class="btn" id="addException" type="button">Add</button>
+          </div>
+          <div id="exceptionList" class="exception-list"></div>
+        </div>
+      </div>
+
+      <aside class="sticky-preview">
+        <div class="card preview-card">
+          <h2>Schedule preview</h2>
+          <div id="previewMetrics" class="metrics"></div>
+          <div id="previewWarnings"></div>
+          <div id="previewList" class="preview-list"></div>
+          <div id="previewValidation" class="validation"></div>
+          <div class="preview-actions"><button class="btn primary" id="saveProject" type="button">Create project</button></div>
+        </div>
+      </aside>
+    </div>
   </section>
 
   <section id="projectView" class="view">
-    <div class="breadcrumb"><button class="link-btn" id="projectBack">My Shtender</button> / <span id="projectCrumb"></span></div>
-    <div class="project-header">
-      <div><h1 id="projectName"></h1><div class="small" id="projectMeta"></div></div>
-      <div class="toolbar"><button class="btn" id="editProjectButton">Edit</button><button class="btn primary" id="openReaderButton">Open sefer</button></div>
-    </div>
+    <div class="section-title"><div><h2 id="projectHeading">Project</h2><p id="projectSubheading"></p></div><button class="btn" data-nav="dashboardView">Back to projects</button></div>
     <div class="tabs">
-      <button class="tab active" data-tab="overview">Overview</button>
-      <button class="tab" data-tab="schedule">Schedule</button>
-      <button class="tab" data-tab="settings">Settings</button>
+      <button class="tab active" data-project-tab="reader">Reader</button>
+      <button class="tab" data-project-tab="schedule">Schedule</button>
+      <button class="tab" data-project-tab="settings">Settings & backup</button>
     </div>
-    <div id="overviewTab" class="tab-pane">
-      <div class="two-col">
-        <div class="panel">
-          <div class="today">
-            <h2>Today’s learning</h2>
-            <p id="todayText"></p>
-            <div class="toolbar"><button class="btn primary" id="continueButton">Continue learning</button><button class="btn" id="completeButton">Mark complete</button></div>
+
+    <div id="readerTab" class="project-tab">
+      <div class="reader-layout">
+        <aside class="card thumb-panel"><b>Pages</b><div class="helper">Click a thumbnail to open it.</div><div id="thumbList" class="thumb-list" style="margin-top:10px"></div></aside>
+        <div class="reader-center">
+          <div class="reader-toolbar">
+            <div class="toolbar-group"><span class="toolbar-label">Navigate</span><button class="btn small" id="prevPage">←</button><input id="pageNumber" type="number" min="1" style="width:76px;padding:6px"><button class="btn small" id="nextPage">→</button></div>
+            <div class="toolbar-group"><button class="btn small" id="goSaved">Saved place</button><button class="btn small" id="goPlannedStart">Planned beginning</button><button class="btn small" id="goPlannedEnd">Planned end</button></div>
+            <div class="toolbar-group"><span class="toolbar-label">Zoom</span><button class="btn small" id="zoomOut">−</button><span id="zoomValue" class="toolbar-label">100%</span><button class="btn small" id="zoomIn">+</button></div>
+            <div class="toolbar-group"><button class="btn small" id="onePage">One page</button><button class="btn small" id="twoPage">Two pages</button></div>
           </div>
+          <div id="pdfStage" class="pdf-stage"><div class="empty">Open a project PDF to begin.</div></div>
         </div>
-        <div class="panel">
-          <h2>Progress</h2>
-          <p id="progressText"></p>
-          <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
-          <p class="small" id="savedText"></p>
-        </div>
+        <aside class="card reader-side">
+          <div id="assignmentBox" class="assignment-box"></div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+          <div id="activeStreamControls"></div>
+          <div id="markerControls" style="margin-top:12px"></div>
+          <div id="readerSaveControls" class="card-actions"></div>
+          <button class="btn danger" id="missedDay" style="width:100%;margin-top:12px">I missed this learning day</button>
+          <div id="markerLegend" class="legend"></div>
+          <div class="notice" style="margin-top:12px">The planned endpoint is a goal. Your actual marker may be placed on any page and any point, before or beyond that goal.</div>
+        </aside>
       </div>
     </div>
-    <div id="scheduleTab" class="tab-pane hidden"><div class="panel"><h2>Learning calendar</h2><div id="scheduleList"></div></div></div>
-    <div id="settingsTab" class="tab-pane hidden"><div class="panel" id="settingsContent"></div></div>
-  </section>
 
-  <section id="readerView" class="view">
-    <div class="breadcrumb"><button class="link-btn" id="readerBack">← Back to project</button></div>
-    <div class="reader-layout">
-      <aside class="reader-sidebar">
-        <h2 id="readerName"></h2>
-        <div class="small" id="readerAssignment"></div>
-        <div id="markerChoice" class="marker-choice hidden">
-          <button type="button" id="selectMainMarker" class="active">Main text place</button>
-          <button type="button" id="selectCommentaryMarker">Commentary place</button>
-        </div>
-        <button class="btn" id="prevPage">Previous page</button>
-        <button class="btn" id="nextPage">Next page</button>
-        <label class="small" for="pageNumber">PDF page</label>
-        <input id="pageNumber" type="number" min="1">
-        <button class="btn" id="savePlaceButton">Save place & review schedule</button>
-        <button class="btn" id="readerCompleteButton">Mark today complete</button>
-        <button class="btn" id="toggleMarkersButton">Hide markers</button>
-        <p class="small">Move to any page, then tap or click the exact word or area where you actually stopped. This may be before or after today’s planned stopping point. A second marker appears only when the project includes both main text and commentary.</p>
-      </aside>
-      <div class="reader-stage">
-        <div id="loader" class="loader">Loading PDF…</div>
-        <div id="pageWrap" class="page-wrap hidden">
-          <canvas id="pdfCanvas"></canvas>
-          <div id="startMarker" class="marker start"><span>Continue here</span></div>
-          <div id="commentaryMarker" class="marker commentary hidden"><span>Commentary place</span></div>
-          <div id="stopMarker" class="marker stop"><span>Stop here today</span></div>
-          <div class="click-tip">Actual place: choose any page, then click the exact point</div>
-        </div>
+    <div id="scheduleTab" class="project-tab" hidden>
+      <div class="card"><div id="scheduleSummary"></div><div style="overflow:auto;margin-top:12px"><table class="schedule-table"><thead><tr><th>Date</th><th>Type</th><th>Main text</th><th id="commentaryScheduleHead">Commentary</th><th>Status</th><th></th></tr></thead><tbody id="scheduleBody"></tbody></table></div></div>
+    </div>
+
+    <div id="settingsTab" class="project-tab" hidden>
+      <div class="settings-layout">
+        <div class="card"><h2 style="font-family:Georgia,serif;margin-top:0">Project settings</h2><div id="projectSettingsSummary"></div><div class="card-actions"><button class="btn" id="editProject">Edit project</button><button class="btn danger" id="deleteProject">Delete project</button></div></div>
+        <div class="card"><h2 style="font-family:Georgia,serif;margin-top:0">Protect this project</h2><p class="data-note">The live website code can update without deleting browser data. A full backup also protects against clearing browser storage or changing computers.</p><div class="data-actions"><button class="btn primary" id="exportProject">Export full project backup</button><label class="btn">Import backup<input id="importProjectFile" type="file" accept="application/json" hidden></label></div><div id="dataStatus" class="data-note" style="margin-top:12px"></div></div>
+        <div class="card" style="grid-column:1/-1"><h2 style="font-family:Georgia,serif;margin-top:0">Schedule and migration history</h2><div id="projectHistory" class="history"></div></div>
       </div>
     </div>
   </section>
 </main>
 
-<div id="projectModal" class="modal">
-  <div class="dialog">
-    <h1 id="modalHeading">Add a scanned sefer</h1>
-    <div class="form-grid">
-      <div class="field full"><label for="seferName">Sefer name</label><input id="seferName" placeholder="e.g., Mesillas Yesharim"></div>
-      <div class="field"><label for="hebrewName">Hebrew title</label><input id="hebrewName" dir="rtl" placeholder="מסילת ישרים"></div>
-      <div class="field"><label for="mappingLevel">Mapping status</label><select id="mappingLevel"><option>Page-based demo</option><option>Learner confirmed</option><option>Community confirmed</option><option>Editorially verified</option></select></div>
-      <div class="field full"><label for="learningMode">What should the schedule follow?</label>
-        <select id="learningMode">
-          <option value="whole-page">The complete page</option>
-          <option value="main-text">Main text only</option>
-          <option value="main-and-commentary">Main text together with commentary</option>
-          <option value="commentary">Commentary only</option>
-          <option value="custom">Custom text areas</option>
-        </select>
-        <div class="small">The choice controls whether one or two progress markers appear. Automatic recognition of the text areas still requires OCR and layout analysis.</div>
-      </div>
-      <div class="field full">
-        <label for="pdfFile">Scanned PDF</label>
-        <div class="file-box"><input id="pdfFile" type="file" accept="application/pdf,.pdf"><div class="small" id="fileHelp">Choose the actual sefer PDF. The demo stores it locally in this browser.</div></div>
-      </div>
-      <div class="field full">
-        <label>Detected content range</label>
-        <div class="file-box">
-          <div id="rangeAnalysis">Choose a PDF and the program will suggest where the sefer’s usable content begins and ends.</div>
-          <button class="btn soft" type="button" id="toggleAdvancedRange" style="margin-top:10px">Correct suggested range</button>
-        </div>
-      </div>
-      <div id="advancedRange" class="field full hidden">
-        <div class="form-grid">
-          <div class="field"><label for="startPage">Beginning PDF page</label><input id="startPage" type="number" min="1" value="1"></div>
-          <div class="field"><label for="endPage">Ending PDF page</label><input id="endPage" type="number" min="1" value="1"></div>
-        </div>
-      </div>
-      <div class="field"><label for="startDate">Start date</label><div class="date-wrap"><input id="startDate" type="date"></div></div>
-      <div class="field"><label for="endDate">Completion date</label><div class="date-wrap"><input id="endDate" type="date"></div></div>
-      <div class="field full"><label>Learning days</label><div id="weekdayChooser" class="weekdays"></div></div>
-      <div class="field" id="lighterFridayField"><label for="lighterFriday">Lighter Friday</label><select id="lighterFriday"><option value="yes">Yes</option><option value="no">No</option></select><div class="conditional-note">Shown only when Friday is a selected learning day.</div></div>
-      <div class="field"><label for="notes">Learning notes</label><input id="notes" placeholder="e.g., main text and commentary"></div>
-    </div>
-    <div id="formError" class="error"></div>
-    <div class="dialog-actions"><button class="btn" id="cancelModal">Cancel</button><button class="btn primary" id="saveProjectButton">Create project</button></div>
-  </div>
-</div>
+<div id="missedModal" class="modal"><div class="dialog"><h2>How should this missed day be handled?</h2><div id="missedSummary" class="modal-summary"></div><div class="choice-list">
+<label class="choice"><input type="radio" name="missedChoice" value="redistribute" checked><span><b>Keep the completion date</b><small>Redistribute the missed material over the remaining learning days.</small></span></label>
+<label class="choice"><input type="radio" name="missedChoice" value="extend"><span><b>Extend the completion date</b><small>Add another selected learning day and preserve a gentler daily pace.</small></span></label>
+<label class="choice"><input type="radio" name="missedChoice" value="carry"><span><b>Carry it to the next learning day</b><small>Combine this assignment with the next one without changing later assignments.</small></span></label>
+<label class="choice"><input type="radio" name="missedChoice" value="exception"><span><b>Make this an unavailable exception</b><small>Record the date as unavailable and regenerate the schedule.</small></span></label>
+</div><div class="dialog-actions"><button class="btn" data-close-modal="missedModal">Cancel</button><button class="btn primary" id="applyMissed">Apply</button></div></div></div>
 
-<div id="progressModal" class="modal">
-  <div class="dialog">
-    <h1>How should the schedule respond?</h1>
-    <div id="progressComparison" class="progress-summary"></div>
-
-    <div class="field full">
-      <label>Compared with today’s planned stopping point, I:</label>
-      <div class="status-choice">
-        <button type="button" id="statusEarly" data-status="early">Stopped before it</button>
-        <button type="button" id="statusTarget" data-status="target">Reached it</button>
-        <button type="button" id="statusAhead" data-status="ahead">Went past it</button>
-      </div>
-      <div class="small">The program suggests a status from the PDF page number. On complicated multi-column pages, you can correct it here.</div>
-    </div>
-
-    <div class="field full" style="margin-top:16px">
-      <label>What should happen now?</label>
-      <div id="strategyList" class="strategy-list"></div>
-    </div>
-
-    <div id="adjustmentExplanation" class="adjustment-note"></div>
-    <div class="dialog-actions">
-      <button class="btn" id="cancelProgress">Only save my place</button>
-      <button class="btn primary" id="applyProgress">Apply choice</button>
-    </div>
-  </div>
-</div>
+<div id="importModal" class="modal"><div class="dialog"><h2>Import backup</h2><div id="importSummary" class="modal-summary"></div><div class="choice-list"><label class="choice"><input type="radio" name="importMode" value="merge" checked><span><b>Merge</b><small>Keep current projects and add the backup. Conflicting IDs are safely renamed.</small></span></label><label class="choice"><input type="radio" name="importMode" value="replace"><span><b>Replace</b><small>Replace all current projects with the backup.</small></span></label></div><div class="dialog-actions"><button class="btn" data-close-modal="importModal">Cancel</button><button class="btn primary" id="confirmImport">Import</button></div></div></div>
 
 <div id="toast" class="toast" aria-live="polite"></div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 (() => {
-  "use strict";
-  const PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const DB_NAME = "sefer-learning-calendar-v2";
-  const DB_VERSION = 1;
-  const STORE_NAME = "pdfs";
+'use strict';
+const VERSION=7, STATE_KEY='slc-demo7-state', OLD_KEY='slc-v2-projects';
+const DB_NAME='sefer-learning-calendar-v2', DB_VERSION=1, STORE='pdfs';
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAY_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const $=id=>document.getElementById(id);
+let state={schemaVersion:VERSION,projects:[],migrations:[]};
+let editingId=null,currentId=null,pendingPdf=null,pdfDoc=null,currentPage=1,zoom=1,viewMode=1,activeStream='main',renderToken=0,pendingImport=null,draftMarkers={};
+let setupExceptions=[];
 
-  let currentId = null;
-  let editingId = null;
-  let chosenDays = [0,1,2,3,4,5];
-  let currentPdf = null;
-  let currentPage = 1;
-  let mainMarkerPage = 1;
-  let currentX = 0.82;
-  let currentY = 0.12;
-  let commentaryPage = 1;
-  let commentaryX = 0.18;
-  let commentaryY = 0.18;
-  let activeMarkerStream = 'main';
-  let markersVisible = true;
-  let pendingPdfFile = null;
-  let renderTask = null;
-  let pendingProgressStatus = "target";
-  let pendingProgressStrategy = "complete";
+function uid(prefix='p'){return prefix+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)}
+function isoToday(){return new Date().toISOString().slice(0,10)}
+function plusMonths(n){const d=new Date();d.setMonth(d.getMonth()+n);return d.toISOString().slice(0,10)}
+function dateObj(s){return new Date(s+'T12:00:00')}
+function iso(d){return d.toISOString().slice(0,10)}
+function fmt(s){return s?dateObj(s).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):'—'}
+function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
+function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+function saveState(){state.schemaVersion=VERSION;localStorage.setItem(STATE_KEY,JSON.stringify(state))}
+function getProject(id=currentId){return state.projects.find(p=>p.id===id)}
+function deepCopy(v){return JSON.parse(JSON.stringify(v))}
 
+function openDb(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+async function dbPut(key,value){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(value,key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
+async function dbGet(key){const db=await openDb();return new Promise((resolve,reject)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(key);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error)})}
+async function dbDelete(key){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
 
-  const $ = id => document.getElementById(id);
-
-  function uid(){ return "p_" + Date.now() + "_" + Math.random().toString(36).slice(2,8); }
-  function today(){ return new Date().toISOString().slice(0,10); }
-  function futureDate(months){
-    const d = new Date();
-    d.setMonth(d.getMonth()+months);
-    return d.toISOString().slice(0,10);
+function baseStream(label,start,end,markerPage,x,y){return{label,startPage:+start,endPage:+end,marker:{page:+markerPage||+start,x:x??.78,y:y??.12},completedThrough:+start-1,finished:false}}
+function migrateOldProject(old){
+  const multi=old.learningMode==='main-and-commentary';
+  const p={id:old.id||uid(),schemaVersion:VERSION,title:old.title||'Imported project',notes:old.notes||'',pdfKey:old.id||uid('pdf'),pdfName:old.pdfName||'Previously uploaded PDF',pdfPages:old.pdfPages||old.endPage||10,mode:multi?'multi':'single',streamBehavior:'synchronized',syncTolerance:'same-day',startDate:old.startDate||isoToday(),endDate:old.endDate||plusMonths(2),learningDays:Array.isArray(old.days)?old.days:[0,1,2,3,4,5],lighterDays:old.lighterFriday==='yes'?[5]:[],reviewDays:[],reviewFrequency:1,exceptions:[],streams:{main:baseStream('Main text',old.startPage||1,old.endPage||10,old.savedPage||old.startPage||1,old.savedX,old.savedY)},schedule:[],history:[{at:new Date().toISOString(),text:'Safely migrated from an earlier demo.'}],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  if(multi)p.streams.commentary=baseStream('Commentary',old.startPage||1,old.endPage||10,old.commentaryPage||old.savedPage||1,old.commentaryX,old.commentaryY);
+  p.schedule=buildSchedule(p);return p;
+}
+function normalizeProject(raw){
+  if(!raw||typeof raw!=='object')return null;
+  if(raw.schemaVersion===VERSION&&raw.streams){
+    const p=deepCopy(raw);p.history=p.history||[];p.exceptions=p.exceptions||[];p.learningDays=p.learningDays||[0,1,2,3,4,5];p.lighterDays=p.lighterDays||[];p.reviewDays=p.reviewDays||[];p.reviewFrequency=+p.reviewFrequency||1;p.streamBehavior=p.streamBehavior||'synchronized';p.syncTolerance=p.syncTolerance||'same-day';
+    if(!Array.isArray(p.schedule)||!p.schedule.length)p.schedule=buildSchedule(p);return p;
   }
-  function formatDate(value){
-    if(!value) return "—";
-    return new Date(value+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
-  }
-  function getProjects(){
-    try { return JSON.parse(localStorage.getItem("slc-v2-projects") || "[]"); }
-    catch { return []; }
-  }
-  function setProjects(items){ localStorage.setItem("slc-v2-projects", JSON.stringify(items)); }
-  function projectById(id){ return getProjects().find(p => p.id === id); }
+  return migrateOldProject(raw);
+}
+function loadState(){
+  try{const saved=JSON.parse(localStorage.getItem(STATE_KEY)||'null');if(saved&&Array.isArray(saved.projects)){state={schemaVersion:VERSION,projects:saved.projects.map(normalizeProject).filter(Boolean),migrations:saved.migrations||[]};saveState();return}}
+  catch(e){}
+  try{const old=JSON.parse(localStorage.getItem(OLD_KEY)||'[]');if(old.length){state.projects=old.map(migrateOldProject);state.migrations.push({at:new Date().toISOString(),text:`Imported ${old.length} project(s) from Demo 6 or earlier.`});saveState();$('migrationNotice').hidden=false;$('migrationNotice').textContent=`Your ${old.length} older project(s) were safely converted to the Demo 7 data structure.`}}
+  catch(e){}
+}
 
-  function openDb(){
-    return new Promise((resolve,reject)=>{
-      const req=indexedDB.open(DB_NAME,DB_VERSION);
-      req.onupgradeneeded=()=>{ const db=req.result; if(!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME); };
-      req.onsuccess=()=>resolve(req.result);
-      req.onerror=()=>reject(req.error);
-    });
+function rangeDates(start,end){const out=[],d=dateObj(start),last=dateObj(end);while(d<=last){out.push(new Date(d));d.setDate(d.getDate()+1)}return out}
+function exceptionOn(p,date){const s=iso(date);return(p.exceptions||[]).find(e=>s>=e.start&&s<=e.end)}
+function weekIndex(start,date){return Math.floor((dateObj(iso(date))-dateObj(start))/(7*86400000))}
+function calendarSlots(p){
+  const slots=[];for(const d of rangeDates(p.startDate,p.endDate)){
+    const ex=exceptionOn(p,d),dow=d.getDay(),date=iso(d);
+    if(ex){if(ex.type==='review')slots.push({date,type:'review',reason:ex.type});continue}
+    if(p.reviewDays.includes(dow)&&weekIndex(p.startDate,d)%p.reviewFrequency===0){slots.push({date,type:'review',reason:'recurring review'});continue}
+    if(p.learningDays.includes(dow))slots.push({date,type:'learning',weight:p.lighterDays.includes(dow)?.65:1});
+  }return slots
+}
+function allocateRange(start,end,slots){
+  const learning=slots.filter(s=>s.type==='learning'),map=new Map(),total=Math.max(0,end-start+1);if(!learning.length||!total)return map;
+  let cursor=start;
+  if(total<learning.length){
+    const used=[];
+    if(total===1)used.push(0);else for(let i=0;i<total;i++)used.push(Math.round(i*(learning.length-1)/(total-1)));
+    [...new Set(used)].forEach(index=>{const slot=learning[index];map.set(slot.date,{start:cursor,end:cursor,pages:1,done:false});cursor++});
+    return map
   }
-  async function putPdf(id,file){
-    const db=await openDb();
-    return new Promise((resolve,reject)=>{
-      const tx=db.transaction(STORE_NAME,"readwrite");
-      tx.objectStore(STORE_NAME).put(file,id);
-      tx.oncomplete=()=>resolve();
-      tx.onerror=()=>reject(tx.error);
-    });
-  }
-  async function getPdf(id){
-    const db=await openDb();
-    return new Promise((resolve,reject)=>{
-      const req=db.transaction(STORE_NAME,"readonly").objectStore(STORE_NAME).get(id);
-      req.onsuccess=()=>resolve(req.result || null);
-      req.onerror=()=>reject(req.error);
-    });
-  }
-  async function deletePdf(id){
-    const db=await openDb();
-    return new Promise((resolve,reject)=>{
-      const tx=db.transaction(STORE_NAME,"readwrite");
-      tx.objectStore(STORE_NAME).delete(id);
-      tx.oncomplete=()=>resolve();
-      tx.onerror=()=>reject(tx.error);
-    });
-  }
-
-  function showView(id){
-    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-    $(id).classList.add("active");
-    window.scrollTo({top:0,behavior:"smooth"});
-  }
-  function toast(message){
-    const t=$("toast"); t.textContent=message; t.classList.add("show");
-    setTimeout(()=>t.classList.remove("show"),2200);
-  }
-  function learningDates(startValue,endValue,days){
-    const start=new Date(startValue+"T12:00:00");
-    const finish=new Date(endValue+"T12:00:00");
-    const dates=[];
-    const d=new Date(start);
-    while(d<=finish){
-      if(days.includes(d.getDay())) dates.push(new Date(d));
-      d.setDate(d.getDate()+1);
-    }
-    return dates;
-  }
-
-  function distributePages(startPage,endPage,dates,lighterFriday){
-    if(!dates.length || startPage>endPage) return [];
-    let cursor=startPage;
-    const out=[];
-    dates.forEach((date,index)=>{
-      const remaining=endPage-cursor+1;
-      const slots=dates.length-index;
-      let pageCount=Math.max(1,Math.round(remaining/slots));
-      if(lighterFriday==="yes" && date.getDay()===5 && slots>1){
-        pageCount=Math.max(1,Math.floor(pageCount*0.7));
-      }
-      const end=Math.min(endPage,cursor+pageCount-1);
-      out.push({
-        date:date.toISOString().slice(0,10),
-        start:cursor,
-        end,
-        plannedEndY:0.94
-      });
-      cursor=end+1;
-    });
-    if(out.length && out[out.length-1].end<endPage) out[out.length-1].end=endPage;
-    return out;
-  }
-
-  function baseScheduleFor(p){
-    return distributePages(
-      p.startPage,
-      p.endPage,
-      learningDates(p.startDate,p.endDate,p.days),
-      p.lighterFriday
-    );
-  }
-
-  function scheduleFor(p){
-    return Array.isArray(p.schedulePlan) && p.schedulePlan.length
-      ? p.schedulePlan
-      : baseScheduleFor(p);
-  }
-
-  function currentAssignment(p){
-    const s=scheduleFor(p);
-    if(!s.length) return {start:p.savedPage,end:p.savedPage,date:p.startDate};
-    return s[Math.min(p.completed,s.length-1)];
-  }
-  function progress(p){
-    const span=Math.max(1,p.endPage-p.startPage+1);
-    return Math.max(0,Math.min(100,Math.round(((p.savedPage-p.startPage)/span)*100)));
-  }
-
-  function renderDashboard(){
-    const ps=getProjects();
-    $("metrics").innerHTML=[
-      ["Active projects",ps.length],
-      ["Assignments today",ps.filter(p=>p.status!=="Completed").length],
-      ["Saved PDFs",ps.filter(p=>p.hasPdf).length],
-      ["Completed",ps.filter(p=>p.status==="Completed").length]
-    ].map(([label,value])=>`<div class="metric"><strong>${value}</strong><span>${label}</span></div>`).join("");
-    const grid=$("projectGrid");
-    if(!ps.length){
-      grid.innerHTML=`<div class="empty" style="grid-column:1/-1">
-        <h2>Add your first real sefer</h2>
-        <p>Choose a scanned PDF, set your completion goal, and test the complete learning experience.</p>
-        <button class="btn primary" id="emptyAdd">Add a Sefer</button>
-      </div>`;
-      $("emptyAdd").addEventListener("click",()=>openModal());
-      return;
-    }
-    grid.innerHTML=ps.map(p=>{
-      const a=currentAssignment(p), pc=progress(p);
-      return `<article class="project-card">
-        <div class="project-cover"><div class="hebrew">${escapeHtml(p.hebrewName || "ספר")}</div><div class="badge">${escapeHtml(p.status)}</div></div>
-        <div class="card-body">
-          <div><h3>${escapeHtml(p.name)}</h3><div class="small">${escapeHtml(p.fileName)} · ${escapeHtml(p.mappingLevel)}</div></div>
-          <div><div class="small">Saved at PDF page ${p.savedPage}${p.savedY ? ", exact position saved" : ""}</div><div class="progress-track"><div class="progress-fill" style="width:${pc}%"></div></div></div>
-          <div class="assignment"><b>Next assignment</b>PDF pages ${a.start}–${a.end}</div>
-          <div class="card-actions">
-            <button class="btn primary continue-card" data-id="${p.id}">Continue</button>
-            <button class="btn details-card" data-id="${p.id}">Details</button>
-          </div>
-        </div>
-      </article>`;
-    }).join("");
-    document.querySelectorAll(".continue-card").forEach(b=>b.addEventListener("click",()=>openReader(b.dataset.id)));
-    document.querySelectorAll(".details-card").forEach(b=>b.addEventListener("click",()=>showProject(b.dataset.id)));
-  }
-
-  function showProject(id){
-    currentId=id;
-    const p=projectById(id);
-    if(!p) return;
-    $("projectCrumb").textContent=p.name;
-    $("projectName").textContent=p.name;
-    $("projectMeta").textContent=`${p.hebrewName || ""} · PDF pages ${p.startPage}–${p.endPage} · Finish by ${formatDate(p.endDate)}`;
-    const a=currentAssignment(p);
-    $("todayText").textContent=`Learn PDF pages ${a.start}–${a.end}. Your actual saved place is page ${p.savedPage}.`;
-    $("progressText").textContent=`${progress(p)}% through the selected portion`;
-    $("progressFill").style.width=progress(p)+"%";
-    $("savedText").textContent = p.learningMode==="main-and-commentary"
-      ? `Main text: page ${p.savedPage}, ${Math.round((p.savedX ?? 0.82)*100)}% across, ${Math.round((p.savedY || 0.12)*100)}% down. Commentary: page ${p.commentaryPage || p.savedPage}, ${Math.round((p.commentaryX ?? 0.18)*100)}% across, ${Math.round((p.commentaryY || 0.18)*100)}% down.`
-      : `Exact place: PDF page ${p.savedPage}, ${Math.round((p.savedX ?? 0.82)*100)}% across and ${Math.round((p.savedY || 0.12)*100)}% down.`;
-    renderSchedule(p);
-    $("settingsContent").innerHTML=`
-      <h2>Project settings</h2>
-      <p><b>PDF:</b> ${escapeHtml(p.fileName)}</p>
-      <p><b>Learning days:</b> ${p.days.map(d=>DAYS[d]).join(", ")}</p>
-      <p><b>Date range:</b> ${formatDate(p.startDate)} – ${formatDate(p.endDate)}</p>
-      <p><b>Page range:</b> ${p.startPage}–${p.endPage} of ${p.pdfPages}</p>
-      <p><b>Mapping:</b> ${escapeHtml(p.mappingLevel)}</p>
-      <p><b>Learning stream:</b> ${escapeHtml(modeLabel(p.learningMode))}</p>
-      <p><b>Progress markers:</b> ${p.learningMode==="main-and-commentary" ? "Separate main-text and commentary markers" : "One marker"}</p>
-      <p><b>Notes:</b> ${escapeHtml(p.notes || "None")}</p>
-      <p><b>Latest schedule response:</b> ${escapeHtml(p.lastAdjustment || "None yet")}</p>
-      <button class="btn danger" id="deleteProjectButton">Delete this project</button>`;
-    $("deleteProjectButton").addEventListener("click",deleteCurrentProject);
-    showTab("overview");
-    showView("projectView");
-  }
-
-  function renderSchedule(p){
-    const s=scheduleFor(p);
-    const adjustment=p.lastAdjustment
-      ? `<div class="adjustment-note"><b>Latest schedule update:</b> ${escapeHtml(p.lastAdjustment)}</div>`
-      : "";
-    $("scheduleList").innerHTML=adjustment+s.slice(0,80).map((a,i)=>{
-      const cls=i<p.completed?"done":i===p.completed?"current":"";
-      const label=i<p.completed?"Complete":i===p.completed?"Current":"Planned";
-      return `<div class="schedule-row"><div>${formatDate(a.date)}</div><div>PDF pages ${a.start}–${a.end}</div><div class="status-pill ${cls}">${label}</div></div>`;
-    }).join("") + (s.length>80?`<p class="small">Showing the first 80 of ${s.length} assignments.</p>`:"");
-  }
-
-  function showTab(name){
-    document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===name));
-    $("overviewTab").classList.toggle("hidden",name!=="overview");
-    $("scheduleTab").classList.toggle("hidden",name!=="schedule");
-    $("settingsTab").classList.toggle("hidden",name!=="settings");
-  }
-
-  async function openReader(id=currentId){
-    currentId=id;
-    const p=projectById(id);
-    if(!p) return;
-    $("readerName").textContent=p.name;
-    const a=currentAssignment(p);
-    $("readerAssignment").textContent = p.learningMode==="main-and-commentary" ? `Today: PDF pages ${a.start}–${a.end}. Main text saved on page ${p.savedPage}; commentary saved on page ${p.commentaryPage || p.savedPage}.` : `Today: PDF pages ${a.start}–${a.end}. Stream: ${modeLabel(p.learningMode)}. Saved place: page ${p.savedPage}.`;
-    mainMarkerPage=Math.max(p.startPage,Math.min(p.endPage,p.savedPage));
-    currentPage=mainMarkerPage;
-    currentX=p.savedX ?? 0.82;
-    currentY=p.savedY || 0.12;
-    commentaryPage=p.commentaryPage || p.savedPage;
-    commentaryX=p.commentaryX ?? 0.18;
-    commentaryY=p.commentaryY || 0.18;
-    activeMarkerStream='main';
-    updateMarkerStreamControls(p);
-    showView("readerView");
-    $("loader").classList.remove("hidden");
-    $("pageWrap").classList.add("hidden");
-    $("loader").textContent="Loading your scanned PDF…";
-    try{
-      if(!window.pdfjsLib) throw new Error("PDF.js did not load. Check your internet connection and reopen this file.");
-      pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
-      const file=await getPdf(id);
-      if(!file) throw new Error("The saved PDF could not be found in this browser.");
-      const bytes=await file.arrayBuffer();
-      currentPdf=await pdfjsLib.getDocument({data:new Uint8Array(bytes)}).promise;
-      $("pageNumber").max=currentPdf.numPages;
-      await renderPdfPage();
-      $("loader").classList.add("hidden");
-      $("pageWrap").classList.remove("hidden");
-    }catch(err){
-      $("loader").textContent=err.message || "The PDF could not be opened.";
-    }
-  }
-
-  async function renderPdfPage(){
-    if(!currentPdf) return;
-    if(renderTask){ try{ renderTask.cancel(); }catch{} }
-    const p=projectById(currentId);
-    currentPage=Math.max(p.startPage,Math.min(p.endPage,currentPage));
-    $("pageNumber").value=currentPage;
-    const page=await currentPdf.getPage(currentPage);
-    const base=page.getViewport({scale:1});
-    const available=Math.min(820, Math.max(280, document.querySelector(".reader-stage").clientWidth-36));
-    const scale=available/base.width;
-    const viewport=page.getViewport({scale});
-    const outputScale=window.devicePixelRatio || 1;
-    const canvas=$("pdfCanvas");
-    canvas.width=Math.floor(viewport.width*outputScale);
-    canvas.height=Math.floor(viewport.height*outputScale);
-    canvas.style.width=Math.floor(viewport.width)+"px";
-    canvas.style.height=Math.floor(viewport.height)+"px";
-    const ctx=canvas.getContext("2d",{alpha:false});
-    const transform=outputScale!==1?[outputScale,0,0,outputScale,0,0]:null;
-    renderTask=page.render({canvasContext:ctx,transform,viewport});
-    await renderTask.promise;
-    updateMarkers();
-  }
-
-  function updateMarkers(){
-    const p=projectById(currentId);
-    const a=currentAssignment(p);
-    const multi=p.learningMode==="main-and-commentary";
-    $("startMarker").querySelector("span").textContent = multi ? "Main text place" : markerLabelForMode(p.learningMode);
-    $("startMarker").style.left=(currentX*100)+"%";
-    $("startMarker").style.top=(currentPage===mainMarkerPage ? (currentY*100) : 5)+"%";
-    $("startMarker").style.display=markersVisible && currentPage===mainMarkerPage ? "block":"none";
-
-    $("commentaryMarker").style.left=(commentaryX*100)+"%";
-    $("commentaryMarker").style.top=(currentPage===commentaryPage ? (commentaryY*100) : 5)+"%";
-    $("commentaryMarker").classList.toggle("hidden",!multi);
-    $("commentaryMarker").style.display=markersVisible && multi && currentPage===commentaryPage ? "block":"none";
-
-    $("stopMarker").style.left="12%";
-    $("stopMarker").style.top="94%";
-    $("stopMarker").style.display=markersVisible && currentPage===a.end ? "block":"none";
-    $("toggleMarkersButton").textContent=markersVisible?"Hide markers":"Show markers";
-  }
-
-  function movePage(delta){
-    if(!currentPdf) return;
-    const p=projectById(currentId);
-    currentPage=Math.max(p.startPage,Math.min(p.endPage,currentPage+delta));
-    renderPdfPage();
-  }
-
-  function setExactPlace(event){
-    const rect=$("pdfCanvas").getBoundingClientRect();
-    if(event.clientY<rect.top || event.clientY>rect.bottom) return;
-    const x=Math.max(0.02,Math.min(0.98,(event.clientX-rect.left)/rect.width));
-    const y=Math.max(0.02,Math.min(0.98,(event.clientY-rect.top)/rect.height));
-    const p=projectById(currentId);
-    if(p.learningMode==="main-and-commentary" && activeMarkerStream==="commentary"){
-      commentaryPage=currentPage;
-      commentaryX=x;
-      commentaryY=y;
-    }else{
-      mainMarkerPage=currentPage;
-      currentX=x;
-      currentY=y;
-    }
-    updateMarkers();
-  }
-
-  function persistDraftPlaces(p){
-    p.savedPage=mainMarkerPage;
-    p.savedX=currentX;
-    p.savedY=currentY;
-    if(p.learningMode==="main-and-commentary"){
-      p.commentaryPage=commentaryPage;
-      p.commentaryX=commentaryX;
-      p.commentaryY=commentaryY;
-    }
-    p.status="In progress";
-  }
-
-  function suggestedProgressStatus(p,a){
-    if(mainMarkerPage<a.end) return "early";
-    if(mainMarkerPage>a.end) return "ahead";
-    return "target";
-  }
-
-  function savePlace(){
-    const ps=getProjects();
-    const p=ps.find(x=>x.id===currentId);
-    if(!p) return;
-    persistDraftPlaces(p);
-    setProjects(ps);
-    renderDashboard();
-    openProgressReview(p);
-  }
-
-  function openProgressReview(p){
-    const a=currentAssignment(p);
-    pendingProgressStatus=suggestedProgressStatus(p,a);
-    pendingProgressStrategy=pendingProgressStatus==="target" ? "complete" : "redistribute";
-    $("progressComparison").innerHTML=`
-      <strong>Planned today: PDF pages ${a.start}–${a.end}</strong>
-      <div>Actual main-text place: PDF page ${mainMarkerPage}, ${Math.round(currentX*100)}% across and ${Math.round(currentY*100)}% down.</div>
-      ${p.learningMode==="main-and-commentary"
-        ? `<div>Commentary place: PDF page ${commentaryPage}, ${Math.round(commentaryX*100)}% across and ${Math.round(commentaryY*100)}% down.</div>`
-        : ""}
-    `;
-    renderProgressChoices();
-    $("progressModal").classList.add("open");
-  }
-
-  function strategyDefinitions(status){
-    if(status==="early"){
-      return [
-        {
-          id:"redistribute",
-          title:"Keep my completion date",
-          detail:"Mark today finished and spread the remaining material across the remaining learning days."
-        },
-        {
-          id:"extend",
-          title:"Extend the completion date",
-          detail:"Mark today finished, add learning day(s), and keep the future assignments closer to their previous size."
-        },
-        {
-          id:"unchanged",
-          title:"Do not change the schedule",
-          detail:"Only save the actual place. Today’s assignment remains current."
-        }
-      ];
-    }
-    if(status==="ahead"){
-      return [
-        {
-          id:"redistribute",
-          title:"Keep my completion date",
-          detail:"Mark today finished and make the remaining assignments lighter."
-        },
-        {
-          id:"earlier",
-          title:"Move the completion date earlier",
-          detail:"Keep roughly the original daily pace and calculate an earlier finish."
-        },
-        {
-          id:"unchanged",
-          title:"Do not change the schedule",
-          detail:"Only save the actual place. Leave the planned calendar untouched."
-        }
-      ];
-    }
-    return [
-      {
-        id:"complete",
-        title:"Mark today complete",
-        detail:"Advance to the next planned assignment without changing the remaining calendar."
-      },
-      {
-        id:"redistribute",
-        title:"Recalculate from my exact place",
-        detail:"Use the saved point as the new starting place and preserve the completion date."
-      },
-      {
-        id:"unchanged",
-        title:"Only save my place",
-        detail:"Do not mark the assignment complete or change the schedule."
-      }
-    ];
-  }
-
-  function renderProgressChoices(){
-    document.querySelectorAll(".status-choice button").forEach(button=>{
-      button.classList.toggle("active",button.dataset.status===pendingProgressStatus);
-    });
-    const definitions=strategyDefinitions(pendingProgressStatus);
-    if(!definitions.some(item=>item.id===pendingProgressStrategy)){
-      pendingProgressStrategy=definitions[0].id;
-    }
-    $("strategyList").innerHTML=definitions.map(item=>`
-      <label class="strategy-option ${item.id===pendingProgressStrategy?"selected":""}">
-        <input type="radio" name="scheduleStrategy" value="${item.id}" ${item.id===pendingProgressStrategy?"checked":""}>
-        <span><b>${item.title}</b><span>${item.detail}</span></span>
-      </label>
-    `).join("");
-    document.querySelectorAll('input[name="scheduleStrategy"]').forEach(input=>{
-      input.addEventListener("change",()=>{
-        pendingProgressStrategy=input.value;
-        renderProgressChoices();
-      });
-    });
-    $("adjustmentExplanation").textContent=progressExplanation(pendingProgressStatus,pendingProgressStrategy);
-  }
-
-  function progressExplanation(status,strategy){
-    if(strategy==="unchanged"){
-      return "Your exact place will remain saved, but the current assignment and all future assignments will remain exactly as they were.";
-    }
-    if(status==="early" && strategy==="redistribute"){
-      return "The unfinished portion becomes part of the remaining plan. The final completion date stays the same.";
-    }
-    if(status==="early" && strategy==="extend"){
-      return "The final date moves later by enough selected learning day(s) to absorb today’s shortfall.";
-    }
-    if(status==="ahead" && strategy==="redistribute"){
-      return "Your extra progress is credited immediately. The remaining assignments become lighter while the deadline stays fixed.";
-    }
-    if(status==="ahead" && strategy==="earlier"){
-      return "Your extra progress is credited and the app estimates a new, earlier completion date at the original average pace.";
-    }
-    if(strategy==="complete"){
-      return "Today is marked complete and the original remaining schedule stays in place.";
-    }
-    return "The remaining calendar will be rebuilt from the exact saved position.";
-  }
-
-  function nextSelectedDateAfter(dateValue,days){
-    const d=new Date(dateValue+"T12:00:00");
-    for(let guard=0;guard<370;guard++){
-      d.setDate(d.getDate()+1);
-      if(days.includes(d.getDay())) return new Date(d);
-    }
-    return d;
-  }
-
-  function addSelectedLearningDays(dateValue,days,count){
-    let d=new Date(dateValue+"T12:00:00");
-    let added=0;
-    while(added<count){
-      d.setDate(d.getDate()+1);
-      if(days.includes(d.getDay())) added++;
-    }
-    return d.toISOString().slice(0,10);
-  }
-
-  function scheduleDatesAfterCurrent(p,endDateOverride=null){
-    const s=scheduleFor(p);
-    const index=Math.min(p.completed,s.length-1);
-    const current=s[index];
-    if(!current) return [];
-    const endDate=endDateOverride || p.endDate;
-    const first=nextSelectedDateAfter(current.date,p.days);
-    if(first>new Date(endDate+"T12:00:00")) return [];
-    return learningDates(first.toISOString().slice(0,10),endDate,p.days);
-  }
-
-  function rebuildRemainingFromSaved(p,newEndDate=null){
-    const oldSchedule=scheduleFor(p);
-    const index=Math.min(p.completed,Math.max(0,oldSchedule.length-1));
-    const prefix=oldSchedule.slice(0,index+1);
-    const effectiveEndDate=newEndDate || p.endDate;
-    const dates=scheduleDatesAfterCurrent(p,effectiveEndDate);
-    const remaining=distributePages(mainMarkerPage,p.endPage,dates,p.lighterFriday);
-    p.schedulePlan=[...prefix,...remaining];
-    p.completed=Math.min(index+1,p.schedulePlan.length);
-    p.endDate=effectiveEndDate;
-    p.status=p.completed>=p.schedulePlan.length ? "Completed":"Ready";
-  }
-
-  function completeWithoutChangingSchedule(p){
-    const s=scheduleFor(p);
-    p.completed=Math.min(s.length,p.completed+1);
-    if(p.completed<s.length){
-      const next=s[p.completed];
-      p.savedPage=Math.max(p.savedPage,next.start);
-      p.savedX=0.82;
-      p.savedY=0.08;
-      if(p.learningMode==="main-and-commentary"){
-        p.commentaryPage=Math.max(p.commentaryPage || p.savedPage,next.start);
-        p.commentaryX=0.18;
-        p.commentaryY=0.08;
-      }
-      p.status="Ready";
-    }else{
-      p.status="Completed";
-    }
-  }
-
-  function estimateExtensionDays(p,a){
-    const assigned=Math.max(1,a.end-a.start+1);
-    const missing=Math.max(1,a.end-mainMarkerPage);
-    return Math.max(1,Math.ceil(missing/assigned));
-  }
-
-  function estimatedEarlierDate(p,a){
-    const baseline=baseScheduleFor(p);
-    const average=Math.max(1,(p.endPage-p.startPage+1)/Math.max(1,baseline.length));
-    const remaining=Math.max(0,p.endPage-mainMarkerPage+1);
-    const remainingAssignments=Math.max(1,Math.ceil(remaining/average));
-    return addSelectedLearningDays(a.date,p.days,remainingAssignments);
-  }
-
-  function applyProgressChoice(){
-    const ps=getProjects();
-    const p=ps.find(x=>x.id===currentId);
-    if(!p) return;
-    const a=currentAssignment(p);
-
-    if(pendingProgressStrategy==="unchanged"){
-      p.lastAdjustment="Actual place saved; schedule left unchanged.";
-    }else if(pendingProgressStrategy==="complete"){
-      completeWithoutChangingSchedule(p);
-      p.lastAdjustment="Today marked complete; remaining schedule unchanged.";
-    }else if(pendingProgressStrategy==="extend"){
-      const extension=estimateExtensionDays(p,a);
-      const newEnd=addSelectedLearningDays(p.endDate,p.days,extension);
-      rebuildRemainingFromSaved(p,newEnd);
-      p.lastAdjustment=`Stopped early; deadline extended to ${formatDate(newEnd)}.`;
-    }else if(pendingProgressStrategy==="earlier"){
-      const newEnd=estimatedEarlierDate(p,a);
-      rebuildRemainingFromSaved(p,newEnd);
-      p.lastAdjustment=`Went farther; completion date moved to ${formatDate(newEnd)}.`;
-    }else{
-      rebuildRemainingFromSaved(p,p.endDate);
-      p.lastAdjustment=pendingProgressStatus==="early"
-        ? "Stopped early; remaining work redistributed to keep the deadline."
-        : pendingProgressStatus==="ahead"
-          ? "Went farther; remaining assignments lightened while keeping the deadline."
-          : "Schedule recalculated from the exact saved place.";
-    }
-
-    if(!Array.isArray(p.adjustmentHistory)) p.adjustmentHistory=[];
-    p.adjustmentHistory.push({
-      recordedAt:new Date().toISOString(),
-      status:pendingProgressStatus,
-      strategy:pendingProgressStrategy,
-      savedPage:p.savedPage,
-      endDate:p.endDate
-    });
-
-    setProjects(ps);
-    $("progressModal").classList.remove("open");
-    renderDashboard();
-    if($("readerView").classList.contains("active")){
-      const updated=projectById(currentId);
-      const next=currentAssignment(updated);
-      $("readerAssignment").textContent=`Next plan: PDF pages ${next.start}–${next.end}. Saved actual place: page ${updated.savedPage}.`;
-      updateMarkers();
-    }
-    toast("Place saved and schedule response applied");
-  }
-
-  function markComplete(){
-    const ps=getProjects();
-    const p=ps.find(x=>x.id===currentId);
-    if(!p) return;
-    const a=currentAssignment(p);
-    const s=scheduleFor(p);
-    p.completed=Math.min(s.length,p.completed+1);
-    p.savedPage=Math.min(p.endPage,a.end+1);
-    p.savedX=0.82;
-    p.savedY=0.08;
-    if(p.learningMode==="main-and-commentary"){
-      p.commentaryPage=Math.min(p.endPage,a.end+1);
-      p.commentaryX=0.18;
-      p.commentaryY=0.08;
-    }
-    p.status=p.completed>=s.length || p.savedPage>=p.endPage ? "Completed":"Ready";
-    p.lastAdjustment="Today marked complete from the reader.";
-    setProjects(ps);
-    renderDashboard();
-    toast("Today’s assignment marked complete");
-    if($("projectView").classList.contains("active")) showProject(p.id);
-    if($("readerView").classList.contains("active")){
-      mainMarkerPage=p.savedPage;
-      currentPage=mainMarkerPage;
-      currentX=p.savedX ?? 0.82;
-      currentY=p.savedY;
-      commentaryPage=p.commentaryPage || p.savedPage;
-      commentaryX=p.commentaryX ?? 0.18;
-      commentaryY=p.commentaryY || 0.08;
-      $("readerAssignment").textContent=`Today’s assignment completed. Next saved page: ${p.savedPage}.`;
-      renderPdfPage();
-    }
-  }
-
-  function openModal(id=null){
-    editingId=id;
-    pendingPdfFile=null;
-    $("formError").textContent="";
-    $("modalHeading").textContent=id?"Edit learning project":"Add a scanned sefer";
-    $("saveProjectButton").textContent=id?"Save changes":"Create project";
-    $("pdfFile").value="";
-    $("startDate").value=today();
-    $("endDate").value=futureDate(4);
-    $("seferName").value="";
-    $("hebrewName").value="";
-    $("mappingLevel").value="Page-based demo";
-    $("learningMode").value="whole-page";
-    updateConditionalControls();
-    $("rangeAnalysis").textContent="Choose a PDF and the program will suggest where the sefer’s usable content begins and ends.";
-    $("advancedRange").classList.add("hidden");
-    $("startPage").value=1;
-    $("endPage").value=1;
-    $("lighterFriday").value="yes";
-    $("notes").value="";
-    chosenDays=[0,1,2,3,4,5];
-    $("fileHelp").textContent="Choose the actual sefer PDF. The demo stores it locally in this browser.";
-    if(id){
-      const p=projectById(id);
-      $("seferName").value=p.name;
-      $("hebrewName").value=p.hebrewName || "";
-      $("mappingLevel").value=p.mappingLevel;
-      $("learningMode").value=p.learningMode || "whole-page";
-      updateConditionalControls();
-      $("rangeAnalysis").textContent=`Saved range: PDF pages ${p.startPage}–${p.endPage}.`;
-      $("startPage").value=p.startPage;
-      $("endPage").value=p.endPage;
-      $("startDate").value=p.startDate;
-      $("endDate").value=p.endDate;
-      $("lighterFriday").value=p.lighterFriday;
-      $("notes").value=p.notes || "";
-      chosenDays=[...p.days];
-      $("fileHelp").textContent=`Current PDF: ${p.fileName}. Choose another file only to replace it.`;
-    }
-    renderWeekdays();
-    $("projectModal").classList.add("open");
-  }
-
-  function renderWeekdays(){
-    $("weekdayChooser").innerHTML=DAYS.map((d,i)=>`<button type="button" class="day-toggle ${chosenDays.includes(i)?"on":""}" data-day="${i}">${d}</button>`).join("");
-    document.querySelectorAll(".day-toggle").forEach(b=>b.addEventListener("click",()=>{
-      const day=Number(b.dataset.day);
-      chosenDays=chosenDays.includes(day)?chosenDays.filter(x=>x!==day):[...chosenDays,day].sort();
-      renderWeekdays();
-      updateConditionalControls();
-    }));
-  }
-
-  async function pageContentScore(page){
-    const base=page.getViewport({scale:1});
-    const scale=Math.min(0.45,180/base.width);
-    const viewport=page.getViewport({scale});
-    const canvas=document.createElement("canvas");
-    canvas.width=Math.max(40,Math.floor(viewport.width));
-    canvas.height=Math.max(50,Math.floor(viewport.height));
-    const ctx=canvas.getContext("2d",{willReadFrequently:true});
-    await page.render({canvasContext:ctx,viewport}).promise;
-    const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-    let sum=0, sumSq=0, count=0, veryDark=0;
-    for(let i=0;i<data.length;i+=16){
-      const g=(data[i]+data[i+1]+data[i+2])/3;
-      sum+=g; sumSq+=g*g; count++;
-      if(g<150) veryDark++;
-    }
-    const mean=sum/count;
-    const variance=Math.max(0,sumSq/count-mean*mean);
-    const sd=Math.sqrt(variance);
-    return sd + (veryDark/count)*120;
-  }
-
-  async function suggestContentRange(doc){
-    const total=doc.numPages;
-    const head=[];
-    const tail=[];
-    const headLimit=Math.min(total,24);
-    const tailStart=Math.max(1,total-15);
-    for(let n=1;n<=headLimit;n++){
-      const page=await doc.getPage(n);
-      head.push({page:n,score:await pageContentScore(page)});
-    }
-    for(let n=tailStart;n<=total;n++){
-      const page=await doc.getPage(n);
-      tail.push({page:n,score:await pageContentScore(page)});
-    }
-    const allScores=[...head,...tail].map(x=>x.score).sort((a,b)=>a-b);
-    const median=allScores[Math.floor(allScores.length/2)] || 10;
-    const threshold=Math.max(10,median*0.72);
-    let start=(head.find(x=>x.score>=threshold)||head[0]).page;
-    let end=([...[...tail].reverse()].find(x=>x.score>=threshold)||tail[tail.length-1]).page;
-    if(end<start){start=1;end=total;}
-    return {start,end,threshold};
-  }
-
-  async function inspectSelectedPdf(){
-    const file=$("pdfFile").files[0];
-    pendingPdfFile=file || null;
-    if(!file) return;
-    $("fileHelp").textContent="Reading the PDF…";
-    $("rangeAnalysis").textContent="Analyzing the scan to suggest its usable content range…";
-    $("formError").textContent="";
-    try{
-      if(!window.pdfjsLib) throw new Error("PDF reader library did not load.");
-      pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
-      const bytes=await file.arrayBuffer();
-      const doc=await pdfjsLib.getDocument({data:new Uint8Array(bytes)}).promise;
-      const suggestion=await suggestContentRange(doc);
-      $("startPage").value=suggestion.start;
-      $("endPage").value=suggestion.end;
-      $("rangeAnalysis").innerHTML=`Suggested usable range: <b>PDF pages ${suggestion.start}–${suggestion.end}</b> of ${doc.numPages}. You normally do not need to enter these yourself.`;
-      $("fileHelp").textContent=`${file.name} · ${doc.numPages} PDF pages`;
-      await doc.destroy();
-      if(!$("seferName").value) $("seferName").value=file.name.replace(/\.pdf$/i,"").replace(/[_-]+/g," ");
-    }catch(err){
-      $("fileHelp").textContent="Could not read this PDF.";
-      $("rangeAnalysis").textContent="Automatic range detection failed. Open “Correct suggested range” to enter it manually.";
-      $("formError").textContent=err.message || "Could not inspect the PDF.";
-      $("advancedRange").classList.remove("hidden");
-    }
-  }
-
-  async function saveProject(){
-    $("formError").textContent="";
-    const name=$("seferName").value.trim();
-    if(!name){ $("formError").textContent="Enter the sefer name."; return; }
-    if(!chosenDays.length){ $("formError").textContent="Choose at least one learning day."; return; }
-    if(!editingId && !pendingPdfFile){ $("formError").textContent="Choose a scanned PDF."; return; }
-    const startPage=Number($("startPage").value);
-    const endPage=Number($("endPage").value);
-    if(!startPage || !endPage || endPage<startPage){ $("formError").textContent="Check the beginning and ending PDF pages."; return; }
-    if(!$("startDate").value || !$("endDate").value || $("endDate").value<$("startDate").value){ $("formError").textContent="Check the project dates."; return; }
-
-    const ps=getProjects();
-    let p;
-    if(editingId){
-      p=ps.find(x=>x.id===editingId);
-    }else{
-      p={id:uid(),completed:0,savedPage:startPage,savedX:0.82,savedY:0.08,commentaryPage:startPage,commentaryX:0.18,commentaryY:0.08,status:"Ready",hasPdf:true};
-      ps.push(p);
-    }
-    if(pendingPdfFile){
-      await putPdf(p.id,pendingPdfFile);
-      p.fileName=pendingPdfFile.name;
-      p.hasPdf=true;
-      try{
-        const bytes=await pendingPdfFile.arrayBuffer();
-        const doc=await pdfjsLib.getDocument({data:new Uint8Array(bytes)}).promise;
-        p.pdfPages=doc.numPages;
-        await doc.destroy();
-      }catch{
-        p.pdfPages=endPage;
-      }
-    }
-    Object.assign(p,{
-      name,
-      hebrewName:$("hebrewName").value.trim(),
-      mappingLevel:$("mappingLevel").value,
-      learningMode:$("learningMode").value,
-      startPage,
-      endPage,
-      startDate:$("startDate").value,
-      endDate:$("endDate").value,
-      days:[...chosenDays],
-      lighterFriday:$("lighterFriday").value,
-      notes:$("notes").value.trim()
-    });
-    if(editingId){
-      p.schedulePlan=null;
-      p.completed=Math.min(p.completed,Math.max(0,baseScheduleFor(p).length-1));
-      p.lastAdjustment="Project settings changed; schedule regenerated.";
-    }
-    p.savedPage=Math.max(startPage,Math.min(endPage,p.savedPage || startPage));
-    setProjects(ps);
-    $("projectModal").classList.remove("open");
-    renderDashboard();
-    currentId=p.id;
-    showProject(p.id);
-    toast(editingId?"Project updated":"Learning project created");
-    editingId=null;
-  }
-
-  async function deleteCurrentProject(){
-    const p=projectById(currentId);
-    if(!p || !confirm(`Delete ${p.name} and its locally saved PDF?`)) return;
-    setProjects(getProjects().filter(x=>x.id!==currentId));
-    await deletePdf(currentId);
-    currentId=null;
-    renderDashboard();
-    showView("dashboardView");
-    toast("Project deleted");
-  }
-
-  function markerLabelForMode(value){
-    return ({
-      "whole-page":"Continue here",
-      "main-text":"Main text place",
-      "commentary":"Commentary place",
-      "custom":"Saved place"
-    })[value] || "Continue here";
-  }
-
-  function updateConditionalControls(){
-    const fridaySelected=chosenDays.includes(5);
-    $("lighterFridayField").classList.toggle("hidden",!fridaySelected);
-    if(!fridaySelected) $("lighterFriday").value="no";
-  }
-
-  function updateMarkerStreamControls(p){
-    const multi=p && p.learningMode==="main-and-commentary";
-    $("markerChoice").classList.toggle("hidden",!multi);
-    $("selectMainMarker").classList.toggle("active",activeMarkerStream==="main");
-    $("selectCommentaryMarker").classList.toggle("active",activeMarkerStream==="commentary");
-  }
-
-  function modeLabel(value){
-    return ({
-      "whole-page":"Complete page",
-      "main-text":"Main text only",
-      "main-and-commentary":"Main text with commentary",
-      "commentary":"Commentary only",
-      "custom":"Custom text areas"
-    })[value] || "Complete page";
-  }
-
-  function escapeHtml(value){
-    return String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-  }
-
-  $("homeButton").addEventListener("click",()=>{renderDashboard();showView("dashboardView")});
-  $("addButton").addEventListener("click",()=>openModal());
-  $("createProjectButton").addEventListener("click",()=>openModal());
-  $("projectBack").addEventListener("click",()=>{renderDashboard();showView("dashboardView")});
-  $("readerBack").addEventListener("click",()=>showProject(currentId));
-  $("openReaderButton").addEventListener("click",()=>openReader());
-  $("continueButton").addEventListener("click",()=>openReader());
-  $("completeButton").addEventListener("click",markComplete);
-  $("readerCompleteButton").addEventListener("click",markComplete);
-  $("editProjectButton").addEventListener("click",()=>openModal(currentId));
-  $("prevPage").addEventListener("click",()=>movePage(-1));
-  $("nextPage").addEventListener("click",()=>movePage(1));
-  $("pageNumber").addEventListener("change",()=>{
-    const p=projectById(currentId);
-    currentPage=Math.max(p.startPage,Math.min(p.endPage,Number($("pageNumber").value)||p.startPage));
-    renderPdfPage();
+  let remaining=total;
+  learning.forEach((slot,i)=>{const remainingWeight=learning.slice(i).reduce((a,s)=>a+s.weight,0);let count=i===learning.length-1?remaining:Math.max(1,Math.round(remaining*slot.weight/remainingWeight));count=Math.min(count,remaining);const finish=cursor+count-1;map.set(slot.date,{start:cursor,end:finish,pages:count,done:false});cursor=finish+1;remaining-=count});
+  return map
+}
+function buildSchedule(p){
+  const slots=calendarSlots(p),mainMap=allocateRange(p.streams.main.startPage,p.streams.main.endPage,slots),commentaryMap=p.mode==='multi'?allocateRange(p.streams.commentary.startPage,p.streams.commentary.endPage,slots):null;
+  const schedule=[];
+  slots.forEach(slot=>{
+    if(slot.type==='review'){schedule.push({id:uid('a'),date:slot.date,type:'review',reason:slot.reason||'',weight:0,missed:false,main:null,commentary:null});return}
+    const main=mainMap.get(slot.date)||null,commentary=p.mode==='multi'?(commentaryMap.get(slot.date)||null):null;
+    if(!main&&!commentary)return;
+    schedule.push({id:uid('a'),date:slot.date,type:'learning',reason:'',weight:slot.weight||1,missed:false,main,commentary})
   });
-  $("pdfCanvas").addEventListener("click",setExactPlace);
-  $("savePlaceButton").addEventListener("click",savePlace);
-  $("toggleMarkersButton").addEventListener("click",()=>{markersVisible=!markersVisible;updateMarkers()});
-  $("cancelModal").addEventListener("click",()=>$("projectModal").classList.remove("open"));
-  $("saveProjectButton").addEventListener("click",saveProject);
-  $("learningMode").addEventListener("change",updateConditionalControls);
-  $("selectMainMarker").addEventListener("click",()=>{
-    activeMarkerStream="main";
-    const p=projectById(currentId);
-    updateMarkerStreamControls(p);
-    if(p && currentPage!==mainMarkerPage){
-      currentPage=mainMarkerPage;
-      renderPdfPage();
-    }
-  });
-  $("selectCommentaryMarker").addEventListener("click",()=>{
-    activeMarkerStream="commentary";
-    const p=projectById(currentId);
-    updateMarkerStreamControls(p);
-    if(p && currentPage!==commentaryPage){
-      currentPage=commentaryPage;
-      renderPdfPage();
-    }
-  });
-  ["statusEarly","statusTarget","statusAhead"].forEach(id=>{
-    $(id).addEventListener("click",()=>{
-      pendingProgressStatus=$(id).dataset.status;
-      pendingProgressStrategy=pendingProgressStatus==="target" ? "complete":"redistribute";
-      renderProgressChoices();
-    });
-  });
-  $("cancelProgress").addEventListener("click",()=>{
-    $("progressModal").classList.remove("open");
-    toast("Actual place saved; schedule unchanged");
-  });
-  $("applyProgress").addEventListener("click",applyProgressChoice);
-  $("progressModal").addEventListener("click",event=>{
-    if(event.target===$("progressModal")){
-      $("progressModal").classList.remove("open");
-      toast("Actual place saved; schedule unchanged");
-    }
-  });
-  $("pdfFile").addEventListener("change",inspectSelectedPdf);
-  $("toggleAdvancedRange").addEventListener("click",()=>$("advancedRange").classList.toggle("hidden"));
-  $("projectModal").addEventListener("click",e=>{if(e.target===$("projectModal")) $("projectModal").classList.remove("open")});
-  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showTab(t.dataset.tab)));
-  window.addEventListener("resize",()=>{if(currentPdf && $("readerView").classList.contains("active")) renderPdfPage()});
+  const mainItems=schedule.filter(a=>a.main),commentItems=schedule.filter(a=>a.commentary),mainAvg=mainItems.reduce((a,x)=>a+x.main.pages,0)/Math.max(1,mainItems.length),commentAvg=commentItems.reduce((a,x)=>a+x.commentary.pages,0)/Math.max(1,commentItems.length);
+  mainItems.forEach(a=>a.main.heavy=a.main.pages>mainAvg*1.35&&a.main.pages>1);commentItems.forEach(a=>a.commentary.heavy=a.commentary.pages>commentAvg*1.35&&a.commentary.pages>1);return schedule
+}
+function scheduleStats(p,schedule=p.schedule){
+  const allDays=rangeDates(p.startDate,p.endDate).length,learning=schedule.filter(a=>a.type==='learning'),review=schedule.filter(a=>a.type==='review'),heavy=learning.filter(a=>a.main?.heavy||a.commentary?.heavy),light=learning.filter(a=>a.weight<1),mainItems=learning.filter(a=>a.main),commentItems=learning.filter(a=>a.commentary);
+  const mainTotal=p.streams.main.endPage-p.streams.main.startPage+1,commTotal=p.mode==='multi'?p.streams.commentary.endPage-p.streams.commentary.startPage+1:0;
+  return{calendarDays:allDays,learningDays:learning.length,reviewDays:review.length,noLearningDays:allDays-learning.length-review.length,lightDays:light.length,heavy,mainAverage:mainItems.length?mainTotal/mainItems.length:0,commentaryAverage:commentItems.length?commTotal/commentItems.length:0}
+}
+function synchronizedCurrentAssignment(p){return p.schedule.find(a=>a.type==='learning'&&((a.main&&!a.main.done)||(p.mode==='multi'&&a.commentary&&!a.commentary.done)))||null}
+function currentAssignment(p,stream='main'){
+  if(p.streamBehavior==='independent')return p.schedule.find(a=>a.type==='learning'&&a[stream]&&!a[stream].done)||null;
+  const shared=synchronizedCurrentAssignment(p);
+  return shared&&shared[stream]&&!shared[stream].done?shared:null;
+}
+function streamHasFutureWork(p,stream){return p.schedule.some(a=>a.type==='learning'&&a[stream]&&!a[stream].done)}
+function assignmentForDate(p,date){return p.schedule.find(a=>a.date===date)||null}
+function streamPercent(p,id){const s=p.streams[id],total=s.endPage-s.startPage+1,done=clamp(s.completedThrough-s.startPage+1,0,total);return Math.round(done/Math.max(1,total)*100)}
 
-  renderDashboard();
+
+function renderDayChips(containerId,name,selected=[]){$(containerId).innerHTML=DAYS.map((d,i)=>`<label class="day-chip"><input type="checkbox" name="${name}" value="${i}" ${selected.includes(i)?'checked':''}><span>${d}</span></label>`).join('')}
+function checkedDays(name){return[...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>+x.value)}
+function learningMode(){return document.querySelector('input[name="learningMode"]:checked')?.value||'single'}
+function streamBehavior(){return document.querySelector('input[name="streamBehavior"]:checked')?.value||'synchronized'}
+function setupDraft(){
+  const mode=learningMode();
+  const p={id:editingId||uid(),schemaVersion:VERSION,title:$('projectTitle').value.trim()||'Untitled sefer',notes:$('projectNotes').value.trim(),pdfKey:editingId?(getProject(editingId)?.pdfKey||editingId):uid('pdf'),pdfName:pendingPdf?.name||(editingId?getProject(editingId)?.pdfName:''),pdfPages:+$('mainEnd').max||0,mode,streamBehavior:mode==='multi'?streamBehavior():'single',syncTolerance:$('syncTolerance').value,startDate:$('startDate').value,endDate:$('endDate').value,learningDays:checkedDays('learningDay'),lighterDays:checkedDays('lighterDay'),reviewDays:checkedDays('reviewDay'),reviewFrequency:+$('reviewFrequency').value||1,exceptions:deepCopy(setupExceptions),streams:{main:baseStream($('mainLabel').value.trim()||'Main text',+$('mainStart').value,+$('mainEnd').value,+$('mainStart').value,.78,.12)},history:editingId?deepCopy(getProject(editingId).history||[]):[],createdAt:editingId?getProject(editingId).createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  if(mode==='multi')p.streams.commentary=baseStream($('commentaryLabel').value.trim()||'Commentary',+$('commentaryStart').value,+$('commentaryEnd').value,+$('commentaryStart').value,.2,.18);
+  return p
+}
+function validateDraft(p){const errors=[];if(!p.startDate||!p.endDate)errors.push('Choose both dates.');if(p.startDate&&p.endDate&&p.startDate>p.endDate)errors.push('The completion date must be after the start date.');if(!p.learningDays.length)errors.push('Choose at least one regular learning weekday.');if(p.streams.main.startPage<1||p.streams.main.endPage<p.streams.main.startPage)errors.push('Check the main-text page range.');if(p.mode==='multi'&&(p.streams.commentary.startPage<1||p.streams.commentary.endPage<p.streams.commentary.startPage))errors.push('Check the commentary page range.');const slots=calendarSlots(p);if(!slots.some(s=>s.type==='learning'))errors.push('The selected dates and exceptions leave no learning days.');return errors}
+function updateConditionals(){
+  const multi=learningMode()==='multi';$('commentaryPanel').hidden=!multi;$('streamBehaviorPanel').hidden=!multi;$('syncSettings').hidden=!multi||streamBehavior()==='independent';
+  const learning=checkedDays('learningDay');$('fridayOption').hidden=!learning.includes(5);if(!learning.includes(5))$('lighterFriday').value='normal';
+  document.querySelectorAll('input[name="lighterDay"]').forEach(input=>{const allowed=learning.includes(+input.value);input.disabled=!allowed;if(!allowed)input.checked=false});
+  const fridayLight=document.querySelector('input[name="lighterDay"][value="5"]');if(learning.includes(5))fridayLight.checked=$('lighterFriday').value==='light';else fridayLight.checked=false;
+  $('reviewFrequencyField').hidden=checkedDays('reviewDay').length===0;updatePreview()
+}
+function updatePreview(){
+  const p=setupDraft(),errors=validateDraft(p);p.schedule=errors.length?[]:buildSchedule(p);const st=scheduleStats(p,p.schedule);
+  $('previewMetrics').innerHTML=`<div class="metric"><b>${st.learningDays}</b><span>learning days</span></div><div class="metric"><b>${st.noLearningDays}</b><span>days with no learning</span></div><div class="metric"><b>${st.mainAverage.toFixed(1)}</b><span>main pages per learning day</span></div>${p.mode==='multi'?`<div class="metric"><b>${st.commentaryAverage.toFixed(1)}</b><span>commentary pages per day</span></div>`:`<div class="metric"><b>${st.reviewDays}</b><span>review-only days</span></div>`}<div class="metric"><b>${st.lightDays}</b><span>lighter assignments</span></div><div class="metric"><b>${fmt(p.endDate)}</b><span>completion date</span></div>`;
+  $('previewWarnings').innerHTML=st.heavy.length?`<div class="notice" style="margin-top:10px"><b>${st.heavy.length} unusually heavy assignment(s).</b> They are marked below so you can revise the dates or weekdays before saving.</div>`:'';
+  $('previewList').innerHTML=p.schedule.slice(0,70).map(a=>a.type==='review'?`<div class="preview-day"><b>${fmt(a.date)} — Review only</b><span>${escapeHtml(a.reason||'Scheduled review')}</span></div>`:`<div class="preview-day ${a.main?.heavy||a.commentary?.heavy?'heavy':''}"><b>${fmt(a.date)}${a.weight<1?' — lighter':''}${a.main?.heavy||a.commentary?.heavy?' — unusually heavy':''}</b><span>${escapeHtml(p.streams.main.label)}: ${a.main?a.main.start+'–'+a.main.end:'—'}${p.mode==='multi'?` · ${escapeHtml(p.streams.commentary.label)}: ${a.commentary?a.commentary.start+'–'+a.commentary.end:'—'}`:''}</span></div>`).join('')||'<div class="preview-day">No assignments to preview.</div>';
+  $('previewValidation').innerHTML=errors.map(e=>`<div>• ${escapeHtml(e)}</div>`).join('');$('saveProject').disabled=errors.length>0;$('saveProject').textContent=editingId?'Save changes':'Create project';
+}
+function renderExceptions(){
+  $('exceptionList').innerHTML=setupExceptions.map((e,i)=>`<div class="exception-item"><span><b>${e.type==='yomtov'?'Yom Tov':e.type[0].toUpperCase()+e.type.slice(1)}</b> · ${fmt(e.start)}${e.end!==e.start?'–'+fmt(e.end):''}</span><button class="btn small danger" data-remove-exception="${i}">Remove</button></div>`).join('')||'<div class="helper">No exceptions added.</div>';
+  document.querySelectorAll('[data-remove-exception]').forEach(b=>b.addEventListener('click',()=>{setupExceptions.splice(+b.dataset.removeException,1);renderExceptions();updatePreview()}))
+}
+function resetSetup(){
+  editingId=null;pendingPdf=null;setupExceptions=[];$('setupTitle').textContent='Create a project';$('projectTitle').value='';$('projectNotes').value='';$('pdfFile').value='';$('pdfInfo').textContent='Choose the scanned sefer PDF.';$('mainLabel').value='Main text';$('mainStart').value=1;$('mainEnd').value=10;$('commentaryLabel').value='Commentary';$('commentaryStart').value=1;$('commentaryEnd').value=10;$('startDate').value=isoToday();$('endDate').value=plusMonths(2);document.querySelector('input[name="learningMode"][value="single"]').checked=true;document.querySelector('input[name="streamBehavior"][value="synchronized"]').checked=true;renderDayChips('learningDays','learningDay',[0,1,2,3,4,5]);renderDayChips('lighterDays','lighterDay',[]);renderDayChips('reviewDays','reviewDay',[]);$('lighterFriday').value='normal';$('reviewFrequency').value='1';renderExceptions();bindSetupDynamic();updateConditionals();showView('setupView')
+}
+function bindSetupDynamic(){document.querySelectorAll('#setupView input,#setupView select,#setupView textarea').forEach(el=>{if(el.dataset.bound)return;el.dataset.bound='1';el.addEventListener('input',updateConditionals);el.addEventListener('change',updateConditionals)})}
+function editSetup(p){
+  editingId=p.id;pendingPdf=null;setupExceptions=deepCopy(p.exceptions||[]);$('setupTitle').textContent='Edit '+p.title;$('projectTitle').value=p.title;$('projectNotes').value=p.notes||'';$('pdfFile').value='';$('pdfInfo').textContent=`Current PDF: ${p.pdfName||'stored PDF'}`;$('mainEnd').max=p.pdfPages||'';$('commentaryEnd').max=p.pdfPages||'';$('mainLabel').value=p.streams.main.label;$('mainStart').value=p.streams.main.startPage;$('mainEnd').value=p.streams.main.endPage;$('commentaryLabel').value=p.streams.commentary?.label||'Commentary';$('commentaryStart').value=p.streams.commentary?.startPage||p.streams.main.startPage;$('commentaryEnd').value=p.streams.commentary?.endPage||p.streams.main.endPage;$('startDate').value=p.startDate;$('endDate').value=p.endDate;document.querySelector(`input[name="learningMode"][value="${p.mode}"]`).checked=true;if(p.mode==='multi')document.querySelector(`input[name="streamBehavior"][value="${p.streamBehavior}"]`).checked=true;renderDayChips('learningDays','learningDay',p.learningDays);renderDayChips('lighterDays','lighterDay',p.lighterDays);renderDayChips('reviewDays','reviewDay',p.reviewDays);$('reviewFrequency').value=p.reviewFrequency;$('syncTolerance').value=p.syncTolerance||'same-day';renderExceptions();bindSetupDynamic();updateConditionals();showView('setupView')
+}
+async function saveProjectFromSetup(){
+  const p=setupDraft(),errors=validateDraft(p);if(errors.length)return toast(errors[0]);
+  const old=editingId?getProject(editingId):null;if(pendingPdf){p.pdfPages=pendingPdf.pages;await dbPut(p.pdfKey,pendingPdf.file)}else if(old){p.pdfPages=old.pdfPages;p.pdfKey=old.pdfKey;p.pdfName=old.pdfName}else return toast('Choose a PDF first.');
+  p.schedule=buildSchedule(p);if(old){
+    p.streams.main.marker=deepCopy(old.streams.main.marker);p.streams.main.completedThrough=clamp(old.streams.main.completedThrough,p.streams.main.startPage-1,p.streams.main.endPage);
+    if(p.mode==='multi'&&old.streams.commentary){p.streams.commentary.marker=deepCopy(old.streams.commentary.marker);p.streams.commentary.completedThrough=clamp(old.streams.commentary.completedThrough,p.streams.commentary.startPage-1,p.streams.commentary.endPage)}
+    p.schedule.forEach(n=>{const prior=old.schedule.find(a=>a.date===n.date&&a.type===n.type);if(prior&&n.type==='learning'){n.main.done=!!prior.main?.done;if(p.mode==='multi')n.commentary.done=!!prior.commentary?.done;n.missed=!!prior.missed}});
+    p.history.push({at:new Date().toISOString(),text:'Project settings changed; schedule regenerated while preserving compatible completed days and exact saved places.'});state.projects=state.projects.map(x=>x.id===p.id?p:x)
+  }else{p.history.push({at:new Date().toISOString(),text:'Project created from schedule preview.'});state.projects.push(p)}saveState();renderDashboard();showView('dashboardView');toast(editingId?'Project updated':'Project created')
+}
+
+function renderDashboard(){
+  const grid=$('projectGrid');if(!state.projects.length){grid.innerHTML='<div class="empty">No projects yet. Create a project and the schedule preview will show exactly what is being saved.</div>';return}
+  grid.innerHTML=state.projects.map(p=>{const mp=streamPercent(p,'main'),cp=p.mode==='multi'?streamPercent(p,'commentary'):null,ma=currentAssignment(p,'main'),ca=p.mode==='multi'?currentAssignment(p,'commentary'):null;return`<article class="card project-card"><h3>${escapeHtml(p.title)}</h3><div class="project-meta">${fmt(p.startDate)} → ${fmt(p.endDate)} · ${p.schedule.filter(a=>a.type==='learning').length} learning days</div><div class="badges"><span class="badge main">${escapeHtml(p.streams.main.label)} ${mp}%</span>${p.mode==='multi'?`<span class="badge commentary">${escapeHtml(p.streams.commentary.label)} ${cp}%</span><span class="badge">${p.streamBehavior==='independent'?'Independent':'Synchronized'}</span>`:''}</div><div class="progress"><span style="width:${p.mode==='multi'?Math.round((mp+cp)/2):mp}%"></span></div><div class="project-meta">Next: ${ma?fmt(ma.date)+' · pages '+ma.main.start+'–'+ma.main.end:(streamHasFutureWork(p,'main')?'Main text waiting for synchronized advance':'Main text complete')}${p.mode==='multi'?`<br>${ca?fmt(ca.date)+' · commentary '+ca.commentary.start+'–'+ca.commentary.end:(streamHasFutureWork(p,'commentary')?'Commentary waiting for synchronized advance':'Commentary complete')}`:''}</div><div class="card-actions"><button class="btn primary" data-open-project="${p.id}">Open reader</button><button class="btn" data-open-schedule="${p.id}">Schedule</button></div></article>`}).join('');
+  document.querySelectorAll('[data-open-project]').forEach(b=>b.addEventListener('click',()=>openProject(b.dataset.openProject,'reader')));document.querySelectorAll('[data-open-schedule]').forEach(b=>b.addEventListener('click',()=>openProject(b.dataset.openSchedule,'schedule')))
+}
+function openProject(id,tab='reader'){currentId=id;const p=getProject();if(!p)return;$('projectHeading').textContent=p.title;$('projectSubheading').textContent=`${p.pdfName||'Stored PDF'} · ${p.mode==='multi'?'Two learning streams':'One learning stream'}`;showView('projectView');switchProjectTab(tab);renderSettings()}
+function switchProjectTab(tab){document.querySelectorAll('[data-project-tab]').forEach(b=>b.classList.toggle('active',b.dataset.projectTab===tab));['reader','schedule','settings'].forEach(t=>$(t+'Tab').hidden=t!==tab);if(tab==='reader')loadReader();if(tab==='schedule')renderSchedule();if(tab==='settings')renderSettings()}
+
+async function loadReader(){
+  const p=getProject();if(!p)return;activeStream='main';draftMarkers={main:deepCopy(p.streams.main.marker)};if(p.mode==='multi')draftMarkers.commentary=deepCopy(p.streams.commentary.marker);const blob=await dbGet(p.pdfKey);if(!blob){$('pdfStage').innerHTML='<div class="empty">The PDF is missing from this browser. Import a full project backup to restore it.</div>';renderReaderSide();return}
+  try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const data=await blob.arrayBuffer();pdfDoc=await pdfjsLib.getDocument({data}).promise;currentPage=clamp(p.streams.main.marker.page,1,pdfDoc.numPages);$('pageNumber').max=pdfDoc.numPages;renderReaderSide();await renderPages();renderThumbnails()}
+  catch(e){$('pdfStage').innerHTML='<div class="empty">The PDF could not be opened.</div>'}
+}
+function visiblePageNumbers(){if(!pdfDoc)return[];return viewMode===2&&currentPage<pdfDoc.numPages?[currentPage,currentPage+1]:[currentPage]}
+async function renderPages(){
+  if(!pdfDoc)return;const token=++renderToken,stage=$('pdfStage');stage.innerHTML='';for(const n of visiblePageNumbers()){
+    const page=await pdfDoc.getPage(n);if(token!==renderToken)return;const viewport=page.getViewport({scale:zoom*1.15});const wrap=document.createElement('div');wrap.className='page-wrap';wrap.dataset.page=n;const canvas=document.createElement('canvas');canvas.width=viewport.width;canvas.height=viewport.height;canvas.style.width=viewport.width+'px';canvas.style.height=viewport.height+'px';wrap.appendChild(canvas);stage.appendChild(wrap);await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;wrap.addEventListener('click',e=>placeMarker(e,wrap,n));addMarkers(wrap,n)
+  }$('pageNumber').value=currentPage;$('zoomValue').textContent=Math.round(zoom*100)+'%';highlightThumbnail()
+}
+function placeMarker(e,wrap,page){const p=getProject(),rect=wrap.getBoundingClientRect(),x=clamp((e.clientX-rect.left)/rect.width,0,1),y=clamp((e.clientY-rect.top)/rect.height,0,1);draftMarkers[activeStream]={page,x,y};addAllMarkers();renderReaderSide();toast(`${p.streams[activeStream].label} draft place moved to page ${page}`)}
+function addAllMarkers(){document.querySelectorAll('.page-wrap').forEach(w=>{w.querySelectorAll('.marker,.marker-label').forEach(x=>x.remove());addMarkers(w,+w.dataset.page)})}
+function markerEl(cls,x,y,label){const m=document.createElement('div');m.className='marker '+cls;m.style.left=x*100+'%';m.style.top=y*100+'%';const l=document.createElement('div');l.className='marker-label';l.style.left=x*100+'%';l.style.top=y*100+'%';l.textContent=label;return[m,l]}
+function addMarkers(wrap,page){
+  const p=getProject(),settings=p.readerSettings||{showMain:true,showCommentary:true,showPlanned:true};const append=(cls,x,y,label)=>markerEl(cls,x,y,label).forEach(el=>wrap.appendChild(el));
+  const mainMarker=draftMarkers.main||p.streams.main.marker;if(settings.showMain!==false&&mainMarker.page===page)append('main',mainMarker.x,mainMarker.y,p.streams.main.label+' actual');
+  const commentaryMarker=draftMarkers.commentary||p.streams.commentary?.marker;if(p.mode==='multi'&&settings.showCommentary!==false&&commentaryMarker.page===page)append('commentary',commentaryMarker.x,commentaryMarker.y,p.streams.commentary.label+' actual');
+  if(settings.showPlanned!==false){const ma=currentAssignment(p,'main');if(ma&&ma.main.end===page)append('planned-main',.82,.94,p.streams.main.label+' planned end');if(p.mode==='multi'){const ca=currentAssignment(p,'commentary');if(ca&&ca.commentary.end===page)append('planned-commentary',.18,.94,p.streams.commentary.label+' planned end')}}
+}
+async function renderThumbnails(){
+  const p=getProject(),min=Math.min(p.streams.main.startPage,p.streams.commentary?.startPage||p.streams.main.startPage),max=Math.max(p.streams.main.endPage,p.streams.commentary?.endPage||p.streams.main.endPage),pages=[];for(let n=min;n<=Math.min(max,min+79);n++)pages.push(n);$('thumbList').innerHTML='';for(const n of pages){const b=document.createElement('button');b.className='thumb';b.dataset.page=n;const c=document.createElement('canvas'),s=document.createElement('span');s.textContent='Page '+n;b.append(c,s);$('thumbList').appendChild(b);b.addEventListener('click',()=>goPage(n));try{const page=await pdfDoc.getPage(n),v=page.getViewport({scale:.16});c.width=v.width;c.height=v.height;await page.render({canvasContext:c.getContext('2d'),viewport:v}).promise}catch(e){}}highlightThumbnail()
+}
+function highlightThumbnail(){document.querySelectorAll('.thumb').forEach(t=>t.classList.toggle('active',visiblePageNumbers().includes(+t.dataset.page)))}
+function goPage(n){if(!pdfDoc)return;currentPage=clamp(+n,1,pdfDoc.numPages);renderPages()}
+function activeAssignment(p,id=activeStream){return currentAssignment(p,id)}
+function renderReaderSide(){
+  const p=getProject();if(!p)return;const ma=currentAssignment(p,'main'),ca=p.mode==='multi'?currentAssignment(p,'commentary'):null;
+  const shared=p.streamBehavior==='synchronized'?synchronizedCurrentAssignment(p):null;
+  const mainStatus=ma?`${fmt(ma.date)} · PDF pages ${ma.main.start}–${ma.main.end}`:(shared&&shared.main?.done?'Done for this synchronized day — waiting for the other stream':(streamHasFutureWork(p,'main')?'Waiting for the synchronized day to advance':'Complete'));
+  const commStatus=ca?`${fmt(ca.date)} · PDF pages ${ca.commentary.start}–${ca.commentary.end}`:(shared&&shared.commentary?.done?'Done for this synchronized day — waiting for the other stream':(streamHasFutureWork(p,'commentary')?'Waiting for the synchronized day to advance':'Complete'));
+  $('assignmentBox').innerHTML=`<b>Current assignment${p.streamBehavior==='independent'?'s':''}</b><div class="assignment-stream main ${!ma?'done':''}"><b>${escapeHtml(p.streams.main.label)}</b><div>${mainStatus}</div>${ma?`<button class="btn small primary" data-complete-stream="main" style="margin-top:7px">Mark main text complete</button>`:''}</div>${p.mode==='multi'?`<div class="assignment-stream commentary ${!ca?'done':''}"><b>${escapeHtml(p.streams.commentary.label)}</b><div>${commStatus}</div>${ca?`<button class="btn small primary" data-complete-stream="commentary" style="margin-top:7px">Mark commentary complete</button>`:''}</div>`:''}`;
+  const dm=draftMarkers[activeStream]||p.streams[activeStream].marker;$('activeStreamControls').innerHTML=`<b>Place marker for</b><div class="helper">Draft: page ${dm.page}, ${Math.round(dm.x*100)}% across, ${Math.round(dm.y*100)}% down</div><div class="card-actions"><button class="btn small ${activeStream==='main'?'active':''}" data-active-stream="main">${escapeHtml(p.streams.main.label)}</button>${p.mode==='multi'?`<button class="btn small ${activeStream==='commentary'?'active':''}" data-active-stream="commentary">${escapeHtml(p.streams.commentary.label)}</button>`:''}</div>`;
+  const rs=p.readerSettings||{showMain:true,showCommentary:true,showPlanned:true};$('markerControls').innerHTML=`<b>Marker visibility</b><label style="display:block;margin-top:7px"><input type="checkbox" data-marker-setting="showMain" ${rs.showMain!==false?'checked':''}> Main actual place</label>${p.mode==='multi'?`<label style="display:block;margin-top:5px"><input type="checkbox" data-marker-setting="showCommentary" ${rs.showCommentary!==false?'checked':''}> Commentary actual place</label>`:''}<label style="display:block;margin-top:5px"><input type="checkbox" data-marker-setting="showPlanned" ${rs.showPlanned!==false?'checked':''}> Planned endpoints</label>`;
+  $('readerSaveControls').innerHTML=`<button class="btn primary" data-save-stream="main">Save ${escapeHtml(p.streams.main.label)} place</button>${p.mode==='multi'?`<button class="btn primary" data-save-stream="commentary">Save ${escapeHtml(p.streams.commentary.label)} place</button><button class="btn gold" data-save-stream="all">Save both places</button>`:''}`;
+  $('markerLegend').innerHTML=`<b>Marker legend</b><div class="legend-item"><span class="dot main"></span>${escapeHtml(p.streams.main.label)} actual place</div>${p.mode==='multi'?`<div class="legend-item"><span class="dot commentary"></span>${escapeHtml(p.streams.commentary.label)} actual place</div>`:''}<div class="legend-item"><span class="dot planned-main"></span>Main planned endpoint</div>${p.mode==='multi'?'<div class="legend-item"><span class="dot planned-commentary"></span>Commentary planned endpoint</div>':''}`;
+  document.querySelectorAll('[data-active-stream]').forEach(b=>b.addEventListener('click',()=>{activeStream=b.dataset.activeStream;renderReaderSide()}));document.querySelectorAll('[data-marker-setting]').forEach(c=>c.addEventListener('change',()=>{p.readerSettings=p.readerSettings||{};p.readerSettings[c.dataset.markerSetting]=c.checked;saveState();addAllMarkers()}));document.querySelectorAll('[data-save-stream]').forEach(b=>b.addEventListener('click',()=>saveStreamPosition(b.dataset.saveStream)));document.querySelectorAll('[data-complete-stream]').forEach(b=>b.addEventListener('click',()=>completeStream(b.dataset.completeStream)))
+}
+function saveStreamPosition(which){const p=getProject(),ids=which==='all'?(p.mode==='multi'?['main','commentary']:['main']):[which];ids.forEach(id=>{p.streams[id].marker=deepCopy(draftMarkers[id]||p.streams[id].marker)});const labels=which==='all'?'both learning streams':p.streams[which].label;p.updatedAt=new Date().toISOString();p.history.push({at:p.updatedAt,text:`Saved the exact actual place for ${labels}.`});saveState();renderDashboard();renderReaderSide();toast(`Saved ${labels}`)}
+function completeStream(id){
+  const p=getProject(),a=currentAssignment(p,id);if(!a)return;const seg=a[id];seg.done=true;p.streams[id].completedThrough=Math.max(p.streams[id].completedThrough,seg.end);p.streams[id].marker={page:seg.end,x:id==='main'?.82:.18,y:.94};draftMarkers[id]=deepCopy(p.streams[id].marker);if(p.streams[id].completedThrough>=p.streams[id].endPage)p.streams[id].finished=true;p.history.push({at:new Date().toISOString(),text:`Completed ${p.streams[id].label} assignment for ${fmt(a.date)}.`});saveState();currentPage=p.streams[id].marker.page;renderReaderSide();renderSchedule();renderDashboard();renderPages();toast(`${p.streams[id].label} marked complete`)
+}
+function goReaderTarget(kind){const p=getProject(),s=p.streams[activeStream],a=activeAssignment(p);if(kind==='saved')goPage(s.marker.page);else if(a&&kind==='start')goPage(a[activeStream].start);else if(a&&kind==='end')goPage(a[activeStream].end)}
+
+function renderSchedule(){
+  const p=getProject();if(!p)return;const st=scheduleStats(p);$('commentaryScheduleHead').hidden=p.mode!=='multi';$('scheduleSummary').innerHTML=`<b>${st.learningDays} learning days</b> · ${st.reviewDays} review-only days · ${st.noLearningDays} days without learning · completion date ${fmt(p.endDate)}`;
+  $('scheduleBody').innerHTML=p.schedule.map(a=>{if(a.type==='review')return`<tr class="review-row"><td>${fmt(a.date)}</td><td>Review only</td><td>Review previous material</td><td ${p.mode==='multi'?'':'hidden'}>${p.mode==='multi'?'Review previous material':''}</td><td>Scheduled</td><td></td></tr>`;const status=[a.main?.done?'Main done':'Main open',p.mode==='multi'?(a.commentary?.done?'Commentary done':'Commentary open'):''].filter(Boolean).join(' · ');return`<tr class="${a.missed?'missed-row':''}"><td>${fmt(a.date)}</td><td>${a.weight<1?'Lighter learning':'Learning'}${a.main?.heavy||a.commentary?.heavy?' · Heavy':''}</td><td>${a.main?a.main.start+'–'+a.main.end:'—'}</td><td ${p.mode==='multi'?'':'hidden'}>${p.mode==='multi'?(a.commentary?a.commentary.start+'–'+a.commentary.end:'—'):''}</td><td>${a.missed?'Missed · ':''}${status}</td><td><button class="btn small danger" data-miss-assignment="${a.id}">Missed</button></td></tr>`}).join('');document.querySelectorAll('[data-miss-assignment]').forEach(b=>b.addEventListener('click',()=>openMissedModal(b.dataset.missAssignment)))
+}
+function openMissedModal(assignmentId=null){const p=getProject(),a=assignmentId?p.schedule.find(x=>x.id===assignmentId):(p.streamBehavior==='independent'?currentAssignment(p,activeStream):synchronizedCurrentAssignment(p));if(!a)return toast('There is no open learning assignment.');$('missedModal').dataset.assignmentId=a.id;$('missedSummary').innerHTML=`<b>${fmt(a.date)}</b><br>${escapeHtml(p.streams.main.label)} ${a.main?'pages '+a.main.start+'–'+a.main.end:'—'}${p.mode==='multi'?`<br>${escapeHtml(p.streams.commentary.label)} ${a.commentary?'pages '+a.commentary.start+'–'+a.commentary.end:'—'}`:''}`;$('missedModal').classList.add('open')}
+function futureLearningAssignments(p,afterDate){return p.schedule.filter(a=>a.type==='learning'&&a.date>afterDate)}
+function redistributePages(p,streamId,fromDate,endDate=p.endDate){
+  const s=p.streams[streamId],futureSlots=calendarSlots(p).filter(x=>x.type==='learning'&&x.date>fromDate&&x.date<=endDate),map=allocateRange(s.marker.page,s.endPage,futureSlots);p.schedule=p.schedule.filter(a=>a.date<=fromDate||a.type==='review').concat(futureSlots.map(slot=>{const existing=p.schedule.find(a=>a.date===slot.date);const item=existing&&existing.type==='learning'?existing:{id:uid('a'),date:slot.date,type:'learning',weight:slot.weight,missed:false,main:null,commentary:null};item[streamId]=map.get(slot.date)||{start:0,end:-1,pages:0,done:false};return item})).sort((a,b)=>a.date.localeCompare(b.date))
+}
+function extendEndDate(p,count=1){let d=dateObj(p.endDate),added=0;while(added<count){d.setDate(d.getDate()+1);if(p.learningDays.includes(d.getDay())&&!exceptionOn(p,d))added++}p.endDate=iso(d)}
+function applyMissed(){
+  const p=getProject(),a=p.schedule.find(x=>x.id===$('missedModal').dataset.assignmentId),choice=document.querySelector('input[name="missedChoice"]:checked').value;if(!a)return;a.missed=true;
+  if(choice==='extend')extendEndDate(p,1);if(choice==='exception')p.exceptions.push({type:'unavailable',start:a.date,end:a.date});
+  if(choice==='carry'){const next=p.schedule.find(x=>x.type==='learning'&&x.date>a.date);if(next){if(a.main){if(next.main){next.main.start=Math.min(next.main.start,a.main.start);next.main.pages=next.main.end-next.main.start+1}else next.main=deepCopy(a.main)}if(p.mode==='multi'&&a.commentary){if(next.commentary){next.commentary.start=Math.min(next.commentary.start,a.commentary.start);next.commentary.pages=next.commentary.end-next.commentary.start+1}else next.commentary=deepCopy(a.commentary)}}}
+  if(choice==='redistribute'||choice==='extend'||choice==='exception'){const rebuilt=buildSchedule(p);rebuilt.forEach(n=>{const old=p.schedule.find(o=>o.date===n.date);if(old){if(n.main)n.main.done=old.main?.done||false;if(p.mode==='multi'&&n.commentary)n.commentary.done=old.commentary?.done||false;n.missed=old.missed||false}});p.schedule=rebuilt}
+  p.history.push({at:new Date().toISOString(),text:`Missed ${fmt(a.date)}: ${choice}. Schedule ${choice==='carry'?'carried forward':'regenerated after confirmation'}.`});saveState();$('missedModal').classList.remove('open');renderSchedule();renderReaderSide();renderDashboard();addAllMarkers();toast('Missed-day choice applied')
+}
+
+function renderSettings(){
+  const p=getProject();if(!p)return;$('projectSettingsSummary').innerHTML=`<p><b>PDF:</b> ${escapeHtml(p.pdfName||'Stored PDF')}</p><p><b>Calendar:</b> ${fmt(p.startDate)}–${fmt(p.endDate)}</p><p><b>Learning days:</b> ${p.learningDays.map(i=>DAYS[i]).join(', ')}</p><p><b>Streams:</b> ${escapeHtml(p.streams.main.label)}${p.mode==='multi'?` + ${escapeHtml(p.streams.commentary.label)} (${p.streamBehavior})`:''}</p><p><b>Exceptions:</b> ${p.exceptions.length}</p><p><b>Notes:</b> ${escapeHtml(p.notes||'None')}</p>`;$('dataStatus').textContent=`Stored under schema version ${VERSION}. Full backups include project settings, schedule, exact markers, history, and the PDF.`;$('projectHistory').innerHTML=(p.history||[]).slice().reverse().map(h=>`<div class="history-item"><b>${new Date(h.at).toLocaleString()}</b><br>${escapeHtml(h.text)}</div>`).join('')||'<div class="helper">No history yet.</div>'
+}
+function arrayBufferToBase64(buffer){let binary='',bytes=new Uint8Array(buffer),chunk=0x8000;for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,Math.min(i+chunk,bytes.length)));return btoa(binary)}
+function base64ToBlob(b64,type='application/pdf'){const bin=atob(b64),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return new Blob([bytes],{type})}
+async function projectBackup(p){const blob=await dbGet(p.pdfKey);return{format:'sefer-learning-calendar-backup',schemaVersion:VERSION,exportedAt:new Date().toISOString(),projects:[deepCopy(p)],pdfs:blob?{[p.pdfKey]:{name:p.pdfName,type:blob.type||'application/pdf',base64:arrayBufferToBase64(await blob.arrayBuffer())}}:{}}}
+async function allBackup(){const pack={format:'sefer-learning-calendar-backup',schemaVersion:VERSION,exportedAt:new Date().toISOString(),projects:deepCopy(state.projects),pdfs:{}};for(const p of state.projects){const blob=await dbGet(p.pdfKey);if(blob)pack.pdfs[p.pdfKey]={name:p.pdfName,type:blob.type||'application/pdf',base64:arrayBufferToBase64(await blob.arrayBuffer())}}return pack}
+function downloadJson(data,name){const blob=new Blob([JSON.stringify(data)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+async function exportOne(){const p=getProject();toast('Preparing full backup…');downloadJson(await projectBackup(p),p.title.replace(/[^a-z0-9]+/gi,'_')+'_backup.json');toast('Project backup exported')}
+async function exportAll(){toast('Preparing full backup…');downloadJson(await allBackup(),'sefer_learning_calendar_full_backup.json');toast('Full backup exported')}
+async function parseImport(file){const text=await file.text(),data=JSON.parse(text);if(data.format!=='sefer-learning-calendar-backup'||!Array.isArray(data.projects))throw new Error('Not a valid backup');return data}
+async function performImport(){
+  const mode=document.querySelector('input[name="importMode"]:checked').value,data=pendingImport;if(!data)return;
+  if(mode==='replace'){for(const p of state.projects)await dbDelete(p.pdfKey);state.projects=[]}
+  const keyMap={};
+  for(const raw of data.projects){
+    const p=normalizeProject(raw),originalKey=p.pdfKey;
+    if(mode==='merge'&&(state.projects.some(x=>x.id===p.id)||state.projects.some(x=>x.pdfKey===p.pdfKey))){p.id=uid();p.pdfKey=uid('pdf');p.title+=' (imported)'}
+    keyMap[originalKey]=p.pdfKey;state.projects.push(p)
+  }
+  for(const[key,info]of Object.entries(data.pdfs||{})){const target=keyMap[key]||key;await dbPut(target,base64ToBlob(info.base64,info.type))}
+  state.migrations.push({at:new Date().toISOString(),text:`Imported backup containing ${data.projects.length} project(s).`});saveState();pendingImport=null;$('importModal').classList.remove('open');renderDashboard();showView('dashboardView');toast('Backup imported')
+}
+
+async function inspectPdf(file){if(!file)return;try{const data=await file.arrayBuffer(),doc=await pdfjsLib.getDocument({data}).promise;pendingPdf={file,pages:doc.numPages,name:file.name};$('pdfInfo').textContent=`${file.name} · ${doc.numPages} PDF pages`;$('mainEnd').max=doc.numPages;$('commentaryEnd').max=doc.numPages;if(+$('mainEnd').value>doc.numPages)$('mainEnd').value=doc.numPages;if(+$('commentaryEnd').value>doc.numPages)$('commentaryEnd').value=doc.numPages;updatePreview()}catch(e){pendingPdf=null;$('pdfInfo').textContent='This PDF could not be read.'}}
+
+async function handleImportFile(file){
+  try{pendingImport=await parseImport(file);$('importSummary').textContent=`This backup contains ${pendingImport.projects.length} project(s). Choose whether to merge or replace current browser data.`;$('importModal').classList.add('open')}
+  catch(err){toast(err.message)}
+}
+
+function attachEvents(){
+  document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.nav)));$('newProjectHero').addEventListener('click',resetSetup);$('newProjectTop').addEventListener('click',resetSetup);$('saveProject').addEventListener('click',saveProjectFromSetup);$('pdfFile').addEventListener('change',e=>inspectPdf(e.target.files[0]));
+  $('addException').addEventListener('click',()=>{const type=$('exceptionType').value,start=$('exceptionStart').value,end=$('exceptionEnd').value||start;if(!start)return toast('Choose a date.');if(end<start)return toast('The end must not be before the start.');setupExceptions.push({type,start,end});renderExceptions();updatePreview()});
+  document.querySelectorAll('[data-project-tab]').forEach(b=>b.addEventListener('click',()=>switchProjectTab(b.dataset.projectTab)));$('prevPage').addEventListener('click',()=>goPage(currentPage-(viewMode===2?2:1)));$('nextPage').addEventListener('click',()=>goPage(currentPage+(viewMode===2?2:1)));$('pageNumber').addEventListener('change',e=>goPage(e.target.value));$('zoomIn').addEventListener('click',()=>{zoom=clamp(zoom+.15,.5,2.5);renderPages()});$('zoomOut').addEventListener('click',()=>{zoom=clamp(zoom-.15,.5,2.5);renderPages()});$('onePage').addEventListener('click',()=>{viewMode=1;$('onePage').classList.add('active');$('twoPage').classList.remove('active');renderPages()});$('twoPage').addEventListener('click',()=>{viewMode=2;$('twoPage').classList.add('active');$('onePage').classList.remove('active');renderPages()});$('goSaved').addEventListener('click',()=>goReaderTarget('saved'));$('goPlannedStart').addEventListener('click',()=>goReaderTarget('start'));$('goPlannedEnd').addEventListener('click',()=>goReaderTarget('end'));$('missedDay').addEventListener('click',()=>openMissedModal());$('applyMissed').addEventListener('click',applyMissed);
+  document.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.closeModal).classList.remove('open')));$('editProject').addEventListener('click',()=>editSetup(getProject()));$('deleteProject').addEventListener('click',async()=>{const p=getProject();if(!confirm(`Delete ${p.title}?`))return;state.projects=state.projects.filter(x=>x.id!==p.id);await dbDelete(p.pdfKey);saveState();renderDashboard();showView('dashboardView');toast('Project deleted')});$('exportProject').addEventListener('click',exportOne);$('globalExport').addEventListener('click',exportAll);
+  $('importProjectFile').addEventListener('change',async e=>{await handleImportFile(e.target.files[0]);e.target.value=''});$('globalImportFile').addEventListener('change',async e=>{await handleImportFile(e.target.files[0]);e.target.value=''});$('confirmImport').addEventListener('click',performImport);
+  document.body.addEventListener('click',e=>{if(e.target.matches('.modal'))e.target.classList.remove('open')})
+}
+
+loadState();renderDayChips('learningDays','learningDay',[0,1,2,3,4,5]);renderDayChips('lighterDays','lighterDay',[]);renderDayChips('reviewDays','reviewDay',[]);$('startDate').value=isoToday();$('endDate').value=plusMonths(2);renderExceptions();bindSetupDynamic();attachEvents();$('onePage').classList.add('active');renderDashboard();updateConditionals();
 })();
 </script>
 </body>
