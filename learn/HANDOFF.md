@@ -31,12 +31,16 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   Their size is estimated and they are named by se'if katan number (known
   from Sefaria's links), so they work in schedules. See `estimatedSimanim`.
 
-## Open questions for Hudi
+## Decided by Hudi
 
-- When one line of Gemara has a very long Tosafot, may a day stop in the
-  middle of that Tosafot? (Recommended: yes. It makes small daily amounts
-  much more even.) Until answered, Rashi and Tosafot always go with their
-  line, as CLAUDE.md says.
+- Days are even with the commentary included: each day is measured as main
+  text and chosen commentaries together from the start (not main text first
+  with the commentary added after). This is how `stopWeights` and the split
+  already work. Example, Berachos with Rashi and Tosafot in three months:
+  every regular day is 7,451-8,502 letters together, while the Gemara alone
+  ranges 1,507-5,819 letters.
+- A Rashi or Tosafot stays with its line of Gemara (a day does not stop
+  inside one).
 
 ## Next
 
