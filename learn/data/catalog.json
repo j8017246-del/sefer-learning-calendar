@@ -40,6 +40,7 @@
    "he": "בראשית",
    "unit": "pasuk",
    "pieces": 1533,
+   "stops": 1533,
    "letters": 78143,
    "commentaries": []
   },
@@ -50,6 +51,7 @@
    "he": "שמות",
    "unit": "pasuk",
    "pieces": 1210,
+   "stops": 1210,
    "letters": 63595,
    "commentaries": []
   },
@@ -60,6 +62,7 @@
    "he": "ויקרא",
    "unit": "pasuk",
    "pieces": 859,
+   "stops": 859,
    "letters": 44812,
    "commentaries": []
   },
@@ -70,6 +73,7 @@
    "he": "במדבר",
    "unit": "pasuk",
    "pieces": 1288,
+   "stops": 1288,
    "letters": 63588,
    "commentaries": []
   },
@@ -80,6 +84,7 @@
    "he": "דברים",
    "unit": "pasuk",
    "pieces": 956,
+   "stops": 956,
    "letters": 55034,
    "commentaries": []
   },
@@ -90,6 +95,7 @@
    "he": "יהושע",
    "unit": "pasuk",
    "pieces": 658,
+   "stops": 658,
    "letters": 39955,
    "commentaries": []
   },
@@ -100,6 +106,7 @@
    "he": "שופטים",
    "unit": "pasuk",
    "pieces": 618,
+   "stops": 618,
    "letters": 39039,
    "commentaries": []
   },
@@ -110,6 +117,7 @@
    "he": "שמואל א",
    "unit": "pasuk",
    "pieces": 811,
+   "stops": 811,
    "letters": 51707,
    "commentaries": []
   },
@@ -120,6 +128,7 @@
    "he": "שמואל ב",
    "unit": "pasuk",
    "pieces": 695,
+   "stops": 695,
    "letters": 42592,
    "commentaries": []
   },
@@ -130,6 +139,7 @@
    "he": "מלכים א",
    "unit": "pasuk",
    "pieces": 817,
+   "stops": 817,
    "letters": 50839,
    "commentaries": []
   },
@@ -140,6 +150,7 @@
    "he": "מלכים ב",
    "unit": "pasuk",
    "pieces": 719,
+   "stops": 719,
    "letters": 48162,
    "commentaries": []
   },
@@ -150,6 +161,7 @@
    "he": "ישעיהו",
    "unit": "pasuk",
    "pieces": 1291,
+   "stops": 1291,
    "letters": 67120,
    "commentaries": []
   },
@@ -160,6 +172,7 @@
    "he": "ירמיהו",
    "unit": "pasuk",
    "pieces": 1364,
+   "stops": 1364,
    "letters": 85567,
    "commentaries": []
   },
@@ -170,6 +183,7 @@
    "he": "יחזקאל",
    "unit": "pasuk",
    "pieces": 1273,
+   "stops": 1273,
    "letters": 75181,
    "commentaries": []
   },
@@ -180,6 +194,7 @@
    "he": "הושע",
    "unit": "pasuk",
    "pieces": 197,
+   "stops": 197,
    "letters": 9406,
    "commentaries": []
   },
@@ -190,6 +205,7 @@
    "he": "יואל",
    "unit": "pasuk",
    "pieces": 73,
+   "stops": 73,
    "letters": 3876,
    "commentaries": []
   },
@@ -200,6 +216,7 @@
    "he": "עמוס",
    "unit": "pasuk",
    "pieces": 146,
+   "stops": 146,
    "letters": 8050,
    "commentaries": []
   },
@@ -210,6 +227,7 @@
    "he": "עובדיה",
    "unit": "pasuk",
    "pieces": 21,
+   "stops": 21,
    "letters": 1124,
    "commentaries": []
   },
@@ -220,6 +238,7 @@
    "he": "יונה",
    "unit": "pasuk",
    "pieces": 48,
+   "stops": 48,
    "letters": 2700,
    "commentaries": []
   },
@@ -230,6 +249,7 @@
    "he": "מיכה",
    "unit": "pasuk",
    "pieces": 105,
+   "stops": 105,
    "letters": 5586,
    "commentaries": []
   },
@@ -240,6 +260,7 @@
    "he": "נחום",
    "unit": "pasuk",
    "pieces": 47,
+   "stops": 47,
    "letters": 2272,
    "commentaries": []
   },
@@ -250,6 +271,7 @@
    "he": "חבקוק",
    "unit": "pasuk",
    "pieces": 56,
+   "stops": 56,
    "letters": 2603,
    "commentaries": []
   },
@@ -260,6 +282,7 @@
    "he": "צפניה",
    "unit": "pasuk",
    "pieces": 53,
+   "stops": 53,
    "letters": 3005,
    "commentaries": []
   },
@@ -270,6 +293,7 @@
    "he": "חגי",
    "unit": "pasuk",
    "pieces": 38,
+   "stops": 38,
    "letters": 2342,
    "commentaries": []
   },
@@ -280,6 +304,7 @@
    "he": "זכריה",
    "unit": "pasuk",
    "pieces": 211,
+   "stops": 211,
    "letters": 12464,
    "commentaries": []
   },
@@ -290,6 +315,7 @@
    "he": "מלאכי",
    "unit": "pasuk",
    "pieces": 55,
+   "stops": 55,
    "letters": 3450,
    "commentaries": []
   },
@@ -300,6 +326,7 @@
    "he": "תהילים",
    "unit": "pasuk",
    "pieces": 2527,
+   "stops": 2527,
    "letters": 79156,
    "commentaries": []
   },
@@ -310,6 +337,7 @@
    "he": "משלי",
    "unit": "pasuk",
    "pieces": 915,
+   "stops": 915,
    "letters": 26819,
    "commentaries": []
   },
@@ -320,6 +348,7 @@
    "he": "איוב",
    "unit": "pasuk",
    "pieces": 1070,
+   "stops": 1070,
    "letters": 32124,
    "commentaries": []
   },
@@ -330,6 +359,7 @@
    "he": "שיר השירים",
    "unit": "pasuk",
    "pieces": 117,
+   "stops": 117,
    "letters": 5168,
    "commentaries": []
   },
@@ -340,6 +370,7 @@
    "he": "רות",
    "unit": "pasuk",
    "pieces": 85,
+   "stops": 85,
    "letters": 5002,
    "commentaries": []
   },
@@ -350,6 +381,7 @@
    "he": "איכה",
    "unit": "pasuk",
    "pieces": 154,
+   "stops": 154,
    "letters": 6116,
    "commentaries": []
   },
@@ -360,6 +392,7 @@
    "he": "קהלת",
    "unit": "pasuk",
    "pieces": 222,
+   "stops": 222,
    "letters": 11065,
    "commentaries": []
   },
@@ -370,6 +403,7 @@
    "he": "אסתר",
    "unit": "pasuk",
    "pieces": 167,
+   "stops": 167,
    "letters": 12189,
    "commentaries": []
   },
@@ -380,6 +414,7 @@
    "he": "דניאל",
    "unit": "pasuk",
    "pieces": 357,
+   "stops": 357,
    "letters": 24816,
    "commentaries": []
   },
@@ -390,6 +425,7 @@
    "he": "עזרא",
    "unit": "pasuk",
    "pieces": 280,
+   "stops": 280,
    "letters": 15952,
    "commentaries": []
   },
@@ -400,6 +436,7 @@
    "he": "נחמיה",
    "unit": "pasuk",
    "pieces": 405,
+   "stops": 405,
    "letters": 22633,
    "commentaries": []
   },
@@ -410,6 +447,7 @@
    "he": "דברי הימים א",
    "unit": "pasuk",
    "pieces": 943,
+   "stops": 943,
    "letters": 44769,
    "commentaries": []
   },
@@ -420,6 +458,7 @@
    "he": "דברי הימים ב",
    "unit": "pasuk",
    "pieces": 822,
+   "stops": 822,
    "letters": 55126,
    "commentaries": []
   },
@@ -430,6 +469,7 @@
    "he": "משנה ברכות",
    "unit": "mishnah",
    "pieces": 57,
+   "stops": 354,
    "letters": 8671,
    "commentaries": [
     {
@@ -446,6 +486,7 @@
    "he": "משנה פאה",
    "unit": "mishnah",
    "pieces": 69,
+   "stops": 403,
    "letters": 9819,
    "commentaries": [
     {
@@ -462,6 +503,7 @@
    "he": "משנה דמאי",
    "unit": "mishnah",
    "pieces": 53,
+   "stops": 302,
    "letters": 7449,
    "commentaries": [
     {
@@ -478,6 +520,7 @@
    "he": "משנה כלאים",
    "unit": "mishnah",
    "pieces": 77,
+   "stops": 481,
    "letters": 11681,
    "commentaries": [
     {
@@ -494,6 +537,7 @@
    "he": "משנה שביעית",
    "unit": "mishnah",
    "pieces": 89,
+   "stops": 550,
    "letters": 13366,
    "commentaries": [
     {
@@ -510,6 +554,7 @@
    "he": "משנה תרומות",
    "unit": "mishnah",
    "pieces": 101,
+   "stops": 611,
    "letters": 14476,
    "commentaries": [
     {
@@ -526,6 +571,7 @@
    "he": "משנה מעשרות",
    "unit": "mishnah",
    "pieces": 40,
+   "stops": 270,
    "letters": 6359,
    "commentaries": [
     {
@@ -542,6 +588,7 @@
    "he": "משנה מעשר שני",
    "unit": "mishnah",
    "pieces": 57,
+   "stops": 368,
    "letters": 9187,
    "commentaries": [
     {
@@ -558,6 +605,7 @@
    "he": "משנה חלה",
    "unit": "mishnah",
    "pieces": 38,
+   "stops": 212,
    "letters": 5131,
    "commentaries": [
     {
@@ -574,6 +622,7 @@
    "he": "משנה ערלה",
    "unit": "mishnah",
    "pieces": 35,
+   "stops": 176,
    "letters": 4149,
    "commentaries": [
     {
@@ -590,6 +639,7 @@
    "he": "משנה ביכורים",
    "unit": "mishnah",
    "pieces": 34,
+   "stops": 188,
    "letters": 4871,
    "commentaries": [
     {
@@ -606,6 +656,7 @@
    "he": "משנה שבת",
    "unit": "mishnah",
    "pieces": 139,
+   "stops": 896,
    "letters": 22012,
    "commentaries": [
     {
@@ -622,6 +673,7 @@
    "he": "משנה עירובין",
    "unit": "mishnah",
    "pieces": 96,
+   "stops": 634,
    "letters": 15394,
    "commentaries": [
     {
@@ -638,6 +690,7 @@
    "he": "משנה פסחים",
    "unit": "mishnah",
    "pieces": 89,
+   "stops": 614,
    "letters": 15135,
    "commentaries": [
     {
@@ -654,6 +707,7 @@
    "he": "משנה שקלים",
    "unit": "mishnah",
    "pieces": 52,
+   "stops": 417,
    "letters": 10101,
    "commentaries": [
     {
@@ -670,6 +724,7 @@
    "he": "משנה יומא",
    "unit": "mishnah",
    "pieces": 61,
+   "stops": 469,
    "letters": 11975,
    "commentaries": [
     {
@@ -686,6 +741,7 @@
    "he": "משנה סוכה",
    "unit": "mishnah",
    "pieces": 53,
+   "stops": 355,
    "letters": 8843,
    "commentaries": [
     {
@@ -702,6 +758,7 @@
    "he": "משנה ביצה",
    "unit": "mishnah",
    "pieces": 42,
+   "stops": 240,
    "letters": 6033,
    "commentaries": [
     {
@@ -718,6 +775,7 @@
    "he": "משנה ראש השנה",
    "unit": "mishnah",
    "pieces": 35,
+   "stops": 250,
    "letters": 6357,
    "commentaries": [
     {
@@ -734,6 +792,7 @@
    "he": "משנה תענית",
    "unit": "mishnah",
    "pieces": 34,
+   "stops": 288,
    "letters": 7452,
    "commentaries": [
     {
@@ -750,6 +809,7 @@
    "he": "משנה מגילה",
    "unit": "mishnah",
    "pieces": 33,
+   "stops": 225,
    "letters": 5644,
    "commentaries": [
     {
@@ -766,6 +826,7 @@
    "he": "משנה מועד קטן",
    "unit": "mishnah",
    "pieces": 24,
+   "stops": 139,
    "letters": 3307,
    "commentaries": [
     {
@@ -782,6 +843,7 @@
    "he": "משנה חגיגה",
    "unit": "mishnah",
    "pieces": 23,
+   "stops": 149,
    "letters": 3631,
    "commentaries": [
     {
@@ -798,6 +860,7 @@
    "he": "משנה יבמות",
    "unit": "mishnah",
    "pieces": 128,
+   "stops": 1104,
    "letters": 25972,
    "commentaries": [
     {
@@ -814,6 +877,7 @@
    "he": "משנה כתובות",
    "unit": "mishnah",
    "pieces": 111,
+   "stops": 818,
    "letters": 20333,
    "commentaries": [
     {
@@ -830,6 +894,7 @@
    "he": "משנה נדרים",
    "unit": "mishnah",
    "pieces": 90,
+   "stops": 704,
    "letters": 17125,
    "commentaries": [
     {
@@ -846,6 +911,7 @@
    "he": "משנה נזיר",
    "unit": "mishnah",
    "pieces": 60,
+   "stops": 495,
    "letters": 12222,
    "commentaries": [
     {
@@ -862,6 +928,7 @@
    "he": "משנה סוטה",
    "unit": "mishnah",
    "pieces": 67,
+   "stops": 604,
    "letters": 15766,
    "commentaries": [
     {
@@ -878,6 +945,7 @@
    "he": "משנה גיטין",
    "unit": "mishnah",
    "pieces": 75,
+   "stops": 584,
    "letters": 14520,
    "commentaries": [
     {
@@ -894,6 +962,7 @@
    "he": "משנה קידושין",
    "unit": "mishnah",
    "pieces": 47,
+   "stops": 356,
    "letters": 8837,
    "commentaries": [
     {
@@ -910,6 +979,7 @@
    "he": "משנה בבא קמא",
    "unit": "mishnah",
    "pieces": 79,
+   "stops": 679,
    "letters": 16335,
    "commentaries": [
     {
@@ -926,6 +996,7 @@
    "he": "משנה בבא מציעא",
    "unit": "mishnah",
    "pieces": 101,
+   "stops": 770,
    "letters": 18688,
    "commentaries": [
     {
@@ -942,6 +1013,7 @@
    "he": "משנה בבא בתרא",
    "unit": "mishnah",
    "pieces": 86,
+   "stops": 739,
    "letters": 18273,
    "commentaries": [
     {
@@ -958,6 +1030,7 @@
    "he": "משנה סנהדרין",
    "unit": "mishnah",
    "pieces": 71,
+   "stops": 776,
    "letters": 20868,
    "commentaries": [
     {
@@ -974,6 +1047,7 @@
    "he": "משנה מכות",
    "unit": "mishnah",
    "pieces": 34,
+   "stops": 319,
    "letters": 8327,
    "commentaries": [
     {
@@ -990,6 +1064,7 @@
    "he": "משנה שבועות",
    "unit": "mishnah",
    "pieces": 62,
+   "stops": 511,
    "letters": 13215,
    "commentaries": [
     {
@@ -1006,6 +1081,7 @@
    "he": "משנה עדיות",
    "unit": "mishnah",
    "pieces": 74,
+   "stops": 600,
    "letters": 15520,
    "commentaries": [
     {
@@ -1022,6 +1098,7 @@
    "he": "משנה עבודה זרה",
    "unit": "mishnah",
    "pieces": 50,
+   "stops": 379,
    "letters": 9302,
    "commentaries": [
     {
@@ -1038,6 +1115,7 @@
    "he": "משנה אבות",
    "unit": "mishnah",
    "pieces": 108,
+   "stops": 722,
    "letters": 18604,
    "commentaries": [
     {
@@ -1054,6 +1132,7 @@
    "he": "משנה הוריות",
    "unit": "mishnah",
    "pieces": 20,
+   "stops": 152,
    "letters": 3952,
    "commentaries": [
     {
@@ -1070,6 +1149,7 @@
    "he": "משנה זבחים",
    "unit": "mishnah",
    "pieces": 101,
+   "stops": 867,
    "letters": 20581,
    "commentaries": [
     {
@@ -1086,6 +1166,7 @@
    "he": "משנה מנחות",
    "unit": "mishnah",
    "pieces": 93,
+   "stops": 896,
    "letters": 21376,
    "commentaries": [
     {
@@ -1102,6 +1183,7 @@
    "he": "משנה חולין",
    "unit": "mishnah",
    "pieces": 74,
+   "stops": 651,
    "letters": 15056,
    "commentaries": [
     {
@@ -1118,6 +1200,7 @@
    "he": "משנה בכורות",
    "unit": "mishnah",
    "pieces": 73,
+   "stops": 623,
    "letters": 14904,
    "commentaries": [
     {
@@ -1134,6 +1217,7 @@
    "he": "משנה ערכין",
    "unit": "mishnah",
    "pieces": 50,
+   "stops": 417,
    "letters": 10363,
    "commentaries": [
     {
@@ -1150,6 +1234,7 @@
    "he": "משנה תמורה",
    "unit": "mishnah",
    "pieces": 35,
+   "stops": 325,
    "letters": 7712,
    "commentaries": [
     {
@@ -1166,6 +1251,7 @@
    "he": "משנה כריתות",
    "unit": "mishnah",
    "pieces": 43,
+   "stops": 423,
    "letters": 10570,
    "commentaries": [
     {
@@ -1182,6 +1268,7 @@
    "he": "משנה מעילה",
    "unit": "mishnah",
    "pieces": 38,
+   "stops": 297,
    "letters": 7192,
    "commentaries": [
     {
@@ -1198,6 +1285,7 @@
    "he": "משנה תמיד",
    "unit": "mishnah",
    "pieces": 34,
+   "stops": 350,
    "letters": 8888,
    "commentaries": [
     {
@@ -1214,6 +1302,7 @@
    "he": "משנה מדות",
    "unit": "mishnah",
    "pieces": 34,
+   "stops": 371,
    "letters": 9458,
    "commentaries": [
     {
@@ -1230,6 +1319,7 @@
    "he": "משנה קינים",
    "unit": "mishnah",
    "pieces": 15,
+   "stops": 160,
    "letters": 3685,
    "commentaries": [
     {
@@ -1246,6 +1336,7 @@
    "he": "משנה כלים",
    "unit": "mishnah",
    "pieces": 254,
+   "stops": 1808,
    "letters": 41154,
    "commentaries": [
     {
@@ -1262,6 +1353,7 @@
    "he": "משנה אהלות",
    "unit": "mishnah",
    "pieces": 134,
+   "stops": 1036,
    "letters": 24279,
    "commentaries": [
     {
@@ -1278,6 +1370,7 @@
    "he": "משנה נגעים",
    "unit": "mishnah",
    "pieces": 115,
+   "stops": 893,
    "letters": 21940,
    "commentaries": [
     {
@@ -1294,6 +1387,7 @@
    "he": "משנה פרה",
    "unit": "mishnah",
    "pieces": 96,
+   "stops": 646,
    "letters": 15507,
    "commentaries": [
     {
@@ -1310,6 +1404,7 @@
    "he": "משנה טהרות",
    "unit": "mishnah",
    "pieces": 92,
+   "stops": 617,
    "letters": 15341,
    "commentaries": [
     {
@@ -1326,6 +1421,7 @@
    "he": "משנה מקואות",
    "unit": "mishnah",
    "pieces": 71,
+   "stops": 520,
    "letters": 12725,
    "commentaries": [
     {
@@ -1342,6 +1438,7 @@
    "he": "משנה נדה",
    "unit": "mishnah",
    "pieces": 79,
+   "stops": 503,
    "letters": 12326,
    "commentaries": [
     {
@@ -1358,6 +1455,7 @@
    "he": "משנה מכשירין",
    "unit": "mishnah",
    "pieces": 54,
+   "stops": 351,
    "letters": 8504,
    "commentaries": [
     {
@@ -1374,6 +1472,7 @@
    "he": "משנה זבים",
    "unit": "mishnah",
    "pieces": 32,
+   "stops": 262,
    "letters": 6226,
    "commentaries": [
     {
@@ -1390,6 +1489,7 @@
    "he": "משנה טבול יום",
    "unit": "mishnah",
    "pieces": 26,
+   "stops": 178,
    "letters": 4434,
    "commentaries": [
     {
@@ -1406,6 +1506,7 @@
    "he": "משנה ידים",
    "unit": "mishnah",
    "pieces": 22,
+   "stops": 248,
    "letters": 6511,
    "commentaries": [
     {
@@ -1422,6 +1523,7 @@
    "he": "משנה עוקצים",
    "unit": "mishnah",
    "pieces": 28,
+   "stops": 182,
    "letters": 4375,
    "commentaries": [
     {
@@ -1438,6 +1540,7 @@
    "he": "ברכות",
    "unit": "amud",
    "pieces": 125,
+   "stops": 4761,
    "letters": 275861,
    "commentaries": [
     {
@@ -1459,6 +1562,7 @@
    "he": "שבת",
    "unit": "amud",
    "pieces": 312,
+   "stops": 7487,
    "letters": 448603,
    "commentaries": [
     {
@@ -1480,6 +1584,7 @@
    "he": "עירובין",
    "unit": "amud",
    "pieces": 207,
+   "stops": 4445,
    "letters": 265865,
    "commentaries": [
     {
@@ -1501,6 +1606,7 @@
    "he": "פסחים",
    "unit": "amud",
    "pieces": 240,
+   "stops": 5287,
    "letters": 325776,
    "commentaries": [
     {
@@ -1522,6 +1628,7 @@
    "he": "יומא",
    "unit": "amud",
    "pieces": 173,
+   "stops": 3730,
    "letters": 227164,
    "commentaries": [
     {
@@ -1543,6 +1650,7 @@
    "he": "סוכה",
    "unit": "amud",
    "pieces": 110,
+   "stops": 2132,
    "letters": 129131,
    "commentaries": [
     {
@@ -1564,6 +1672,7 @@
    "he": "ביצה",
    "unit": "amud",
    "pieces": 78,
+   "stops": 1586,
    "letters": 98914,
    "commentaries": [
     {
@@ -1585,6 +1694,7 @@
    "he": "ראש השנה",
    "unit": "amud",
    "pieces": 67,
+   "stops": 1606,
    "letters": 93882,
    "commentaries": [
     {
@@ -1606,6 +1716,7 @@
    "he": "תענית",
    "unit": "amud",
    "pieces": 59,
+   "stops": 1780,
    "letters": 107329,
    "commentaries": [
     {
@@ -1627,6 +1738,7 @@
    "he": "מגילה",
    "unit": "amud",
    "pieces": 61,
+   "stops": 2024,
    "letters": 117395,
    "commentaries": [
     {
@@ -1648,6 +1760,7 @@
    "he": "מועד קטן",
    "unit": "amud",
    "pieces": 55,
+   "stops": 1487,
    "letters": 90493,
    "commentaries": [
     {
@@ -1669,6 +1782,7 @@
    "he": "חגיגה",
    "unit": "amud",
    "pieces": 51,
+   "stops": 1297,
    "letters": 74682,
    "commentaries": [
     {
@@ -1690,6 +1804,7 @@
    "he": "יבמות",
    "unit": "amud",
    "pieces": 242,
+   "stops": 5406,
    "letters": 332509,
    "commentaries": [
     {
@@ -1711,6 +1826,7 @@
    "he": "כתובות",
    "unit": "amud",
    "pieces": 222,
+   "stops": 4647,
    "letters": 290177,
    "commentaries": [
     {
@@ -1732,6 +1848,7 @@
    "he": "נדרים",
    "unit": "amud",
    "pieces": 180,
+   "stops": 2246,
    "letters": 137930,
    "commentaries": [
     {
@@ -1753,6 +1870,7 @@
    "he": "נזיר",
    "unit": "amud",
    "pieces": 130,
+   "stops": 1760,
    "letters": 109519,
    "commentaries": [
     {
@@ -1774,6 +1892,7 @@
    "he": "סוטה",
    "unit": "amud",
    "pieces": 96,
+   "stops": 2670,
    "letters": 156134,
    "commentaries": [
     {
@@ -1795,6 +1914,7 @@
    "he": "גיטין",
    "unit": "amud",
    "pieces": 178,
+   "stops": 3859,
    "letters": 239855,
    "commentaries": [
     {
@@ -1816,6 +1936,7 @@
    "he": "קידושין",
    "unit": "amud",
    "pieces": 162,
+   "stops": 3751,
    "letters": 233507,
    "commentaries": [
     {
@@ -1837,6 +1958,7 @@
    "he": "בבא קמא",
    "unit": "amud",
    "pieces": 236,
+   "stops": 5500,
    "letters": 330997,
    "commentaries": [
     {
@@ -1858,6 +1980,7 @@
    "he": "בבא מציעא",
    "unit": "amud",
    "pieces": 235,
+   "stops": 5291,
    "letters": 331861,
    "commentaries": [
     {
@@ -1879,6 +2002,7 @@
    "he": "בבא בתרא",
    "unit": "amud",
    "pieces": 350,
+   "stops": 5653,
    "letters": 348531,
    "commentaries": [
     {
@@ -1900,6 +2024,7 @@
    "he": "סנהדרין",
    "unit": "amud",
    "pieces": 224,
+   "stops": 7034,
    "letters": 407535,
    "commentaries": [
     {
@@ -1921,6 +2046,7 @@
    "he": "מכות",
    "unit": "amud",
    "pieces": 46,
+   "stops": 1198,
    "letters": 68993,
    "commentaries": [
     {
@@ -1942,6 +2068,7 @@
    "he": "שבועות",
    "unit": "amud",
    "pieces": 96,
+   "stops": 2197,
    "letters": 129378,
    "commentaries": [
     {
@@ -1963,6 +2090,7 @@
    "he": "עבודה זרה",
    "unit": "amud",
    "pieces": 150,
+   "stops": 3271,
    "letters": 204465,
    "commentaries": [
     {
@@ -1984,6 +2112,7 @@
    "he": "הוריות",
    "unit": "amud",
    "pieces": 25,
+   "stops": 838,
    "letters": 49539,
    "commentaries": [
     {
@@ -2005,6 +2134,7 @@
    "he": "זבחים",
    "unit": "amud",
    "pieces": 238,
+   "stops": 4802,
    "letters": 274944,
    "commentaries": [
     {
@@ -2026,6 +2156,7 @@
    "he": "מנחות",
    "unit": "amud",
    "pieces": 217,
+   "stops": 4892,
    "letters": 292253,
    "commentaries": [
     {
@@ -2047,6 +2178,7 @@
    "he": "חולין",
    "unit": "amud",
    "pieces": 281,
+   "stops": 5803,
    "letters": 353022,
    "commentaries": [
     {
@@ -2068,6 +2200,7 @@
    "he": "בכורות",
    "unit": "amud",
    "pieces": 119,
+   "stops": 2621,
    "letters": 161669,
    "commentaries": [
     {
@@ -2089,6 +2222,7 @@
    "he": "ערכין",
    "unit": "amud",
    "pieces": 65,
+   "stops": 1671,
    "letters": 99380,
    "commentaries": [
     {
@@ -2110,6 +2244,7 @@
    "he": "תמורה",
    "unit": "amud",
    "pieces": 65,
+   "stops": 1492,
    "letters": 92727,
    "commentaries": [
     {
@@ -2131,6 +2266,7 @@
    "he": "כריתות",
    "unit": "amud",
    "pieces": 54,
+   "stops": 1655,
    "letters": 103037,
    "commentaries": [
     {
@@ -2152,6 +2288,7 @@
    "he": "מעילה",
    "unit": "amud",
    "pieces": 41,
+   "stops": 580,
    "letters": 32785,
    "commentaries": [
     {
@@ -2173,6 +2310,7 @@
    "he": "תמיד",
    "unit": "amud",
    "pieces": 17,
+   "stops": 318,
    "letters": 20212,
    "commentaries": []
   },
@@ -2183,6 +2321,7 @@
    "he": "נדה",
    "unit": "amud",
    "pieces": 143,
+   "stops": 3197,
    "letters": 199004,
    "commentaries": [
     {
@@ -2204,6 +2343,7 @@
    "he": "משנה תורה, הלכות יסודי התורה",
    "unit": "halacha",
    "pieces": 88,
+   "stops": 497,
    "letters": 29722,
    "commentaries": []
   },
@@ -2214,6 +2354,7 @@
    "he": "משנה תורה, הלכות דעות",
    "unit": "halacha",
    "pieces": 71,
+   "stops": 408,
    "letters": 24427,
    "commentaries": []
   },
@@ -2224,6 +2365,7 @@
    "he": "משנה תורה, הלכות תלמוד תורה",
    "unit": "halacha",
    "pieces": 82,
+   "stops": 330,
    "letters": 19653,
    "commentaries": []
   },
@@ -2234,6 +2376,7 @@
    "he": "משנה תורה, הלכות עבודה זרה וחוקות הגויים",
    "unit": "halacha",
    "pieces": 148,
+   "stops": 675,
    "letters": 40437,
    "commentaries": []
   },
@@ -2244,6 +2387,7 @@
    "he": "משנה תורה, הלכות תשובה",
    "unit": "halacha",
    "pieces": 70,
+   "stops": 703,
    "letters": 28314,
    "commentaries": []
   },
@@ -2254,6 +2398,7 @@
    "he": "משנה תורה, הלכות קריאת שמע",
    "unit": "halacha",
    "pieces": 57,
+   "stops": 210,
    "letters": 11072,
    "commentaries": []
   },
@@ -2264,6 +2409,7 @@
    "he": "משנה תורה, הלכות תפילה וברכת כהנים",
    "unit": "halacha",
    "pieces": 240,
+   "stops": 1068,
    "letters": 52924,
    "commentaries": []
   },
@@ -2274,6 +2420,7 @@
    "he": "משנה תורה, הלכות תפילין ומזוזה וספר תורה",
    "unit": "halacha",
    "pieces": 146,
+   "stops": 706,
    "letters": 41855,
    "commentaries": []
   },
@@ -2284,6 +2431,7 @@
    "he": "משנה תורה, הלכות ציצית",
    "unit": "halacha",
    "pieces": 39,
+   "stops": 130,
    "letters": 7862,
    "commentaries": []
   },
@@ -2294,6 +2442,7 @@
    "he": "משנה תורה, הלכות ברכות",
    "unit": "halacha",
    "pieces": 178,
+   "stops": 624,
    "letters": 36649,
    "commentaries": []
   },
@@ -2304,6 +2453,7 @@
    "he": "משנה תורה, הלכות מילה",
    "unit": "halacha",
    "pieces": 37,
+   "stops": 129,
    "letters": 7587,
    "commentaries": []
   },
@@ -2314,6 +2464,7 @@
    "he": "משנה תורה, סדר התפילה",
    "unit": "halacha",
    "pieces": 68,
+   "stops": 447,
    "letters": 26782,
    "commentaries": []
   },
@@ -2324,6 +2475,7 @@
    "he": "משנה תורה, הלכות שבת",
    "unit": "halacha",
    "pieces": 659,
+   "stops": 2784,
    "letters": 139331,
    "commentaries": []
   },
@@ -2334,6 +2486,7 @@
    "he": "משנה תורה, הלכות עירובין",
    "unit": "halacha",
    "pieces": 163,
+   "stops": 661,
    "letters": 37565,
    "commentaries": []
   },
@@ -2344,6 +2497,7 @@
    "he": "משנה תורה, הלכות שביתת עשור",
    "unit": "halacha",
    "pieces": 28,
+   "stops": 116,
    "letters": 5848,
    "commentaries": []
   },
@@ -2354,6 +2508,7 @@
    "he": "משנה תורה, הלכות שביתת יום טוב",
    "unit": "halacha",
    "pieces": 175,
+   "stops": 714,
    "letters": 36721,
    "commentaries": []
   },
@@ -2364,6 +2519,7 @@
    "he": "משנה תורה, הלכות חמץ ומצה",
    "unit": "halacha",
    "pieces": 158,
+   "stops": 659,
    "letters": 29512,
    "commentaries": []
   },
@@ -2374,6 +2530,7 @@
    "he": "משנה תורה, הלכות שופר וסוכה ולולב",
    "unit": "halacha",
    "pieces": 130,
+   "stops": 554,
    "letters": 26907,
    "commentaries": []
   },
@@ -2384,6 +2541,7 @@
    "he": "משנה תורה, הלכות שקלים",
    "unit": "halacha",
    "pieces": 47,
+   "stops": 215,
    "letters": 10512,
    "commentaries": []
   },
@@ -2394,6 +2552,7 @@
    "he": "משנה תורה, הלכות קידוש החודש",
    "unit": "halacha",
    "pieces": 235,
+   "stops": 1323,
    "letters": 61906,
    "commentaries": []
   },
@@ -2404,6 +2563,7 @@
    "he": "משנה תורה, הלכות תעניות",
    "unit": "halacha",
    "pieces": 84,
+   "stops": 363,
    "letters": 16398,
    "commentaries": []
   },
@@ -2414,6 +2574,7 @@
    "he": "משנה תורה, הלכות מגילה וחנוכה",
    "unit": "halacha",
    "pieces": 60,
+   "stops": 264,
    "letters": 12284,
    "commentaries": []
   },
@@ -2424,6 +2585,7 @@
    "he": "משנה תורה, הלכות אישות",
    "unit": "halacha",
    "pieces": 535,
+   "stops": 2021,
    "letters": 110103,
    "commentaries": []
   },
@@ -2434,6 +2596,7 @@
    "he": "משנה תורה, הלכות גירושין",
    "unit": "halacha",
    "pieces": 333,
+   "stops": 1212,
    "letters": 64038,
    "commentaries": []
   },
@@ -2444,6 +2607,7 @@
    "he": "משנה תורה, הלכות יבום וחליצה",
    "unit": "halacha",
    "pieces": 194,
+   "stops": 645,
    "letters": 35218,
    "commentaries": []
   },
@@ -2454,6 +2618,7 @@
    "he": "משנה תורה, הלכות נערה בתולה",
    "unit": "halacha",
    "pieces": 32,
+   "stops": 98,
    "letters": 5418,
    "commentaries": []
   },
@@ -2464,6 +2629,7 @@
    "he": "משנה תורה, הלכות סוטה",
    "unit": "halacha",
    "pieces": 79,
+   "stops": 282,
    "letters": 13685,
    "commentaries": []
   },
@@ -2474,6 +2640,7 @@
    "he": "משנה תורה, הלכות איסורי ביאה",
    "unit": "halacha",
    "pieces": 503,
+   "stops": 1591,
    "letters": 92277,
    "commentaries": []
   },
@@ -2484,6 +2651,7 @@
    "he": "משנה תורה, הלכות מאכלות אסורות",
    "unit": "halacha",
    "pieces": 424,
+   "stops": 1228,
    "letters": 73818,
    "commentaries": []
   },
@@ -2494,6 +2662,7 @@
    "he": "משנה תורה, הלכות שחיטה",
    "unit": "halacha",
    "pieces": 279,
+   "stops": 932,
    "letters": 43294,
    "commentaries": []
   },
@@ -2504,6 +2673,7 @@
    "he": "משנה תורה, הלכות שבועות",
    "unit": "halacha",
    "pieces": 205,
+   "stops": 699,
    "letters": 36104,
    "commentaries": []
   },
@@ -2514,6 +2684,7 @@
    "he": "משנה תורה, הלכות נדרים",
    "unit": "halacha",
    "pieces": 237,
+   "stops": 627,
    "letters": 37721,
    "commentaries": []
   },
@@ -2524,6 +2695,7 @@
    "he": "משנה תורה, הלכות נזירות",
    "unit": "halacha",
    "pieces": 184,
+   "stops": 544,
    "letters": 33611,
    "commentaries": []
   },
@@ -2534,6 +2706,7 @@
    "he": "משנה תורה, הלכות ערכים וחרמין",
    "unit": "halacha",
    "pieces": 171,
+   "stops": 538,
    "letters": 28914,
    "commentaries": []
   },
@@ -2544,6 +2717,7 @@
    "he": "משנה תורה, הלכות כלאים",
    "unit": "halacha",
    "pieces": 182,
+   "stops": 504,
    "letters": 30584,
    "commentaries": []
   },
@@ -2554,6 +2728,7 @@
    "he": "משנה תורה, הלכות מתנות עניים",
    "unit": "halacha",
    "pieces": 200,
+   "stops": 544,
    "letters": 32801,
    "commentaries": []
   },
@@ -2564,6 +2739,7 @@
    "he": "משנה תורה, הלכות תרומות",
    "unit": "halacha",
    "pieces": 317,
+   "stops": 920,
    "letters": 56037,
    "commentaries": []
   },
@@ -2574,6 +2750,7 @@
    "he": "משנה תורה, הלכות מעשרות",
    "unit": "halacha",
    "pieces": 224,
+   "stops": 607,
    "letters": 37305,
    "commentaries": []
   },
@@ -2584,6 +2761,7 @@
    "he": "משנה תורה, הלכות מעשר שני ונטע רבעי",
    "unit": "halacha",
    "pieces": 194,
+   "stops": 469,
    "letters": 29204,
    "commentaries": []
   },
@@ -2594,6 +2772,7 @@
    "he": "משנה תורה, הלכות ביכורים ושאר מתנות כהונה שבגבולין",
    "unit": "halacha",
    "pieces": 224,
+   "stops": 561,
    "letters": 34614,
    "commentaries": []
   },
@@ -2604,6 +2783,7 @@
    "he": "משנה תורה, הלכות שמיטה ויובל",
    "unit": "halacha",
    "pieces": 253,
+   "stops": 616,
    "letters": 38232,
    "commentaries": []
   },
@@ -2614,6 +2794,7 @@
    "he": "משנה תורה, הלכות בית הבחירה",
    "unit": "halacha",
    "pieces": 137,
+   "stops": 400,
    "letters": 24151,
    "commentaries": []
   },
@@ -2624,6 +2805,7 @@
    "he": "משנה תורה, הלכות כלי המקדש והעובדין בו",
    "unit": "halacha",
    "pieces": 156,
+   "stops": 458,
    "letters": 27319,
    "commentaries": []
   },
@@ -2634,6 +2816,7 @@
    "he": "משנה תורה, הלכות ביאת מקדש",
    "unit": "halacha",
    "pieces": 147,
+   "stops": 412,
    "letters": 25214,
    "commentaries": []
   },
@@ -2644,6 +2827,7 @@
    "he": "משנה תורה, הלכות איסורי המזבח",
    "unit": "halacha",
    "pieces": 100,
+   "stops": 304,
    "letters": 18317,
    "commentaries": []
   },
@@ -2654,6 +2838,7 @@
    "he": "משנה תורה, הלכות מעשה הקרבנות",
    "unit": "halacha",
    "pieces": 322,
+   "stops": 906,
    "letters": 54457,
    "commentaries": []
   },
@@ -2664,6 +2849,7 @@
    "he": "משנה תורה, הלכות תמידים ומוספין",
    "unit": "halacha",
    "pieces": 168,
+   "stops": 485,
    "letters": 29869,
    "commentaries": []
   },
@@ -2674,6 +2860,7 @@
    "he": "משנה תורה, הלכות פסולי המוקדשין",
    "unit": "halacha",
    "pieces": 345,
+   "stops": 869,
    "letters": 53364,
    "commentaries": []
   },
@@ -2684,6 +2871,7 @@
    "he": "משנה תורה, הלכות עבודת יום הכפורים",
    "unit": "halacha",
    "pieces": 56,
+   "stops": 266,
    "letters": 16060,
    "commentaries": []
   },
@@ -2694,6 +2882,7 @@
    "he": "משנה תורה, הלכות מעילה",
    "unit": "halacha",
    "pieces": 101,
+   "stops": 329,
    "letters": 20553,
    "commentaries": []
   },
@@ -2704,6 +2893,7 @@
    "he": "משנה תורה, הלכות קרבן פסח",
    "unit": "halacha",
    "pieces": 125,
+   "stops": 433,
    "letters": 26152,
    "commentaries": []
   },
@@ -2714,6 +2904,7 @@
    "he": "משנה תורה, הלכות חגיגה",
    "unit": "halacha",
    "pieces": 32,
+   "stops": 124,
    "letters": 7349,
    "commentaries": []
   },
@@ -2724,6 +2915,7 @@
    "he": "משנה תורה, הלכות בכורות",
    "unit": "halacha",
    "pieces": 122,
+   "stops": 353,
    "letters": 21655,
    "commentaries": []
   },
@@ -2734,6 +2926,7 @@
    "he": "משנה תורה, הלכות שגגות",
    "unit": "halacha",
    "pieces": 137,
+   "stops": 648,
    "letters": 38940,
    "commentaries": []
   },
@@ -2744,6 +2937,7 @@
    "he": "משנה תורה, הלכות מחוסרי כפרה",
    "unit": "halacha",
    "pieces": 48,
+   "stops": 195,
    "letters": 11616,
    "commentaries": []
   },
@@ -2754,6 +2948,7 @@
    "he": "משנה תורה, הלכות תמורה",
    "unit": "halacha",
    "pieces": 46,
+   "stops": 152,
    "letters": 9078,
    "commentaries": []
   },
@@ -2764,6 +2959,7 @@
    "he": "משנה תורה, הלכות טומאת מת",
    "unit": "halacha",
    "pieces": 246,
+   "stops": 1084,
    "letters": 64979,
    "commentaries": []
   },
@@ -2774,6 +2970,7 @@
    "he": "משנה תורה, הלכות פרה אדומה",
    "unit": "halacha",
    "pieces": 166,
+   "stops": 615,
    "letters": 36822,
    "commentaries": []
   },
@@ -2784,6 +2981,7 @@
    "he": "משנה תורה, הלכות טומאת צרעת",
    "unit": "halacha",
    "pieces": 174,
+   "stops": 681,
    "letters": 40674,
    "commentaries": []
   },
@@ -2794,6 +2992,7 @@
    "he": "משנה תורה, הלכות מטמאי משכב ומושב",
    "unit": "halacha",
    "pieces": 143,
+   "stops": 533,
    "letters": 32125,
    "commentaries": []
   },
@@ -2804,6 +3003,7 @@
    "he": "משנה תורה, הלכות שאר אבות הטומאות",
    "unit": "halacha",
    "pieces": 254,
+   "stops": 854,
    "letters": 51285,
    "commentaries": []
   },
@@ -2814,6 +3014,7 @@
    "he": "משנה תורה, הלכות טומאת אוכלים",
    "unit": "halacha",
    "pieces": 259,
+   "stops": 718,
    "letters": 44073,
    "commentaries": []
   },
@@ -2824,6 +3025,7 @@
    "he": "משנה תורה, הלכות כלים",
    "unit": "halacha",
    "pieces": 409,
+   "stops": 1140,
    "letters": 70082,
    "commentaries": []
   },
@@ -2834,6 +3036,7 @@
    "he": "משנה תורה, הלכות מקואות",
    "unit": "halacha",
    "pieces": 157,
+   "stops": 480,
    "letters": 29229,
    "commentaries": []
   },
@@ -2844,6 +3047,7 @@
    "he": "משנה תורה, הלכות נזקי ממון",
    "unit": "halacha",
    "pieces": 202,
+   "stops": 677,
    "letters": 36070,
    "commentaries": []
   },
@@ -2854,6 +3058,7 @@
    "he": "משנה תורה, הלכות גניבה",
    "unit": "halacha",
    "pieces": 131,
+   "stops": 382,
    "letters": 21510,
    "commentaries": []
   },
@@ -2864,6 +3069,7 @@
    "he": "משנה תורה, הלכות גזילה ואבידה",
    "unit": "halacha",
    "pieces": 275,
+   "stops": 879,
    "letters": 49382,
    "commentaries": []
   },
@@ -2874,6 +3080,7 @@
    "he": "משנה תורה, הלכות חובל ומזיק",
    "unit": "halacha",
    "pieces": 135,
+   "stops": 468,
    "letters": 23100,
    "commentaries": []
   },
@@ -2884,6 +3091,7 @@
    "he": "משנה תורה, הלכות רוצח ושמירת נפש",
    "unit": "halacha",
    "pieces": 184,
+   "stops": 613,
    "letters": 30463,
    "commentaries": []
   },
@@ -2894,6 +3102,7 @@
    "he": "משנה תורה, הלכות מכירה",
    "unit": "halacha",
    "pieces": 413,
+   "stops": 1201,
    "letters": 71861,
    "commentaries": []
   },
@@ -2904,6 +3113,7 @@
    "he": "משנה תורה, הלכות זכייה ומתנה",
    "unit": "halacha",
    "pieces": 219,
+   "stops": 538,
    "letters": 33109,
    "commentaries": []
   },
@@ -2914,6 +3124,7 @@
    "he": "משנה תורה, הלכות שכנים",
    "unit": "halacha",
    "pieces": 156,
+   "stops": 578,
    "letters": 34763,
    "commentaries": []
   },
@@ -2924,6 +3135,7 @@
    "he": "משנה תורה, הלכות שלוחין ושותפין",
    "unit": "halacha",
    "pieces": 79,
+   "stops": 445,
    "letters": 26535,
    "commentaries": []
   },
@@ -2934,6 +3146,7 @@
    "he": "משנה תורה, הלכות עבדים",
    "unit": "halacha",
    "pieces": 116,
+   "stops": 401,
    "letters": 24183,
    "commentaries": []
   },
@@ -2944,6 +3157,7 @@
    "he": "משנה תורה, הלכות שכירות",
    "unit": "halacha",
    "pieces": 124,
+   "stops": 573,
    "letters": 33945,
    "commentaries": []
   },
@@ -2954,6 +3168,7 @@
    "he": "משנה תורה, הלכות שאלה ופיקדון",
    "unit": "halacha",
    "pieces": 64,
+   "stops": 315,
    "letters": 18717,
    "commentaries": []
   },
@@ -2964,6 +3179,7 @@
    "he": "משנה תורה, הלכות מלווה ולווה",
    "unit": "halacha",
    "pieces": 281,
+   "stops": 1170,
    "letters": 70478,
    "commentaries": []
   },
@@ -2974,6 +3190,7 @@
    "he": "משנה תורה, הלכות טוען ונטען",
    "unit": "halacha",
    "pieces": 187,
+   "stops": 809,
    "letters": 47375,
    "commentaries": []
   },
@@ -2984,6 +3201,7 @@
    "he": "משנה תורה, הלכות נחלות",
    "unit": "halacha",
    "pieces": 117,
+   "stops": 452,
    "letters": 24819,
    "commentaries": []
   },
@@ -2994,6 +3212,7 @@
    "he": "משנה תורה, הלכות סנהדרין והעונשין המסורין להם",
    "unit": "halacha",
    "pieces": 254,
+   "stops": 1043,
    "letters": 57823,
    "commentaries": []
   },
@@ -3004,6 +3223,7 @@
    "he": "משנה תורה, הלכות עדות",
    "unit": "halacha",
    "pieces": 173,
+   "stops": 686,
    "letters": 40951,
    "commentaries": []
   },
@@ -3014,6 +3234,7 @@
    "he": "משנה תורה, הלכות ממרים",
    "unit": "halacha",
    "pieces": 69,
+   "stops": 281,
    "letters": 17249,
    "commentaries": []
   },
@@ -3024,6 +3245,7 @@
    "he": "משנה תורה, הלכות אבל",
    "unit": "halacha",
    "pieces": 183,
+   "stops": 484,
    "letters": 30285,
    "commentaries": []
   },
@@ -3034,6 +3256,7 @@
    "he": "משנה תורה, הלכות מלכים ומלחמות",
    "unit": "halacha",
    "pieces": 131,
+   "stops": 499,
    "letters": 28583,
    "commentaries": []
   },
@@ -3044,6 +3267,7 @@
    "he": "שולחן ערוך, אורח חיים",
    "unit": "seif",
    "pieces": 4171,
+   "stops": 22934,
    "letters": 721289,
    "commentaries": [
     {
@@ -3060,6 +3284,7 @@
    "he": "שולחן ערוך, יורה דעה",
    "unit": "seif",
    "pieces": 3700,
+   "stops": 26187,
    "letters": 775080,
    "commentaries": []
   },
@@ -3070,6 +3295,7 @@
    "he": "שולחן ערוך, אבן העזר",
    "unit": "seif",
    "pieces": 1830,
+   "stops": 14187,
    "letters": 398459,
    "commentaries": []
   },
@@ -3080,6 +3306,7 @@
    "he": "שולחן ערוך, חושן משפט",
    "unit": "seif",
    "pieces": 3692,
+   "stops": 22940,
    "letters": 925048,
    "commentaries": []
   },
@@ -3090,6 +3317,7 @@
    "he": "טור אורח חיים",
    "unit": "siman",
    "pieces": 697,
+   "stops": 13340,
    "letters": 721258,
    "commentaries": []
   },
@@ -3100,6 +3328,7 @@
    "he": "טור יורה דעה",
    "unit": "siman",
    "pieces": 403,
+   "stops": 12430,
    "letters": 630813,
    "commentaries": []
   },
@@ -3110,6 +3339,7 @@
    "he": "טור אבן העזר",
    "unit": "siman",
    "pieces": 178,
+   "stops": 8177,
    "letters": 419656,
    "commentaries": []
   },
@@ -3120,6 +3350,7 @@
    "he": "טור חושן משפט",
    "unit": "siman",
    "pieces": 426,
+   "stops": 17414,
    "letters": 1043136,
    "commentaries": []
   }

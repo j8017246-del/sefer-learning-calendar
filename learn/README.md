@@ -7,23 +7,52 @@ the screens come in Part 2.
 ## Layout
 
 - `data/catalog.json`: every sefer offered, grouped into the six collections.
-- `data/<collection>/<sefer>.json`: the sefer's standard pieces in order, with
-  the number of Hebrew letters in each piece and in each commentary on it.
-  It holds no text.
-- `engine/sefer.js`: names pieces ("9b", "3:4", "siman 128"), describes a
-  day's range ("Berakhot 9b to the end of 10a") and builds the Sefaria link.
-- `engine/schedule.js`: builds a plan from a finish date or a daily amount,
-  chosen weekdays, a lighter day and days off; marks days done; handles missed
-  days (push / spread / double up); re-splits what is left when settings change.
+- `data/<collection>/<sefer>.json`: the sefer's standard pieces in order
+  (pasuk, mishnah, amud, halacha, se'if, siman), each cut into stopping
+  points, plus the stopping points of each commentary. For every stopping
+  point it keeps the number of Hebrew letters and its first few words.
+- `engine/sefer.js`: the learning order for the chosen commentaries (a line
+  of Gemara, then its Rashi, then its Tosafot), piece names ("9b", "3:4",
+  "siman 128"), how a day's portion is written, and the Sefaria link.
+- `engine/schedule.js`: builds a plan from a finish date or a daily amount
+  (any fraction of a piece, e.g. half an amud), chosen weekdays, a lighter
+  day and days off; marks days done; handles missed days (push / spread /
+  double up); re-splits what is left when settings change.
+
+## Stopping points
+
+A day can end at the smallest natural break in the text, so it follows the
+person's schedule, not the length of an amud or siman:
+
+- every sentence and clause end (. : ? ; ! ,) in the main text;
+- in the Tur, which has little punctuation, every commentary reference mark;
+- where a stretch has no break, about every 60 letters (one printed line);
+- every Rashi, Tosafot, Bartenura and Mishnah Berurah comment, and every
+  sentence inside a long one. Each comment comes right after the line it
+  explains.
+
+A stopping point is named by the piece it is in and its first words, the way
+printed calendars write "until the words ...". The words are unique within
+their amud or siman. Citations in parentheses are skipped when naming a
+point. In Berakhot an amud has about 38 stopping points in the Gemara alone.
 
 ## How a day's portion is chosen
 
-Each piece counts by its letters plus the letters of the commentaries the
-person learns with it, so a long amud counts for more than a short one. Days
-are filled in order, each aiming for its share of what is left (a lighter day
-gets 0.65 of a share). A day always ends at the end of a piece, and it ends
-at a natural break (end of a perek, a siman or a whole daf) when that break
-is within 15% of the day's share.
+Each stopping point counts by its letters. Days are filled in learning
+order, each aiming for its share of what is left (a lighter day gets 0.65 of
+a share), and each ends at the stopping point nearest its share. It ends at
+the end of an amud, se'if or siman instead when that is within 3% of the
+share, or at the end of a perek or whole daf when that is within 5%.
+
+Measured on Berakhot with Rashi and Tosafot, Sunday to Friday:
+
+| Schedule | Days | Letters a day | Within 3% | Within 10% |
+|---|---|---|---|---|
+| 10 weeks | 60 | 10,368 | 98% | 100% |
+| 1 year | 313 | 1,988 | 99% | 100% |
+| 3 years | 941 | 661 | 63% | 100% |
+| Half an amud a day | 266 | 2,345 | 100% | 100% |
+| A tenth of an amud a day | 1,326 | 469 | 48% | 98% |
 
 ## Rebuilding the data
 
@@ -55,7 +84,8 @@ Known gaps:
 - Tamid has no Rashi or Tosafot on Sefaria (the page has other commentaries).
 - In Bava Batra the Rashi slot includes the Rashbam from 29a, as on the page.
 - Even HaEzer leaves out Seder HaGet and Seder Halitzah.
-- The Tur is divided by siman, so a long siman is one day's piece.
+- Stopping points in the 186 estimated Mishnah Berurah simanim have no
+  words to name them; they are named "Mishnah Berurah on" the se'if.
 
 ## Tests
 

@@ -217,51 +217,22 @@ def trim(weights, keep_start=False):
     return (0 if keep_start else nz[0]), nz[-1]
 
 
-def two_level(text):
-    """[[seg, ...], ...] -> per-chapter counts and flat weights.
-
-    A text with named sections keeps only its main (unnamed) body; for
-    Even HaEzer that leaves out Seder HaGet and Seder Halitzah."""
-    if isinstance(text, dict):
-        text = text[""]
-    chapters, flat = [], []
-    for ch in text:
-        ch = ch if isinstance(ch, list) else [ch]
-        ws = [deep_weight(x) for x in ch]
-        while ws and ws[-1] == 0:
-            ws.pop()
-        chapters.append(len(ws))
-        flat.extend(ws)
-    while chapters and chapters[-1] == 0:
-        chapters.pop()
-    return chapters, flat
-
-
-def align_two_level(main_chapters, text):
-    """Commentary shaped [chapter][segment][comment] -> weights on main pieces."""
-    out = []
-    for c, n in enumerate(main_chapters):
-        ch = text[c] if c < len(text) and isinstance(text[c], list) else []
-        for s in range(n):
-            out.append(deep_weight(ch[s]) if s < len(ch) else 0)
-    return out
-
-
 def write(record):
     path = OUT / (record["id"] + ".json")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n",
                     encoding="utf-8")
     total = sum(record["weights"])
-    print(f"  {record['id']}: {len(record['weights'])} {record['unit']} pieces, {total} letters",
-          file=sys.stderr)
+    print(f"  {record['id']}: {len(record['stops'])} {record['unit']} pieces, "
+          f"{len(record['weights'])} stops, {total} letters", file=sys.stderr)
     return record
 
 
 def catalog_entry(record):
     total = sum(record["weights"])
     entry = {k: record[k] for k in ("id", "collection", "en", "he", "unit")}
-    entry["pieces"] = len(record["weights"])
+    entry["pieces"] = len(record["stops"])
+    entry["stops"] = len(record["weights"])
     entry["letters"] = total
     entry["commentaries"] = [{"id": c["id"], "en": c["en"], "he": c["he"]}
                              for c in record["commentaries"]]
@@ -273,35 +244,251 @@ def commentary(cid, weights):
     return {"id": cid, "en": en, "he": he, "weights": weights}
 
 
+# ---- stopping points ------------------------------------------------------
+#
+# A day may end at the smallest natural break in the text, not only at the
+# end of an amud, se'if or siman: every sentence and clause end (. : ? ; ! ,)
+# and, in the Tur, every commentary reference mark. Where a stretch has no
+# such break, it is cut every MAX_STOP letters at a word, about one printed
+# line. Only fragments shorter than MIN_STOP letters (a word or two) are
+# joined to the next one. A stop is named by the piece it is in and its
+# first words, the way a printed calendar says "until the words ...".
+
+MIN_STOP = 15
+MAX_STOP = 60
+MARKER_WORDS = 3
+
+NIKUD = re.compile(r"[֑-ֽֿ-ׇ]")
+ANCHOR = re.compile(r"<i\b[^>]*data-commentator[^>]*>\s*</i>")
+SENTENCE_END = re.compile(r"(?<=[.:?;!,])\s+|\x00")
+CITATION = re.compile(r"\([^()]*\)|\[[^\[\]]*\]")
+WORD = re.compile(r"[א-ת׳״'\"]+")
+
+
+def sentences(text):
+    """Plain sentences of one segment, in order."""
+    if not isinstance(text, str):
+        return []
+    t = ANCHOR.sub(" \x00 ", text)
+    t = TAG.sub(" ", t).replace("־", " ")
+    t = NIKUD.sub("", t)
+    out = []
+    for part in SENTENCE_END.split(t):
+        part = " ".join(part.split())
+        if not LETTER.search(part):
+            continue
+        n = weigh(part)
+        if n <= MAX_STOP * 2:
+            out.append(part)
+            continue
+        # a long run with no sentence end: cut it every ~MAX_STOP letters at a word
+        words, cur, cur_n = part.split(" "), [], 0
+        for w in words:
+            cur.append(w)
+            cur_n += weigh(w)
+            if cur_n >= MAX_STOP:
+                out.append(" ".join(cur))
+                cur, cur_n = [], 0
+        if cur:
+            if out and cur_n < MIN_STOP:
+                out[-1] += " " + " ".join(cur)
+            else:
+                out.append(" ".join(cur))
+    return out
+
+
+def marker(text, piece_words):
+    """First words of a stop: at least MARKER_WORDS, and enough that they
+    appear only once in the whole piece, so the place is unambiguous.
+    Citations in parentheses or brackets are skipped."""
+    words = WORD.findall(CITATION.sub(" ", text)) or WORD.findall(text)
+    n = min(MARKER_WORDS, len(words))
+    while n < min(len(words), 10):
+        if sum(1 for i in range(len(piece_words) - n + 1)
+               if piece_words[i:i + n] == words[:n]) <= 1:
+            break
+        n += 1
+    return " ".join(words[:n])
+
+
+def group_sentences(sents):
+    """Join sentence fragments shorter than MIN_STOP to the next one."""
+    groups, cur = [], []
+    for i, (n, _) in enumerate(sents):
+        cur.append(i)
+        if sum(sents[k][0] for k in cur) >= MIN_STOP:
+            groups.append(cur)
+            cur = []
+    if cur:
+        if groups:
+            groups[-1].extend(cur)
+        else:
+            groups.append(cur)
+    return groups
+
+
+def flatten(x):
+    if isinstance(x, list):
+        return [y for z in x for y in flatten(z)]
+    return [x] if isinstance(x, str) else []
+
+
+def stops_of_piece(segments, comm):
+    """Cut one piece into stops.
+
+    segments: the piece's segments (strings, or lists of strings).
+    comm: {commentary id: [[comment, ...] per segment]}; a comment is a
+          string, or a number of letters when only its size is known.
+
+    Returns (main, extra):
+      main  = [(letters, marker, first segment number)]
+      extra = {cid: [(main stop it follows, letters, marker, starts a comment)]}
+    Each commentary's stops follow the main stop that ends the segment it
+    explains, so a day can end inside a long Rashi or Tosafot too.
+    """
+    sents, seg_end = [], []          # sentences; last sentence index per segment
+    for s, seg in enumerate(segments):
+        for x in flatten(seg):
+            sents.extend((weigh(p), p, s) for p in sentences(x))
+        seg_end.append(len(sents) - 1)
+    main, sent_stop = [], {}
+    if not sents:
+        main = [(0, "", 1)]
+    else:
+        piece_words = WORD.findall(CITATION.sub(" ", " ".join(x[1] for x in sents)))
+        for g in group_sentences([(n, t) for n, t, _ in sents]):
+            text = " ".join(sents[k][1] for k in g)
+            for k in g:
+                sent_stop[k] = len(main)
+            main.append((sum(sents[k][0] for k in g), marker(text, piece_words), sents[g[0]][2] + 1))
+
+    extra = {}
+    for cid, per_seg in comm.items():
+        out = []
+        words_here = WORD.findall(CITATION.sub(" ", " ".join(
+            t for comments in per_seg for c in comments for t in flatten(c))))
+        for s, comments in enumerate(per_seg):
+            after = sent_stop.get(seg_end[s], 0) if s < len(seg_end) and seg_end[s] >= 0 else 0
+            for c in comments:
+                if isinstance(c, (int, float)):
+                    if c:
+                        out.append((after, int(c), "", 1))
+                    continue
+                cs = [(weigh(p), p) for t in flatten(c) for p in sentences(t)]
+                if not cs:
+                    continue
+                comment_words = WORD.findall(CITATION.sub(" ", " ".join(p for _, p in cs)))
+                for j, g in enumerate(group_sentences(cs)):
+                    text = " ".join(cs[k][1] for k in g)
+                    mk = marker(text, words_here if j == 0 else comment_words)
+                    out.append((after, sum(cs[k][0] for k in g), mk, 1 if j == 0 else 0))
+        extra[cid] = out
+    return main, extra
+
+
+def finish(base, pieces, comm_ids, split=True, keep_segments=False):
+    """Turn pieces [(segments, {cid: [[comment, ...] per segment]})] into the data record."""
+    counts, weights, markers, segs = [], [], [], []
+    cstops = {cid: {"after": [], "weights": [], "markers": [], "starts": []} for cid in comm_ids}
+    for segments, comm in pieces:
+        if split:
+            main, extra = stops_of_piece(segments, comm)
+        else:
+            main = [(deep_weight(segments), "", 1)]
+            extra = {cid: [(0, deep_weight(cs), "", 1) for cs in per_seg if deep_weight(cs)]
+                     for cid, per_seg in comm.items()}
+        base_index = len(weights)
+        counts.append(len(main))
+        for letters, mk, seg in main:
+            weights.append(letters)
+            markers.append(mk)
+            segs.append(seg)
+        for cid in comm_ids:
+            for after, letters, mk, start in extra.get(cid, []):
+                c = cstops[cid]
+                c["after"].append(base_index + after)
+                c["weights"].append(letters)
+                c["markers"].append(mk)
+                c["starts"].append(start)
+    record = dict(base)
+    record["stops"] = counts
+    record["weights"] = weights
+    if split:
+        record["markers"] = markers
+    if keep_segments:
+        record["segments"] = segs
+    comms = []
+    for cid in comm_ids:
+        en, he = COMMENTARY_NAMES[cid]
+        comms.append({"id": cid, "en": en, "he": he, **cstops[cid]})
+    record["commentaries"] = comms
+    return write(record)
+
+
+def chapter_pieces(text):
+    """[[seg, ...], ...] -> per-chapter piece counts and the pieces in order.
+
+    A text with named sections keeps only its main (unnamed) body; for
+    Even HaEzer that leaves out Seder HaGet and Seder Halitzah."""
+    if isinstance(text, dict):
+        text = text[""]
+    chapters, pieces = [], []
+    for ch in text:
+        ch = ch if isinstance(ch, list) else [ch]
+        ch = list(ch)
+        while ch and deep_weight(ch[-1]) == 0:
+            ch.pop()
+        chapters.append(len(ch))
+        pieces.extend(ch)
+    while chapters and chapters[-1] == 0:
+        chapters.pop()
+    return chapters, pieces
+
+
+def chapter_commentary(chapters, text):
+    """Commentary shaped [chapter][piece][comment] -> the comments on each main piece."""
+    if isinstance(text, dict):
+        text = text[""]
+    out = []
+    for c, n in enumerate(chapters):
+        ch = text[c] if c < len(text) and isinstance(text[c], list) else []
+        for s in range(n):
+            x = ch[s] if s < len(ch) else []
+            out.append(x if isinstance(x, list) else [x])
+    return out
+
+
 def build_tanakh(ex):
     for title in TANAKH:
         v = ex.best(title, PREFERRED["tanakh"])
-        chapters, flat = two_level(v["text"])
-        yield write({"id": f"tanakh/{slug(title)}", "collection": "tanakh",
-                     "en": title, "he": v["heTitle"], "sefaria": title,
-                     "unit": "pasuk", "shape": "chapters", "chapters": chapters,
-                     "weights": flat, "commentaries": [],
-                     "sources": [source(v, title)]})
+        chapters, pieces = chapter_pieces(v["text"])
+        yield finish({"id": f"tanakh/{slug(title)}", "collection": "tanakh",
+                      "en": title, "he": v["heTitle"], "sefaria": title,
+                      "unit": "pasuk", "shape": "chapters", "chapters": chapters,
+                      "sources": [source(v, title)]},
+                     [([p], {}) for p in pieces], [], split=False)
 
 
 def build_mishnah(ex):
     for name in MISHNAH:
         title = name if name == "Pirkei Avot" else f"Mishnah {name}"
         v = ex.best(title, PREFERRED["mishnah"])
-        chapters, flat = two_level(v["text"])
-        comms, sources = [], [source(v, title)]
+        chapters, pieces = chapter_pieces(v["text"])
+        sources, comm_ids, bart = [source(v, title)], [], None
         try:
             btitle = f"Bartenura on {title}".replace("Ta'anit", "Taanit")
             b = ex.best(btitle, PREFERRED["bartenura"])
-            comms.append(commentary("bartenura", align_two_level(chapters, b["text"])))
+            bart = chapter_commentary(chapters, b["text"])
+            comm_ids.append("bartenura")
             sources.append(source(b, btitle))
         except (KeyError, LookupError) as e:
             print(f"  warning: {e}", file=sys.stderr)
-        yield write({"id": f"mishnah/{slug(name)}", "collection": "mishnah",
-                     "en": name if name == "Pirkei Avot" else f"Mishnah {name}",
-                     "he": v["heTitle"], "sefaria": title, "unit": "mishnah",
-                     "shape": "chapters", "chapters": chapters, "weights": flat,
-                     "commentaries": comms, "sources": sources})
+        yield finish({"id": f"mishnah/{slug(name)}", "collection": "mishnah",
+                      "en": name if name == "Pirkei Avot" else f"Mishnah {name}",
+                      "he": v["heTitle"], "sefaria": title, "unit": "mishnah",
+                      "shape": "chapters", "chapters": chapters, "sources": sources},
+                     [([p], {"bartenura": [bart[i]]} if bart else {})
+                      for i, p in enumerate(pieces)], comm_ids)
 
 
 def build_bavli(ex):
@@ -309,7 +496,7 @@ def build_bavli(ex):
         v = ex.best(title, PREFERRED["bavli"])
         amudim = [deep_weight(a) for a in v["text"]]
         first, last = trim(amudim)
-        comms, sources = [], [source(v, title)]
+        sources, comm_texts, names = [source(v, title)], {}, {}
         for cid in ("rashi", "tosafot"):
             ctitle = f"{COMMENTARY_NAMES[cid][0]} on {title}"
             try:
@@ -317,35 +504,50 @@ def build_bavli(ex):
             except (KeyError, LookupError) as e:
                 print(f"  warning: {e}", file=sys.stderr)
                 continue
-            cw = [deep_weight(c["text"][i]) if i < len(c["text"]) else 0
-                  for i in range(first, last + 1)]
-            comms.append(commentary(cid, cw))
+            comm_texts[cid] = [c["text"]]
             sources.append(source(c, ctitle))
             if cid == "rashi" and title == "Bava Batra":
                 # Rashi ends at 29a; the Rashbam takes his place on the page.
                 r = ex.best("Rashbam on Bava Batra", PREFERRED["rashi"])
-                for k, i in enumerate(range(first, last + 1)):
-                    if i < len(r["text"]):
-                        cw[k] += deep_weight(r["text"][i])
-                comms[-1].update(en="Rashi / Rashbam", he="רש״י / רשב״ם")
+                comm_texts[cid].append(r["text"])
+                names[cid] = ("Rashi / Rashbam", "רש״י / רשב״ם")
                 sources.append(source(r, "Rashbam on Bava Batra"))
-        yield write({"id": f"bavli/{slug(title)}", "collection": "bavli",
-                     "en": title, "he": v["heTitle"], "sefaria": title,
-                     "unit": "amud", "shape": "daf", "firstAmud": first,
-                     "weights": amudim[first:last + 1], "commentaries": comms,
-                     "sources": sources})
+        pieces = []
+        for a in range(first, last + 1):
+            segs = v["text"][a] if isinstance(v["text"][a], list) else [v["text"][a]]
+            comm = {}
+            for cid, texts in comm_texts.items():
+                per_seg = [[] for _ in segs]
+                for t in texts:
+                    amud = t[a] if a < len(t) and isinstance(t[a], list) else []
+                    for s, comments in enumerate(amud):
+                        per_seg[min(s, len(segs) - 1)].extend(
+                            comments if isinstance(comments, list) else [comments])
+                comm[cid] = per_seg
+            pieces.append((segs, comm))
+        rec = finish({"id": f"bavli/{slug(title)}", "collection": "bavli",
+                      "en": title, "he": v["heTitle"], "sefaria": title,
+                      "unit": "amud", "shape": "daf", "firstAmud": first,
+                      "sources": sources},
+                     pieces, list(comm_texts), keep_segments=True)
+        if names:
+            for c in rec["commentaries"]:
+                if c["id"] in names:
+                    c["en"], c["he"] = names[c["id"]]
+            write(rec)
+        yield rec
 
 
 def build_rambam(ex):
     for name in RAMBAM:
         title = f"Mishneh Torah, {name}"
         v = ex.best(title, PREFERRED["rambam"])
-        chapters, flat = two_level(v["text"])
-        yield write({"id": f"rambam/{slug(name)}", "collection": "rambam",
-                     "en": f"Rambam, {name}", "he": v["heTitle"], "sefaria": title,
-                     "unit": "halacha", "shape": "chapters", "chapters": chapters,
-                     "weights": flat, "commentaries": [],
-                     "sources": [source(v, title)]})
+        chapters, pieces = chapter_pieces(v["text"])
+        yield finish({"id": f"rambam/{slug(name)}", "collection": "rambam",
+                      "en": f"Rambam, {name}", "he": v["heTitle"], "sefaria": title,
+                      "unit": "halacha", "shape": "chapters", "chapters": chapters,
+                      "sources": [source(v, title)]},
+                     [([p], {}) for p in pieces], [])
 
 
 def mb_to_seif(ex):
@@ -384,8 +586,8 @@ def build_sa(ex):
     for part, pslug in SA_PARTS:
         title = f"Shulchan Arukh, {part}"
         v = ex.best(title, PREFERRED["sa"])
-        chapters, flat = two_level(v["text"])
-        comms, sources = [], [source(v, title)]
+        chapters, pieces = chapter_pieces(v["text"])
+        sources, comm_ids, cw, estimated = [source(v, title)], [], None, None
         if part == "Orach Chayim":
             mb = ex.best("Mishnah Berurah", PREFERRED["mb"])
             body = mb["text"][""] if isinstance(mb["text"], dict) else mb["text"]
@@ -394,7 +596,7 @@ def build_sa(ex):
             for n in chapters:
                 offsets.append(acc)
                 acc += n
-            cw = [0] * len(flat)
+            cw = [[] for _ in pieces]
             written = 0
             for si, siman in enumerate(body):
                 if si >= len(chapters) or not chapters[si]:
@@ -402,9 +604,8 @@ def build_sa(ex):
                 current = 1
                 for k, comment in enumerate(siman if isinstance(siman, list) else [], start=1):
                     current = min(max(mapping.get((si + 1, k), current), 1), chapters[si])
-                    w = deep_weight(comment)
-                    cw[offsets[si] + current - 1] += w
-                    written += w
+                    cw[offsets[si] + current - 1].append(comment)
+                    written += deep_weight(comment)
             # The freely licensed edition lacks some simanim. Estimate those
             # from the number of se'ifim katanim linked to each se'if.
             have = {si + 1 for si, siman in enumerate(body) if deep_weight(siman)}
@@ -414,17 +615,22 @@ def build_sa(ex):
                                 and siman <= len(chapters)})
             for (siman, _), seif in mapping.items():
                 if siman in estimated and 1 <= seif <= chapters[siman - 1]:
-                    cw[offsets[siman - 1] + seif - 1] += round(per_katan)
+                    cw[offsets[siman - 1] + seif - 1].append(round(per_katan))
             print(f"  Mishnah Berurah: {len(have)} simanim from the text, "
                   f"{len(estimated)} estimated at {per_katan:.0f} letters per se'if katan",
                   file=sys.stderr)
-            comms.append(commentary("mishnah-berurah", cw))
-            comms[-1]["estimatedSimanim"] = estimated
+            comm_ids.append("mishnah-berurah")
             sources.append(source(mb, "Mishnah Berurah"))
-        yield write({"id": f"shulchan-aruch/{pslug}", "collection": "shulchan-aruch",
-                     "en": title, "he": v["heTitle"], "sefaria": title,
-                     "unit": "seif", "shape": "chapters", "chapters": chapters,
-                     "weights": flat, "commentaries": comms, "sources": sources})
+        rec = finish({"id": f"shulchan-aruch/{pslug}", "collection": "shulchan-aruch",
+                      "en": title, "he": v["heTitle"], "sefaria": title,
+                      "unit": "seif", "shape": "chapters", "chapters": chapters,
+                      "sources": sources},
+                     [([p], {"mishnah-berurah": [cw[i]]} if cw else {})
+                      for i, p in enumerate(pieces)], comm_ids)
+        if estimated:
+            rec["commentaries"][0]["estimatedSimanim"] = estimated
+            write(rec)
+        yield rec
 
 
 def build_tur(ex):
@@ -436,14 +642,14 @@ def build_tur(ex):
         lic = LICENSE_RANK.get(str(v.get("license", "")).strip().lower())
         if lic is None:
             raise LookupError(f"Tur {vt} is not freely licensed")
-        simanim = [deep_weight(s) for s in v["text"][part][""]]
-        while simanim and simanim[-1] == 0:
+        simanim = list(v["text"][part][""])
+        while simanim and deep_weight(simanim[-1]) == 0:
             simanim.pop()
-        yield write({"id": f"tur/{pslug}", "collection": "tur",
-                     "en": f"Tur, {part}", "he": f"טור {heparts[part]}",
-                     "sefaria": f"Tur, {part}", "unit": "siman", "shape": "list",
-                     "first": 1, "weights": simanim, "commentaries": [],
-                     "sources": [source(v, "Tur")]})
+        yield finish({"id": f"tur/{pslug}", "collection": "tur",
+                      "en": f"Tur, {part}", "he": f"טור {heparts[part]}",
+                      "sefaria": f"Tur, {part}", "unit": "siman", "shape": "list",
+                      "first": 1, "sources": [source(v, "Tur")]},
+                     [(s if isinstance(s, list) else [s], {}) for s in simanim], [])
 
 
 BUILDERS = {"tanakh": build_tanakh, "mishnah": build_mishnah, "bavli": build_bavli,

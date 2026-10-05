@@ -1,5 +1,9 @@
 /*
- * Learning schedule: which pieces of a sefer are learned on which day.
+ * Learning schedule: which part of a sefer is learned on which day.
+ *
+ * A day may end at any stopping point (a sentence or clause end, or about one
+ * printed line; see sefer.js), so each day's share follows the person's
+ * schedule, not the length of an amud or a siman.
  *
  * Calendar rules carried over from the scan-reader calendar (index.html):
  * chosen weekdays, a lighter day weighted at 0.65 of a full day, date-range
@@ -11,15 +15,15 @@
  *
  * A plan:
  *   {
- *     from, to,                 // first and last piece (inclusive)
+ *     from, to,                 // first and last unit of the view (inclusive); see SeferPieces.unitRange
  *     commentaries: ["rashi"],  // learned together with the main text
  *     startDate,
- *     endDate | dailyPieces,    // finish by a date, or a set amount a day
+ *     endDate | dailyPieces,    // finish by a date, or so many pieces a day (0.5 = half an amud)
  *     learningDays: [0..6],     // 0 = Sunday
  *     lighterDays: [5],         // subset of learningDays
  *     lighterWeight: 0.65,
  *     daysOff: [{ start, end, label }],
- *     portions: [{ date, from, to, done }]   // to < from: nothing new that day
+ *     portions: [{ date, from, to, done }]   // units; to < from: nothing new that day
  *   }
  */
 (function (global) {
@@ -28,7 +32,10 @@
   const Pieces = global.SeferPieces || (typeof require !== "undefined" ? require("./sefer.js") : null);
   const DAY_MS = 86400000;
   const LIGHTER_WEIGHT = 0.65;
-  const SNAP_TOLERANCE = 0.15;     // how far a day may stretch to end at a perek
+  // How far from its exact share a day may move to end at a better place:
+  // the end of a perek or whole daf (level 2), or of an amud, se'if, siman,
+  // halacha, mishnah or pasuk (level 1). Otherwise it ends at the nearest stop.
+  const BREAK_TOLERANCE = [0, 0.03, 0.05];
   const MAX_DAYS = 366 * 30;
 
   // ---- dates ------------------------------------------------------------
@@ -86,27 +93,29 @@
     return p;
   }
 
-  // Last piece of one day, starting at `cur`, aiming for `target` letters.
-  // Returns cur - 1 when the day should hold nothing new (the next piece is
-  // more than twice the day's share). Prefers ending at a natural end (perek,
-  // siman, whole daf) when one is within SNAP_TOLERANCE of the target.
-  function chooseEnd(sums, ends, cur, to, target) {
-    const base = sums[cur];
+  // Last stop of one day, starting at `cur`, aiming for `target` letters:
+  // the stop nearest the target, or a better place to end within
+  // BREAK_TOLERANCE. Returns cur - 1 when the day should hold nothing new
+  // (only when a single stop is more than twice the day's share).
+  function chooseEnd(sums, levels, cur, to, target) {
+    const base = sums[cur], maxTol = Math.max(...BREAK_TOLERANCE);
     let best = cur - 1, bestGap = target;
-    let snap = -1, snapGap = Infinity;
+    let snap = -1, snapLevel = 0, snapGap = Infinity;
     for (let k = cur; k <= to; k++) {
-      const got = sums[k + 1] - base, gap = Math.abs(got - target);
+      const got = sums[k + 1] - base, gap = Math.abs(got - target), level = levels[k];
       if (gap < bestGap) { best = k; bestGap = gap; }
-      if (ends.has(k) && gap <= target * SNAP_TOLERANCE && gap < snapGap) { snap = k; snapGap = gap; }
-      if (got > target * (1 + SNAP_TOLERANCE) && got - target > bestGap) break;
+      if (level > 0 && gap <= target * BREAK_TOLERANCE[level] &&
+          (level > snapLevel || (level === snapLevel && gap < snapGap))) {
+        snap = k; snapLevel = level; snapGap = gap;
+      }
+      if (got > target * (1 + maxTol) && got - target > bestGap) break;
     }
     return snap >= 0 ? snap : best;
   }
 
-  // Split pieces [from, to] over the given dates, in proportion to each
-  // date's weight. Every piece is placed; a day may get nothing new only when
-  // the pieces are too large to share out.
-  function splitOverDates(weights, ends, from, to, dates) {
+  // Split stops [from, to] over the given dates, in proportion to each
+  // date's weight. Every stop is placed.
+  function splitOverDates(weights, levels, from, to, dates) {
     if (!dates.length) throw new Error("There are no learning days before the finish date");
     const sums = prefixSums(weights);
     const out = [];
@@ -118,8 +127,8 @@
       else if (j === dates.length - 1) end = to;
       else {
         const target = (sums[to + 1] - sums[cur]) * d.weight / weightLeft;
-        // only empty pieces left: they go with this day
-        end = target > 0 ? chooseEnd(sums, ends, cur, to, target) : to;
+        // only empty stops left: they go with this day
+        end = target > 0 ? chooseEnd(sums, levels, cur, to, target) : to;
       }
       out.push({ date: d.date, from: cur, to: end, done: false });
       cur = Math.max(cur, end + 1);
@@ -128,8 +137,8 @@
     return out;
   }
 
-  // Split pieces [from, to] at a fixed amount a day, from `start` onward.
-  function splitByAmount(plan, weights, ends, from, to, start, perDay, skip) {
+  // Split stops [from, to] at a fixed amount a day, from `start` onward.
+  function splitByAmount(plan, weights, levels, from, to, start, perDay, skip) {
     const sums = prefixSums(weights);
     const out = [];
     let cur = from, iso = start;
@@ -138,7 +147,7 @@
       const w = dayWeight(plan, iso, skip);
       if (w > 0) {
         const target = perDay * w;
-        let end = chooseEnd(sums, ends, cur, to, target);
+        let end = chooseEnd(sums, levels, cur, to, target);
         if (end < cur) end = cur;                  // a set amount always moves forward
         const rest = sums[to + 1] - sums[end + 1];
         if (rest > 0 && rest < target * 0.25) end = to; // don't leave a sliver for one more day
@@ -150,16 +159,19 @@
     return out;
   }
 
-  function averagePiece(weights, from, to) {
+  // Letters in an average piece (amud, se'if, ...) of the plan's range.
+  function averagePiece(v, from, to) {
     let total = 0;
-    for (let i = from; i <= to; i++) total += weights[i];
-    return total / Math.max(1, to - from + 1);
+    for (let i = from; i <= to; i++) total += v.weights[i];
+    return total / (v.piece[to] - v.piece[from] + 1);
   }
+
+  const viewOf = (plan, sefer) => Pieces.view(sefer, plan.commentaries || []);
 
   // ---- building ---------------------------------------------------------
 
   function validate(plan, sefer) {
-    const n = Pieces.pieceCount(sefer);
+    const n = viewOf(plan, sefer).length;
     if (!(plan.from >= 0 && plan.to < n && plan.from <= plan.to)) throw new RangeError("The start and end are outside the sefer");
     if (!plan.learningDays?.length) throw new Error("Choose at least one learning day");
     toDay(plan.startDate);
@@ -169,13 +181,12 @@
 
   // Split [from, to] starting at `start`, by the plan's finish date or amount.
   function split(plan, sefer, from, to, start, endDate, skip) {
-    const weights = Pieces.pieceWeights(sefer, plan.commentaries || []);
-    const ends = Pieces.naturalEnds(sefer);
+    const v = viewOf(plan, sefer), levels = Pieces.breakLevels(v);
     if (endDate != null) {
-      return splitOverDates(weights, ends, from, to, learningDates(plan, start, endDate, skip));
+      return splitOverDates(v.weights, levels, from, to, learningDates(plan, start, endDate, skip));
     }
-    const perDay = plan.dailyPieces * averagePiece(weights, plan.from, plan.to);
-    return splitByAmount(plan, weights, ends, from, to, start, perDay, skip);
+    const perDay = plan.dailyPieces * averagePiece(v, plan.from, plan.to);
+    return splitByAmount(plan, v.weights, levels, from, to, start, perDay, skip);
   }
 
   function buildPlan(plan, sefer) {
@@ -213,7 +224,7 @@
     const doneCount = learning.filter((p) => p.done).length;
     return {
       today: todays && hasLearning(todays)
-        ? { ...todays, dayNumber: learning.indexOf(todays) + 1, text: Pieces.describeRange(sefer, todays.from, todays.to) }
+        ? { ...todays, dayNumber: learning.indexOf(todays) + 1, text: Pieces.describeRange(viewOf(plan, sefer), todays.from, todays.to) }
         : null,
       totalDays: learning.length,
       doneDays: doneCount,
@@ -221,7 +232,7 @@
       ahead,
       finished: doneCount === learning.length,
       finishDate: learning.length ? learning[learning.length - 1].date : null,
-      next: next ? { ...next, text: Pieces.describeRange(sefer, next.from, next.to) } : null,
+      next: next ? { ...next, text: Pieces.describeRange(viewOf(plan, sefer), next.from, next.to) } : null,
     };
   }
 
@@ -293,7 +304,7 @@
 
   const api = {
     LIGHTER_WEIGHT, addDays, weekday, dayOff, dayWeight, learningDates, nextLearningDate,
-    splitOverDates, buildPlan, markDone, status, reschedule, rebuildRemaining, firstOpenPiece,
+    splitOverDates, buildPlan, viewOf, markDone, status, reschedule, rebuildRemaining, firstOpenPiece,
   };
   global.LearningSchedule = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
