@@ -1,0 +1,3127 @@
+{
+ "generatedFrom": "https://raw.githubusercontent.com/Sefaria/Sefaria-Export/master/books.json",
+ "collections": [
+  {
+   "id": "tanakh",
+   "en": "Tanach",
+   "he": "תנ״ך"
+  },
+  {
+   "id": "mishnah",
+   "en": "Mishnah",
+   "he": "משנה"
+  },
+  {
+   "id": "bavli",
+   "en": "Talmud Bavli",
+   "he": "תלמוד בבלי"
+  },
+  {
+   "id": "rambam",
+   "en": "Rambam (Mishneh Torah)",
+   "he": "רמב״ם"
+  },
+  {
+   "id": "shulchan-aruch",
+   "en": "Shulchan Aruch",
+   "he": "שולחן ערוך"
+  },
+  {
+   "id": "tur",
+   "en": "Tur",
+   "he": "טור"
+  }
+ ],
+ "seforim": [
+  {
+   "id": "tanakh/genesis",
+   "collection": "tanakh",
+   "en": "Genesis",
+   "he": "בראשית",
+   "unit": "pasuk",
+   "pieces": 1533,
+   "letters": 78143,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/exodus",
+   "collection": "tanakh",
+   "en": "Exodus",
+   "he": "שמות",
+   "unit": "pasuk",
+   "pieces": 1210,
+   "letters": 63595,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/leviticus",
+   "collection": "tanakh",
+   "en": "Leviticus",
+   "he": "ויקרא",
+   "unit": "pasuk",
+   "pieces": 859,
+   "letters": 44812,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/numbers",
+   "collection": "tanakh",
+   "en": "Numbers",
+   "he": "במדבר",
+   "unit": "pasuk",
+   "pieces": 1288,
+   "letters": 63588,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/deuteronomy",
+   "collection": "tanakh",
+   "en": "Deuteronomy",
+   "he": "דברים",
+   "unit": "pasuk",
+   "pieces": 956,
+   "letters": 55034,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/joshua",
+   "collection": "tanakh",
+   "en": "Joshua",
+   "he": "יהושע",
+   "unit": "pasuk",
+   "pieces": 658,
+   "letters": 39955,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/judges",
+   "collection": "tanakh",
+   "en": "Judges",
+   "he": "שופטים",
+   "unit": "pasuk",
+   "pieces": 618,
+   "letters": 39039,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/i-samuel",
+   "collection": "tanakh",
+   "en": "I Samuel",
+   "he": "שמואל א",
+   "unit": "pasuk",
+   "pieces": 811,
+   "letters": 51707,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/ii-samuel",
+   "collection": "tanakh",
+   "en": "II Samuel",
+   "he": "שמואל ב",
+   "unit": "pasuk",
+   "pieces": 695,
+   "letters": 42592,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/i-kings",
+   "collection": "tanakh",
+   "en": "I Kings",
+   "he": "מלכים א",
+   "unit": "pasuk",
+   "pieces": 817,
+   "letters": 50839,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/ii-kings",
+   "collection": "tanakh",
+   "en": "II Kings",
+   "he": "מלכים ב",
+   "unit": "pasuk",
+   "pieces": 719,
+   "letters": 48162,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/isaiah",
+   "collection": "tanakh",
+   "en": "Isaiah",
+   "he": "ישעיהו",
+   "unit": "pasuk",
+   "pieces": 1291,
+   "letters": 67120,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/jeremiah",
+   "collection": "tanakh",
+   "en": "Jeremiah",
+   "he": "ירמיהו",
+   "unit": "pasuk",
+   "pieces": 1364,
+   "letters": 85567,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/ezekiel",
+   "collection": "tanakh",
+   "en": "Ezekiel",
+   "he": "יחזקאל",
+   "unit": "pasuk",
+   "pieces": 1273,
+   "letters": 75181,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/hosea",
+   "collection": "tanakh",
+   "en": "Hosea",
+   "he": "הושע",
+   "unit": "pasuk",
+   "pieces": 197,
+   "letters": 9406,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/joel",
+   "collection": "tanakh",
+   "en": "Joel",
+   "he": "יואל",
+   "unit": "pasuk",
+   "pieces": 73,
+   "letters": 3876,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/amos",
+   "collection": "tanakh",
+   "en": "Amos",
+   "he": "עמוס",
+   "unit": "pasuk",
+   "pieces": 146,
+   "letters": 8050,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/obadiah",
+   "collection": "tanakh",
+   "en": "Obadiah",
+   "he": "עובדיה",
+   "unit": "pasuk",
+   "pieces": 21,
+   "letters": 1124,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/jonah",
+   "collection": "tanakh",
+   "en": "Jonah",
+   "he": "יונה",
+   "unit": "pasuk",
+   "pieces": 48,
+   "letters": 2700,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/micah",
+   "collection": "tanakh",
+   "en": "Micah",
+   "he": "מיכה",
+   "unit": "pasuk",
+   "pieces": 105,
+   "letters": 5586,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/nahum",
+   "collection": "tanakh",
+   "en": "Nahum",
+   "he": "נחום",
+   "unit": "pasuk",
+   "pieces": 47,
+   "letters": 2272,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/habakkuk",
+   "collection": "tanakh",
+   "en": "Habakkuk",
+   "he": "חבקוק",
+   "unit": "pasuk",
+   "pieces": 56,
+   "letters": 2603,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/zephaniah",
+   "collection": "tanakh",
+   "en": "Zephaniah",
+   "he": "צפניה",
+   "unit": "pasuk",
+   "pieces": 53,
+   "letters": 3005,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/haggai",
+   "collection": "tanakh",
+   "en": "Haggai",
+   "he": "חגי",
+   "unit": "pasuk",
+   "pieces": 38,
+   "letters": 2342,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/zechariah",
+   "collection": "tanakh",
+   "en": "Zechariah",
+   "he": "זכריה",
+   "unit": "pasuk",
+   "pieces": 211,
+   "letters": 12464,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/malachi",
+   "collection": "tanakh",
+   "en": "Malachi",
+   "he": "מלאכי",
+   "unit": "pasuk",
+   "pieces": 55,
+   "letters": 3450,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/psalms",
+   "collection": "tanakh",
+   "en": "Psalms",
+   "he": "תהילים",
+   "unit": "pasuk",
+   "pieces": 2527,
+   "letters": 79156,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/proverbs",
+   "collection": "tanakh",
+   "en": "Proverbs",
+   "he": "משלי",
+   "unit": "pasuk",
+   "pieces": 915,
+   "letters": 26819,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/job",
+   "collection": "tanakh",
+   "en": "Job",
+   "he": "איוב",
+   "unit": "pasuk",
+   "pieces": 1070,
+   "letters": 32124,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/song-of-songs",
+   "collection": "tanakh",
+   "en": "Song of Songs",
+   "he": "שיר השירים",
+   "unit": "pasuk",
+   "pieces": 117,
+   "letters": 5168,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/ruth",
+   "collection": "tanakh",
+   "en": "Ruth",
+   "he": "רות",
+   "unit": "pasuk",
+   "pieces": 85,
+   "letters": 5002,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/lamentations",
+   "collection": "tanakh",
+   "en": "Lamentations",
+   "he": "איכה",
+   "unit": "pasuk",
+   "pieces": 154,
+   "letters": 6116,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/ecclesiastes",
+   "collection": "tanakh",
+   "en": "Ecclesiastes",
+   "he": "קהלת",
+   "unit": "pasuk",
+   "pieces": 222,
+   "letters": 11065,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/esther",
+   "collection": "tanakh",
+   "en": "Esther",
+   "he": "אסתר",
+   "unit": "pasuk",
+   "pieces": 167,
+   "letters": 12189,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/daniel",
+   "collection": "tanakh",
+   "en": "Daniel",
+   "he": "דניאל",
+   "unit": "pasuk",
+   "pieces": 357,
+   "letters": 24816,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/ezra",
+   "collection": "tanakh",
+   "en": "Ezra",
+   "he": "עזרא",
+   "unit": "pasuk",
+   "pieces": 280,
+   "letters": 15952,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/nehemiah",
+   "collection": "tanakh",
+   "en": "Nehemiah",
+   "he": "נחמיה",
+   "unit": "pasuk",
+   "pieces": 405,
+   "letters": 22633,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/i-chronicles",
+   "collection": "tanakh",
+   "en": "I Chronicles",
+   "he": "דברי הימים א",
+   "unit": "pasuk",
+   "pieces": 943,
+   "letters": 44769,
+   "commentaries": []
+  },
+  {
+   "id": "tanakh/ii-chronicles",
+   "collection": "tanakh",
+   "en": "II Chronicles",
+   "he": "דברי הימים ב",
+   "unit": "pasuk",
+   "pieces": 822,
+   "letters": 55126,
+   "commentaries": []
+  },
+  {
+   "id": "mishnah/berakhot",
+   "collection": "mishnah",
+   "en": "Mishnah Berakhot",
+   "he": "משנה ברכות",
+   "unit": "mishnah",
+   "pieces": 57,
+   "letters": 8671,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/peah",
+   "collection": "mishnah",
+   "en": "Mishnah Peah",
+   "he": "משנה פאה",
+   "unit": "mishnah",
+   "pieces": 69,
+   "letters": 9819,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/demai",
+   "collection": "mishnah",
+   "en": "Mishnah Demai",
+   "he": "משנה דמאי",
+   "unit": "mishnah",
+   "pieces": 53,
+   "letters": 7449,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/kilayim",
+   "collection": "mishnah",
+   "en": "Mishnah Kilayim",
+   "he": "משנה כלאים",
+   "unit": "mishnah",
+   "pieces": 77,
+   "letters": 11681,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/sheviit",
+   "collection": "mishnah",
+   "en": "Mishnah Sheviit",
+   "he": "משנה שביעית",
+   "unit": "mishnah",
+   "pieces": 89,
+   "letters": 13366,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/terumot",
+   "collection": "mishnah",
+   "en": "Mishnah Terumot",
+   "he": "משנה תרומות",
+   "unit": "mishnah",
+   "pieces": 101,
+   "letters": 14476,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/maasrot",
+   "collection": "mishnah",
+   "en": "Mishnah Maasrot",
+   "he": "משנה מעשרות",
+   "unit": "mishnah",
+   "pieces": 40,
+   "letters": 6359,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/maaser-sheni",
+   "collection": "mishnah",
+   "en": "Mishnah Maaser Sheni",
+   "he": "משנה מעשר שני",
+   "unit": "mishnah",
+   "pieces": 57,
+   "letters": 9187,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/challah",
+   "collection": "mishnah",
+   "en": "Mishnah Challah",
+   "he": "משנה חלה",
+   "unit": "mishnah",
+   "pieces": 38,
+   "letters": 5131,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/orlah",
+   "collection": "mishnah",
+   "en": "Mishnah Orlah",
+   "he": "משנה ערלה",
+   "unit": "mishnah",
+   "pieces": 35,
+   "letters": 4149,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/bikkurim",
+   "collection": "mishnah",
+   "en": "Mishnah Bikkurim",
+   "he": "משנה ביכורים",
+   "unit": "mishnah",
+   "pieces": 34,
+   "letters": 4871,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/shabbat",
+   "collection": "mishnah",
+   "en": "Mishnah Shabbat",
+   "he": "משנה שבת",
+   "unit": "mishnah",
+   "pieces": 139,
+   "letters": 22012,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/eruvin",
+   "collection": "mishnah",
+   "en": "Mishnah Eruvin",
+   "he": "משנה עירובין",
+   "unit": "mishnah",
+   "pieces": 96,
+   "letters": 15394,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/pesachim",
+   "collection": "mishnah",
+   "en": "Mishnah Pesachim",
+   "he": "משנה פסחים",
+   "unit": "mishnah",
+   "pieces": 89,
+   "letters": 15135,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/shekalim",
+   "collection": "mishnah",
+   "en": "Mishnah Shekalim",
+   "he": "משנה שקלים",
+   "unit": "mishnah",
+   "pieces": 52,
+   "letters": 10101,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/yoma",
+   "collection": "mishnah",
+   "en": "Mishnah Yoma",
+   "he": "משנה יומא",
+   "unit": "mishnah",
+   "pieces": 61,
+   "letters": 11975,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/sukkah",
+   "collection": "mishnah",
+   "en": "Mishnah Sukkah",
+   "he": "משנה סוכה",
+   "unit": "mishnah",
+   "pieces": 53,
+   "letters": 8843,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/beitzah",
+   "collection": "mishnah",
+   "en": "Mishnah Beitzah",
+   "he": "משנה ביצה",
+   "unit": "mishnah",
+   "pieces": 42,
+   "letters": 6033,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/rosh-hashanah",
+   "collection": "mishnah",
+   "en": "Mishnah Rosh Hashanah",
+   "he": "משנה ראש השנה",
+   "unit": "mishnah",
+   "pieces": 35,
+   "letters": 6357,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/taanit",
+   "collection": "mishnah",
+   "en": "Mishnah Ta'anit",
+   "he": "משנה תענית",
+   "unit": "mishnah",
+   "pieces": 34,
+   "letters": 7452,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/megillah",
+   "collection": "mishnah",
+   "en": "Mishnah Megillah",
+   "he": "משנה מגילה",
+   "unit": "mishnah",
+   "pieces": 33,
+   "letters": 5644,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/moed-katan",
+   "collection": "mishnah",
+   "en": "Mishnah Moed Katan",
+   "he": "משנה מועד קטן",
+   "unit": "mishnah",
+   "pieces": 24,
+   "letters": 3307,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/chagigah",
+   "collection": "mishnah",
+   "en": "Mishnah Chagigah",
+   "he": "משנה חגיגה",
+   "unit": "mishnah",
+   "pieces": 23,
+   "letters": 3631,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/yevamot",
+   "collection": "mishnah",
+   "en": "Mishnah Yevamot",
+   "he": "משנה יבמות",
+   "unit": "mishnah",
+   "pieces": 128,
+   "letters": 25972,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/ketubot",
+   "collection": "mishnah",
+   "en": "Mishnah Ketubot",
+   "he": "משנה כתובות",
+   "unit": "mishnah",
+   "pieces": 111,
+   "letters": 20333,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/nedarim",
+   "collection": "mishnah",
+   "en": "Mishnah Nedarim",
+   "he": "משנה נדרים",
+   "unit": "mishnah",
+   "pieces": 90,
+   "letters": 17125,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/nazir",
+   "collection": "mishnah",
+   "en": "Mishnah Nazir",
+   "he": "משנה נזיר",
+   "unit": "mishnah",
+   "pieces": 60,
+   "letters": 12222,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/sotah",
+   "collection": "mishnah",
+   "en": "Mishnah Sotah",
+   "he": "משנה סוטה",
+   "unit": "mishnah",
+   "pieces": 67,
+   "letters": 15766,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/gittin",
+   "collection": "mishnah",
+   "en": "Mishnah Gittin",
+   "he": "משנה גיטין",
+   "unit": "mishnah",
+   "pieces": 75,
+   "letters": 14520,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/kiddushin",
+   "collection": "mishnah",
+   "en": "Mishnah Kiddushin",
+   "he": "משנה קידושין",
+   "unit": "mishnah",
+   "pieces": 47,
+   "letters": 8837,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/bava-kamma",
+   "collection": "mishnah",
+   "en": "Mishnah Bava Kamma",
+   "he": "משנה בבא קמא",
+   "unit": "mishnah",
+   "pieces": 79,
+   "letters": 16335,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/bava-metzia",
+   "collection": "mishnah",
+   "en": "Mishnah Bava Metzia",
+   "he": "משנה בבא מציעא",
+   "unit": "mishnah",
+   "pieces": 101,
+   "letters": 18688,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/bava-batra",
+   "collection": "mishnah",
+   "en": "Mishnah Bava Batra",
+   "he": "משנה בבא בתרא",
+   "unit": "mishnah",
+   "pieces": 86,
+   "letters": 18273,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/sanhedrin",
+   "collection": "mishnah",
+   "en": "Mishnah Sanhedrin",
+   "he": "משנה סנהדרין",
+   "unit": "mishnah",
+   "pieces": 71,
+   "letters": 20868,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/makkot",
+   "collection": "mishnah",
+   "en": "Mishnah Makkot",
+   "he": "משנה מכות",
+   "unit": "mishnah",
+   "pieces": 34,
+   "letters": 8327,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/shevuot",
+   "collection": "mishnah",
+   "en": "Mishnah Shevuot",
+   "he": "משנה שבועות",
+   "unit": "mishnah",
+   "pieces": 62,
+   "letters": 13215,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/eduyot",
+   "collection": "mishnah",
+   "en": "Mishnah Eduyot",
+   "he": "משנה עדיות",
+   "unit": "mishnah",
+   "pieces": 74,
+   "letters": 15520,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/avodah-zarah",
+   "collection": "mishnah",
+   "en": "Mishnah Avodah Zarah",
+   "he": "משנה עבודה זרה",
+   "unit": "mishnah",
+   "pieces": 50,
+   "letters": 9302,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/pirkei-avot",
+   "collection": "mishnah",
+   "en": "Pirkei Avot",
+   "he": "משנה אבות",
+   "unit": "mishnah",
+   "pieces": 108,
+   "letters": 18604,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/horayot",
+   "collection": "mishnah",
+   "en": "Mishnah Horayot",
+   "he": "משנה הוריות",
+   "unit": "mishnah",
+   "pieces": 20,
+   "letters": 3952,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/zevachim",
+   "collection": "mishnah",
+   "en": "Mishnah Zevachim",
+   "he": "משנה זבחים",
+   "unit": "mishnah",
+   "pieces": 101,
+   "letters": 20581,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/menachot",
+   "collection": "mishnah",
+   "en": "Mishnah Menachot",
+   "he": "משנה מנחות",
+   "unit": "mishnah",
+   "pieces": 93,
+   "letters": 21376,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/chullin",
+   "collection": "mishnah",
+   "en": "Mishnah Chullin",
+   "he": "משנה חולין",
+   "unit": "mishnah",
+   "pieces": 74,
+   "letters": 15056,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/bekhorot",
+   "collection": "mishnah",
+   "en": "Mishnah Bekhorot",
+   "he": "משנה בכורות",
+   "unit": "mishnah",
+   "pieces": 73,
+   "letters": 14904,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/arakhin",
+   "collection": "mishnah",
+   "en": "Mishnah Arakhin",
+   "he": "משנה ערכין",
+   "unit": "mishnah",
+   "pieces": 50,
+   "letters": 10363,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/temurah",
+   "collection": "mishnah",
+   "en": "Mishnah Temurah",
+   "he": "משנה תמורה",
+   "unit": "mishnah",
+   "pieces": 35,
+   "letters": 7712,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/keritot",
+   "collection": "mishnah",
+   "en": "Mishnah Keritot",
+   "he": "משנה כריתות",
+   "unit": "mishnah",
+   "pieces": 43,
+   "letters": 10570,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/meilah",
+   "collection": "mishnah",
+   "en": "Mishnah Meilah",
+   "he": "משנה מעילה",
+   "unit": "mishnah",
+   "pieces": 38,
+   "letters": 7192,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/tamid",
+   "collection": "mishnah",
+   "en": "Mishnah Tamid",
+   "he": "משנה תמיד",
+   "unit": "mishnah",
+   "pieces": 34,
+   "letters": 8888,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/middot",
+   "collection": "mishnah",
+   "en": "Mishnah Middot",
+   "he": "משנה מדות",
+   "unit": "mishnah",
+   "pieces": 34,
+   "letters": 9458,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/kinnim",
+   "collection": "mishnah",
+   "en": "Mishnah Kinnim",
+   "he": "משנה קינים",
+   "unit": "mishnah",
+   "pieces": 15,
+   "letters": 3685,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/kelim",
+   "collection": "mishnah",
+   "en": "Mishnah Kelim",
+   "he": "משנה כלים",
+   "unit": "mishnah",
+   "pieces": 254,
+   "letters": 41154,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/oholot",
+   "collection": "mishnah",
+   "en": "Mishnah Oholot",
+   "he": "משנה אהלות",
+   "unit": "mishnah",
+   "pieces": 134,
+   "letters": 24279,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/negaim",
+   "collection": "mishnah",
+   "en": "Mishnah Negaim",
+   "he": "משנה נגעים",
+   "unit": "mishnah",
+   "pieces": 115,
+   "letters": 21940,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/parah",
+   "collection": "mishnah",
+   "en": "Mishnah Parah",
+   "he": "משנה פרה",
+   "unit": "mishnah",
+   "pieces": 96,
+   "letters": 15507,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/tahorot",
+   "collection": "mishnah",
+   "en": "Mishnah Tahorot",
+   "he": "משנה טהרות",
+   "unit": "mishnah",
+   "pieces": 92,
+   "letters": 15341,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/mikvaot",
+   "collection": "mishnah",
+   "en": "Mishnah Mikvaot",
+   "he": "משנה מקואות",
+   "unit": "mishnah",
+   "pieces": 71,
+   "letters": 12725,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/niddah",
+   "collection": "mishnah",
+   "en": "Mishnah Niddah",
+   "he": "משנה נדה",
+   "unit": "mishnah",
+   "pieces": 79,
+   "letters": 12326,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/makhshirin",
+   "collection": "mishnah",
+   "en": "Mishnah Makhshirin",
+   "he": "משנה מכשירין",
+   "unit": "mishnah",
+   "pieces": 54,
+   "letters": 8504,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/zavim",
+   "collection": "mishnah",
+   "en": "Mishnah Zavim",
+   "he": "משנה זבים",
+   "unit": "mishnah",
+   "pieces": 32,
+   "letters": 6226,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/tevul-yom",
+   "collection": "mishnah",
+   "en": "Mishnah Tevul Yom",
+   "he": "משנה טבול יום",
+   "unit": "mishnah",
+   "pieces": 26,
+   "letters": 4434,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/yadayim",
+   "collection": "mishnah",
+   "en": "Mishnah Yadayim",
+   "he": "משנה ידים",
+   "unit": "mishnah",
+   "pieces": 22,
+   "letters": 6511,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "mishnah/oktzin",
+   "collection": "mishnah",
+   "en": "Mishnah Oktzin",
+   "he": "משנה עוקצים",
+   "unit": "mishnah",
+   "pieces": 28,
+   "letters": 4375,
+   "commentaries": [
+    {
+     "id": "bartenura",
+     "en": "Bartenura",
+     "he": "ברטנורא"
+    }
+   ]
+  },
+  {
+   "id": "bavli/berakhot",
+   "collection": "bavli",
+   "en": "Berakhot",
+   "he": "ברכות",
+   "unit": "amud",
+   "pieces": 125,
+   "letters": 275861,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/shabbat",
+   "collection": "bavli",
+   "en": "Shabbat",
+   "he": "שבת",
+   "unit": "amud",
+   "pieces": 312,
+   "letters": 448603,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/eruvin",
+   "collection": "bavli",
+   "en": "Eruvin",
+   "he": "עירובין",
+   "unit": "amud",
+   "pieces": 207,
+   "letters": 265865,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/pesachim",
+   "collection": "bavli",
+   "en": "Pesachim",
+   "he": "פסחים",
+   "unit": "amud",
+   "pieces": 240,
+   "letters": 325776,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/yoma",
+   "collection": "bavli",
+   "en": "Yoma",
+   "he": "יומא",
+   "unit": "amud",
+   "pieces": 173,
+   "letters": 227164,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/sukkah",
+   "collection": "bavli",
+   "en": "Sukkah",
+   "he": "סוכה",
+   "unit": "amud",
+   "pieces": 110,
+   "letters": 129131,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/beitzah",
+   "collection": "bavli",
+   "en": "Beitzah",
+   "he": "ביצה",
+   "unit": "amud",
+   "pieces": 78,
+   "letters": 98914,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/rosh-hashanah",
+   "collection": "bavli",
+   "en": "Rosh Hashanah",
+   "he": "ראש השנה",
+   "unit": "amud",
+   "pieces": 67,
+   "letters": 93882,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/taanit",
+   "collection": "bavli",
+   "en": "Taanit",
+   "he": "תענית",
+   "unit": "amud",
+   "pieces": 59,
+   "letters": 107329,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/megillah",
+   "collection": "bavli",
+   "en": "Megillah",
+   "he": "מגילה",
+   "unit": "amud",
+   "pieces": 61,
+   "letters": 117395,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/moed-katan",
+   "collection": "bavli",
+   "en": "Moed Katan",
+   "he": "מועד קטן",
+   "unit": "amud",
+   "pieces": 55,
+   "letters": 90493,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/chagigah",
+   "collection": "bavli",
+   "en": "Chagigah",
+   "he": "חגיגה",
+   "unit": "amud",
+   "pieces": 51,
+   "letters": 74682,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/yevamot",
+   "collection": "bavli",
+   "en": "Yevamot",
+   "he": "יבמות",
+   "unit": "amud",
+   "pieces": 242,
+   "letters": 332509,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/ketubot",
+   "collection": "bavli",
+   "en": "Ketubot",
+   "he": "כתובות",
+   "unit": "amud",
+   "pieces": 222,
+   "letters": 290177,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/nedarim",
+   "collection": "bavli",
+   "en": "Nedarim",
+   "he": "נדרים",
+   "unit": "amud",
+   "pieces": 180,
+   "letters": 137930,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/nazir",
+   "collection": "bavli",
+   "en": "Nazir",
+   "he": "נזיר",
+   "unit": "amud",
+   "pieces": 130,
+   "letters": 109519,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/sotah",
+   "collection": "bavli",
+   "en": "Sotah",
+   "he": "סוטה",
+   "unit": "amud",
+   "pieces": 96,
+   "letters": 156134,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/gittin",
+   "collection": "bavli",
+   "en": "Gittin",
+   "he": "גיטין",
+   "unit": "amud",
+   "pieces": 178,
+   "letters": 239855,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/kiddushin",
+   "collection": "bavli",
+   "en": "Kiddushin",
+   "he": "קידושין",
+   "unit": "amud",
+   "pieces": 162,
+   "letters": 233507,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/bava-kamma",
+   "collection": "bavli",
+   "en": "Bava Kamma",
+   "he": "בבא קמא",
+   "unit": "amud",
+   "pieces": 236,
+   "letters": 330997,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/bava-metzia",
+   "collection": "bavli",
+   "en": "Bava Metzia",
+   "he": "בבא מציעא",
+   "unit": "amud",
+   "pieces": 235,
+   "letters": 331861,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/bava-batra",
+   "collection": "bavli",
+   "en": "Bava Batra",
+   "he": "בבא בתרא",
+   "unit": "amud",
+   "pieces": 350,
+   "letters": 348531,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi / Rashbam",
+     "he": "רש״י / רשב״ם"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/sanhedrin",
+   "collection": "bavli",
+   "en": "Sanhedrin",
+   "he": "סנהדרין",
+   "unit": "amud",
+   "pieces": 224,
+   "letters": 407535,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/makkot",
+   "collection": "bavli",
+   "en": "Makkot",
+   "he": "מכות",
+   "unit": "amud",
+   "pieces": 46,
+   "letters": 68993,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/shevuot",
+   "collection": "bavli",
+   "en": "Shevuot",
+   "he": "שבועות",
+   "unit": "amud",
+   "pieces": 96,
+   "letters": 129378,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/avodah-zarah",
+   "collection": "bavli",
+   "en": "Avodah Zarah",
+   "he": "עבודה זרה",
+   "unit": "amud",
+   "pieces": 150,
+   "letters": 204465,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/horayot",
+   "collection": "bavli",
+   "en": "Horayot",
+   "he": "הוריות",
+   "unit": "amud",
+   "pieces": 25,
+   "letters": 49539,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/zevachim",
+   "collection": "bavli",
+   "en": "Zevachim",
+   "he": "זבחים",
+   "unit": "amud",
+   "pieces": 238,
+   "letters": 274944,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/menachot",
+   "collection": "bavli",
+   "en": "Menachot",
+   "he": "מנחות",
+   "unit": "amud",
+   "pieces": 217,
+   "letters": 292253,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/chullin",
+   "collection": "bavli",
+   "en": "Chullin",
+   "he": "חולין",
+   "unit": "amud",
+   "pieces": 281,
+   "letters": 353022,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/bekhorot",
+   "collection": "bavli",
+   "en": "Bekhorot",
+   "he": "בכורות",
+   "unit": "amud",
+   "pieces": 119,
+   "letters": 161669,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/arakhin",
+   "collection": "bavli",
+   "en": "Arakhin",
+   "he": "ערכין",
+   "unit": "amud",
+   "pieces": 65,
+   "letters": 99380,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/temurah",
+   "collection": "bavli",
+   "en": "Temurah",
+   "he": "תמורה",
+   "unit": "amud",
+   "pieces": 65,
+   "letters": 92727,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/keritot",
+   "collection": "bavli",
+   "en": "Keritot",
+   "he": "כריתות",
+   "unit": "amud",
+   "pieces": 54,
+   "letters": 103037,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/meilah",
+   "collection": "bavli",
+   "en": "Meilah",
+   "he": "מעילה",
+   "unit": "amud",
+   "pieces": 41,
+   "letters": 32785,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "bavli/tamid",
+   "collection": "bavli",
+   "en": "Tamid",
+   "he": "תמיד",
+   "unit": "amud",
+   "pieces": 17,
+   "letters": 20212,
+   "commentaries": []
+  },
+  {
+   "id": "bavli/niddah",
+   "collection": "bavli",
+   "en": "Niddah",
+   "he": "נדה",
+   "unit": "amud",
+   "pieces": 143,
+   "letters": 199004,
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י"
+    },
+    {
+     "id": "tosafot",
+     "en": "Tosafot",
+     "he": "תוספות"
+    }
+   ]
+  },
+  {
+   "id": "rambam/foundations-of-the-torah",
+   "collection": "rambam",
+   "en": "Rambam, Foundations of the Torah",
+   "he": "משנה תורה, הלכות יסודי התורה",
+   "unit": "halacha",
+   "pieces": 88,
+   "letters": 29722,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/human-dispositions",
+   "collection": "rambam",
+   "en": "Rambam, Human Dispositions",
+   "he": "משנה תורה, הלכות דעות",
+   "unit": "halacha",
+   "pieces": 71,
+   "letters": 24427,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/torah-study",
+   "collection": "rambam",
+   "en": "Rambam, Torah Study",
+   "he": "משנה תורה, הלכות תלמוד תורה",
+   "unit": "halacha",
+   "pieces": 82,
+   "letters": 19653,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/foreign-worship-and-customs-of-the-nations",
+   "collection": "rambam",
+   "en": "Rambam, Foreign Worship and Customs of the Nations",
+   "he": "משנה תורה, הלכות עבודה זרה וחוקות הגויים",
+   "unit": "halacha",
+   "pieces": 148,
+   "letters": 40437,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/repentance",
+   "collection": "rambam",
+   "en": "Rambam, Repentance",
+   "he": "משנה תורה, הלכות תשובה",
+   "unit": "halacha",
+   "pieces": 70,
+   "letters": 28314,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/reading-the-shema",
+   "collection": "rambam",
+   "en": "Rambam, Reading the Shema",
+   "he": "משנה תורה, הלכות קריאת שמע",
+   "unit": "halacha",
+   "pieces": 57,
+   "letters": 11072,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/prayer-and-the-priestly-blessing",
+   "collection": "rambam",
+   "en": "Rambam, Prayer and the Priestly Blessing",
+   "he": "משנה תורה, הלכות תפילה וברכת כהנים",
+   "unit": "halacha",
+   "pieces": 240,
+   "letters": 52924,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/tefillin-mezuzah-and-the-torah-scroll",
+   "collection": "rambam",
+   "en": "Rambam, Tefillin, Mezuzah and the Torah Scroll",
+   "he": "משנה תורה, הלכות תפילין ומזוזה וספר תורה",
+   "unit": "halacha",
+   "pieces": 146,
+   "letters": 41855,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/fringes",
+   "collection": "rambam",
+   "en": "Rambam, Fringes",
+   "he": "משנה תורה, הלכות ציצית",
+   "unit": "halacha",
+   "pieces": 39,
+   "letters": 7862,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/blessings",
+   "collection": "rambam",
+   "en": "Rambam, Blessings",
+   "he": "משנה תורה, הלכות ברכות",
+   "unit": "halacha",
+   "pieces": 178,
+   "letters": 36649,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/circumcision",
+   "collection": "rambam",
+   "en": "Rambam, Circumcision",
+   "he": "משנה תורה, הלכות מילה",
+   "unit": "halacha",
+   "pieces": 37,
+   "letters": 7587,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/the-order-of-prayer",
+   "collection": "rambam",
+   "en": "Rambam, The Order of Prayer",
+   "he": "משנה תורה, סדר התפילה",
+   "unit": "halacha",
+   "pieces": 68,
+   "letters": 26782,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/sabbath",
+   "collection": "rambam",
+   "en": "Rambam, Sabbath",
+   "he": "משנה תורה, הלכות שבת",
+   "unit": "halacha",
+   "pieces": 659,
+   "letters": 139331,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/eruvin",
+   "collection": "rambam",
+   "en": "Rambam, Eruvin",
+   "he": "משנה תורה, הלכות עירובין",
+   "unit": "halacha",
+   "pieces": 163,
+   "letters": 37565,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/rest-on-the-tenth-of-tishrei",
+   "collection": "rambam",
+   "en": "Rambam, Rest on the Tenth of Tishrei",
+   "he": "משנה תורה, הלכות שביתת עשור",
+   "unit": "halacha",
+   "pieces": 28,
+   "letters": 5848,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/rest-on-a-holiday",
+   "collection": "rambam",
+   "en": "Rambam, Rest on a Holiday",
+   "he": "משנה תורה, הלכות שביתת יום טוב",
+   "unit": "halacha",
+   "pieces": 175,
+   "letters": 36721,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/leavened-and-unleavened-bread",
+   "collection": "rambam",
+   "en": "Rambam, Leavened and Unleavened Bread",
+   "he": "משנה תורה, הלכות חמץ ומצה",
+   "unit": "halacha",
+   "pieces": 158,
+   "letters": 29512,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/shofar-sukkah-and-lulav",
+   "collection": "rambam",
+   "en": "Rambam, Shofar, Sukkah and Lulav",
+   "he": "משנה תורה, הלכות שופר וסוכה ולולב",
+   "unit": "halacha",
+   "pieces": 130,
+   "letters": 26907,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/sheqel-dues",
+   "collection": "rambam",
+   "en": "Rambam, Sheqel Dues",
+   "he": "משנה תורה, הלכות שקלים",
+   "unit": "halacha",
+   "pieces": 47,
+   "letters": 10512,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/sanctification-of-the-new-month",
+   "collection": "rambam",
+   "en": "Rambam, Sanctification of the New Month",
+   "he": "משנה תורה, הלכות קידוש החודש",
+   "unit": "halacha",
+   "pieces": 235,
+   "letters": 61906,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/fasts",
+   "collection": "rambam",
+   "en": "Rambam, Fasts",
+   "he": "משנה תורה, הלכות תעניות",
+   "unit": "halacha",
+   "pieces": 84,
+   "letters": 16398,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/scroll-of-esther-and-hanukkah",
+   "collection": "rambam",
+   "en": "Rambam, Scroll of Esther and Hanukkah",
+   "he": "משנה תורה, הלכות מגילה וחנוכה",
+   "unit": "halacha",
+   "pieces": 60,
+   "letters": 12284,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/marriage",
+   "collection": "rambam",
+   "en": "Rambam, Marriage",
+   "he": "משנה תורה, הלכות אישות",
+   "unit": "halacha",
+   "pieces": 535,
+   "letters": 110103,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/divorce",
+   "collection": "rambam",
+   "en": "Rambam, Divorce",
+   "he": "משנה תורה, הלכות גירושין",
+   "unit": "halacha",
+   "pieces": 333,
+   "letters": 64038,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/levirate-marriage-and-release",
+   "collection": "rambam",
+   "en": "Rambam, Levirate Marriage and Release",
+   "he": "משנה תורה, הלכות יבום וחליצה",
+   "unit": "halacha",
+   "pieces": 194,
+   "letters": 35218,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/virgin-maiden",
+   "collection": "rambam",
+   "en": "Rambam, Virgin Maiden",
+   "he": "משנה תורה, הלכות נערה בתולה",
+   "unit": "halacha",
+   "pieces": 32,
+   "letters": 5418,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/woman-suspected-of-infidelity",
+   "collection": "rambam",
+   "en": "Rambam, Woman Suspected of Infidelity",
+   "he": "משנה תורה, הלכות סוטה",
+   "unit": "halacha",
+   "pieces": 79,
+   "letters": 13685,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/forbidden-intercourse",
+   "collection": "rambam",
+   "en": "Rambam, Forbidden Intercourse",
+   "he": "משנה תורה, הלכות איסורי ביאה",
+   "unit": "halacha",
+   "pieces": 503,
+   "letters": 92277,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/forbidden-foods",
+   "collection": "rambam",
+   "en": "Rambam, Forbidden Foods",
+   "he": "משנה תורה, הלכות מאכלות אסורות",
+   "unit": "halacha",
+   "pieces": 424,
+   "letters": 73818,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/ritual-slaughter",
+   "collection": "rambam",
+   "en": "Rambam, Ritual Slaughter",
+   "he": "משנה תורה, הלכות שחיטה",
+   "unit": "halacha",
+   "pieces": 279,
+   "letters": 43294,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/oaths",
+   "collection": "rambam",
+   "en": "Rambam, Oaths",
+   "he": "משנה תורה, הלכות שבועות",
+   "unit": "halacha",
+   "pieces": 205,
+   "letters": 36104,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/vows",
+   "collection": "rambam",
+   "en": "Rambam, Vows",
+   "he": "משנה תורה, הלכות נדרים",
+   "unit": "halacha",
+   "pieces": 237,
+   "letters": 37721,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/nazariteship",
+   "collection": "rambam",
+   "en": "Rambam, Nazariteship",
+   "he": "משנה תורה, הלכות נזירות",
+   "unit": "halacha",
+   "pieces": 184,
+   "letters": 33611,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/appraisals-and-devoted-property",
+   "collection": "rambam",
+   "en": "Rambam, Appraisals and Devoted Property",
+   "he": "משנה תורה, הלכות ערכים וחרמין",
+   "unit": "halacha",
+   "pieces": 171,
+   "letters": 28914,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/diverse-species",
+   "collection": "rambam",
+   "en": "Rambam, Diverse Species",
+   "he": "משנה תורה, הלכות כלאים",
+   "unit": "halacha",
+   "pieces": 182,
+   "letters": 30584,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/gifts-to-the-poor",
+   "collection": "rambam",
+   "en": "Rambam, Gifts to the Poor",
+   "he": "משנה תורה, הלכות מתנות עניים",
+   "unit": "halacha",
+   "pieces": 200,
+   "letters": 32801,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/heave-offerings",
+   "collection": "rambam",
+   "en": "Rambam, Heave Offerings",
+   "he": "משנה תורה, הלכות תרומות",
+   "unit": "halacha",
+   "pieces": 317,
+   "letters": 56037,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/tithes",
+   "collection": "rambam",
+   "en": "Rambam, Tithes",
+   "he": "משנה תורה, הלכות מעשרות",
+   "unit": "halacha",
+   "pieces": 224,
+   "letters": 37305,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/second-tithes-and-fourth-years-fruit",
+   "collection": "rambam",
+   "en": "Rambam, Second Tithes and Fourth Year's Fruit",
+   "he": "משנה תורה, הלכות מעשר שני ונטע רבעי",
+   "unit": "halacha",
+   "pieces": 194,
+   "letters": 29204,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/first-fruits-and-other-gifts-to-priests-outside-the-sanctuary",
+   "collection": "rambam",
+   "en": "Rambam, First Fruits and other Gifts to Priests Outside the Sanctuary",
+   "he": "משנה תורה, הלכות ביכורים ושאר מתנות כהונה שבגבולין",
+   "unit": "halacha",
+   "pieces": 224,
+   "letters": 34614,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/sabbatical-year-and-the-jubilee",
+   "collection": "rambam",
+   "en": "Rambam, Sabbatical Year and the Jubilee",
+   "he": "משנה תורה, הלכות שמיטה ויובל",
+   "unit": "halacha",
+   "pieces": 253,
+   "letters": 38232,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/the-chosen-temple",
+   "collection": "rambam",
+   "en": "Rambam, The Chosen Temple",
+   "he": "משנה תורה, הלכות בית הבחירה",
+   "unit": "halacha",
+   "pieces": 137,
+   "letters": 24151,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/vessels-of-the-sanctuary-and-those-who-serve-therein",
+   "collection": "rambam",
+   "en": "Rambam, Vessels of the Sanctuary and Those Who Serve Therein",
+   "he": "משנה תורה, הלכות כלי המקדש והעובדין בו",
+   "unit": "halacha",
+   "pieces": 156,
+   "letters": 27319,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/admission-into-the-sanctuary",
+   "collection": "rambam",
+   "en": "Rambam, Admission into the Sanctuary",
+   "he": "משנה תורה, הלכות ביאת מקדש",
+   "unit": "halacha",
+   "pieces": 147,
+   "letters": 25214,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/things-forbidden-on-the-altar",
+   "collection": "rambam",
+   "en": "Rambam, Things Forbidden on the Altar",
+   "he": "משנה תורה, הלכות איסורי המזבח",
+   "unit": "halacha",
+   "pieces": 100,
+   "letters": 18317,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/sacrificial-procedure",
+   "collection": "rambam",
+   "en": "Rambam, Sacrificial Procedure",
+   "he": "משנה תורה, הלכות מעשה הקרבנות",
+   "unit": "halacha",
+   "pieces": 322,
+   "letters": 54457,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/daily-offerings-and-additional-offerings",
+   "collection": "rambam",
+   "en": "Rambam, Daily Offerings and Additional Offerings",
+   "he": "משנה תורה, הלכות תמידים ומוספין",
+   "unit": "halacha",
+   "pieces": 168,
+   "letters": 29869,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/sacrifices-rendered-unfit",
+   "collection": "rambam",
+   "en": "Rambam, Sacrifices Rendered Unfit",
+   "he": "משנה תורה, הלכות פסולי המוקדשין",
+   "unit": "halacha",
+   "pieces": 345,
+   "letters": 53364,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/service-on-the-day-of-atonement",
+   "collection": "rambam",
+   "en": "Rambam, Service on the Day of Atonement",
+   "he": "משנה תורה, הלכות עבודת יום הכפורים",
+   "unit": "halacha",
+   "pieces": 56,
+   "letters": 16060,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/trespass",
+   "collection": "rambam",
+   "en": "Rambam, Trespass",
+   "he": "משנה תורה, הלכות מעילה",
+   "unit": "halacha",
+   "pieces": 101,
+   "letters": 20553,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/paschal-offering",
+   "collection": "rambam",
+   "en": "Rambam, Paschal Offering",
+   "he": "משנה תורה, הלכות קרבן פסח",
+   "unit": "halacha",
+   "pieces": 125,
+   "letters": 26152,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/festival-offering",
+   "collection": "rambam",
+   "en": "Rambam, Festival Offering",
+   "he": "משנה תורה, הלכות חגיגה",
+   "unit": "halacha",
+   "pieces": 32,
+   "letters": 7349,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/firstlings",
+   "collection": "rambam",
+   "en": "Rambam, Firstlings",
+   "he": "משנה תורה, הלכות בכורות",
+   "unit": "halacha",
+   "pieces": 122,
+   "letters": 21655,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/offerings-for-unintentional-transgressions",
+   "collection": "rambam",
+   "en": "Rambam, Offerings for Unintentional Transgressions",
+   "he": "משנה תורה, הלכות שגגות",
+   "unit": "halacha",
+   "pieces": 137,
+   "letters": 38940,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/offerings-for-those-with-incomplete-atonement",
+   "collection": "rambam",
+   "en": "Rambam, Offerings for Those with Incomplete Atonement",
+   "he": "משנה תורה, הלכות מחוסרי כפרה",
+   "unit": "halacha",
+   "pieces": 48,
+   "letters": 11616,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/substitution",
+   "collection": "rambam",
+   "en": "Rambam, Substitution",
+   "he": "משנה תורה, הלכות תמורה",
+   "unit": "halacha",
+   "pieces": 46,
+   "letters": 9078,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/defilement-by-a-corpse",
+   "collection": "rambam",
+   "en": "Rambam, Defilement by a Corpse",
+   "he": "משנה תורה, הלכות טומאת מת",
+   "unit": "halacha",
+   "pieces": 246,
+   "letters": 64979,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/red-heifer",
+   "collection": "rambam",
+   "en": "Rambam, Red Heifer",
+   "he": "משנה תורה, הלכות פרה אדומה",
+   "unit": "halacha",
+   "pieces": 166,
+   "letters": 36822,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/defilement-by-leprosy",
+   "collection": "rambam",
+   "en": "Rambam, Defilement by Leprosy",
+   "he": "משנה תורה, הלכות טומאת צרעת",
+   "unit": "halacha",
+   "pieces": 174,
+   "letters": 40674,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/those-who-defile-bed-or-seat",
+   "collection": "rambam",
+   "en": "Rambam, Those Who Defile Bed or Seat",
+   "he": "משנה תורה, הלכות מטמאי משכב ומושב",
+   "unit": "halacha",
+   "pieces": 143,
+   "letters": 32125,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/other-sources-of-defilement",
+   "collection": "rambam",
+   "en": "Rambam, Other Sources of Defilement",
+   "he": "משנה תורה, הלכות שאר אבות הטומאות",
+   "unit": "halacha",
+   "pieces": 254,
+   "letters": 51285,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/defilement-of-foods",
+   "collection": "rambam",
+   "en": "Rambam, Defilement of Foods",
+   "he": "משנה תורה, הלכות טומאת אוכלים",
+   "unit": "halacha",
+   "pieces": 259,
+   "letters": 44073,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/vessels",
+   "collection": "rambam",
+   "en": "Rambam, Vessels",
+   "he": "משנה תורה, הלכות כלים",
+   "unit": "halacha",
+   "pieces": 409,
+   "letters": 70082,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/immersion-pools",
+   "collection": "rambam",
+   "en": "Rambam, Immersion Pools",
+   "he": "משנה תורה, הלכות מקואות",
+   "unit": "halacha",
+   "pieces": 157,
+   "letters": 29229,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/damages-to-property",
+   "collection": "rambam",
+   "en": "Rambam, Damages to Property",
+   "he": "משנה תורה, הלכות נזקי ממון",
+   "unit": "halacha",
+   "pieces": 202,
+   "letters": 36070,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/theft",
+   "collection": "rambam",
+   "en": "Rambam, Theft",
+   "he": "משנה תורה, הלכות גניבה",
+   "unit": "halacha",
+   "pieces": 131,
+   "letters": 21510,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/robbery-and-lost-property",
+   "collection": "rambam",
+   "en": "Rambam, Robbery and Lost Property",
+   "he": "משנה תורה, הלכות גזילה ואבידה",
+   "unit": "halacha",
+   "pieces": 275,
+   "letters": 49382,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/one-who-injures-a-person-or-property",
+   "collection": "rambam",
+   "en": "Rambam, One Who Injures a Person or Property",
+   "he": "משנה תורה, הלכות חובל ומזיק",
+   "unit": "halacha",
+   "pieces": 135,
+   "letters": 23100,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/murderer-and-the-preservation-of-life",
+   "collection": "rambam",
+   "en": "Rambam, Murderer and the Preservation of Life",
+   "he": "משנה תורה, הלכות רוצח ושמירת נפש",
+   "unit": "halacha",
+   "pieces": 184,
+   "letters": 30463,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/sales",
+   "collection": "rambam",
+   "en": "Rambam, Sales",
+   "he": "משנה תורה, הלכות מכירה",
+   "unit": "halacha",
+   "pieces": 413,
+   "letters": 71861,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/ownerless-property-and-gifts",
+   "collection": "rambam",
+   "en": "Rambam, Ownerless Property and Gifts",
+   "he": "משנה תורה, הלכות זכייה ומתנה",
+   "unit": "halacha",
+   "pieces": 219,
+   "letters": 33109,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/neighbors",
+   "collection": "rambam",
+   "en": "Rambam, Neighbors",
+   "he": "משנה תורה, הלכות שכנים",
+   "unit": "halacha",
+   "pieces": 156,
+   "letters": 34763,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/agents-and-partners",
+   "collection": "rambam",
+   "en": "Rambam, Agents and Partners",
+   "he": "משנה תורה, הלכות שלוחין ושותפין",
+   "unit": "halacha",
+   "pieces": 79,
+   "letters": 26535,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/slaves",
+   "collection": "rambam",
+   "en": "Rambam, Slaves",
+   "he": "משנה תורה, הלכות עבדים",
+   "unit": "halacha",
+   "pieces": 116,
+   "letters": 24183,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/hiring",
+   "collection": "rambam",
+   "en": "Rambam, Hiring",
+   "he": "משנה תורה, הלכות שכירות",
+   "unit": "halacha",
+   "pieces": 124,
+   "letters": 33945,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/borrowing-and-deposit",
+   "collection": "rambam",
+   "en": "Rambam, Borrowing and Deposit",
+   "he": "משנה תורה, הלכות שאלה ופיקדון",
+   "unit": "halacha",
+   "pieces": 64,
+   "letters": 18717,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/creditor-and-debtor",
+   "collection": "rambam",
+   "en": "Rambam, Creditor and Debtor",
+   "he": "משנה תורה, הלכות מלווה ולווה",
+   "unit": "halacha",
+   "pieces": 281,
+   "letters": 70478,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/plaintiff-and-defendant",
+   "collection": "rambam",
+   "en": "Rambam, Plaintiff and Defendant",
+   "he": "משנה תורה, הלכות טוען ונטען",
+   "unit": "halacha",
+   "pieces": 187,
+   "letters": 47375,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/inheritances",
+   "collection": "rambam",
+   "en": "Rambam, Inheritances",
+   "he": "משנה תורה, הלכות נחלות",
+   "unit": "halacha",
+   "pieces": 117,
+   "letters": 24819,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/the-sanhedrin-and-the-penalties-within-their-jurisdiction",
+   "collection": "rambam",
+   "en": "Rambam, The Sanhedrin and the Penalties within Their Jurisdiction",
+   "he": "משנה תורה, הלכות סנהדרין והעונשין המסורין להם",
+   "unit": "halacha",
+   "pieces": 254,
+   "letters": 57823,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/testimony",
+   "collection": "rambam",
+   "en": "Rambam, Testimony",
+   "he": "משנה תורה, הלכות עדות",
+   "unit": "halacha",
+   "pieces": 173,
+   "letters": 40951,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/rebels",
+   "collection": "rambam",
+   "en": "Rambam, Rebels",
+   "he": "משנה תורה, הלכות ממרים",
+   "unit": "halacha",
+   "pieces": 69,
+   "letters": 17249,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/mourning",
+   "collection": "rambam",
+   "en": "Rambam, Mourning",
+   "he": "משנה תורה, הלכות אבל",
+   "unit": "halacha",
+   "pieces": 183,
+   "letters": 30285,
+   "commentaries": []
+  },
+  {
+   "id": "rambam/kings-and-wars",
+   "collection": "rambam",
+   "en": "Rambam, Kings and Wars",
+   "he": "משנה תורה, הלכות מלכים ומלחמות",
+   "unit": "halacha",
+   "pieces": 131,
+   "letters": 28583,
+   "commentaries": []
+  },
+  {
+   "id": "shulchan-aruch/orach-chayim",
+   "collection": "shulchan-aruch",
+   "en": "Shulchan Arukh, Orach Chayim",
+   "he": "שולחן ערוך, אורח חיים",
+   "unit": "seif",
+   "pieces": 4171,
+   "letters": 721289,
+   "commentaries": [
+    {
+     "id": "mishnah-berurah",
+     "en": "Mishnah Berurah",
+     "he": "משנה ברורה"
+    }
+   ]
+  },
+  {
+   "id": "shulchan-aruch/yoreh-deah",
+   "collection": "shulchan-aruch",
+   "en": "Shulchan Arukh, Yoreh De'ah",
+   "he": "שולחן ערוך, יורה דעה",
+   "unit": "seif",
+   "pieces": 3700,
+   "letters": 775080,
+   "commentaries": []
+  },
+  {
+   "id": "shulchan-aruch/even-haezer",
+   "collection": "shulchan-aruch",
+   "en": "Shulchan Arukh, Even HaEzer",
+   "he": "שולחן ערוך, אבן העזר",
+   "unit": "seif",
+   "pieces": 1830,
+   "letters": 398459,
+   "commentaries": []
+  },
+  {
+   "id": "shulchan-aruch/choshen-mishpat",
+   "collection": "shulchan-aruch",
+   "en": "Shulchan Arukh, Choshen Mishpat",
+   "he": "שולחן ערוך, חושן משפט",
+   "unit": "seif",
+   "pieces": 3692,
+   "letters": 925048,
+   "commentaries": []
+  },
+  {
+   "id": "tur/orach-chayim",
+   "collection": "tur",
+   "en": "Tur, Orach Chayim",
+   "he": "טור אורח חיים",
+   "unit": "siman",
+   "pieces": 697,
+   "letters": 721258,
+   "commentaries": []
+  },
+  {
+   "id": "tur/yoreh-deah",
+   "collection": "tur",
+   "en": "Tur, Yoreh De'ah",
+   "he": "טור יורה דעה",
+   "unit": "siman",
+   "pieces": 403,
+   "letters": 630813,
+   "commentaries": []
+  },
+  {
+   "id": "tur/even-haezer",
+   "collection": "tur",
+   "en": "Tur, Even HaEzer",
+   "he": "טור אבן העזר",
+   "unit": "siman",
+   "pieces": 178,
+   "letters": 419656,
+   "commentaries": []
+  },
+  {
+   "id": "tur/choshen-mishpat",
+   "collection": "tur",
+   "en": "Tur, Choshen Mishpat",
+   "he": "טור חושן משפט",
+   "unit": "siman",
+   "pieces": 426,
+   "letters": 1043136,
+   "commentaries": []
+  }
+ ]
+}

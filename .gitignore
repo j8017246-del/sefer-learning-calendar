@@ -4,3 +4,4 @@ __pycache__/
 .env
 .venv/
 analysis_service/evaluation/private-ground-truth/
+.sefaria-cache/
