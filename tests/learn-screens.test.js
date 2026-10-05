@@ -119,6 +119,31 @@ function serve() {
   assert.match(await page.textContent("#about"), /Wikisource Talmud Bavli/);
   ok("About credits the Wikisource Gemara");
 
+  // backup as text, then load it back over a cleared phone
+  await page.click("#backup");
+  const backup = await page.inputValue("#backupText");
+  assert.strictEqual(JSON.parse(backup).plans.length, 1);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.waitForSelector("#empty:not([hidden])");
+  await page.click('[data-go="about"]');
+  await page.click("#about summary");
+  await page.fill("#pasteBackup", backup);
+  await page.click("#loadPasted");
+  await page.waitForSelector(".card");
+  assert.match(await page.textContent(".card"), /Berachos/);
+  ok("a backup copied as text loads back");
+
+  // stopping a sefer asks inside the page first
+  await page.click("[data-open]");
+  await page.click("#deletePlan");
+  await page.click('#ask button[value="no"]');
+  assert(await page.isVisible("#plan"));
+  await page.click("#deletePlan");
+  await page.click("#askYes");
+  await page.waitForSelector("#empty:not([hidden])");
+  ok("stopping a sefer asks first, inside the page");
+
   assert.deepStrictEqual(errors, []);
   ok("no errors in the page");
   await browser.close();

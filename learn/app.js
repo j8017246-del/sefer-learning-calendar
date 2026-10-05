@@ -174,6 +174,18 @@
 
   function findPlan(id) { return plans.find((x) => x.id === id); }
 
+  // "Are you sure?" inside the page (some phones' browsers block confirm()).
+  function ask(text, yes) {
+    return new Promise((resolve) => {
+      const dlg = $("ask");
+      $("askText").textContent = text;
+      $("askYes").textContent = yes;
+      dlg.returnValue = "";
+      dlg.onclose = () => resolve(dlg.returnValue === "yes");
+      dlg.showModal();
+    });
+  }
+
   document.addEventListener("click", (e) => {
     const t = e.target.closest("button, [data-go]");
     if (!t) return;
@@ -250,9 +262,9 @@
     }
   });
 
-  $("deletePlan").addEventListener("click", () => {
+  $("deletePlan").addEventListener("click", async () => {
     const x = findPlan(current);
-    if (!confirm(`Stop learning ${x.sefer.en}? Its progress will be removed from this phone.`)) return;
+    if (!(await ask(`Stop learning ${x.sefer.en}? Its progress will be removed from this phone.`, "Stop learning it"))) return;
     plans = plans.filter((p) => p.id !== current);
     save(); show("today");
   });
@@ -401,30 +413,52 @@
 
   // ---- backup -------------------------------------------------------------------------
 
-  $("backup").addEventListener("click", () => {
-    const data = { format: "learning-calendar-backup", version: 1, savedAt: new Date().toISOString(),
+  function backupData() {
+    return { format: "learning-calendar-backup", version: 1, savedAt: new Date().toISOString(),
       plans: plans.map((x) => ({ id: x.id, ...S.toSaved(x.plan, x.sefer) })) };
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: "application/json" }));
-    a.download = `learning-calendar-backup-${todayIso()}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  $("backup").addEventListener("click", () => {
+    const text = JSON.stringify(backupData());
+    try {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+      a.download = `learning-calendar-backup-${todayIso()}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    } catch (e) { /* some browsers block saving files; the text below still works */ }
+    $("backupText").value = text;
+    $("backupBox").hidden = false;
   });
+
+  $("copyBackup").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText($("backupText").value);
+      toast("Backup copied");
+    } catch (e) {
+      $("backupText").select();
+      toast("Select the text and copy it");
+    }
+  });
+
+  async function restore(text) {
+    try {
+      const data = JSON.parse(text);
+      if (data.format !== "learning-calendar-backup" || !Array.isArray(data.plans)) throw new Error("This is not a learning calendar backup.");
+      if (plans.length && !(await ask(`Replace the ${plans.length} sefer${plans.length > 1 ? "im" : ""} on this phone with the ${data.plans.length} in the backup?`, "Replace"))) return;
+      plans = await loadPlans(data.plans);
+      save(); show("today"); toast("Backup loaded");
+    } catch (err) {
+      toast(err instanceof SyntaxError ? "This is not a learning calendar backup." : err.message);
+    }
+  }
 
   $("restore").addEventListener("change", async (e) => {
     const file = e.target.files[0];
     e.target.value = "";
-    if (!file) return;
-    try {
-      const data = JSON.parse(await file.text());
-      if (data.format !== "learning-calendar-backup" || !Array.isArray(data.plans)) throw new Error("This is not a learning calendar backup file.");
-      if (plans.length && !confirm(`Replace the ${plans.length} sefer${plans.length > 1 ? "im" : ""} on this phone with the ${data.plans.length} in the backup?`)) return;
-      plans = await loadPlans(data.plans);
-      save(); show("today"); toast("Backup loaded");
-    } catch (err) {
-      toast(err.message);
-    }
+    if (file) restore(await file.text());
   });
+  $("loadPasted").addEventListener("click", () => restore($("pasteBackup").value));
 
   // ---- start ----------------------------------------------------------------------------
 

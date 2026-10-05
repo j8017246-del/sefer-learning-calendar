@@ -27,9 +27,11 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   commentaries, part of a sefer, finish date or daily amount, start date,
   days, lighter day, days off, live preview), the whole schedule with
   changing the finish date or adding days off, several sefarim at once,
-  backup file save/load, About with sources and the Wikisource credit.
+  backup save/load (as a file, or as copied text where files are blocked),
+  About with sources and the Wikisource credit. "Are you sure?" questions
+  are asked inside the page, since some browsers block confirm().
   Plans are kept in the phone's browser storage, saved by address.
-- **Tests**: 27 engine tests and 9 screen tests, all passing.
+- **Tests**: 27 engine tests and 11 screen tests, all passing.
 
 ## Left out (told Hudi)
 
@@ -54,7 +56,10 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
 
 ## Next
 
-1. Hudi tries the screens (not online yet; putting it online only on Hudi's word).
+1. Hudi tries the screens on the private preview (a claude.ai artifact only
+   Hudi can open; not public). To update it, rebuild the single-file page
+   (styles and scripts inlined, `data/` published next to it) and publish to
+   the same artifact.
 2. Yom Tov suggestions for days off.
 3. Make the data files smaller before release (21 MB in total; one sefer
    loads at a time).

@@ -113,9 +113,19 @@
     <p>Each day the app shows where to start and where to stop in your own printed sefer, named the way printed learning calendars name it: the amud, mishnah, pasuk, halacha, se'if or siman, and the first few words where the day stops. Days are sized by your settings, counting the commentaries you learn together with the text.</p>
     <p>Your progress is kept only on this phone. Save a backup file now and then.</p>
     <div class="row">
-      <button id="backup">Save backup file</button>
+      <button id="backup">Save backup</button>
       <label class="button">Load backup file <input type="file" id="restore" accept=".json,application/json" hidden></label>
     </div>
+    <div id="backupBox" class="stack" hidden>
+      <p class="hint">If no file was saved, copy this text and keep it somewhere safe (for example, email it to yourself).</p>
+      <textarea id="backupText" readonly></textarea>
+      <button id="copyBackup">Copy backup text</button>
+    </div>
+    <details>
+      <summary>Load a backup from copied text</summary>
+      <textarea id="pasteBackup" placeholder="Paste the backup text here"></textarea>
+      <button id="loadPasted">Load this backup</button>
+    </details>
     <h2>Sources</h2>
     <p>The sizes of the days and the few words that name each place come from texts published by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>, using only Public Domain editions, except:</p>
     <p class="credit">The Gemara's text: <b>Wikisource Talmud Bavli</b> (<bdi lang="he" dir="rtl">תלמוד בבלי, ויקיטקסט</bdi>), licensed <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA</a>, from <a href="https://he.wikisource.org/wiki/%D7%AA%D7%9C%D7%9E%D7%95%D7%93_%D7%91%D7%91%D7%9C%D7%99" target="_blank" rel="noopener">he.wikisource.org</a>. The app keeps only the first few words of each place in it.</p>
@@ -131,6 +141,14 @@
     <button value="spread">Spread it over the coming days</button>
     <button value="double">Double up on the next day</button>
     <button value="cancel" class="link">Not now</button>
+  </form>
+</dialog>
+
+<dialog id="ask">
+  <form method="dialog">
+    <p id="askText"></p>
+    <button value="yes" class="primary" id="askYes">Yes</button>
+    <button value="no">Cancel</button>
   </form>
 </dialog>
 
