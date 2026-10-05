@@ -19,7 +19,17 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   whole pieces; only Public Domain/CC0 plus the Wikisource Gemara; opening
   words kept for every stopping point and checked against the source; Hebrew
   names with English alongside.
-- **Tests**: 27, all passing.
+- **Screens (Part 2)**: `index.html`, `app.js`, `app.css`, plain HTML/CSS/JS
+  with no libraries. Today screen (a card per sefer: day N of M, where to
+  start and stop, Rashi/Tosafot/Mishnah Berurah through, Done, Undo, Open on
+  Sefaria, behind/ahead), missed days and "I can't learn today" (push /
+  spread / double up), add a sefer (collection, sefer in Hebrew and English,
+  commentaries, part of a sefer, finish date or daily amount, start date,
+  days, lighter day, days off, live preview), the whole schedule with
+  changing the finish date or adding days off, several sefarim at once,
+  backup file save/load, About with sources and the Wikisource credit.
+  Plans are kept in the phone's browser storage, saved by address.
+- **Tests**: 27 engine tests and 9 screen tests, all passing.
 
 ## Left out (told Hudi)
 
@@ -44,19 +54,17 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
 
 ## Next
 
-1. Part 2: the screens. Pick a sefer (Hebrew and English names), choose
-   commentaries, set the schedule, today's portion with Done and "Open on
-   Sefaria", the missed-day choice, several sefarim at once, the backup file,
-   and an "About and sources" screen that credits Wikisource.
+1. Hudi tries the screens (not online yet; putting it online only on Hudi's word).
 2. Yom Tov suggestions for days off.
-3. Make the data files smaller before release (21 MB in total now; one
-   masechet loads at a time).
+3. Make the data files smaller before release (21 MB in total; one sefer
+   loads at a time).
+4. Works offline (a service worker), so the app opens without a connection.
 
 ## How to run
 
 ```bash
-node tests/learn-schedule.test.js                     # the tests
-python3 tools/build_sefer_data.py                     # rebuild learn/data from Sefaria's export
+cd learn && python3 -m http.server 8765        # then open http://127.0.0.1:8765
+node tests/learn-schedule.test.js              # engine tests
+NODE_PATH=$(npm root -g) node tests/learn-screens.test.js   # screen tests (needs Playwright; skips without it)
+python3 tools/build_sefer_data.py              # rebuild learn/data from Sefaria's export
 ```
-
-There are no screens yet.

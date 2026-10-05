@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f3a5f">
+<title>Learning Calendar</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <button class="link title" data-go="today">Learning Calendar</button>
+  <nav>
+    <button class="link" data-go="add">+ Add</button>
+    <button class="link" data-go="about">About</button>
+  </nav>
+</header>
+
+<main>
+  <!-- Today: every sefer being learned -->
+  <section id="today" class="view">
+    <p class="date" id="todayDate"></p>
+    <div id="cards"></div>
+    <div id="empty" class="empty" hidden>
+      <p>Choose a sefer and how you want to learn it. The app gives you each day's place to start and stop in your own sefer.</p>
+      <button class="primary" data-go="add">Choose a sefer</button>
+    </div>
+  </section>
+
+  <!-- Add a sefer -->
+  <section id="add" class="view" hidden>
+    <h1>Add a sefer</h1>
+    <form id="setup" autocomplete="off">
+      <label>Collection
+        <select id="collection"></select>
+      </label>
+      <label>Sefer
+        <select id="sefer"></select>
+      </label>
+      <fieldset id="commentaryBox" hidden>
+        <legend>Learn together with</legend>
+        <div id="commentaries" class="chips"></div>
+      </fieldset>
+
+      <details id="rangeBox">
+        <summary>Only part of the sefer</summary>
+        <div class="row">
+          <label>From <input id="fromPiece" inputmode="text" placeholder=""></label>
+          <label>To <input id="toPiece" inputmode="text" placeholder=""></label>
+        </div>
+        <p class="hint" id="rangeHint"></p>
+      </details>
+
+      <fieldset>
+        <legend>How much</legend>
+        <label class="inline"><input type="radio" name="mode" value="finish" checked> Finish by a date</label>
+        <label class="inline"><input type="radio" name="mode" value="amount"> A set amount a day</label>
+        <label id="finishBox">Finish by <input type="date" id="endDate"></label>
+        <label id="amountBox" hidden>Each day
+          <span class="row tight"><input type="number" id="amount" min="0.05" step="0.05" value="1"> <span id="amountUnit">amud</span></span>
+        </label>
+      </fieldset>
+
+      <label>Start on <input type="date" id="startDate"></label>
+
+      <fieldset>
+        <legend>Days I learn</legend>
+        <div id="days" class="chips"></div>
+        <label>Lighter day
+          <select id="lighter"></select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Days off</legend>
+        <div id="daysOffList"></div>
+        <div class="row">
+          <label>From <input type="date" id="offStart"></label>
+          <label>To <input type="date" id="offEnd"></label>
+        </div>
+        <label>Reason (optional) <input id="offLabel" placeholder="Vacation, Yom Tov…"></label>
+        <button type="button" id="addOff">Add days off</button>
+      </fieldset>
+
+      <div id="preview" class="preview" aria-live="polite"></div>
+      <button class="primary" id="create" type="submit">Start learning</button>
+    </form>
+  </section>
+
+  <!-- One sefer's whole schedule -->
+  <section id="plan" class="view" hidden>
+    <h1 id="planTitle"></h1>
+    <p id="planSummary" class="hint"></p>
+    <details>
+      <summary>Change the plan</summary>
+      <form id="planEdit">
+        <label>Finish by <input type="date" id="editEnd"></label>
+        <div class="row">
+          <label>Days off from <input type="date" id="editOffStart"></label>
+          <label>to <input type="date" id="editOffEnd"></label>
+        </div>
+        <button type="submit">Save changes</button>
+        <p class="hint">Days already done stay as they are; what is left is shared out again.</p>
+      </form>
+    </details>
+    <ol id="planDays" class="days"></ol>
+    <button class="danger" id="deletePlan">Stop learning this sefer</button>
+  </section>
+
+  <!-- About, backup, sources -->
+  <section id="about" class="view" hidden>
+    <h1>About</h1>
+    <p>Each day the app shows where to start and where to stop in your own printed sefer, named the way printed learning calendars name it: the amud, mishnah, pasuk, halacha, se'if or siman, and the first few words where the day stops. Days are sized by your settings, counting the commentaries you learn together with the text.</p>
+    <p>Your progress is kept only on this phone. Save a backup file now and then.</p>
+    <div class="row">
+      <button id="backup">Save backup file</button>
+      <label class="button">Load backup file <input type="file" id="restore" accept=".json,application/json" hidden></label>
+    </div>
+    <h2>Sources</h2>
+    <p>The sizes of the days and the few words that name each place come from texts published by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>, using only Public Domain editions, except:</p>
+    <p class="credit">The Gemara's text: <b>Wikisource Talmud Bavli</b> (<bdi lang="he" dir="rtl">תלמוד בבלי, ויקיטקסט</bdi>), licensed <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA</a>, from <a href="https://he.wikisource.org/wiki/%D7%AA%D7%9C%D7%9E%D7%95%D7%93_%D7%91%D7%91%D7%9C%D7%99" target="_blank" rel="noopener">he.wikisource.org</a>. The app keeps only the first few words of each place in it.</p>
+    <p><a href="data/SOURCES.md" target="_blank">Every edition and its license</a></p>
+  </section>
+</main>
+
+<dialog id="missed">
+  <form method="dialog">
+    <h2 id="missedTitle">You missed a day</h2>
+    <p id="missedText"></p>
+    <button value="push" class="primary">Push the finish date later</button>
+    <button value="spread">Spread it over the coming days</button>
+    <button value="double">Double up on the next day</button>
+    <button value="cancel" class="link">Not now</button>
+  </form>
+</dialog>
+
+<div id="toast" role="status"></div>
+
+<script src="engine/sefer.js"></script>
+<script src="engine/schedule.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

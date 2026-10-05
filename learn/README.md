@@ -7,6 +7,8 @@ work stands.
 
 ## Layout
 
+- `index.html`, `app.js`, `app.css`: the screens (no libraries). Serve the
+  folder with any static server: `cd learn && python3 -m http.server 8765`.
 - `data/catalog.json`: every sefer offered, with Hebrew and English names,
   grouped into the six collections.
 - `data/<collection>/<sefer>.json`: one sefer (format below).
@@ -105,4 +107,5 @@ needed.
 
 ```bash
 node tests/learn-schedule.test.js
+NODE_PATH=$(npm root -g) node tests/learn-screens.test.js   # phone-sized browser; needs Playwright
 ```
