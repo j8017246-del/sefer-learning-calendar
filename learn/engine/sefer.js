@@ -3,23 +3,23 @@
  *
  * A data file (built by tools/build_sefer_data.py) lists the standard pieces
  * of a sefer in order (pasuk, mishnah, amud, halacha, se'if or siman). Each
- * piece is cut into stopping points ("stops") at the smallest natural breaks
- * in its text: every sentence and clause end, or about one printed line where
- * the text has none.
+ * piece is cut into stopping points ("stops") at every sentence and clause
+ * end, or about one printed line where the text has none. A day may end after
+ * any stop.
  *
- *   stops[p]      number of main-text stops in piece p
- *   weights[s]    letters in main stop s
- *   markers[s]    first words of main stop s ("until the words ...")
- *   segments[s]   (Gemara only) Sefaria section number where stop s begins
- *   commentaries  [{ id, en, he, after, weights, markers, starts }]
- *                 each commentary stop follows main stop after[i]; starts[i]
- *                 is 1 where a new comment (dibbur hamatchil) begins
+ *   stops[p]       number of stops in piece p
+ *   weights[s]     letters in stop s
+ *   markers[s]     first 3-6 words of stop s, to name the place
+ *   segments[s]    Sefaria segment (within the piece) where stop s begins
+ *   offsets[s]     letters into that segment where stop s begins
+ *   commentaries   [{ id, en, he, after, weights, heads, nums? }]: each
+ *                  comment is learned with the stop after[i]; heads[i] is its
+ *                  dibbur hamatchil, nums[i] its se'if katan number
  *
- * A "view" is the learning order for a chosen set of commentaries: each main
- * stop followed by the commentary stops that explain it (Rashi, then
- * Tosafot). A day may end after any unit of the view, so even a long Tosafot
- * can be shared between two days. Unit numbers are 0-based indexes into the
- * view; piece numbers are 0-based indexes into stops.
+ * Every stop has a lasting address, "<Sefaria ref>@<letters in>", for example
+ * "Berakhot 9b:12@34". Plans are saved by address so they survive a rebuild
+ * of the data and can later be tied to the page and line of a printed edition.
+ * Sefaria references are never shown to the learner.
  */
 (function (global) {
   "use strict";
@@ -55,7 +55,7 @@
     });
   }
 
-  // First main stop of each piece, plus a final entry for the end.
+  // First stop of each piece, plus a final entry for the end.
   function pieceStarts(sefer) {
     return hidden(sefer, "_pieceStarts", () => {
       const out = [0];
@@ -64,8 +64,8 @@
     });
   }
 
-  function mainPieces(sefer) {
-    return hidden(sefer, "_mainPieces", () => {
+  function stopPieces(sefer) {
+    return hidden(sefer, "_stopPieces", () => {
       const out = new Int32Array(sefer.weights.length), starts = pieceStarts(sefer);
       sefer.stops.forEach((n, p) => out.fill(p, starts[p], starts[p] + n));
       return out;
@@ -73,7 +73,18 @@
   }
 
   const pieceCount = (sefer) => sefer.stops.length;
+  const stopCount = (sefer) => sefer.weights.length;
+  const pieceOf = (sefer, s) => stopPieces(sefer)[s];
+  const startsPiece = (sefer, s) => pieceStarts(sefer)[pieceOf(sefer, s)] === s;
+  const endsPiece = (sefer, s) => pieceStarts(sefer)[pieceOf(sefer, s) + 1] - 1 === s;
 
+  // Stops [from, to] that make up pieces fromPiece through toPiece.
+  function stopRange(sefer, fromPiece, toPiece = fromPiece) {
+    const starts = pieceStarts(sefer);
+    return { from: starts[fromPiece], to: starts[toPiece + 1] - 1 };
+  }
+
+  // The piece's own number: "9b", "2:3", "128".
   function pieceLabel(sefer, p) {
     const pos = positions(sefer)[p];
     if (!pos) throw new RangeError(`No piece ${p} in ${sefer.en}`);
@@ -82,175 +93,230 @@
     return String(pos.number);
   }
 
+  // How a piece is named in a sentence: "9b", "2:3", "siman 128".
+  function pieceName(sefer, p) {
+    return sefer.shape === "list" ? `siman ${pieceLabel(sefer, p)}` : pieceLabel(sefer, p);
+  }
+
   // Piece index from its label ("10a", "3:4", "128").
   function findPiece(sefer, label) {
-    const want = String(label).trim().toLowerCase();
+    const want = String(label).trim().toLowerCase().replace(/^siman\s+/, "");
     const n = pieceCount(sefer);
     for (let p = 0; p < n; p++) if (pieceLabel(sefer, p) === want) return p;
     throw new RangeError(`${sefer.en} has no ${label}`);
   }
 
-  // ---- views ----------------------------------------------------------------
+  // ---- commentaries -------------------------------------------------------
 
-  // The learning order for these commentaries. Cached per sefer.
-  function view(sefer, commentaryIds = []) {
-    const cache = hidden(sefer, "_views", () => new Map());
+  // Letters per stop: the main text plus the chosen commentaries, each
+  // comment counted with the stop it is learned after. Cached per choice.
+  function stopWeights(sefer, commentaryIds = []) {
+    const cache = hidden(sefer, "_weights", () => new Map());
     const key = commentaryIds.join(",");
-    if (cache.has(key)) return cache.get(key);
-    const chosen = commentaryIds.map((id) => {
+    if (!cache.has(key)) {
+      const out = Float64Array.from(sefer.weights);
+      for (const c of chosen(sefer, commentaryIds)) c.after.forEach((s, i) => { out[s] += c.weights[i]; });
+      cache.set(key, out);
+    }
+    return cache.get(key);
+  }
+
+  function chosen(sefer, commentaryIds) {
+    return commentaryIds.map((id) => {
       const c = sefer.commentaries.find((x) => x.id === id);
       if (!c) throw new Error(`${sefer.en} has no commentary "${id}"`);
       return c;
     });
-    const kind = [], ref = [], weight = [], main = [];
-    const next = chosen.map(() => 0);
-    sefer.weights.forEach((w, s) => {
-      kind.push(-1); ref.push(s); weight.push(w); main.push(s);
-      chosen.forEach((c, ci) => {
-        while (next[ci] < c.after.length && c.after[next[ci]] <= s) {
-          const i = next[ci]++;
-          kind.push(ci); ref.push(i); weight.push(c.weights[i]); main.push(s);
-        }
-      });
-    });
-    const pieces = mainPieces(sefer);
-    const v = {
-      sefer, commentaries: chosen,
-      kind: Int8Array.from(kind), ref: Int32Array.from(ref),
-      weights: Float64Array.from(weight), main: Int32Array.from(main),
-      piece: Int32Array.from(main, (s) => pieces[s]),
-    };
-    v.length = v.weights.length;
-    cache.set(key, v);
-    return v;
   }
 
-  // Units [from, to] that make up pieces fromPiece through toPiece,
-  // commentaries included.
-  function unitRange(v, fromPiece, toPiece = fromPiece) {
-    const piece = v.piece;
-    let from = 0, to = v.length - 1;
-    while (from < v.length && piece[from] < fromPiece) from++;
-    while (to >= 0 && piece[to] > toPiece) to--;
-    return { from, to };
+  // Comment indexes of a commentary in learning order (by the stop they follow).
+  function commentOrder(c) {
+    return hidden(c, "_order", () => Int32Array.from(c.after.keys()).sort((a, b) => c.after[a] - c.after[b] || a - b));
   }
 
-  // How good a place each unit is to end a day: 2 = end of a perek or a whole
-  // daf, 1 = end of a pasuk, mishnah, amud, halacha, se'if or siman (after its
-  // commentaries), 0 = a sentence or line inside one.
-  function breakLevels(v) {
-    return hidden(v, "_breaks", () => {
-      const out = new Uint8Array(v.length), pos = positions(v.sefer), shape = v.sefer.shape;
-      for (let u = 0; u < v.length; u++) {
-        if (u === v.length - 1) out[u] = 2;
-        else if (v.piece[u + 1] !== v.piece[u]) {
-          const p = pos[v.piece[u]];
-          out[u] = (shape === "chapters" && p.last) || (shape === "daf" && p.side === "b") ? 2 : 1;
-        }
-      }
-      return out;
-    });
+  // The last comment of commentary c learned on a day ending at stop `to`
+  // and starting at stop `from`, or -1.
+  function lastComment(c, from, to) {
+    const order = commentOrder(c);
+    let lo = 0, hi = order.length - 1, found = -1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (c.after[order[mid]] <= to) { found = mid; lo = mid + 1; } else hi = mid - 1;
+    }
+    return found >= 0 && c.after[order[found]] >= from ? order[found] : -1;
   }
 
   // ---- describing a portion -------------------------------------------------
 
-  // The comment a commentary stop belongs to: its opening words.
-  function commentHead(c, i) {
-    while (i > 0 && !c.starts[i]) i--;
-    return c.markers[i] || "";
-  }
-
-  // A place inside a piece: { words } for the main text, or
-  // { commentary, head, words } inside a commentary.
-  function place(v, u) {
-    if (v.kind[u] < 0) return { words: v.sefer.markers ? v.sefer.markers[v.ref[u]] || null : null };
-    const c = v.commentaries[v.kind[u]], i = v.ref[u];
-    return {
-      commentary: { id: c.id, en: c.en, he: c.he },
-      head: commentHead(c, i) || null,
-      words: c.starts[i] ? null : c.markers[i] || null,
-    };
-  }
-
   // A day's portion in parts, for the screen:
-  //   start: { piece, label, at }  at: null when it starts the piece, else a place
-  //   end:   { piece, label, until }  until: where the next day starts, null
-  //                                   when the day ends the piece
-  function rangeParts(v, from, to) {
+  //   start: { piece, label, words }  words: null when it starts the piece
+  //   end:   { piece, label, until }  until: first words of the next day,
+  //                                   null when it ends the piece
+  //   commentaries: [{ id, en, he, through, piece }] the last comment learned,
+  //                 by dibbur hamatchil or se'if katan; only when the day
+  //                 stops inside a piece
+  function rangeParts(sefer, from, to, commentaryIds = []) {
     if (to < from) return null;
-    const a = v.piece[from], b = v.piece[to];
-    const startsPiece = from === 0 || v.piece[from - 1] !== a;
-    const endsPiece = to === v.length - 1 || v.piece[to + 1] !== b;
-    return {
-      start: { piece: a, label: pieceLabel(v.sefer, a), at: startsPiece ? null : place(v, from) },
-      end: { piece: b, label: pieceLabel(v.sefer, b), until: endsPiece ? null : place(v, to + 1) },
+    const a = pieceOf(sefer, from), b = pieceOf(sefer, to);
+    const markers = sefer.markers || [];
+    const parts = {
+      start: { piece: a, label: pieceLabel(sefer, a), words: startsPiece(sefer, from) ? null : markers[from] || null },
+      end: { piece: b, label: pieceLabel(sefer, b), until: endsPiece(sefer, to) ? null : markers[to + 1] || null },
+      commentaries: [],
     };
-  }
-
-  function placeText(v, p, piece) {
-    if (!p.commentary) return p.words ? `“${p.words}”` : "";
-    const name = p.head ? `${p.commentary.en} “${p.head}”` : `${p.commentary.en} on ${pieceLabel(v.sefer, piece)}`;
-    return p.words ? `“${p.words}” in ${name}` : name;
-  }
-
-  function nameOf(sefer, p) {
-    return sefer.shape === "list" ? `siman ${positions(sefer)[p].number}` : pieceLabel(sefer, p);
-  }
-
-  // How a day's portion is written, e.g.
-  //   "Berakhot 9b to the end of 10a"
-  //   "Berakhot 9b, from “אמר רבי יוחנן”, to 10a, until “תנו רבנן”"
-  //   "Berakhot 9b, until “וכו'” in Tosafot “מאימתי קורין”"
-  //   "Genesis 1:1 to 2:3", "Tur, Orach Chayim, siman 128, until “…”"
-  function describeRange(v, from, to) {
-    const r = rangeParts(v, from, to);
-    if (!r) return "";
-    const sefer = v.sefer, pos = positions(sefer);
-    const from_ = r.start.at ? `, from ${placeText(v, r.start.at, r.start.piece)}` : "";
-    const until = r.end.until ? `, until ${placeText(v, r.end.until, r.end.piece)}` : "";
-    const head = sefer.shape === "list" ? `${sefer.en}, ` : `${sefer.en} `;
-    if (r.start.piece === r.end.piece) return `${head}${nameOf(sefer, r.start.piece)}${from_}${until}`;
-    const whole = !from_ && !until;
-    const pa = pos[r.start.piece], pb = pos[r.end.piece];
-    if (whole && sefer.shape === "chapters") {
-      if (pa.verse === 1 && pb.last) {
-        return pa.chapter === pb.chapter ? `${head}${pa.chapter}` : `${head}${pa.chapter}–${pb.chapter}`;
+    if (parts.end.until) {
+      for (const c of chosen(sefer, commentaryIds)) {
+        const i = lastComment(c, from, to);
+        if (i < 0) continue;
+        const piece = pieceOf(sefer, c.after[i]);
+        const through = c.nums && c.nums[i] != null
+          ? { seifKatan: c.nums[i], siman: positions(sefer)[piece].chapter }
+          : { words: c.heads[i] || null };
+        parts.commentaries.push({ id: c.id, en: c.en, he: c.he, piece, ...through });
       }
-      if (pa.chapter === pb.chapter) return `${head}${pa.chapter}:${pa.verse}–${pb.verse}`;
     }
-    if (whole && sefer.shape === "list") return `${head}simanim ${pa.number}–${pb.number}`;
-    // a pasuk / se'if label already names a whole piece; an amud or siman reads "to the end of"
-    const to_ = until || sefer.shape === "chapters" ? " to " : " to the end of ";
-    return `${head}${nameOf(sefer, r.start.piece)}${from_}${from_ ? "," : ""}${to_}${nameOf(sefer, r.end.piece)}${until}`;
+    return parts;
   }
 
-  // ---- links --------------------------------------------------------------
+  function commentaryText(sefer, parts) {
+    return parts.commentaries.map((c) => {
+      if (c.seifKatan != null) {
+        const siman = positions(sefer)[parts.end.piece].chapter === c.siman ? "" : `siman ${c.siman}, `;
+        return `${c.en} through ${siman}se'if katan ${c.seifKatan}`;
+      }
+      return c.words ? `${c.en} through “${c.words}”` : `${c.en} on ${pieceLabel(sefer, c.piece)}`;
+    }).join("; ");
+  }
 
-  function sefariaRef(v, u, atEnd) {
-    const sefer = v.sefer, p = v.piece[u], pos = positions(sefer)[p];
+  // How a day's portion is written for someone holding a printed sefer:
+  //   "Berachos 9b to the end of 10a"
+  //   "Berachos 9b, from the words “…”, to 10a, until the words “…”; Rashi through “…”; Tosafot through “…”"
+  //   "Mishnah Berachos 2:3 to 2:5", "Bereishis 1:1 to 2:3", "Bereishis 1–2"
+  //   "Tur Orach Chaim, siman 128, from the words “…”, until the words “…”"
+  function describeRange(sefer, from, to, commentaryIds = []) {
+    const r = rangeParts(sefer, from, to, commentaryIds);
+    if (!r) return "";
+    const pos = positions(sefer);
+    const head = sefer.shape === "list" ? `${sefer.en}, ` : `${sefer.en} `;
+    const a = pieceName(sefer, r.start.piece), b = pieceName(sefer, r.end.piece);
+    const fromWords = r.start.words ? `, from the words “${r.start.words}”` : "";
+    const untilWords = r.end.until ? `, until the words “${r.end.until}”` : "";
+    let text;
+    if (r.start.piece === r.end.piece) {
+      text = !fromWords && !untilWords
+        ? `${head}${a}`
+        : `${head}${a}${fromWords}${untilWords || `, to the end of ${b}`}`;
+    } else if (!fromWords && !untilWords && sefer.shape === "chapters") {
+      const pa = pos[r.start.piece], pb = pos[r.end.piece];
+      if (pa.verse === 1 && pb.last) text = pa.chapter === pb.chapter ? `${head}${pa.chapter}` : `${head}${pa.chapter}–${pb.chapter}`;
+      else if (pa.chapter === pb.chapter) text = `${head}${pa.chapter}:${pa.verse}–${pb.verse}`;
+      else text = `${head}${a} to ${b}`;
+    } else if (!fromWords && !untilWords && sefer.shape === "list") {
+      text = `${head}simanim ${pos[r.start.piece].number}–${pos[r.end.piece].number}`;
+    } else {
+      // a pasuk, mishnah, halacha or se'if number names a whole piece;
+      // an amud or siman reads "to the end of"
+      const end = untilWords ? `${b}${untilWords}` : sefer.shape === "chapters" ? b : `the end of ${b}`;
+      text = `${head}${a}${fromWords}${fromWords ? "," : ""} to ${end}`;
+    }
+    const comm = commentaryText(sefer, r);
+    return comm ? `${text}; ${comm}` : text;
+  }
+
+  // ---- addresses and links ------------------------------------------------
+
+  // Sefaria reference of the segment stop s begins in.
+  function segmentRef(sefer, s) {
+    const pos = positions(sefer)[pieceOf(sefer, s)];
+    const seg = sefer.segments ? sefer.segments[s] : 1;
+    if (sefer.shape === "chapters") return `${sefer.sefaria} ${pos.chapter}:${pos.verse}`;
+    if (sefer.shape === "daf") return `${sefer.sefaria} ${pos.daf}${pos.side}:${seg}`;
+    return `${sefer.sefaria} ${pos.number}:${seg}`;
+  }
+
+  // Lasting address of stop s; stopCount(sefer) gives "end".
+  function address(sefer, s) {
+    if (s >= stopCount(sefer)) return "end";
+    return `${segmentRef(sefer, s)}@${sefer.offsets ? sefer.offsets[s] : 0}`;
+  }
+
+  // Where an address points: [piece, segment, letters in].
+  function placeOf(sefer, addr) {
+    const at = addr.lastIndexOf("@");
+    const ref = at < 0 ? addr : addr.slice(0, at), offset = at < 0 ? 0 : +addr.slice(at + 1);
+    const prefix = sefer.sefaria + " ";
+    if (!ref.startsWith(prefix)) throw new RangeError(`${sefer.en} has no place ${addr}`);
+    const rest = ref.slice(prefix.length);
+    let piece, seg = 1;
+    try {
+      if (sefer.shape === "chapters") piece = findPiece(sefer, rest);
+      else {
+        const colon = rest.lastIndexOf(":");
+        piece = findPiece(sefer, rest.slice(0, colon));
+        seg = +rest.slice(colon + 1);
+      }
+    } catch (e) {
+      throw new RangeError(`${sefer.en} has no place ${addr}`);
+    }
+    return [piece, seg, offset];
+  }
+
+  // The stop holding an address: the last stop that starts at or before that
+  // place in the text. It is the same stop while the data is unchanged, and
+  // the nearest one before it after the data is rebuilt. "end" gives
+  // stopCount(sefer).
+  function stopAt(sefer, addr) {
+    if (addr === "end") return stopCount(sefer);
+    const [piece, seg, offset] = placeOf(sefer, addr);
+    const starts = pieceStarts(sefer);
+    let found = starts[piece];
+    for (let s = starts[piece]; s < starts[piece + 1]; s++) {
+      const sSeg = sefer.segments ? sefer.segments[s] : 1, sOff = sefer.offsets ? sefer.offsets[s] : 0;
+      if (sSeg < seg || (sSeg === seg && sOff <= offset)) found = s;
+    }
+    return found;
+  }
+
+  function sefariaRef(sefer, s, atEnd) {
+    const p = pieceOf(sefer, s), pos = positions(sefer)[p];
     if (sefer.shape === "chapters") return `${pos.chapter}.${pos.verse}`;
     if (sefer.shape === "daf") {
-      const whole = atEnd ? u === v.length - 1 || v.piece[u + 1] !== p : u === 0 || v.piece[u - 1] !== p;
-      return whole || !sefer.segments ? `${pos.daf}${pos.side}` : `${pos.daf}${pos.side}.${sefer.segments[v.main[u]]}`;
+      const whole = atEnd ? endsPiece(sefer, s) : startsPiece(sefer, s);
+      return whole || !sefer.segments ? `${pos.daf}${pos.side}` : `${pos.daf}${pos.side}.${sefer.segments[s]}`;
     }
     return String(pos.number);
   }
 
-  // Link to the same place on Sefaria, e.g. https://www.sefaria.org/Berakhot.9b.5-10a.3
-  function sefariaUrl(v, from, to) {
-    const book = encodeURIComponent(v.sefer.sefaria.replace(/ /g, "_")).replace(/%2C/g, ",");
-    const a = sefariaRef(v, from, false), b = sefariaRef(v, to, true);
+  // "Open on Sefaria": a link to the day's place, e.g. https://www.sefaria.org/Berakhot.9b.5-10a.3
+  function sefariaUrl(sefer, from, to) {
+    const book = encodeURIComponent(sefer.sefaria.replace(/ /g, "_")).replace(/%2C/g, ",");
+    const a = sefariaRef(sefer, from, false), b = sefariaRef(sefer, to, true);
     if (a === b) return `${SEFARIA}${book}.${a}`;
     const [a0] = a.split("."), [b0, b1] = b.split(".");
     let end = b;
-    if (v.sefer.shape === "chapters" && a0 === b0) end = b1;
-    if (v.sefer.shape === "daf" && a0 === b0 && a.includes(".") && b1) end = b1;
+    if (sefer.shape === "chapters" && a0 === b0) end = b1;
+    if (sefer.shape === "daf" && a0 === b0 && a.includes(".") && b1) end = b1;
     return `${SEFARIA}${book}.${a}-${end}`;
   }
 
+  // Ends of pieces a day may be nudged to: 2 = end of a perek or a whole daf,
+  // 1 = end of a pasuk, mishnah, amud, halacha, se'if or siman, 0 = inside one.
+  function breakLevels(sefer) {
+    return hidden(sefer, "_breaks", () => {
+      const out = new Uint8Array(stopCount(sefer)), starts = pieceStarts(sefer);
+      positions(sefer).forEach((p, i) => {
+        const last = starts[i + 1] - 1;
+        if (last < starts[i]) return;
+        out[last] = (sefer.shape === "chapters" && p.last) || (sefer.shape === "daf" && p.side === "b") ? 2 : 1;
+      });
+      out[out.length - 1] = 2;
+      return out;
+    });
+  }
+
   const api = {
-    positions, pieceCount, pieceLabel, findPiece, view, unitRange, breakLevels,
-    rangeParts, describeRange, sefariaUrl,
+    positions, pieceCount, stopCount, pieceOf, stopRange, pieceLabel, pieceName, findPiece,
+    stopWeights, breakLevels, rangeParts, describeRange, address, stopAt, sefariaUrl,
   };
   global.SeferPieces = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

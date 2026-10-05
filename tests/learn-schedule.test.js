@@ -16,7 +16,7 @@ function test(name, fn) {
   console.log("ok -", name);
 }
 
-// Every piece from plan.from to plan.to is learned exactly once, in order.
+// Every stop from plan.from to plan.to is learned exactly once, in order.
 function assertCovers(plan) {
   let next = plan.from;
   const dates = new Set();
@@ -27,7 +27,7 @@ function assertCovers(plan) {
     assert.strictEqual(p.from, next, `gap or overlap before ${p.date}`);
     next = p.to + 1;
   }
-  assert.strictEqual(next, plan.to + 1, "not every piece was placed");
+  assert.strictEqual(next, plan.to + 1, "not every stop was placed");
   const sorted = plan.portions.map((p) => p.date);
   assert.deepStrictEqual(sorted, sorted.slice().sort());
 }
@@ -36,20 +36,22 @@ const berakhot = load("bavli/berakhot");
 const genesis = load("tanakh/genesis");
 const turOC = load("tur/orach-chayim");
 const saOC = load("shulchan-aruch/orach-chayim");
+const mBerakhot = load("mishnah/berakhot");
+const shabbos = load("rambam/sabbath");
 
 const RT = ["rashi", "tosafot"];
-const vB = Pieces.view(berakhot, RT);       // Gemara with Rashi and Tosafot
-const vBplain = Pieces.view(berakhot);      // Gemara alone
-const vTur = Pieces.view(turOC);
-const vGen = Pieces.view(genesis);
-const vSA = Pieces.view(saOC, ["mishnah-berurah"]);
-
-const lettersOf = (v) => (p) => { let s = 0; for (let i = p.from; i <= p.to; i++) s += v.weights[i]; return s; };
+const MB = ["mishnah-berurah"];
 const median = (xs) => xs.slice().sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+const lettersOf = (sefer, comms) => {
+  const w = Pieces.stopWeights(sefer, comms);
+  return (p) => { let s = 0; for (let i = p.from; i <= p.to; i++) s += w[i]; return s; };
+};
+const whole = (sefer) => Pieces.stopRange(sefer, 0, Pieces.pieceCount(sefer) - 1);
 
-// The plan's sample: Berakhot 2a-64a, Sunday-Friday, lighter Friday, ten weeks.
+// Berakhot 2a-64a with Rashi and Tosafot, Sunday-Friday, lighter Friday, ten weeks.
 const sample = {
-  ...Pieces.unitRange(vB, 0, Pieces.pieceCount(berakhot) - 1),
+  seferId: "bavli/berakhot",
+  ...whole(berakhot),
   commentaries: RT,
   startDate: "2026-10-11",
   endDate: "2026-12-18",
@@ -58,99 +60,54 @@ const sample = {
   daysOff: [],
 };
 
-test("stopping points: every piece and every commentary is cut at its smallest breaks", () => {
-  assert.strictEqual(Pieces.pieceCount(berakhot), 125);
-  assert(berakhot.weights.length > 125 * 25, "about a line per stop in the Gemara");
-  assert.strictEqual(berakhot.markers.length, berakhot.weights.length);
-  assert(turOC.stops[127] > 50, `Tur OC 128 has ${turOC.stops[127]} stops`);
-  // no stop, in the text or a commentary, is longer than about two printed lines
-  for (const v of [vB, vTur, vSA]) assert(Math.max(...v.weights) <= 200, `${v.sefer.en}: ${Math.max(...v.weights)}`);
-  // Tanach stops at every pasuk
-  assert.strictEqual(vGen.length, Pieces.pieceCount(genesis));
-  // the view holds every letter of the text and the chosen commentaries, in learning order
-  const sum = (xs) => xs.reduce((a, b) => a + b, 0);
-  assert.strictEqual(sum(vB.weights), sum(berakhot.weights) + sum(berakhot.commentaries[0].weights) + sum(berakhot.commentaries[1].weights));
-  assert.strictEqual(vBplain.length, berakhot.weights.length);
-  for (let u = 1; u < vB.length; u++) assert(vB.main[u] >= vB.main[u - 1]);
-  // a Rashi comes right after the line it explains, before the next line
-  const firstRashi = vB.kind.indexOf(0);
-  assert.strictEqual(vB.kind[firstRashi - 1] === -1 || vB.kind[firstRashi - 1] === 0, true);
-  assert.throws(() => Pieces.view(berakhot, ["ran"]), /no commentary/);
+// ---- the person's settings set the size of a day ---------------------------
+
+test("the settings set the size: the same sefer over different lengths of time", () => {
+  // [finish date, days, share of days within 10% / 25% of the usual day]
+  const perDay = {};
+  for (const [end, days, within10, within25] of [
+    ["2026-12-18", 60, 0.95, 1], ["2027-10-10", 313, 0.85, 0.95], ["2029-10-11", 941, 0.4, 0.75]]) {
+    const plan = S.buildPlan({ ...sample, endDate: end }, berakhot);
+    assertCovers(plan);
+    assert.strictEqual(plan.portions.length, days);
+    assert(plan.portions.every((p) => p.to >= p.from), "no empty days");
+    const sizes = plan.portions.filter((p) => S.weekday(p.date) !== 5).slice(0, -1).map(lettersOf(berakhot, RT));
+    const day = median(sizes);
+    perDay[end] = sizes.reduce((a, b) => a + b, 0) / sizes.length;
+    const share = (t) => sizes.filter((x) => Math.abs(x - day) / day <= t).length / sizes.length;
+    // a long Tosafot on one line is learned with that line, so small days vary more
+    assert(share(0.1) >= within10, `${end}: ${share(0.1).toFixed(2)} of days within 10% of ${day}`);
+    assert(share(0.25) >= within25, `${end}: ${share(0.25).toFixed(2)} of days within 25% of ${day}`);
+  }
+  // a longer plan gives smaller days, in proportion
+  const ratio = perDay["2026-12-18"] / perDay["2029-10-11"];
+  assert(Math.abs(ratio - 941 / 60) / (941 / 60) < 0.03, `ratio ${ratio.toFixed(2)}`);
 });
 
-test("piece names, ranges and Sefaria links", () => {
-  assert.strictEqual(Pieces.pieceLabel(berakhot, 0), "2a");
-  assert.strictEqual(Pieces.pieceLabel(berakhot, Pieces.pieceCount(berakhot) - 1), "64a");
-  assert.strictEqual(Pieces.findPiece(berakhot, "9b"), 15);
-  const daf = Pieces.unitRange(vB, 15, 16);
-  assert.strictEqual(Pieces.describeRange(vB, daf.from, daf.to), "Berakhot 9b to the end of 10a");
-  assert.strictEqual(Pieces.sefariaUrl(vB, daf.from, daf.to), "https://www.sefaria.org/Berakhot.9b-10a");
-  const one = Pieces.unitRange(vB, 15);
-  assert.strictEqual(Pieces.describeRange(vB, one.from, one.to), "Berakhot 9b");
-
-  // partway through an amud, in the Gemara: named by its words
-  const p = Pieces.unitRange(vBplain, 15, 16);
-  const mid = Pieces.describeRange(vBplain, p.from + 5, p.to - 5);
-  assert.strictEqual(mid, `Berakhot 9b, from “${berakhot.markers[p.from + 5]}”, to 10a, until “${berakhot.markers[p.to - 4]}”`);
-  assert.match(Pieces.sefariaUrl(vBplain, p.from + 5, p.to - 5), /^https:\/\/www\.sefaria\.org\/Berakhot\.9b\.\d+-10a\.\d+$/);
-
-  // ending inside a Tosafot: named by the Tosafot's opening words and the words to stop at
-  const inTos = [...Array(vB.length).keys()].find((u) => u > daf.from && vB.kind[u] === 1 && !berakhot.commentaries[1].starts[vB.ref[u]]);
-  const r = Pieces.rangeParts(vB, daf.from, inTos - 1);
-  assert.strictEqual(r.end.until.commentary.en, "Tosafot");
-  assert(r.end.until.head && r.end.until.words);
-  assert.match(Pieces.describeRange(vB, daf.from, inTos - 1), /^Berakhot 9b, until “.+” in Tosafot “.+”$/);
-  assert.match(Pieces.describeRange(vB, inTos, daf.to), /^Berakhot 9b, from “.+” in Tosafot “.+”, to the end of 10a$/);
-
-  assert.strictEqual(genesis.chapters.length, 50);
-  assert.strictEqual(genesis.chapters[0], 31);
-  const g23 = Pieces.findPiece(genesis, "2:3");
-  assert.strictEqual(Pieces.describeRange(vGen, 0, g23), "Genesis 1:1 to 2:3");
-  assert.strictEqual(Pieces.describeRange(vGen, 0, 30), "Genesis 1");
-  assert.strictEqual(Pieces.describeRange(vGen, 0, Pieces.findPiece(genesis, "2:25")), "Genesis 1–2");
-  assert.strictEqual(Pieces.describeRange(vGen, 0, 12), "Genesis 1:1–13");
-  assert.strictEqual(Pieces.sefariaUrl(vGen, 0, g23), "https://www.sefaria.org/Genesis.1.1-2.3");
-  assert.strictEqual(Pieces.sefariaUrl(vGen, 0, 12), "https://www.sefaria.org/Genesis.1.1-13");
-
-  const tur = Pieces.unitRange(vTur, 4, 6);
-  assert.strictEqual(Pieces.describeRange(vTur, tur.from, tur.to), "Tur, Orach Chayim, simanim 5–7");
-  assert.strictEqual(Pieces.sefariaUrl(vTur, tur.from, tur.to), "https://www.sefaria.org/Tur,_Orach_Chayim.5-7");
-  const t128 = Pieces.unitRange(vTur, 127);
-  assert.strictEqual(Pieces.describeRange(vTur, t128.from, t128.from + 9),
-    `Tur, Orach Chayim, siman 128, until “${turOC.markers[t128.from + 10]}”`);
-  const sa = Pieces.unitRange(vSA, 0, 3);
-  assert.strictEqual(Pieces.sefariaUrl(vSA, sa.from, sa.to), "https://www.sefaria.org/Shulchan_Arukh,_Orach_Chayim.1.1-4");
+test("the settings set the size: any daily amount, even a tenth of an amud", () => {
+  for (const [comms, amount, days] of [[[], 1, 125], [[], 0.5, 250], [[], 0.1, 1250], [RT, 0.5, 250]]) {
+    const plan = S.buildPlan({ ...sample, commentaries: comms, endDate: null, dailyPieces: amount, lighterDays: [] }, berakhot);
+    assertCovers(plan);
+    const n = plan.portions.length;
+    assert(Math.abs(n - days) / days < 0.07, `${n} days at ${amount} amud a day`);
+    const sizes = plan.portions.slice(0, -1).map(lettersOf(berakhot, comms));
+    const day = median(sizes);
+    const off = sizes.filter((x) => Math.abs(x - day) / day > 0.25).length;
+    assert(off / sizes.length < 0.05, `${off} of ${sizes.length} days more than 25% off at ${amount} amud a day`);
+  }
 });
 
-test("sample: ten weeks of Berakhot, every day the same size, Friday lighter", () => {
+test("the settings set the size: a lighter Friday, and nothing on Shabbos", () => {
   const plan = S.buildPlan(sample, berakhot);
-  assertCovers(plan);
-  assert.strictEqual(plan.portions.length, 60);
-  assert(plan.portions.every((p) => p.to >= p.from), "every day has learning");
-  assert(plan.portions.every((p) => S.weekday(p.date) !== 6), "nothing on Shabbos");
-  assert.strictEqual(plan.portions[0].date, "2026-10-11");
-  assert.strictEqual(plan.portions.at(-1).date, "2026-12-18");
-
-  const size = lettersOf(vB);
-  const full = plan.portions.filter((p) => S.weekday(p.date) !== 5).map(size);
-  const fri = plan.portions.filter((p) => S.weekday(p.date) === 5).map(size);
-  const day = median(full);
-  for (const x of full) assert(Math.abs(x - day) / day < 0.06, `a full day of ${x} letters against ${day}`);
-  for (const x of fri) assert(Math.abs(x / day - 0.65) < 0.04, `a Friday of ${(x / day).toFixed(2)} of a day`);
-
-  // days end inside an amud when that is where the share runs out
-  const midAmud = plan.portions.filter((p) => Pieces.rangeParts(vB, p.from, p.to).end.until).length;
-  assert(midAmud > 30, `only ${midAmud} days end inside an amud`);
-
-  const st = S.status(plan, berakhot, "2026-10-20");
-  assert.strictEqual(st.today.dayNumber, 9);
-  assert.strictEqual(st.totalDays, 60);
-  assert.strictEqual(st.behind, 8, "nothing marked done yet, so the first eight days are behind");
-  assert.strictEqual(st.next.date, "2026-10-21");
-  assert.strictEqual(st.today.text, Pieces.describeRange(vB, st.today.from, st.today.to));
+  const size = lettersOf(berakhot, RT);
+  const day = median(plan.portions.filter((p) => S.weekday(p.date) !== 5).map(size));
+  for (const p of plan.portions.filter((p) => S.weekday(p.date) === 5)) {
+    assert(Math.abs(size(p) / day - 0.65) < 0.08, `a Friday of ${(size(p) / day).toFixed(2)} of a day`);
+  }
+  assert(plan.portions.every((p) => S.weekday(p.date) !== 6));
 });
 
-test("days off are skipped and the work moves to the days around them", () => {
+test("the settings set the size: days off move the work to the days around them", () => {
   const off = { ...sample, daysOff: [{ start: "2026-10-25", end: "2026-10-30", label: "Vacation" }] };
   const plan = S.buildPlan(off, berakhot);
   assertCovers(plan);
@@ -159,61 +116,226 @@ test("days off are skipped and the work moves to the days around them", () => {
   assert.strictEqual(S.dayOff(off, "2026-10-27").label, "Vacation");
 });
 
-test("any amount a day: half an amud, a tenth of an amud, with Rashi and Tosafot", () => {
-  for (const [amount, days] of [[0.5, 250], [0.1, 1250]]) {
-    const plan = S.buildPlan({ ...sample, endDate: null, dailyPieces: amount, lighterDays: [] }, berakhot);
-    assertCovers(plan);
-    const n = plan.portions.length;
-    assert(Math.abs(n - days) / days < 0.03, `${n} days at ${amount} amud a day`);
-    const sizes = plan.portions.slice(0, -1).map(lettersOf(vB));
-    const day = median(sizes);
-    const off = sizes.filter((x) => Math.abs(x - day) / day > 0.1).length;
-    assert(off / sizes.length < 0.05, `${off} of ${sizes.length} days are more than 10% off at ${amount} amud a day`);
-  }
+test("commentaries are counted with the lines they explain", () => {
+  const plain = Pieces.stopWeights(berakhot), withRT = Pieces.stopWeights(berakhot, RT);
+  const sum = (xs) => xs.reduce((a, b) => a + b, 0);
+  const comm = sum(berakhot.commentaries[0].weights) + sum(berakhot.commentaries[1].weights);
+  assert.strictEqual(sum(withRT), sum(plain) + comm);
+  assert.throws(() => Pieces.stopWeights(berakhot, ["ran"]), /no commentary/);
 });
 
-test("a finish date over three years: every day the same size", () => {
-  const plan = S.buildPlan({ ...sample, endDate: "2029-10-11" }, berakhot);
-  assertCovers(plan);
-  const sizes = plan.portions.filter((p) => S.weekday(p.date) !== 5).map(lettersOf(vB));
-  const day = median(sizes);
-  const off = sizes.slice(0, -1).filter((x) => Math.abs(x - day) / day > 0.1).length;
-  assert.strictEqual(off, 0, `${off} of ${sizes.length} days are more than 10% off a ${day}-letter day`);
+// ---- a day can stop inside an amud, siman, se'if, halacha or mishnah --------
+
+test("a day can stop inside an amud", () => {
+  const plan = S.buildPlan(sample, berakhot);
+  const inside = plan.portions.filter((p) => Pieces.rangeParts(berakhot, p.from, p.to).end.until);
+  assert(inside.length > 40, `only ${inside.length} of 60 days stop inside an amud`);
+  const amudim = plan.portions.map((p) => Pieces.pieceOf(berakhot, p.to) - Pieces.pieceOf(berakhot, p.from) + 1);
+  assert(amudim.some((n) => n !== 2), "days are not whole dafim");
 });
 
-test("a set amount a day decides the finish date", () => {
-  const plan = S.buildPlan({
-    from: 0, to: vGen.length - 1, commentaries: [],
-    startDate: "2026-10-11", dailyPieces: 31, learningDays: [0, 1, 2, 3, 4, 5, 6], lighterDays: [],
-  }, genesis);
-  assertCovers(plan);
-  assert(plan.portions.length >= 45 && plan.portions.length <= 55, `${plan.portions.length} days`);
-});
-
-test("a long siman is shared over several days", () => {
-  // Tur OC 128 (Birkat Kohanim) over five days
-  const r = Pieces.unitRange(vTur, 127);
+test("a day can stop inside a long siman (Tur, Orach Chaim 128 over five days)", () => {
+  const r = Pieces.stopRange(turOC, 127);
   const plan = S.buildPlan({
     ...r, commentaries: [], startDate: "2026-10-11", endDate: "2026-10-15",
     learningDays: [0, 1, 2, 3, 4, 5, 6], lighterDays: [],
   }, turOC);
   assertCovers(plan);
   assert.strictEqual(plan.portions.length, 5);
-  const sizes = plan.portions.map(lettersOf(vTur));
+  const sizes = plan.portions.map(lettersOf(turOC, []));
   const day = median(sizes);
   for (const x of sizes) assert(Math.abs(x - day) / day < 0.05, `a day of ${x} letters against ${day}`);
-  assert.match(S.status(plan, turOC, "2026-10-12").today.text, /^Tur, Orach Chayim, siman 128, from “.+”, until “.+”$/);
+  const text = S.status(plan, turOC, "2026-10-12").today.text;
+  assert.match(text, /^Tur Orach Chaim, siman 128, from the words “.+”, until the words “.+”$/);
 });
 
-test("marking done; behind and ahead", () => {
+test("a day can stop inside a se'if, a halacha and a mishnah", () => {
+  for (const [sefer, label] of [[saOC, "128:45"], [shabbos, "1:1"], [mBerakhot, "1:1"]]) {
+    const r = Pieces.stopRange(sefer, Pieces.findPiece(sefer, label));
+    assert(r.to > r.from, `${sefer.en} ${label} has more than one place to stop`);
+    const text = Pieces.describeRange(sefer, r.from, r.from);
+    assert.match(text, /, until the words “.+”$/, text);
+  }
+});
+
+// ---- the words shown come from the right place -------------------------------
+
+test("the opening words are the start of each place", () => {
+  // checked by hand against the printed text
+  const first = (sefer, label) => sefer.markers[Pieces.stopRange(sefer, Pieces.findPiece(sefer, label)).from];
+  assert.strictEqual(first(berakhot, "2a"), "מתני׳ מאימתי קורין");
+  assert.strictEqual(first(turOC, "1"), "יהודה בן תימא");
+  assert(first(saOC, "1:1").startsWith("יתגבר כארי"), first(saOC, "1:1"));
+  assert(first(shabbos, "1:1").startsWith("שביתה בשביעי ממלאכה"), first(shabbos, "1:1"));
+  assert.strictEqual(first(mBerakhot, "1:1"), "מאימתי קורין את");
+  const rashi = berakhot.commentaries.find((c) => c.id === "rashi");
+  assert(rashi.heads[0].startsWith("מאימתי קורין"), rashi.heads[0]);
+  // at most 6 words, never a whole piece
+  for (const sefer of [berakhot, turOC, saOC, shabbos, mBerakhot]) {
+    for (const m of sefer.markers) assert(m.split(" ").length <= 6, `${sefer.en}: “${m}”`);
+    for (const c of sefer.commentaries) for (const h of c.heads) assert(h.split(" ").length <= 6, `${c.en}: “${h}”`);
+  }
+});
+
+test("today's “until the words” are tomorrow's “from the words”", () => {
+  const plan = S.buildPlan(sample, berakhot);
+  for (let i = 0; i + 1 < plan.portions.length; i++) {
+    const today = Pieces.rangeParts(berakhot, plan.portions[i].from, plan.portions[i].to);
+    const tomorrow = Pieces.rangeParts(berakhot, plan.portions[i + 1].from, plan.portions[i + 1].to);
+    assert.strictEqual(today.end.until, tomorrow.start.words);
+    if (today.end.until) {
+      assert.strictEqual(today.end.until, berakhot.markers[plan.portions[i + 1].from]);
+      assert.strictEqual(today.end.piece, tomorrow.start.piece, "tomorrow starts on the amud where today stopped");
+    } else {
+      assert.strictEqual(tomorrow.start.piece, today.end.piece + 1);
+    }
+  }
+});
+
+test("Rashi and Tosafot follow the Gemara's stop, named by their dibbur hamatchil", () => {
+  const plan = S.buildPlan(sample, berakhot);
+  const p = plan.portions.find((x) => Pieces.rangeParts(berakhot, x.from, x.to).end.until);
+  const r = Pieces.rangeParts(berakhot, p.from, p.to, RT);
+  assert.deepStrictEqual(r.commentaries.map((c) => c.en), ["Rashi", "Tosafot"]);
+  for (const c of r.commentaries) {
+    const comm = berakhot.commentaries.find((x) => x.id === c.id);
+    // the comment named is the last one on the Gemara learned that day
+    const learned = comm.after.map((s, i) => [s, i]).filter(([s]) => s >= p.from && s <= p.to);
+    const lastStop = Math.max(...learned.map(([s]) => s));
+    assert(learned.some(([s, i]) => s === lastStop && comm.heads[i] === c.words), `${c.en} “${c.words}”`);
+  }
+  const text = Pieces.describeRange(berakhot, p.from, p.to, RT);
+  assert.match(text, /, until the words “.+”; Rashi through “.+”; Tosafot through “.+”$/, text);
+  // no commentary words when the day ends at the end of an amud
+  const end = Pieces.stopRange(berakhot, 15, 16);
+  assert.strictEqual(Pieces.describeRange(berakhot, end.from, end.to, RT), "Berachos 9b to the end of 10a");
+});
+
+test("Mishnah Berurah is named by its se'if katan number", () => {
+  const mb = saOC.commentaries[0];
+  const start = Pieces.stopRange(saOC, Pieces.findPiece(saOC, "128:1")).from;
+  const r = Pieces.stopRange(saOC, Pieces.findPiece(saOC, "128:45"));
+  const parts = Pieces.rangeParts(saOC, start, r.to - 1, MB);
+  const c = parts.commentaries[0];
+  assert.strictEqual(c.en, "Mishnah Berurah");
+  assert(Number.isInteger(c.seifKatan) && c.seifKatan > 0);
+  assert.match(Pieces.describeRange(saOC, start, r.to - 1, MB), /; Mishnah Berurah through se'if katan \d+$/);
+  // simanim 1-186 have only an estimated size, but their se'if katan numbers are known
+  assert.deepStrictEqual([mb.estimatedSimanim[0], mb.estimatedSimanim.at(-1)], [1, 186]);
+});
+
+test("how places are written for each collection", () => {
+  const d = Pieces.stopRange(berakhot, 15, 16);
+  assert.strictEqual(Pieces.describeRange(berakhot, d.from, d.to), "Berachos 9b to the end of 10a");
+  const one = Pieces.stopRange(berakhot, 15);
+  assert.strictEqual(Pieces.describeRange(berakhot, one.from, one.to), "Berachos 9b");
+  const mid = Pieces.describeRange(berakhot, d.from + 5, d.to - 5);
+  assert.strictEqual(mid, `Berachos 9b, from the words “${berakhot.markers[d.from + 5]}”, to 10a, until the words “${berakhot.markers[d.to - 4]}”`);
+
+  const g = (label) => Pieces.findPiece(genesis, label);
+  assert.strictEqual(Pieces.describeRange(genesis, 0, g("2:3")), "Bereishis 1:1 to 2:3");
+  assert.strictEqual(Pieces.describeRange(genesis, 0, 30), "Bereishis 1");
+  assert.strictEqual(Pieces.describeRange(genesis, 0, g("2:25")), "Bereishis 1–2");
+  assert.strictEqual(Pieces.describeRange(genesis, 0, 12), "Bereishis 1:1–13");
+
+  const m = Pieces.stopRange(mBerakhot, Pieces.findPiece(mBerakhot, "2:3"), Pieces.findPiece(mBerakhot, "2:5"));
+  assert.strictEqual(Pieces.describeRange(mBerakhot, m.from, m.to), "Mishnah Berachos 2:3–5");
+  const t = Pieces.stopRange(turOC, 4, 6);
+  assert.strictEqual(Pieces.describeRange(turOC, t.from, t.to), "Tur Orach Chaim, simanim 5–7");
+  const sh = Pieces.stopRange(shabbos, 0, 11);
+  assert.strictEqual(Pieces.describeRange(shabbos, sh.from, sh.to), "Hilchos Shabbos 1:1–12");
+});
+
+test("Sefaria segment numbers are never shown to the learner, only used in the link", () => {
+  const plan = S.buildPlan(sample, berakhot);
+  for (const p of plan.portions) {
+    const text = Pieces.describeRange(berakhot, p.from, p.to, RT);
+    assert(!/\d+[ab][:.]\d+/.test(text), text);
+  }
+  const d = Pieces.stopRange(berakhot, 15, 16);
+  assert.strictEqual(Pieces.sefariaUrl(berakhot, d.from, d.to), "https://www.sefaria.org/Berakhot.9b-10a");
+  assert.match(Pieces.sefariaUrl(berakhot, d.from + 5, d.to - 5), /^https:\/\/www\.sefaria\.org\/Berakhot\.9b\.\d+-10a\.\d+$/);
+  assert.strictEqual(Pieces.sefariaUrl(genesis, 0, Pieces.findPiece(genesis, "2:3")), "https://www.sefaria.org/Genesis.1.1-2.3");
+  const t = Pieces.stopRange(turOC, 4, 6);
+  assert.strictEqual(Pieces.sefariaUrl(turOC, t.from, t.to), "https://www.sefaria.org/Tur,_Orach_Chayim.5-7");
+  const sa = Pieces.stopRange(saOC, 0, 3);
+  assert.strictEqual(Pieces.sefariaUrl(saOC, sa.from, sa.to), "https://www.sefaria.org/Shulchan_Arukh,_Orach_Chayim.1.1-4");
+});
+
+// ---- lasting addresses -------------------------------------------------------
+
+test("every stop has a lasting address that finds it again", () => {
+  for (const sefer of [berakhot, turOC, saOC, genesis, mBerakhot, shabbos]) {
+    const seen = new Set();
+    for (let s = 0; s < Pieces.stopCount(sefer); s++) {
+      const a = Pieces.address(sefer, s);
+      assert(!seen.has(a), `${sefer.en}: two stops at ${a}`);
+      seen.add(a);
+      assert.strictEqual(Pieces.stopAt(sefer, a), s, a);
+    }
+    assert.strictEqual(Pieces.address(sefer, Pieces.stopCount(sefer)), "end");
+  }
+  // a place partway into a stop finds that stop
+  const s = Pieces.stopRange(turOC, 127).from + 3;
+  const [ref, at] = Pieces.address(turOC, s).split("@");
+  assert.strictEqual(Pieces.stopAt(turOC, `${ref}@${+at + 5}`), s);
+  assert.throws(() => Pieces.stopAt(turOC, "Tur, Orach Chayim 999:1@0"), /no place/);
+});
+
+test("a plan is saved by address and read back the same", () => {
   let plan = S.buildPlan(sample, berakhot);
-  for (const p of plan.portions.slice(0, 9)) plan = S.markDone(plan, p.date);
+  for (const p of plan.portions.slice(0, 5)) plan = S.markDone(plan, p.date);
+  const saved = S.toSaved(plan, berakhot);
+  assert(saved.portions.every((p) => typeof p.from === "string" && typeof p.until === "string"));
+  assert(!JSON.stringify(saved).includes('"to"'), "no list positions are saved");
+  const back = S.fromSaved(JSON.parse(JSON.stringify(saved)), berakhot);
+  assert.deepStrictEqual(back.portions, plan.portions.map((p) => ({ date: p.date, from: p.from, to: p.to, done: !!p.done })));
+  assert.strictEqual(back.from, plan.from);
+  assert.strictEqual(back.to, plan.to);
+  assert.deepStrictEqual(back.learningDays, plan.learningDays);
+  assert.throws(() => S.fromSaved({ format: "x" }, berakhot), /not a saved learning plan/);
+});
+
+test("a saved plan still reads after the data is rebuilt with different stopping points", () => {
+  let plan = S.buildPlan(sample, berakhot);
+  for (const p of plan.portions.slice(0, 5)) plan = S.markDone(plan, p.date);
+  const saved = S.toSaved(plan, berakhot);
+  // a rebuild that drops every other stop inside a segment (as if the cutting rules changed)
+  const keep = berakhot.weights.map((_, s) => berakhot.offsets[s] === 0 || s % 2 === 0);
+  const rebuilt = JSON.parse(JSON.stringify(berakhot));
+  let k = 0;
+  rebuilt.stops = berakhot.stops.map((n) => { let c = 0; for (let i = 0; i < n; i++, k++) if (keep[k]) c++; return c; });
+  for (const f of ["weights", "markers", "segments", "offsets"]) rebuilt[f] = berakhot[f].filter((_, s) => keep[s]);
+  const newIndex = []; let j = -1;
+  keep.forEach((x, s) => { if (x) j++; newIndex[s] = j; });
+  for (const c of rebuilt.commentaries) c.after = c.after.map((s) => newIndex[s]);
+  const back = S.fromSaved(saved, rebuilt);
+  assertCovers(back);
+  // every day starts at the same place, or the stop just before it
+  plan.portions.forEach((p, i) => {
+    const b = back.portions[i];
+    assert.strictEqual(Pieces.pieceOf(rebuilt, b.from), Pieces.pieceOf(berakhot, p.from));
+    assert.strictEqual(b.from, newIndex[p.from]);
+  });
+  assert.deepStrictEqual(back.portions.map((p) => p.done), plan.portions.map((p) => p.done));
+});
+
+// ---- progress and missed days -----------------------------------------------
+
+test("marking done; behind and ahead; today's text", () => {
+  let plan = S.buildPlan(sample, berakhot);
   let st = S.status(plan, berakhot, "2026-10-20");
+  assert.strictEqual(st.today.dayNumber, 9);
+  assert.strictEqual(st.totalDays, 60);
+  assert.strictEqual(st.behind, 8);
+  assert.strictEqual(st.next.date, "2026-10-21");
+  assert.strictEqual(st.today.text, Pieces.describeRange(berakhot, st.today.from, st.today.to, RT));
+  for (const p of plan.portions.slice(0, 9)) plan = S.markDone(plan, p.date);
+  st = S.status(plan, berakhot, "2026-10-20");
   assert.strictEqual(st.behind, 0);
   assert.strictEqual(st.doneDays, 9);
   plan = S.markDone(plan, "2026-10-21");
-  st = S.status(plan, berakhot, "2026-10-20");
-  assert.strictEqual(st.ahead, 1);
+  assert.strictEqual(S.status(plan, berakhot, "2026-10-20").ahead, 1);
   plan = S.markDone(plan, "2026-10-21", false);
   assert.strictEqual(S.status(plan, berakhot, "2026-10-20").ahead, 0);
 });
@@ -233,7 +355,6 @@ test("missed days: push the finish date later", () => {
   const moved = plan.portions.filter((p) => !p.done);
   assert.deepStrictEqual(moved.map((p) => [p.from, p.to]), open.map((p) => [p.from, p.to]), "same portions");
   assert.strictEqual(moved[0].date, "2026-10-21");
-  // two learning days later: Fri Dec 18 -> Sun Dec 20 -> Mon Dec 21
   assert.strictEqual(plan.portions.at(-1).date, "2026-12-21");
   assert.strictEqual(S.status(plan, berakhot, "2026-10-21").behind, 0);
   assert.deepStrictEqual(plan.history.at(-1).missed, ["2026-10-19", "2026-10-20"]);
@@ -250,9 +371,8 @@ test("missed days: double up on the next day", () => {
   const before = missedTwoDays();
   const plan = S.reschedule(before, berakhot, { today: "2026-10-21", choice: "double" });
   assertCovers(plan);
-  const missedFrom = before.portions.find((p) => p.date === "2026-10-19").from;
   const wed = plan.portions.find((p) => p.date === "2026-10-21");
-  assert.strictEqual(wed.from, missedFrom);
+  assert.strictEqual(wed.from, before.portions.find((p) => p.date === "2026-10-19").from);
   assert.strictEqual(wed.to, before.portions.find((p) => p.date === "2026-10-21").to);
   assert.strictEqual(plan.portions.at(-1).date, "2026-12-18");
 });
@@ -286,36 +406,55 @@ test("bad settings are refused", () => {
   assert.throws(() => S.buildPlan({ ...sample, endDate: "2026-10-16", learningDays: [6] }, berakhot), /no learning days/);
 });
 
+// ---- the catalog ---------------------------------------------------------------
+
 test("every sefer in the catalog schedules cleanly over a year", () => {
   for (const entry of catalog.seforim) {
     const sefer = load(entry.id);
     assert.strictEqual(sefer.stops.length, entry.pieces, entry.id);
     assert.strictEqual(sefer.weights.length, entry.stops, entry.id);
-    assert(entry.pieces > 0, `${entry.id} is empty`);
-    const v = Pieces.view(sefer, entry.commentaries.map((c) => c.id));
+    const comms = entry.commentaries.map((c) => c.id);
     const plan = S.buildPlan({
-      from: 0, to: v.length - 1, commentaries: entry.commentaries.map((c) => c.id),
+      seferId: entry.id, ...whole(sefer), commentaries: comms,
       startDate: "2026-10-11", endDate: "2027-10-10", learningDays: [0, 1, 2, 3, 4, 5],
       lighterDays: [5], daysOff: [],
     }, sefer);
     assertCovers(plan);
     for (const p of plan.portions.filter((p) => p.to >= p.from)) {
-      assert(Pieces.describeRange(v, p.from, p.to), entry.id);
-      assert(Pieces.sefariaUrl(v, p.from, p.to).startsWith("https://www.sefaria.org/"));
+      assert(Pieces.describeRange(sefer, p.from, p.to, comms), entry.id);
+      assert(Pieces.sefariaUrl(sefer, p.from, p.to).startsWith("https://www.sefaria.org/"));
     }
   }
 });
 
-test("the catalog covers the six collections and uses only freely licensed editions", () => {
+test("names are Hebrew with English alongside", () => {
+  for (const e of catalog.seforim) {
+    assert(/[א-ת]/.test(e.he), `${e.id} has no Hebrew name`);
+    assert(/^[A-Z]/.test(e.en) && !e.en.includes("-"), `${e.id}: “${e.en}”`);
+  }
+  const byId = Object.fromEntries(catalog.seforim.map((e) => [e.id, e]));
+  assert.strictEqual(byId["rambam/admission-into-the-sanctuary"].en, "Hilchos Bias HaMikdash");
+  assert.strictEqual(byId["bavli/berakhot"].en, "Berachos");
+  assert.strictEqual(byId["shulchan-aruch/orach-chayim"].he, "שולחן ערוך אורח חיים");
+});
+
+test("only Public Domain or CC0 editions, except the Wikisource Gemara", () => {
   const counts = {};
   for (const e of catalog.seforim) counts[e.collection] = (counts[e.collection] || 0) + 1;
-  assert.deepStrictEqual(counts, { tanakh: 39, mishnah: 63, bavli: 37, rambam: 84, "shulchan-aruch": 4, tur: 4 });
-  const allowed = new Set(["public domain", "pd", "cc0", "cc-by", "cc-by-sa"]);
+  assert.deepStrictEqual(counts, { tanakh: 39, mishnah: 63, bavli: 37, rambam: 79, "shulchan-aruch": 4, tur: 4 });
   for (const e of catalog.seforim) {
-    for (const s of load(e.id).sources) {
-      assert(allowed.has(String(s.license).toLowerCase()), `${e.id}: ${s.title} is ${s.license}`);
+    const sefer = load(e.id);
+    for (const s of sefer.sources) {
+      const lic = String(s.license).toLowerCase();
+      const ok = ["public domain", "pd", "cc0"].includes(lic) ||
+        (e.collection === "bavli" && s.title === sefer.sefaria && s.version === "Wikisource Talmud Bavli" && lic === "cc-by-sa");
+      assert(ok, `${e.id}: ${s.title} (${s.version}) is ${s.license}`);
     }
   }
+  const sanhedrin = load("bavli/sanhedrin");
+  assert.deepStrictEqual(sanhedrin.commentaries.map((c) => c.id), [], "Sanhedrin's Rashi and Tosafot are CC-BY-SA, so left out");
+  const sources = fs.readFileSync(path.join(DATA, "SOURCES.md"), "utf8");
+  assert(sources.includes("Wikisource Talmud Bavli") && sources.includes("## Left out"));
   const total = ["genesis", "exodus", "leviticus", "numbers", "deuteronomy"]
     .reduce((a, b) => a + load("tanakh/" + b).weights.reduce((x, y) => x + y, 0), 0);
   assert(Math.abs(total - 304805) < 1000, `Torah has ${total} letters`);

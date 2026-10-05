@@ -3,7 +3,8 @@
  *
  * A day may end at any stopping point (a sentence or clause end, or about one
  * printed line; see sefer.js), so each day's share follows the person's
- * schedule, not the length of an amud or a siman.
+ * schedule, not the length of an amud or a siman. The commentaries the
+ * person chose are counted with the lines they explain.
  *
  * Calendar rules carried over from the scan-reader calendar (index.html):
  * chosen weekdays, a lighter day weighted at 0.65 of a full day, date-range
@@ -15,7 +16,8 @@
  *
  * A plan:
  *   {
- *     from, to,                 // first and last unit of the view (inclusive); see SeferPieces.unitRange
+ *     seferId,                  // data file id, e.g. "bavli/berakhot"
+ *     from, to,                 // first and last stop (inclusive); see SeferPieces.stopRange
  *     commentaries: ["rashi"],  // learned together with the main text
  *     startDate,
  *     endDate | dailyPieces,    // finish by a date, or so many pieces a day (0.5 = half an amud)
@@ -23,8 +25,12 @@
  *     lighterDays: [5],         // subset of learningDays
  *     lighterWeight: 0.65,
  *     daysOff: [{ start, end, label }],
- *     portions: [{ date, from, to, done }]   // units; to < from: nothing new that day
+ *     portions: [{ date, from, to, done }]   // stops; to < from: nothing new that day
  *   }
+ *
+ * Stop numbers are only used while the app runs. A plan is saved with
+ * toSaved(), which writes every stop as its lasting address, and read back
+ * with fromSaved(), so saved plans survive a rebuild of the data.
  */
 (function (global) {
   "use strict";
@@ -94,21 +100,23 @@
   }
 
   // Last stop of one day, starting at `cur`, aiming for `target` letters:
-  // the stop nearest the target, or a better place to end within
-  // BREAK_TOLERANCE. Returns cur - 1 when the day should hold nothing new
-  // (only when a single stop is more than twice the day's share).
+  // the stop that brings the day closest to its share, measured as a ratio
+  // (so a 30-letter day against a 600-letter share counts as further off
+  // than one twice the share), or a better place to end within
+  // BREAK_TOLERANCE. Always at least one stop.
   function chooseEnd(sums, levels, cur, to, target) {
     const base = sums[cur], maxTol = Math.max(...BREAK_TOLERANCE);
-    let best = cur - 1, bestGap = target;
-    let snap = -1, snapLevel = 0, snapGap = Infinity;
+    const off = (got) => (got <= 0 ? Infinity : Math.max(got / target, target / got));
+    let best = cur, bestOff = off(sums[cur + 1] - base);
+    let snap = -1, snapLevel = 0, snapOff = Infinity;
     for (let k = cur; k <= to; k++) {
-      const got = sums[k + 1] - base, gap = Math.abs(got - target), level = levels[k];
-      if (gap < bestGap) { best = k; bestGap = gap; }
-      if (level > 0 && gap <= target * BREAK_TOLERANCE[level] &&
-          (level > snapLevel || (level === snapLevel && gap < snapGap))) {
-        snap = k; snapLevel = level; snapGap = gap;
+      const got = sums[k + 1] - base, o = off(got), level = levels[k];
+      if (o < bestOff) { best = k; bestOff = o; }
+      if (level > 0 && o <= 1 + BREAK_TOLERANCE[level] &&
+          (level > snapLevel || (level === snapLevel && o < snapOff))) {
+        snap = k; snapLevel = level; snapOff = o;
       }
-      if (got > target * (1 + maxTol) && got - target > bestGap) break;
+      if (got > target * (1 + maxTol) && o > bestOff) break;
     }
     return snap >= 0 ? snap : best;
   }
@@ -127,7 +135,9 @@
       else if (j === dates.length - 1) end = to;
       else {
         const target = (sums[to + 1] - sums[cur]) * d.weight / weightLeft;
-        // only empty stops left: they go with this day
+        // only empty stops left: they go with this day. Otherwise a day always
+        // takes at least one stop, even when that line and its commentary are
+        // bigger than the day's share; the days after it are smaller to make up.
         end = target > 0 ? chooseEnd(sums, levels, cur, to, target) : to;
       }
       out.push({ date: d.date, from: cur, to: end, done: false });
@@ -148,7 +158,6 @@
       if (w > 0) {
         const target = perDay * w;
         let end = chooseEnd(sums, levels, cur, to, target);
-        if (end < cur) end = cur;                  // a set amount always moves forward
         const rest = sums[to + 1] - sums[end + 1];
         if (rest > 0 && rest < target * 0.25) end = to; // don't leave a sliver for one more day
         out.push({ date: iso, from: cur, to: end, done: false });
@@ -160,18 +169,17 @@
   }
 
   // Letters in an average piece (amud, se'if, ...) of the plan's range.
-  function averagePiece(v, from, to) {
+  // Letters in an average piece (amud, se'if, ...) of the plan's range.
+  function averagePiece(sefer, weights, from, to) {
     let total = 0;
-    for (let i = from; i <= to; i++) total += v.weights[i];
-    return total / (v.piece[to] - v.piece[from] + 1);
+    for (let i = from; i <= to; i++) total += weights[i];
+    return total / (Pieces.pieceOf(sefer, to) - Pieces.pieceOf(sefer, from) + 1);
   }
-
-  const viewOf = (plan, sefer) => Pieces.view(sefer, plan.commentaries || []);
 
   // ---- building ---------------------------------------------------------
 
   function validate(plan, sefer) {
-    const n = viewOf(plan, sefer).length;
+    const n = Pieces.stopCount(sefer);
     if (!(plan.from >= 0 && plan.to < n && plan.from <= plan.to)) throw new RangeError("The start and end are outside the sefer");
     if (!plan.learningDays?.length) throw new Error("Choose at least one learning day");
     toDay(plan.startDate);
@@ -181,12 +189,13 @@
 
   // Split [from, to] starting at `start`, by the plan's finish date or amount.
   function split(plan, sefer, from, to, start, endDate, skip) {
-    const v = viewOf(plan, sefer), levels = Pieces.breakLevels(v);
+    const weights = Pieces.stopWeights(sefer, plan.commentaries || []);
+    const levels = Pieces.breakLevels(sefer);
     if (endDate != null) {
-      return splitOverDates(v.weights, levels, from, to, learningDates(plan, start, endDate, skip));
+      return splitOverDates(weights, levels, from, to, learningDates(plan, start, endDate, skip));
     }
-    const perDay = plan.dailyPieces * averagePiece(v, plan.from, plan.to);
-    return splitByAmount(plan, v.weights, levels, from, to, start, perDay, skip);
+    const perDay = plan.dailyPieces * averagePiece(sefer, weights, plan.from, plan.to);
+    return splitByAmount(plan, weights, levels, from, to, start, perDay, skip);
   }
 
   function buildPlan(plan, sefer) {
@@ -224,7 +233,7 @@
     const doneCount = learning.filter((p) => p.done).length;
     return {
       today: todays && hasLearning(todays)
-        ? { ...todays, dayNumber: learning.indexOf(todays) + 1, text: Pieces.describeRange(viewOf(plan, sefer), todays.from, todays.to) }
+        ? { ...todays, dayNumber: learning.indexOf(todays) + 1, text: Pieces.describeRange(sefer, todays.from, todays.to, plan.commentaries || []) }
         : null,
       totalDays: learning.length,
       doneDays: doneCount,
@@ -232,7 +241,7 @@
       ahead,
       finished: doneCount === learning.length,
       finishDate: learning.length ? learning[learning.length - 1].date : null,
-      next: next ? { ...next, text: Pieces.describeRange(viewOf(plan, sefer), next.from, next.to) } : null,
+      next: next ? { ...next, text: Pieces.describeRange(sefer, next.from, next.to, plan.commentaries || []) } : null,
     };
   }
 
@@ -302,9 +311,41 @@
     return { ...next, portions };
   }
 
+  // ---- saving -----------------------------------------------------------
+
+  const SETTINGS = ["seferId", "commentaries", "startDate", "endDate", "dailyPieces",
+    "learningDays", "lighterDays", "lighterWeight", "daysOff", "history"];
+
+  // A plan as it is kept on the phone and in the backup file: every stop by
+  // its lasting address. A day is saved as where it starts and where the next
+  // day starts ("until"), so it can be found again after the data changes.
+  function toSaved(plan, sefer) {
+    const at = (s) => Pieces.address(sefer, s);
+    const saved = { format: "learning-plan", version: 1 };
+    for (const k of SETTINGS) if (plan[k] !== undefined) saved[k] = plan[k];
+    saved.from = at(plan.from);
+    saved.until = at(plan.to + 1);
+    saved.portions = plan.portions.map((p) => ({
+      date: p.date, from: at(p.from), until: at(p.to >= p.from ? p.to + 1 : p.from), done: !!p.done,
+    }));
+    return saved;
+  }
+
+  function fromSaved(saved, sefer) {
+    if (saved.format !== "learning-plan") throw new Error("This is not a saved learning plan");
+    const at = (a) => Pieces.stopAt(sefer, a);
+    const plan = {};
+    for (const k of SETTINGS) if (saved[k] !== undefined) plan[k] = saved[k];
+    plan.from = at(saved.from);
+    plan.to = at(saved.until) - 1;
+    plan.portions = saved.portions.map((p) => ({ date: p.date, from: at(p.from), to: at(p.until) - 1, done: !!p.done }));
+    return plan;
+  }
+
   const api = {
     LIGHTER_WEIGHT, addDays, weekday, dayOff, dayWeight, learningDates, nextLearningDate,
-    splitOverDates, buildPlan, viewOf, markDone, status, reschedule, rebuildRemaining, firstOpenPiece,
+    splitOverDates, buildPlan, markDone, status, reschedule, rebuildRemaining, firstOpenPiece,
+    toSaved, fromSaved,
   };
   global.LearningSchedule = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

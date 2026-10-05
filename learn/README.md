@@ -1,91 +1,105 @@
-# Learning calendar (first release)
+# Learning calendar
 
-A phone-friendly website that splits a sefer into even daily portions and
-shows today's place to learn. Part 1 holds the data and the scheduling engine;
-the screens come in Part 2.
+A phone-friendly website that splits a sefer into daily portions by the
+person's own settings and shows each day where to start and stop in their
+printed sefer. See `/CLAUDE.md` for the rules and `HANDOFF.md` for where the
+work stands.
 
 ## Layout
 
-- `data/catalog.json`: every sefer offered, grouped into the six collections.
-- `data/<collection>/<sefer>.json`: the sefer's standard pieces in order
-  (pasuk, mishnah, amud, halacha, se'if, siman), each cut into stopping
-  points, plus the stopping points of each commentary. For every stopping
-  point it keeps the number of Hebrew letters and its first few words.
-- `engine/sefer.js`: the learning order for the chosen commentaries (a line
-  of Gemara, then its Rashi, then its Tosafot), piece names ("9b", "3:4",
-  "siman 128"), how a day's portion is written, and the Sefaria link.
-- `engine/schedule.js`: builds a plan from a finish date or a daily amount
-  (any fraction of a piece, e.g. half an amud), chosen weekdays, a lighter
-  day and days off; marks days done; handles missed days (push / spread /
-  double up); re-splits what is left when settings change.
+- `data/catalog.json`: every sefer offered, with Hebrew and English names,
+  grouped into the six collections.
+- `data/<collection>/<sefer>.json`: one sefer (format below).
+- `data/SOURCES.md`: the edition and license of every text used, and what
+  was left out.
+- `engine/sefer.js`: names places, writes a day's portion the way printed
+  calendars do, gives each stopping point a lasting address, and builds the
+  "Open on Sefaria" link.
+- `engine/schedule.js`: builds a plan from the person's settings, marks days
+  done, handles missed days, re-splits after a settings change, and saves and
+  reads plans by address.
+- `../tools/build_sefer_data.py`: rebuilds `data/` from Sefaria's export.
+- `../tests/learn-schedule.test.js`: the tests.
 
 ## Stopping points
 
-A day can end at the smallest natural break in the text, so it follows the
-person's schedule, not the length of an amud or siman:
+Each piece (amud, siman, se'if, halacha, mishnah) is cut at every sentence
+and clause end. In the Tur, which has little punctuation, it is also cut at
+every commentary reference mark, and anywhere else about every 60 letters
+(one printed line). In Tanach every pasuk is a stopping point. A Berakhot
+amud has about 38.
 
-- every sentence and clause end (. : ? ; ! ,) in the main text;
-- in the Tur, which has little punctuation, every commentary reference mark;
-- where a stretch has no break, about every 60 letters (one printed line);
-- every Rashi, Tosafot, Bartenura and Mishnah Berurah comment, and every
-  sentence inside a long one. Each comment comes right after the line it
-  explains.
+For each stopping point the data keeps:
 
-A stopping point is named by the piece it is in and its first words, the way
-printed calendars write "until the words ...". The words are unique within
-their amud or siman. Citations in parentheses are skipped when naming a
-point. In Berakhot an amud has about 38 stopping points in the Gemara alone.
+- `weights`: its number of Hebrew letters;
+- `markers`: its first 3 to 6 words, enough to be unique in the piece
+  (citations in parentheses skipped);
+- `segments`, `offsets`: the Sefaria segment it starts in and how many
+  letters into it. Together with the piece this is its lasting address,
+  for example `Berakhot 9b:12@34`.
 
-## How a day's portion is chosen
+Each commentary comment (Rashi, Tosafot, Bartenura, Mishnah Berurah) keeps
+its size, its dibbur hamatchil (`heads`) or se'if katan number (`nums`), and
+the stopping point it is learned after (`after`): the one that ends the
+Gemara line, mishnah or se'if it explains.
 
-Each stopping point counts by its letters. Days are filled in learning
-order, each aiming for its share of what is left (a lighter day gets 0.65 of
-a share), and each ends at the stopping point nearest its share. It ends at
-the end of an amud, se'if or siman instead when that is within 3% of the
-share, or at the end of a perek or whole daf when that is within 5%.
+The build checks every stopping point: its opening words must be the words
+found at its address in the source text.
+
+## How a day is sized
+
+A stopping point counts its own letters plus the chosen commentaries on it.
+Days are filled in order, each aiming for its share of what is left (a
+lighter day gets 0.65 of a share). A day ends at the stopping point that
+brings it closest to its share, measured as a ratio. It moves to the end of
+a mishnah, amud, se'if, siman or halacha only when that is within 3% of the
+share, or to the end of a perek or whole daf within 5%. A day always gets
+something.
 
 Measured on Berakhot with Rashi and Tosafot, Sunday to Friday:
 
-| Schedule | Days | Letters a day | Within 3% | Within 10% |
+| Plan | Days | Letters a day | Within 10% | Within 25% |
 |---|---|---|---|---|
-| 10 weeks | 60 | 10,368 | 98% | 100% |
-| 1 year | 313 | 1,988 | 99% | 100% |
-| 3 years | 941 | 661 | 63% | 100% |
-| Half an amud a day | 266 | 2,345 | 100% | 100% |
-| A tenth of an amud a day | 1,326 | 469 | 48% | 98% |
+| 3 months | 78 | about 8,000 | 100% | 100% |
+| 1 year | 313 | about 2,000 | 88% | 97% |
+| 3 years | 941 | about 620 | 47% | 81% |
+| Half an amud a day | 263 | about 2,300 | 89% | 98% |
+
+The smaller the days, the more a single long Tosafot (up to 3,000 letters,
+learned with its one line of Gemara) moves the day it falls on.
+
+## How a portion is written
+
+- Gemara: `Berachos 2b, from the words “…”, to 3b, until the words “…”; Rashi through “…”; Tosafot through “…”`,
+  or `Berachos 9b to the end of 10a` when it ends at the end of an amud.
+- Mishnah: `Mishnah Berachos 2:3–5`, with words inside a long mishnah.
+- Tanach: `Bereishis 1:1 to 2:3`.
+- Rambam: `Hilchos Shabbos 1:1–12`, with words inside a long halacha.
+- Shulchan Aruch: `Shulchan Aruch Orach Chaim 401:1 to 405:6, until the words “…”; Mishnah Berurah through se'if katan 19`.
+- Tur: `Tur Orach Chaim, siman 2, from the words “…”, to siman 7, until the words “…”`.
+
+Sefaria's segment numbers are used only inside addresses and links, never
+shown.
+
+## Saving plans
+
+`toSaved(plan, sefer)` writes every day as the address where it starts and
+the address where the next day starts. `fromSaved(saved, sefer)` reads it
+back. An address finds the last stopping point that starts at or before that
+place, so a saved plan still reads after the data is rebuilt, and a later
+edition layer can add a printed page and line to each address.
 
 ## Rebuilding the data
 
 ```bash
-python3 tools/build_sefer_data.py              # all six collections
+python3 tools/build_sefer_data.py              # all six collections (~2 minutes once downloaded)
 python3 tools/build_sefer_data.py --only bavli # one collection
 ```
 
-The script reads Sefaria's public export (storage.googleapis.com/sefaria-export,
-indexed from the Sefaria-Export repository on GitHub). It only reads editions
-licensed Public Domain, CC0, CC-BY or CC-BY-SA, and records the edition and
-license of every source in each data file. Downloads are cached in
-`.sefaria-cache/` (or `--cache DIR`).
-
-| Collection | Main text | Commentaries |
-|---|---|---|
-| Tanach | Tanach with Text Only (Public Domain) | none |
-| Mishnah | Torat Emet 357 (Public Domain) | Bartenura, "On Your Way" (Public Domain) |
-| Talmud Bavli | Wikisource Talmud Bavli (CC-BY-SA) | Rashi and Tosafot, Vilna Edition (Public Domain; two files CC-BY-SA) |
-| Rambam | Wikisource Mishneh Torah (CC-BY-SA); Torat Emet 370 where it exists | none |
-| Shulchan Aruch | Torat Emet 363 / 357; Lemberg 1898 for Choshen Mishpat (Public Domain) | Mishnah Berurah, "On Your Way" (Public Domain) |
-| Tur | Vilna 1923, one edition per part (Public Domain) | none |
-
-Known gaps:
-
-- The only freely licensed Mishnah Berurah lacks simanim 1–186. For those,
-  each se'if's Mishnah Berurah share is estimated from how many se'ifim
-  katanim Sefaria links to it (listed in `estimatedSimanim`).
-- Tamid has no Rashi or Tosafot on Sefaria (the page has other commentaries).
-- In Bava Batra the Rashi slot includes the Rashbam from 29a, as on the page.
-- Even HaEzer leaves out Seder HaGet and Seder Halitzah.
-- Stopping points in the 186 estimated Mishnah Berurah simanim have no
-  words to name them; they are named "Mishnah Berurah on" the se'if.
+Downloads are cached in `.sefaria-cache/` (or `--cache DIR`). The script
+reads Sefaria's public export (storage.googleapis.com/sefaria-export, indexed
+from the Sefaria-Export repository on GitHub); sefaria.org itself is not
+needed.
 
 ## Tests
 
