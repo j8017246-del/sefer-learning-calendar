@@ -56,10 +56,12 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
 
 ## Next
 
-1. Hudi tries the screens on the private preview (a claude.ai artifact only
-   Hudi can open; not public). To update it, rebuild the single-file page
-   (styles and scripts inlined, `data/` published next to it) and publish to
-   the same artifact.
+1. Hudi tries the screens as a website served straight from this branch by
+   githack (no GitHub Pages change, nothing to deploy; every push shows up):
+   https://raw.githack.com/j8017246-del/sefer-learning-calendar/learning-calendar-part-1/learn/index.html
+   Anyone with the link can open it (the repository is public); it is not
+   listed anywhere. There is also a private claude.ai preview, but its frame
+   gets in the way of the dropdown menus on a phone.
 2. Yom Tov suggestions for days off.
 3. Make the data files smaller before release (21 MB in total; one sefer
    loads at a time).
