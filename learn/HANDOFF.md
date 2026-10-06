@@ -67,11 +67,15 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    githack (no GitHub Pages change, nothing to deploy; every push shows up):
    https://raw.githack.com/j8017246-del/sefer-learning-calendar/learning-calendar-part-1/learn/index.html
    Anyone with the link can open it (the repository is public); it is not
-   listed anywhere. Hudi mainly uses the private claude.ai preview
-   (https://claude.ai/artifact/HAjsBZdTcMqpvPdcnXcXa6), because the Claude
-   browser is not available in cloud chats. To update it, rebuild the
-   single-file page (styles and scripts inlined, `data/` published next to
-   it) and publish to that artifact.
+   listed anywhere. Hudi mainly uses the private claude.ai preview, because
+   the Claude browser is not available in cloud chats:
+   https://claude.ai/artifact/QmhMUd7ZMiyjaemZkYSNsh
+   It is ONE self-contained page (`python3 tools/build_preview.py OUT.html`:
+   styles, scripts and all data packed in with gzip+base64, about 8 MB), because
+   Hudi's iPad only allows approved addresses and the earlier preview, which
+   fetched ~230 separate data files, never finished loading there. To update,
+   rebuild and publish the same file path / that artifact URL. (The older
+   preview https://claude.ai/artifact/HAjsBZdTcMqpvPdcnXcXa6 is superseded.)
 2. Yom Tov suggestions for days off.
 3. Make the data files smaller before release (21 MB in total; one sefer
    loads at a time).

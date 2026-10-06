@@ -54,12 +54,22 @@
   const unitName = (sefer, n) => (UNITS[sefer.unit] || [sefer.unit, sefer.unit + "s"])[n === 1 ? 0 : 1];
   const entryOf = (id) => catalog.seforim.find((e) => e.id === id);
 
-  async function loadSefer(id) {
-    if (!seforim.has(id)) {
-      const res = await fetch(`data/${id}.json`);
-      if (!res.ok) throw new Error(`Could not load ${id}`);
-      seforim.set(id, await res.json());
+  // A data file: packed into the page (window.LEARN_DATA, gzip + base64, used
+  // where the page cannot fetch other files) or fetched next to the page.
+  async function getJson(path) {
+    const packed = window.LEARN_DATA && window.LEARN_DATA[path];
+    if (packed) {
+      const bytes = Uint8Array.from(atob(packed), (c) => c.charCodeAt(0));
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+      return JSON.parse(await new Response(stream).text());
     }
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`${path} answered ${res.status}`);
+    return res.json();
+  }
+
+  async function loadSefer(id) {
+    if (!seforim.has(id)) seforim.set(id, await getJson(`data/${id}.json`));
     return seforim.get(id);
   }
 
@@ -572,9 +582,7 @@
 
   async function start() {
     try {
-      const res = await fetch("data/catalog.json");
-      if (!res.ok) throw new Error(`the list of sefarim answered ${res.status}`);
-      catalog = await res.json();
+      catalog = await getJson("data/catalog.json");
     } catch (e) {
       $("todayDate").textContent = `Could not load the list of sefarim (${e.message}). Check the connection and try again.`;
       return;
