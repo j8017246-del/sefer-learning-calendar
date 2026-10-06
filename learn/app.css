@@ -255,3 +255,15 @@ dialog h2 { margin: 0; }
 [data-look="teal"] button, [data-look="teal"] .button { border-radius: 999px; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* iPad/iPhone date boxes ignore width:100% and stick out of their card;
+   drop Apple's own styling so they fit like the other fields. */
+input { max-width: 100%; min-width: 0; }
+input[type="date"] {
+  -webkit-appearance: none; appearance: none;
+  display: block; width: 100%; min-width: 0; max-width: 100%;
+  text-align: start;
+}
+input[type="date"]::-webkit-date-and-time-value { text-align: start; margin: 0; }
+input[type="date"]::-webkit-calendar-picker-indicator { margin-inline-start: auto; }
+.row > label, fieldset, .group { min-width: 0; }
