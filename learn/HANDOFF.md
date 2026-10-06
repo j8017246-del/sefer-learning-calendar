@@ -34,7 +34,11 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   native dropdowns do not open inside the claude.ai preview panel, which is
   where Hudi uses the app from a cloud chat.
   Plans are kept in the phone's browser storage, saved by address.
-- **Tests**: 27 engine tests and 11 screen tests, all passing.
+- **Several or all sefarim as one plan** (Hudi asked): the Sefer choice is a
+  checkbox list with search, Select all and Clear. `SeferPieces.combine()`
+  joins the data files in order, so a day can run from the end of one
+  masechta or hilchos into the next. Saved plans keep `seferIds` and `name`.
+- **Tests**: 29 engine tests and 13 screen tests, all passing.
 
 ## Left out (told Hudi)
 

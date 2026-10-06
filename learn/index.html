@@ -35,7 +35,7 @@
         <select id="collection"></select>
       </label>
       <label>Sefer
-        <select id="sefer"></select>
+        <button type="button" id="seferPick" class="pick"></button>
       </label>
       <fieldset id="commentaryBox" hidden>
         <legend>Learn together with</legend>
@@ -150,6 +150,17 @@
     <input id="pickerSearch" type="search" placeholder="Search" autocomplete="off">
     <div id="pickerList" class="pick-list" role="listbox"></div>
     <button value="cancel">Cancel</button>
+  </form>
+</dialog>
+
+<dialog id="seferDialog">
+  <form method="dialog">
+    <h2>Which sefarim?</h2>
+    <p class="hint">Choose one, several, or all. They are learned one after another, in order.</p>
+    <input id="seferSearch" type="search" placeholder="Search" autocomplete="off">
+    <div class="row"><button type="button" id="seferAll">Select all</button><button type="button" id="seferNone">Clear</button></div>
+    <div id="seferList" class="pick-list checks"></div>
+    <button value="done" class="primary">Done</button>
   </form>
 </dialog>
 

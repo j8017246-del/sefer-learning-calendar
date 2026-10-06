@@ -406,6 +406,49 @@ test("bad settings are refused", () => {
   assert.throws(() => S.buildPlan({ ...sample, endDate: "2026-10-16", learningDays: [6] }, berakhot), /no learning days/);
 });
 
+// ---- several seforim as one ---------------------------------------------------
+
+test("several or all seforim make one schedule (all of Rambam in a year)", () => {
+  const ids = catalog.seforim.filter((e) => e.collection === "rambam").map((e) => e.id);
+  const c = Pieces.combine(ids.map(load), { en: "Rambam", he: "רמב״ם" });
+  const plan = S.buildPlan({
+    seferIds: ids, name: { en: "Rambam", he: "רמב״ם" }, from: 0, to: Pieces.stopCount(c) - 1, commentaries: [],
+    startDate: "2026-10-11", endDate: "2027-10-10", learningDays: [0, 1, 2, 3, 4, 5], lighterDays: [5], daysOff: [],
+  }, c);
+  assertCovers(plan);
+  assert.strictEqual(plan.portions.length, 313);
+  assert.strictEqual(plan.portions.at(-1).date, "2027-10-10");
+  // the days are even across the whole Rambam
+  const sizes = plan.portions.filter((p) => S.weekday(p.date) !== 5).slice(0, -1).map(lettersOf(c, []));
+  const day = median(sizes);
+  assert(sizes.filter((x) => Math.abs(x - day) / day > 0.1).length / sizes.length < 0.03);
+  // a day runs from the end of one hilchos into the next, and says so
+  const cross = plan.portions.find((p) => { const r = Pieces.rangeParts(c, p.from, p.to); return r.start.sefer !== r.end.sefer; });
+  assert(cross, "some day crosses from one hilchos into the next");
+  assert.match(Pieces.describeRange(c, cross.from, cross.to), /^Hilchos .+ to Hilchos .+/);
+  assert.strictEqual(Pieces.describeRange(c, plan.portions[0].from, plan.portions[0].to).split(" ")[0], "Hilchos");
+  // names and places can be found by sefer name
+  const p = Pieces.findPiece(c, "Hilchos Shabbos 1:1");
+  assert.strictEqual(Pieces.pieceName(c, p), "Hilchos Shabbos 1:1");
+  // saved by address and read back
+  const saved = S.toSaved(plan, c);
+  assert.deepStrictEqual(saved.seferIds, ids);
+  const back = S.fromSaved(JSON.parse(JSON.stringify(saved)), c);
+  assert.deepStrictEqual(back.portions, plan.portions.map((x) => ({ date: x.date, from: x.from, to: x.to, done: !!x.done })));
+});
+
+test("joined masechtos keep each one's commentaries (Sanhedrin has no Rashi)", () => {
+  const list = ["bavli/bava-batra", "bavli/sanhedrin", "bavli/makkot"].map(load);
+  const c = Pieces.combine(list);
+  const w = Pieces.stopWeights(c, RT);
+  const san = c.parts[1];
+  for (let i = 0; i < san.sefer.weights.length; i += 97) assert.strictEqual(w[san.firstStop + i], san.sefer.weights[i]);
+  const mk = c.parts[2], mw = Pieces.stopWeights(mk.sefer, RT);
+  assert.strictEqual(w[mk.firstStop + 3], mw[3]);
+  assert.strictEqual(Pieces.combine([berakhot]), berakhot, "one sefer stays itself");
+  assert.throws(() => Pieces.combine([]), /at least one/);
+});
+
 // ---- the catalog ---------------------------------------------------------------
 
 test("every sefer in the catalog schedules cleanly over a year", () => {

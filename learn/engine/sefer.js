@@ -20,6 +20,10 @@
  * "Berakhot 9b:12@34". Plans are saved by address so they survive a rebuild
  * of the data and can later be tied to the page and line of a printed edition.
  * Sefaria references are never shown to the learner.
+ *
+ * combine() joins several data files (for example all of Rambam, or a few
+ * masechtos) into one sefer, so one plan can run from the end of one into
+ * the next. Every function below accepts such a combined sefer too.
  */
 (function (global) {
   "use strict";
@@ -314,9 +318,132 @@
     });
   }
 
+  // ---- several seforim as one -----------------------------------------------
+
+  // Join data files, in the order given, into one sefer. Piece and stop
+  // numbers run on from one part to the next; each part keeps its own names,
+  // addresses and commentaries.
+  function combine(list, info = {}) {
+    if (!list.length) throw new Error("Choose at least one sefer");
+    if (list.length === 1) return list[0];
+    const c = {
+      id: info.id || list.map((x) => x.id).join("+"), en: info.en || list.map((x) => x.en).join(", "),
+      he: info.he || list.map((x) => x.he).join(", "), shape: "multi", unit: list[0].unit,
+      collection: list[0].collection, parts: [], stops: [], weights: [], commentaries: [],
+    };
+    let stop = 0, piece = 0;
+    for (const x of list) {
+      c.parts.push({ sefer: x, firstStop: stop, firstPiece: piece });
+      for (const n of x.stops) c.stops.push(n);
+      for (const w of x.weights) c.weights.push(w);
+      for (const k of x.commentaries) {
+        if (!c.commentaries.some((y) => y.id === k.id)) c.commentaries.push({ id: k.id, en: k.en, he: k.he });
+      }
+      stop += x.weights.length;
+      piece += x.stops.length;
+    }
+    return c;
+  }
+
+  // The part holding a stop (by="firstStop") or a piece (by="firstPiece").
+  function partOf(c, n, by = "firstStop") {
+    let lo = 0, hi = c.parts.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (c.parts[mid][by] <= n) lo = mid; else hi = mid - 1;
+    }
+    return c.parts[lo];
+  }
+  const lastStopOf = (part) => part.firstStop + part.sefer.weights.length - 1;
+  const has = (part, comms) => comms.filter((id) => part.sefer.commentaries.some((k) => k.id === id));
+
+  const multi = {
+    positions: (c) => hidden(c, "_positions", () => c.parts.flatMap((x) => positions(x.sefer))),
+    pieceLabel: (c, p) => { const x = partOf(c, p, "firstPiece"); return pieceLabel(x.sefer, p - x.firstPiece); },
+    pieceName(c, p) {
+      const x = partOf(c, p, "firstPiece");
+      return `${x.sefer.en}${x.sefer.shape === "list" ? "," : ""} ${pieceName(x.sefer, p - x.firstPiece)}`;
+    },
+    findPiece(c, label) {
+      const want = String(label).trim();
+      const x = c.parts.slice().sort((a, b) => b.sefer.en.length - a.sefer.en.length)
+        .find((y) => want.toLowerCase().startsWith(y.sefer.en.toLowerCase() + " "));
+      if (!x) throw new RangeError(`Write which sefer, for example ${c.parts[0].sefer.en} ${pieceLabel(c.parts[0].sefer, 0)}`);
+      return x.firstPiece + findPiece(x.sefer, want.slice(x.sefer.en.length + 1).replace(/^,\s*/, ""));
+    },
+    stopWeights(c, comms = []) {
+      const cache = hidden(c, "_weights", () => new Map()), key = comms.join(",");
+      if (!cache.has(key)) {
+        const out = new Float64Array(c.weights.length);
+        for (const x of c.parts) out.set(stopWeights(x.sefer, has(x, comms)), x.firstStop);
+        cache.set(key, out);
+      }
+      return cache.get(key);
+    },
+    breakLevels: (c) => hidden(c, "_breaks", () => {
+      const out = new Uint8Array(c.weights.length);
+      for (const x of c.parts) out.set(breakLevels(x.sefer), x.firstStop);
+      return out;
+    }),
+    rangeParts(c, from, to, comms = []) {
+      if (to < from) return null;
+      const a = partOf(c, from), b = partOf(c, to);
+      const ra = rangeParts(a.sefer, from - a.firstStop, (a === b ? to : lastStopOf(a)) - a.firstStop, has(a, comms));
+      const rb = a === b ? ra : rangeParts(b.sefer, 0, to - b.firstStop, has(b, comms));
+      return {
+        start: { ...ra.start, piece: ra.start.piece + a.firstPiece, sefer: a.sefer.en },
+        end: { ...rb.end, piece: rb.end.piece + b.firstPiece, sefer: b.sefer.en },
+        commentaries: rb.commentaries.map((k) => ({ ...k, piece: k.piece + b.firstPiece })),
+      };
+    },
+    describeRange(c, from, to, comms = []) {
+      if (to < from) return "";
+      const a = partOf(c, from), b = partOf(c, to);
+      if (a === b) return describeRange(a.sefer, from - a.firstStop, to - a.firstStop, has(a, comms));
+      const r = multi.rangeParts(c, from, to, comms);
+      const nameA = multi.pieceName(c, r.start.piece), nameB = multi.pieceName(c, r.end.piece);
+      const fromWords = r.start.words ? `, from the words “${r.start.words}”,` : "";
+      const end = r.end.until ? `${nameB}, until the words “${r.end.until}”`
+        : b.sefer.shape === "chapters" ? nameB : `the end of ${nameB}`;
+      const text = `${nameA}${fromWords} to ${end}`;
+      const comm = commentaryText(b.sefer, { ...r, end: { ...r.end, piece: r.end.piece - b.firstPiece },
+        commentaries: r.commentaries.map((k) => ({ ...k, piece: k.piece - b.firstPiece })) });
+      return comm ? `${text}; ${comm}` : text;
+    },
+    address(c, s) {
+      if (s >= c.weights.length) return "end";
+      const x = partOf(c, s);
+      return address(x.sefer, s - x.firstStop);
+    },
+    stopAt(c, addr) {
+      if (addr === "end") return c.weights.length;
+      const x = c.parts.slice().sort((a, b) => b.sefer.sefaria.length - a.sefer.sefaria.length)
+        .find((y) => addr.startsWith(y.sefer.sefaria + " "));
+      if (!x) throw new RangeError(`${c.en} has no place ${addr}`);
+      return x.firstStop + stopAt(x.sefer, addr);
+    },
+    sefariaUrl(c, from, to) {
+      const a = partOf(c, from), b = partOf(c, to);
+      return sefariaUrl(a.sefer, from - a.firstStop, (a === b ? to : lastStopOf(a)) - a.firstStop);
+    },
+  };
+
+  // Each function, for one sefer or a combined one.
+  const either = (name, single) => (sefer, ...args) => (sefer.shape === "multi" ? multi[name](sefer, ...args) : single(sefer, ...args));
+
   const api = {
-    positions, pieceCount, stopCount, pieceOf, stopRange, pieceLabel, pieceName, findPiece,
-    stopWeights, breakLevels, rangeParts, describeRange, address, stopAt, sefariaUrl,
+    pieceCount, stopCount, pieceOf, stopRange, combine,
+    positions: either("positions", positions),
+    pieceLabel: either("pieceLabel", pieceLabel),
+    pieceName: either("pieceName", pieceName),
+    findPiece: either("findPiece", findPiece),
+    stopWeights: either("stopWeights", stopWeights),
+    breakLevels: either("breakLevels", breakLevels),
+    rangeParts: either("rangeParts", rangeParts),
+    describeRange: either("describeRange", describeRange),
+    address: either("address", address),
+    stopAt: either("stopAt", stopAt),
+    sefariaUrl: either("sefariaUrl", sefariaUrl),
   };
   global.SeferPieces = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

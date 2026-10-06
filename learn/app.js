@@ -23,6 +23,7 @@
   let plans = [];                   // [{ id, sefer, plan }]
   let current = null;               // plan id open in the plan view
   let setupDaysOff = [];
+  let chosenIds = [];               // sefarim chosen on the Add screen, in catalog order
 
   // ---- small helpers ----------------------------------------------------------
 
@@ -62,6 +63,28 @@
     return seforim.get(id);
   }
 
+  // One sefer, or several joined into one (for example all of Rambam).
+  const combined = new Map();
+  async function loadCombined(ids, name) {
+    const key = ids.join("+") + "|" + (name ? name.en : "");
+    if (!combined.has(key)) {
+      const list = [];
+      for (const id of ids) list.push(await loadSefer(id));
+      combined.set(key, P.combine(list, name ? { id: ids.join("+"), en: name.en, he: name.he } : {}));
+    }
+    return combined.get(key);
+  }
+
+  // The name of a choice of several sefarim: the collection when it is all of it.
+  function nameFor(ids) {
+    if (ids.length === 1) return null;
+    const col = catalog.collections.find((c) => c.id === entryOf(ids[0]).collection);
+    const total = catalog.seforim.filter((e) => e.collection === col.id).length;
+    if (ids.length === total) return { en: col.en, he: col.he };
+    if (ids.length <= 3) return { en: ids.map((id) => entryOf(id).en).join(", "), he: ids.map((id) => entryOf(id).he).join(", ") };
+    return { en: `${col.en}: ${ids.length} of ${total}`, he: col.he };
+  }
+
   // ---- storage ----------------------------------------------------------------
 
   function readStore() {
@@ -83,7 +106,7 @@
     const out = [];
     for (const s of saved) {
       try {
-        const sefer = await loadSefer(s.seferId);
+        const sefer = await loadCombined(s.seferIds || [s.seferId], s.name);
         out.push({ id: s.id || uid(), sefer, plan: S.fromSaved(s, sefer) });
       } catch (e) {
         console.error(e);
@@ -336,25 +359,57 @@
     preview();
   }
 
+  const inCollection = () => catalog.seforim.filter((e) => e.collection === $("collection").value);
+
   function fillSeforim() {
-    const col = $("collection").value;
-    $("sefer").innerHTML = catalog.seforim.filter((e) => e.collection === col)
-      .map((e) => `<option value="${e.id}">${esc(e.he)} · ${esc(e.en)}</option>`).join("");
+    chosenIds = [inCollection()[0].id];
     fillSefer();
   }
 
+  // After the chosen sefarim change: commentaries, the button, part-of-sefer hints.
   async function fillSefer() {
-    const entry = entryOf($("sefer").value);
-    $("commentaryBox").hidden = !entry.commentaries.length;
-    $("commentaries").innerHTML = entry.commentaries.map((c) =>
+    const entries = chosenIds.map(entryOf), all = inCollection();
+    $("seferPick").textContent = chosenIds.length === 1 ? `${entries[0].he} · ${entries[0].en}`
+      : chosenIds.length === all.length ? `All ${all.length}: ${nameFor(chosenIds).en}`
+      : `${chosenIds.length} chosen: ${entries.slice(0, 3).map((e) => e.en).join(", ")}${chosenIds.length > 3 ? "…" : ""}`;
+    const comms = [];
+    for (const e of entries) for (const c of e.commentaries) if (!comms.some((k) => k.id === c.id)) comms.push(c);
+    $("commentaryBox").hidden = !comms.length;
+    $("commentaries").innerHTML = comms.map((c) =>
       `<label><input type="checkbox" name="comm" value="${c.id}" checked> ${esc(c.en)} · ${he(c.he)}</label>`).join("");
     $("fromPiece").value = ""; $("toPiece").value = "";
-    const sefer = await loadSefer(entry.id);
-    $("fromPiece").placeholder = P.pieceLabel(sefer, 0);
-    $("toPiece").placeholder = P.pieceLabel(sefer, P.pieceCount(sefer) - 1);
-    $("rangeHint").textContent = `Write it as in the sefer, for example ${P.pieceLabel(sefer, Math.min(5, P.pieceCount(sefer) - 1))}.`;
+    $("preview").textContent = chosenIds.length > 3 ? "Loading…" : "";
+    const sefer = await loadCombined(chosenIds, nameFor(chosenIds));
+    $("fromPiece").placeholder = P.pieceName(sefer, 0);
+    $("toPiece").placeholder = P.pieceName(sefer, P.pieceCount(sefer) - 1);
+    $("rangeHint").textContent = `Write it as in the sefer, for example ${P.pieceName(sefer, Math.min(5, P.pieceCount(sefer) - 1))}.`;
     $("amountUnit").textContent = unitName(sefer, +$("amount").value);
     preview();
+  }
+
+  // Choosing sefarim: a list with a box for each, Select all and Clear.
+  function openSeferDialog() {
+    const dlg = $("seferDialog"), list = $("seferList"), search = $("seferSearch");
+    const picked = new Set(chosenIds);
+    const draw = () => {
+      const q = search.value.trim().toLowerCase();
+      list.innerHTML = inCollection().filter((e) => !q || `${e.en} ${e.he}`.toLowerCase().includes(q))
+        .map((e) => `<label><input type="checkbox" value="${e.id}" ${picked.has(e.id) ? "checked" : ""}> ${he(e.he)} · ${esc(e.en)}</label>`).join("")
+        || `<p class="hint">Nothing matches.</p>`;
+    };
+    search.value = "";
+    search.oninput = draw;
+    list.onchange = (e) => { if (e.target.checked) picked.add(e.target.value); else picked.delete(e.target.value); };
+    $("seferAll").onclick = () => { inCollection().forEach((e) => picked.add(e.id)); draw(); };
+    $("seferNone").onclick = () => { picked.clear(); draw(); };
+    dlg.onclose = () => {
+      const ids = inCollection().map((e) => e.id).filter((id) => picked.has(id));
+      if (!ids.length) return toast("Choose at least one sefer");
+      chosenIds = ids;
+      fillSefer();
+    };
+    draw();
+    dlg.showModal();
   }
 
   // Friday is the lighter day at first; after that the person's choice stays
@@ -374,15 +429,15 @@
 
   // The plan the form describes, or an error message.
   async function draft() {
-    const entry = entryOf($("sefer").value);
-    const sefer = await loadSefer(entry.id);
+    const name = nameFor(chosenIds);
+    const sefer = await loadCombined(chosenIds, name);
     const fromP = $("fromPiece").value.trim() ? P.findPiece(sefer, $("fromPiece").value) : 0;
     const toP = $("toPiece").value.trim() ? P.findPiece(sefer, $("toPiece").value) : P.pieceCount(sefer) - 1;
     if (toP < fromP) throw new Error("The end comes before the start.");
     const learningDays = checkedDays();
     const lighter = $("lighter").value === "" ? [] : [+$("lighter").value];
     const settings = {
-      seferId: entry.id,
+      ...(chosenIds.length === 1 ? { seferId: chosenIds[0] } : { seferIds: chosenIds.slice(), name }),
       ...P.stopRange(sefer, fromP, toP),
       commentaries: [...document.querySelectorAll('input[name="comm"]:checked')].map((x) => x.value),
       startDate: $("startDate").value || todayIso(),
@@ -413,10 +468,9 @@
   }
 
   picker($("collection"), "Collection");
-  picker($("sefer"), "Sefer");
+  $("seferPick").addEventListener("click", openSeferDialog);
   picker($("lighter"), "Lighter day");
   $("collection").addEventListener("change", fillSeforim);
-  $("sefer").addEventListener("change", fillSefer);
   $("days").addEventListener("change", () => { fillLighter(); preview(); });
   $("lighter").addEventListener("change", preview);
   document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener("change", () => {
@@ -426,7 +480,7 @@
   }));
   ["endDate", "amount", "startDate", "fromPiece", "toPiece"].forEach((id) => $(id).addEventListener("input", preview));
   $("amount").addEventListener("input", async () => {
-    $("amountUnit").textContent = unitName(await loadSefer($("sefer").value), +$("amount").value);
+    $("amountUnit").textContent = unitName(entryOf(chosenIds[0]), +$("amount").value);
   });
   $("commentaries").addEventListener("change", preview);
 

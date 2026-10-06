@@ -52,10 +52,20 @@ function serve() {
   await page.click("#collectionPick");
   await page.click('#pickerList [data-value="bavli"]');
   await page.waitForFunction(() => document.querySelector("#collectionPick").textContent.includes("Shas"));
+  await page.waitForFunction(() => document.querySelector("#seferPick").textContent.includes("Berachos"));
+  // several sefarim, or all of them, can be chosen
   await page.click("#seferPick");
-  assert(await page.isVisible("#pickerSearch"), "a long list can be searched");
-  await page.fill("#pickerSearch", "ברכות");
-  await page.click('#pickerList [data-value="bavli/berakhot"]');
+  await page.click("#seferAll");
+  await page.click('#seferDialog button[value="done"]');
+  await page.waitForFunction(() => /All 37/.test(document.querySelector("#seferPick").textContent));
+  await page.waitForFunction(() => /days/.test(document.querySelector("#preview").textContent), null, { timeout: 60000 });
+  assert.match(await page.textContent("#preview"), /Berachos 2a/);
+  ok("all of Shas can be chosen at once");
+  await page.click("#seferPick");
+  await page.click("#seferNone");
+  await page.fill("#seferSearch", "ברכות");
+  await page.check('#seferList input[value="bavli/berakhot"]');
+  await page.click('#seferDialog button[value="done"]');
   await page.waitForFunction(() => document.querySelector("#seferPick").textContent.includes("Berachos"));
   assert.strictEqual(await page.textContent("#lighterPick"), "Fri");
   await page.fill("#endDate", "2027-01-08");
@@ -151,6 +161,26 @@ function serve() {
   await page.click("#askYes");
   await page.waitForSelector("#empty:not([hidden])");
   ok("stopping a sefer asks first, inside the page");
+
+  // two masechtos of Mishnah as one plan, crossing from one into the next
+  await page.click('[data-go="add"]');
+  await page.click("#collectionPick");
+  await page.click('#pickerList [data-value="mishnah"]');
+  await page.click("#seferPick");
+  await page.click("#seferNone");
+  await page.check('#seferList input[value="mishnah/berakhot"]');
+  await page.check('#seferList input[value="mishnah/peah"]');
+  await page.click('#seferDialog button[value="done"]');
+  await page.waitForFunction(() => /2 chosen/.test(document.querySelector("#seferPick").textContent));
+  await page.fill("#endDate", "2026-10-30");
+  await page.waitForFunction(() => /finishing Fri, Oct 30, 2026/.test(document.querySelector("#preview").textContent));
+  await page.click("#create");
+  await page.waitForSelector(".card");
+  assert.match(await page.textContent(".card"), /Mishnah Berachos, Mishnah Pe'ah/);
+  await page.click("[data-open]");
+  const list = await page.textContent("#planDays");
+  assert.match(list, /Mishnah Berachos [\d:]+.* to Mishnah Pe'ah/);
+  ok("two masechtos make one schedule that runs from one into the next");
 
   assert.deepStrictEqual(errors, []);
   ok("no errors in the page");

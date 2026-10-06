@@ -313,7 +313,7 @@
 
   // ---- saving -----------------------------------------------------------
 
-  const SETTINGS = ["seferId", "commentaries", "startDate", "endDate", "dailyPieces",
+  const SETTINGS = ["seferId", "seferIds", "name", "commentaries", "startDate", "endDate", "dailyPieces",
     "learningDays", "lighterDays", "lighterWeight", "daysOff", "history"];
 
   // A plan as it is kept on the phone and in the backup file: every stop by
