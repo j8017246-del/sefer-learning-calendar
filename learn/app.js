@@ -269,6 +269,56 @@
     save(); show("today");
   });
 
+  // ---- choice lists ---------------------------------------------------------------------
+  //
+  // Each <select> is shown as a button that opens a list inside the page, because
+  // native dropdowns do not open in some app frames (the claude.ai preview).
+  // The <select> stays as the place the value is kept.
+
+  function picker(select, title) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pick";
+    btn.id = select.id + "Pick";
+    select.hidden = true;
+    select.after(btn);
+    const refresh = () => {
+      const o = select.selectedOptions[0];
+      btn.textContent = o ? o.textContent : "Choose…";
+    };
+    new MutationObserver(refresh).observe(select, { childList: true });
+    select.addEventListener("change", refresh);
+    select.refreshPicker = refresh;
+    btn.addEventListener("click", (e) => { e.preventDefault(); openPicker(select, title); });
+    refresh();
+  }
+
+  function openPicker(select, title) {
+    const dlg = $("picker"), list = $("pickerList"), search = $("pickerSearch");
+    $("pickerTitle").textContent = title;
+    const options = [...select.options];
+    const draw = () => {
+      const q = search.value.trim().toLowerCase();
+      list.innerHTML = options.filter((o) => !q || o.textContent.toLowerCase().includes(q))
+        .map((o) => `<button type="button" role="option" data-value="${esc(o.value)}" aria-selected="${o.value === select.value}">${esc(o.textContent)}</button>`).join("")
+        || `<p class="hint">Nothing matches.</p>`;
+    };
+    search.value = "";
+    search.hidden = options.length < 9;
+    search.oninput = draw;
+    list.onclick = (e) => {
+      const b = e.target.closest("button[data-value]");
+      if (!b) return;
+      select.value = b.dataset.value;
+      select.dispatchEvent(new Event("change"));
+      dlg.close();
+    };
+    draw();
+    dlg.showModal();
+    const chosen = list.querySelector('[aria-selected="true"]');
+    if (chosen) chosen.scrollIntoView({ block: "center" });
+  }
+
   // ---- adding a sefer ---------------------------------------------------------------
 
   function openSetup() {
@@ -316,6 +366,7 @@
     $("lighter").innerHTML = `<option value="">None</option>` +
       days.map((d) => `<option value="${d}">${DAYS[d]}</option>`).join("");
     $("lighter").value = keep !== "" && days.includes(+keep) ? keep : "";
+    $("lighter").refreshPicker?.();
   }
 
   const checkedDays = () => [...document.querySelectorAll('input[name="day"]:checked')].map((x) => +x.value);
@@ -361,6 +412,9 @@
     }
   }
 
+  picker($("collection"), "Collection");
+  picker($("sefer"), "Sefer");
+  picker($("lighter"), "Lighter day");
   $("collection").addEventListener("change", fillSeforim);
   $("sefer").addEventListener("change", fillSefer);
   $("days").addEventListener("change", () => { fillLighter(); preview(); });

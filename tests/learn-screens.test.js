@@ -48,8 +48,16 @@ function serve() {
 
   // Add Berachos with Rashi and Tosafot, finishing in three months
   await page.click("#empty button");
-  await page.selectOption("#collection", "bavli");
-  await page.selectOption("#sefer", "bavli/berakhot");
+  // choose from the in-page lists (native dropdowns do not open in the claude.ai preview)
+  await page.click("#collectionPick");
+  await page.click('#pickerList [data-value="bavli"]');
+  await page.waitForFunction(() => document.querySelector("#collectionPick").textContent.includes("Shas"));
+  await page.click("#seferPick");
+  assert(await page.isVisible("#pickerSearch"), "a long list can be searched");
+  await page.fill("#pickerSearch", "ברכות");
+  await page.click('#pickerList [data-value="bavli/berakhot"]');
+  await page.waitForFunction(() => document.querySelector("#seferPick").textContent.includes("Berachos"));
+  assert.strictEqual(await page.textContent("#lighterPick"), "Fri");
   await page.fill("#endDate", "2027-01-08");
   await page.waitForFunction(() => /78 days/.test(document.querySelector("#preview").textContent));
   const previewText = await page.textContent("#preview");

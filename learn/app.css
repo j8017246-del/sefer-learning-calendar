@@ -151,3 +151,10 @@ textarea {
   border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--card); color: var(--ink);
 }
 .stack { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+
+/* in-page choice lists (native dropdowns do not open in some app frames) */
+button.pick { width: 100%; margin-top: 4px; justify-content: space-between; text-align: start; font-weight: 500; }
+button.pick::after { content: "▾"; color: var(--muted); }
+.pick-list { display: flex; flex-direction: column; gap: 6px; max-height: 55vh; overflow-y: auto; }
+.pick-list button { justify-content: flex-start; text-align: start; width: 100%; }
+.pick-list button[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 600; }

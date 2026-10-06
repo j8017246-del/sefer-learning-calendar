@@ -29,7 +29,10 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   changing the finish date or adding days off, several sefarim at once,
   backup save/load (as a file, or as copied text where files are blocked),
   About with sources and the Wikisource credit. "Are you sure?" questions
-  are asked inside the page, since some browsers block confirm().
+  are asked inside the page, since some browsers block confirm(). Dropdowns
+  are shown as in-page choice lists (with search for long lists), because
+  native dropdowns do not open inside the claude.ai preview panel, which is
+  where Hudi uses the app from a cloud chat.
   Plans are kept in the phone's browser storage, saved by address.
 - **Tests**: 27 engine tests and 11 screen tests, all passing.
 
@@ -60,8 +63,11 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    githack (no GitHub Pages change, nothing to deploy; every push shows up):
    https://raw.githack.com/j8017246-del/sefer-learning-calendar/learning-calendar-part-1/learn/index.html
    Anyone with the link can open it (the repository is public); it is not
-   listed anywhere. There is also a private claude.ai preview, but its frame
-   gets in the way of the dropdown menus on a phone.
+   listed anywhere. Hudi mainly uses the private claude.ai preview
+   (https://claude.ai/artifact/HAjsBZdTcMqpvPdcnXcXa6), because the Claude
+   browser is not available in cloud chats. To update it, rebuild the
+   single-file page (styles and scripts inlined, `data/` published next to
+   it) and publish to that artifact.
 2. Yom Tov suggestions for days off.
 3. Make the data files smaller before release (21 MB in total; one sefer
    loads at a time).
