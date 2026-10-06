@@ -47,6 +47,8 @@
         sefer.chapters.forEach((count, c) => {
           for (let v = 0; v < count; v++) out.push({ chapter: c + 1, verse: v + 1, last: v === count - 1 });
         });
+      } else if (sefer.shape === "named") {
+        sefer.labels.forEach((label) => out.push({ label }));
       } else if (sefer.shape === "daf") {
         sefer.stops.forEach((_, i) => {
           const amud = sefer.firstAmud + i;
@@ -94,6 +96,7 @@
     if (!pos) throw new RangeError(`No piece ${p} in ${sefer.en}`);
     if (sefer.shape === "chapters") return `${pos.chapter}:${pos.verse}`;
     if (sefer.shape === "daf") return `${pos.daf}${pos.side}`;
+    if (sefer.shape === "named") return pos.label;
     return String(pos.number);
   }
 
@@ -106,7 +109,7 @@
   function findPiece(sefer, label) {
     const want = String(label).trim().toLowerCase().replace(/^siman\s+/, "");
     const n = pieceCount(sefer);
-    for (let p = 0; p < n; p++) if (pieceLabel(sefer, p) === want) return p;
+    for (let p = 0; p < n; p++) if (pieceLabel(sefer, p).toLowerCase() === want) return p;
     throw new RangeError(`${sefer.en} has no ${label}`);
   }
 
@@ -201,7 +204,7 @@
     const r = rangeParts(sefer, from, to, commentaryIds);
     if (!r) return "";
     const pos = positions(sefer);
-    const head = sefer.shape === "list" ? `${sefer.en}, ` : `${sefer.en} `;
+    const head = sefer.shape === "list" || sefer.shape === "named" ? `${sefer.en}, ` : `${sefer.en} `;
     const a = pieceName(sefer, r.start.piece), b = pieceName(sefer, r.end.piece);
     const fromWords = r.start.words ? `, from the words “${r.start.words}”` : "";
     const untilWords = r.end.until ? `, until the words “${r.end.until}”` : "";
@@ -235,6 +238,7 @@
     const seg = sefer.segments ? sefer.segments[s] : 1;
     if (sefer.shape === "chapters") return `${sefer.sefaria} ${pos.chapter}:${pos.verse}`;
     if (sefer.shape === "daf") return `${sefer.sefaria} ${pos.daf}${pos.side}:${seg}`;
+    if (sefer.shape === "named") return `${sefer.refs[pieceOf(sefer, s)]}:${seg}`;
     return `${sefer.sefaria} ${pos.number}:${seg}`;
   }
 
@@ -248,6 +252,13 @@
   function placeOf(sefer, addr) {
     const at = addr.lastIndexOf("@");
     const ref = at < 0 ? addr : addr.slice(0, at), offset = at < 0 ? 0 : +addr.slice(at + 1);
+    if (sefer.shape === "named") {
+      const colon = ref.lastIndexOf(":");
+      const byRef = hidden(sefer, "_refIndex", () => new Map(sefer.refs.map((r, i) => [r, i])));
+      const piece = byRef.get(ref.slice(0, colon));
+      if (piece === undefined) throw new RangeError(`${sefer.en} has no place ${addr}`);
+      return [piece, +ref.slice(colon + 1), offset];
+    }
     const prefix = sefer.sefaria + " ";
     if (!ref.startsWith(prefix)) throw new RangeError(`${sefer.en} has no place ${addr}`);
     const rest = ref.slice(prefix.length);
@@ -293,6 +304,11 @@
 
   // "Open on Sefaria": a link to the day's place, e.g. https://www.sefaria.org/Berakhot.9b.5-10a.3
   function sefariaUrl(sefer, from, to) {
+    if (sefer.shape === "named") {
+      // "Duties of the Heart, Fourth Treatise on Trust 3" -> Duties_of_the_Heart,_Fourth_Treatise_on_Trust.3
+      const ref = sefer.refs[pieceOf(sefer, from)].replace(/ (?=[\d:]+$)/, ".").replace(/:/g, ".");
+      return SEFARIA + encodeURIComponent(ref.replace(/ /g, "_")).replace(/%2C/g, ",");
+    }
     const book = encodeURIComponent(sefer.sefaria.replace(/ /g, "_")).replace(/%2C/g, ",");
     const a = sefariaRef(sefer, from, false), b = sefariaRef(sefer, to, true);
     if (a === b) return `${SEFARIA}${book}.${a}`;

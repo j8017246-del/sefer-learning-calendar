@@ -15,6 +15,7 @@
   const UNITS = {
     pasuk: ["pasuk", "pesukim"], mishnah: ["mishnah", "mishnayos"], amud: ["amud", "amudim"],
     halacha: ["halacha", "halachos"], seif: ["se'if", "se'ifim"], siman: ["siman", "simanim"],
+    section: ["section", "sections"],
   };
   const $ = (id) => document.getElementById(id);
 
@@ -544,7 +545,7 @@
     for (const e of entries) for (const c of e.commentaries) if (!comms.some((k) => k.id === c.id)) comms.push(c);
     $("commentaryBox").hidden = !comms.length;
     $("commentaries").innerHTML = comms.map((c) =>
-      `<label><input type="checkbox" name="comm" value="${c.id}" checked> ${esc(c.en)} · ${he(c.he)}</label>`).join("");
+      `<label><input type="checkbox" name="comm" value="${c.id}" ${c.default ? "checked" : ""}> ${esc(c.en)} · ${he(c.he)}</label>`).join("");
     $("fromPiece").value = ""; $("toPiece").value = "";
     $("preview").textContent = chosenIds.length > 3 ? "Loading…" : "";
     const sefer = await loadCombined(chosenIds, nameFor(chosenIds));

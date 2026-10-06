@@ -449,6 +449,50 @@ test("joined masechtos keep each one's commentaries (Sanhedrin has no Rashi)", (
   assert.throws(() => Pieces.combine([]), /at least one/);
 });
 
+// ---- seforim arranged by named sections ---------------------------------------
+
+test("seforim arranged by named sections (Mesillas Yesharim, Chovos HaLevavos)", () => {
+  for (const id of ["mussar/mesillas-yesharim", "mussar/chovos-halevavos"]) {
+    const sefer = load(id);
+    assert.strictEqual(sefer.shape, "named", id);
+    assert.strictEqual(sefer.labels.length, Pieces.pieceCount(sefer));
+    const plan = S.buildPlan({
+      seferId: id, ...whole(sefer), commentaries: [], startDate: "2026-10-11", endDate: "2026-12-11",
+      learningDays: [0, 1, 2, 3, 4, 5], lighterDays: [], daysOff: [],
+    }, sefer);
+    assertCovers(plan);
+    const sizes = plan.portions.slice(0, -1).map(lettersOf(sefer, []));
+    const day = median(sizes);
+    assert(sizes.filter((x) => Math.abs(x - day) / day > 0.1).length / sizes.length < 0.05, id);
+    for (const p of plan.portions) {
+      const text = Pieces.describeRange(sefer, p.from, p.to);
+      assert(text.startsWith(sefer.en + ", "), text);
+      assert.match(Pieces.sefariaUrl(sefer, p.from, p.to), /^https:\/\/www\.sefaria\.org\/[^ ]+$/);
+    }
+    // addresses find every stop again, and a saved plan reads back
+    for (let s = 0; s < Pieces.stopCount(sefer); s += 7) assert.strictEqual(Pieces.stopAt(sefer, Pieces.address(sefer, s)), s);
+    const back = S.fromSaved(JSON.parse(JSON.stringify(S.toSaved(plan, sefer))), sefer);
+    assert.deepStrictEqual(back.portions.map((p) => [p.from, p.to]), plan.portions.map((p) => [p.from, p.to]));
+  }
+  const ms = load("mussar/mesillas-yesharim");
+  assert(ms.labels.includes("Introduction"), "the introduction is its own section");
+});
+
+test("new commentaries: Chumash with Rashi, Onkelos, Ramban; Mishnah with Tosafos Yom Tov; Orach Chaim with Magen Avraham, Taz, Biur Halacha", () => {
+  const ids = (id) => load(id).commentaries.map((c) => c.id);
+  for (const c of ["rashi", "onkelos", "ramban", "ibn-ezra", "sforno", "or-hachaim"]) assert(ids("tanakh/genesis").includes(c), c);
+  assert(ids("tanakh/joshua").includes("metzudat-david"));
+  assert(ids("mishnah/berakhot").includes("tosafot-yom-tov"));
+  for (const c of ["mishnah-berurah", "biur-halacha", "magen-avraham", "taz"]) assert(ids("shulchan-aruch/orach-chayim").includes(c), c);
+  // Magen Avraham and Taz are named by se'if katan, like the Mishnah Berurah
+  const oc = load("shulchan-aruch/orach-chayim");
+  for (const id of ["magen-avraham", "taz"]) assert(oc.commentaries.find((c) => c.id === id).nums, id);
+  // only the usual ones are ticked at first
+  const entry = catalog.seforim.find((e) => e.id === "tanakh/genesis");
+  assert(entry.commentaries.every((c) => !c.default));
+  assert(catalog.seforim.find((e) => e.id === "bavli/berakhot").commentaries.every((c) => c.default));
+});
+
 // ---- the catalog ---------------------------------------------------------------
 
 test("every sefer in the catalog schedules cleanly over a year", () => {
@@ -484,7 +528,7 @@ test("names are Hebrew with English alongside", () => {
 test("only Public Domain or CC0 editions, except the Wikisource Gemara", () => {
   const counts = {};
   for (const e of catalog.seforim) counts[e.collection] = (counts[e.collection] || 0) + 1;
-  assert.deepStrictEqual(counts, { tanakh: 39, mishnah: 63, bavli: 37, rambam: 79, "shulchan-aruch": 4, tur: 4 });
+  assert.deepStrictEqual(counts, { tanakh: 39, mishnah: 63, bavli: 37, rambam: 79, "shulchan-aruch": 4, tur: 4, halacha: 5, mussar: 9, midrash: 4 });
   for (const e of catalog.seforim) {
     const sefer = load(e.id);
     for (const s of sefer.sources) {

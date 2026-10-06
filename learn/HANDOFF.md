@@ -46,7 +46,19 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   The app also gained a bottom bar (Today, Add, Settings, About), progress
   circles, and the Hebrew date (from the browser's Hebrew calendar).
   Samples Hudi chose from: https://claude.ai/artifact/T5nKBpk4GCCqDQnsMPBQVD
-- **Tests**: 29 engine tests and 14 screen tests, all passing.
+- **Many more seforim** (Hudi asked, before publishing): Chumash with Rashi,
+  Onkelos, Ramban, Ibn Ezra, Sforno, Or HaChaim; Nach with Rashi and the
+  Metzudos; Mishnah with Tosafos Yom Tov; Orach Chaim with Biur Halacha,
+  Magen Avraham and Taz (matched to se'ifim by Sefaria's links); and three new
+  collections: Halacha seforim (Kitzur Shulchan Aruch, Chayei Adam, Aruch
+  HaShulchan YD/EH/CM, Ben Ish Chai, Sefer HaMitzvos), Mussar & Machshava
+  (Mesillas Yesharim, Sha'arei Teshuvah, Chovos HaLevavos, Nefesh HaChaim,
+  Derech Hashem, Tomer Devorah, Pele Yoetz, Shelah, Likutei Moharan), Midrash &
+  Aggadah (Ein Yaakov, Bereishis Rabbah, Midrash Tanchuma, Pirkei DeRabbi
+  Eliezer). Seforim with named sections use shape "named" (labels + Sefaria
+  refs per section); several editions are merged section by section.
+  Commentaries ticked at first: Rashi/Tosafot (Shas), Bartenura, Mishnah Berurah.
+- **Tests**: 31 engine tests and 14 screen tests, all passing.
 
 ## Left out (told Hudi)
 
@@ -54,6 +66,9 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   HaTefillah. Their only copies are Torat Emet 370 (license "unknown") and
   Wikisource (CC-BY-SA).
 - Rashi and Tosafot on Sanhedrin (only CC-BY-SA). Tamid has none on Sefaria.
+- Not added (license): Tanya, Shulchan Aruch HaRav, Mechilta (non-commercial);
+  Zohar, Shemiras HaLashon, Sefer HaChinuch, Yerushalmi (unknown); Chofetz Chaim,
+  Kuzari, Orchos Tzaddikim (CC-BY-SA); Aruch HaShulchan Orach Chaim (CC-BY-SA).
 - Mishnah Berurah simanim 1-186 are missing from the Public Domain edition.
   Their size is estimated and they are named by se'if katan number (known
   from Sefaria's links), so they work in schedules. See `estimatedSimanim`.

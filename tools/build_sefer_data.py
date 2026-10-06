@@ -197,6 +197,17 @@ PREFERRED = {
 }
 
 COMMENTARY_NAMES = {
+    "onkelos": ("Onkelos", "אונקלוס"),
+    "ramban": ("Ramban", "רמב״ן"),
+    "ibn-ezra": ("Ibn Ezra", "אבן עזרא"),
+    "sforno": ("Sforno", "ספורנו"),
+    "or-hachaim": ("Or HaChaim", "אור החיים"),
+    "metzudat-david": ("Metzudas David", "מצודת דוד"),
+    "metzudat-zion": ("Metzudas Tzion", "מצודת ציון"),
+    "tosafot-yom-tov": ("Tosafos Yom Tov", "תוספות יום טוב"),
+    "biur-halacha": ("Biur Halacha", "ביאור הלכה"),
+    "magen-avraham": ("Magen Avraham", "מגן אברהם"),
+    "taz": ("Taz", "ט״ז"),
     "rashi": ("Rashi", "רש״י"),
     "tosafot": ("Tosafot", "תוספות"),
     "bartenura": ("Bartenura", "ברטנורא"),
@@ -210,6 +221,41 @@ COLLECTIONS = [
     {"id": "rambam", "en": "Rambam (Mishneh Torah)", "he": "רמב״ם"},
     {"id": "shulchan-aruch", "en": "Shulchan Aruch", "he": "שולחן ערוך"},
     {"id": "tur", "en": "Tur", "he": "טור"},
+    {"id": "halacha", "en": "Halacha seforim", "he": "ספרי הלכה"},
+    {"id": "mussar", "en": "Mussar & Machshava", "he": "מוסר ומחשבה"},
+    {"id": "midrash", "en": "Midrash & Aggadah", "he": "מדרש ואגדה"},
+]
+
+# Commentaries ticked at first on the Add screen; the rest are offered unticked.
+DEFAULT_ON = {"bavli": {"rashi", "tosafot"}, "mishnah": {"bartenura"},
+              "shulchan-aruch": {"mishnah-berurah"}}
+
+# Commentaries on Tanach: Sefaria title pattern for each.
+TORAH_COMMENTARIES = [("rashi", "Rashi on {}"), ("onkelos", "Onkelos {}"), ("ramban", "Ramban on {}"),
+                      ("ibn-ezra", "Ibn Ezra on {}"), ("sforno", "Sforno on {}"), ("or-hachaim", "Or HaChaim on {}")]
+NACH_COMMENTARIES = [("rashi", "Rashi on {}"), ("metzudat-david", "Metzudat David on {}"),
+                     ("metzudat-zion", "Metzudat Zion on {}")]
+
+# Seforim read as a list of sections: (collection, Sefaria title, name, unit, preferred editions).
+NAMED = [
+    ("halacha", "Kitzur Shulchan Arukh", "Kitzur Shulchan Aruch", "seif", ["Torat Emet 357", "On Your Way"]),
+    ("halacha", "Chayyei Adam", "Chayei Adam", "section", ["Chayei Adam, Vilna, 1843"]),
+    ("halacha", "Arukh HaShulchan", "Aruch HaShulchan", "siman", []),
+    ("halacha", "Ben Ish Hai", "Ben Ish Chai", "section", []),
+    ("halacha", "Sefer HaMitzvot", "Sefer HaMitzvos", "section", []),
+    ("mussar", "Mesillat Yesharim", "Mesillas Yesharim", "section", ["Shechem Messilat Yesharim"]),
+    ("mussar", "Sha'arei Teshuvah", "Sha'arei Teshuvah", "section", ["Torat Emet"]),
+    ("mussar", "Duties of the Heart", "Chovos HaLevavos", "section", []),
+    ("mussar", "Nefesh HaChayim", "Nefesh HaChaim", "section", []),
+    ("mussar", "Derekh Hashem", "Derech Hashem", "section", []),
+    ("mussar", "Tomer Devorah", "Tomer Devorah", "section", []),
+    ("mussar", "Pele Yoetz", "Pele Yoetz", "section", []),
+    ("mussar", "Shenei Luchot HaBerit", "Shelah", "section", []),
+    ("mussar", "Likutei Moharan", "Likutei Moharan", "section", []),
+    ("midrash", "Ein Yaakov", "Ein Yaakov", "section", []),
+    ("midrash", "Bereshit Rabbah", "Bereishis Rabbah", "section", ["Daat Bereshit Rabbah"]),
+    ("midrash", "Midrash Tanchuma", "Midrash Tanchuma", "section", []),
+    ("midrash", "Pirkei DeRabbi Eliezer", "Pirkei DeRabbi Eliezer", "section", []),
 ]
 
 TAG = re.compile(r"<[^>]+>")
@@ -274,6 +320,17 @@ class Export:
             if b["versionTitle"] == version_title:
                 return json.loads(self.fetch(f"{title}__{version_title}.json", b["json_url"]))
         return None
+
+    def allowed(self, title):
+        """Every Public Domain / CC0 edition of a title that has text."""
+        out = []
+        for b in self.versions.get(title, []):
+            if "[" in b["versionTitle"]:
+                continue
+            v = self.version(title, b["versionTitle"])
+            if license_ok(v) and deep_weight(v["text"]):
+                out.append(v)
+        return out
 
     def best(self, title, preferred, exception=None):
         """The allowed edition with the most text, trying preferred ones first."""
@@ -564,16 +621,25 @@ def chapter_comments(chapters, text):
 # ---- the six collections ---------------------------------------------------
 
 def build_tanakh(ex):
-    for title in TANAKH:
+    for k, title in enumerate(TANAKH):
         v = ex.best(title, PREFERRED["tanakh"])
         chapters, pieces = chapter_pieces(v["text"])
-        b = Builder([], split=False)
-        for p in pieces:
-            b.piece([p])
+        sources, comm = [source(v, title)], {}
+        for cid, pattern in (TORAH_COMMENTARIES if k < 5 else NACH_COMMENTARIES):
+            ctitle = pattern.format(title)
+            try:
+                c = ex.best(ctitle, [])
+            except (KeyError, LookupError):
+                continue   # not every book has every commentary
+            comm[cid] = chapter_comments(chapters, c["text"])
+            sources.append(source(c, ctitle))
+        b = Builder(list(comm), split=False)
+        for i, p in enumerate(pieces):
+            b.piece([p], [(cid, 0, x, None) for cid, per in comm.items() for x in per[i]])
         yield b.record({"id": f"tanakh/{slug(title)}", "collection": "tanakh",
                         "en": TANAKH_NAMES[title], "he": v["heTitle"], "sefaria": title,
                         "unit": "pasuk", "shape": "chapters", "chapters": chapters,
-                        "sources": [source(v, title)]})
+                        "sources": sources})
 
 
 def build_mishnah(ex):
@@ -581,17 +647,19 @@ def build_mishnah(ex):
         title = name if name == "Pirkei Avot" else f"Mishnah {name}"
         v = ex.best(title, PREFERRED["mishnah"])
         chapters, pieces = chapter_pieces(v["text"])
-        sources, bart = [source(v, title)], None
-        btitle = f"Bartenura on {title}".replace("Ta'anit", "Taanit")
-        try:
-            bv = ex.best(btitle, PREFERRED["bartenura"])
-            bart = chapter_comments(chapters, bv["text"])
-            sources.append(source(bv, btitle))
-        except (KeyError, LookupError) as e:
-            left_out(str(e))
-        b = Builder(["bartenura"] if bart else [])
+        sources, comm = [source(v, title)], {}
+        for cid, ctitle, pref in (("bartenura", f"Bartenura on {title}".replace("Ta'anit", "Taanit"), PREFERRED["bartenura"]),
+                                  ("tosafot-yom-tov", f"Tosafot Yom Tov on {title}".replace("Ta'anit", "Taanit"), [])):
+            try:
+                c = ex.best(ctitle, pref)
+            except (KeyError, LookupError) as e:
+                left_out(str(e))
+                continue
+            comm[cid] = chapter_comments(chapters, c["text"])
+            sources.append(source(c, ctitle))
+        b = Builder(list(comm))
         for i, p in enumerate(pieces):
-            b.piece([p], [("bartenura", 0, c, None) for c in bart[i]] if bart else [])
+            b.piece([p], [(cid, 0, x, None) for cid, per in comm.items() for x in per[i]])
         en = MASECHTA_NAMES[name]
         yield b.record({"id": f"mishnah/{slug(name)}", "collection": "mishnah",
                         "en": en if name == "Pirkei Avot" else f"Mishnah {en}",
@@ -662,12 +730,13 @@ def build_rambam(ex):
                         "chapters": chapters, "sources": [source(v, title)]})
 
 
-def mb_to_seif(ex):
-    """Map Mishnah Berurah (siman, se'if katan) to Shulchan Aruch se'if."""
-    pat_mb = re.compile(r"^Mishnah Berurah (\d+):(\d+)(?:-(\d+))?$")
-    pat_sa = re.compile(r"^Shulchan Arukh, Orach Chayim (\d+):(\d+)")
-    mapping = {}
-    cached = ex.cache / "mb-links.csv"
+OC_LINKED = {"mishnah-berurah": "Mishnah Berurah", "magen-avraham": "Magen Avraham",
+             "taz": "Turei Zahav on Shulchan Arukh, Orach Chayim"}
+
+
+def oc_link_rows(ex):
+    """Sefaria's links between Orach Chaim and its numbered commentaries."""
+    cached = ex.cache / "oc-links.csv"
     if not cached.exists():
         rows = []
         for path, url in sorted(ex.special.items()):
@@ -676,22 +745,62 @@ def mb_to_seif(ex):
             with urllib.request.urlopen(url, timeout=600) as r:
                 for raw in r:
                     line = raw.decode("utf-8", "replace")
-                    if "Mishnah Berurah" in line and "Shulchan Arukh, Orach Chayim" in line:
+                    if "Shulchan Arukh, Orach Chayim" in line and any(t in line for t in OC_LINKED.values()):
                         rows.append(line)
         cached.write_text("".join(rows), encoding="utf-8")
-    for row in csv.reader(cached.read_text(encoding="utf-8").splitlines()):
+    return list(csv.reader(cached.read_text(encoding="utf-8").splitlines()))
+
+
+def seif_map(ex, title):
+    """(siman, se'if katan) of a commentary -> Shulchan Aruch se'if, from Sefaria's links."""
+    pat_c = re.compile(rf"^{re.escape(title)} (\d+):(\d+)(?:-(\d+))?$")
+    pat_sa = re.compile(r"^Shulchan Arukh, Orach Chayim (\d+):(\d+)")
+    mapping = {}
+    for row in oc_link_rows(ex):
         if len(row) < 2:
             continue
         a, b = row[0], row[1]
-        if pat_mb.match(b):
+        if pat_c.match(b):
             a, b = b, a
-        m, s = pat_mb.match(a), pat_sa.match(b)
+        m, s = pat_c.match(a), pat_sa.match(b)
         if not (m and s) or m.group(1) != s.group(1):
             continue
-        siman = int(m.group(1))
         for k in range(int(m.group(2)), int(m.group(3) or m.group(2)) + 1):
-            mapping.setdefault((siman, k), int(s.group(2)))
+            mapping.setdefault((int(m.group(1)), k), int(s.group(2)))
     return mapping
+
+
+def linked_comments(ex, title, body, chapters, offsets, npieces, estimate=False):
+    """A commentary numbered by se'if katan, placed on the se'if each one explains.
+    Returns per piece [(comment, se'if katan)], and the simanim only estimated."""
+    mapping = seif_map(ex, title)
+    out = [[] for _ in range(npieces)]
+    written = 0
+    for si, siman in enumerate(body):
+        if si >= len(chapters) or not chapters[si]:
+            continue
+        current = 1
+        for k, comment in enumerate(siman if isinstance(siman, list) else [], start=1):
+            current = min(max(mapping.get((si + 1, k), current), 1), chapters[si])
+            out[offsets[si] + current - 1].append((comment, k))
+            written += deep_weight(comment)
+    estimated = []
+    if estimate:
+        # The Public Domain Mishnah Berurah lacks simanim 1-186. Their size is
+        # estimated from the se'ifim katanim Sefaria links to each se'if; they
+        # are named by se'if katan number, which needs no text.
+        have = {si + 1 for si, siman in enumerate(body) if deep_weight(siman)}
+        counted = [key for key in mapping if key[0] in have]
+        per_katan = round(written / max(1, len(counted)))
+        estimated = sorted({siman for siman, _ in mapping if siman not in have and siman <= len(chapters)})
+        for (siman, k), seif in sorted(mapping.items()):
+            if siman in estimated and 1 <= seif <= chapters[siman - 1]:
+                out[offsets[siman - 1] + seif - 1].append((per_katan, k))
+        print(f"  {title}: simanim {min(estimated)}-{max(estimated)} estimated at {per_katan} letters per se'if katan",
+              file=sys.stderr)
+    for cs in out:
+        cs.sort(key=lambda x: x[1])
+    return out, estimated
 
 
 def build_sa(ex):
@@ -699,45 +808,28 @@ def build_sa(ex):
         title = f"Shulchan Arukh, {part}"
         v = ex.best(title, PREFERRED["sa"])
         chapters, pieces = chapter_pieces(v["text"])
-        sources, mb_comments, estimated = [source(v, title)], None, []
+        sources, comm, estimated = [source(v, title)], {}, []
         if part == "Orach Chayim":
-            mb = ex.best("Mishnah Berurah", PREFERRED["mb"])
-            body = mb["text"][""] if isinstance(mb["text"], dict) else mb["text"]
-            mapping = mb_to_seif(ex)
             offsets, acc = [], 0
             for n in chapters:
                 offsets.append(acc)
                 acc += n
-            mb_comments = [[] for _ in pieces]
-            written = 0
-            for si, siman in enumerate(body):
-                if si >= len(chapters) or not chapters[si]:
-                    continue
-                current = 1
-                for k, comment in enumerate(siman if isinstance(siman, list) else [], start=1):
-                    current = min(max(mapping.get((si + 1, k), current), 1), chapters[si])
-                    mb_comments[offsets[si] + current - 1].append((comment, k))
-                    written += deep_weight(comment)
-            # The Public Domain edition lacks simanim 1-186. Their size is
-            # estimated from the se'ifim katanim Sefaria links to each se'if;
-            # they are named by se'if katan number, which needs no text.
-            have = {si + 1 for si, siman in enumerate(body) if deep_weight(siman)}
-            counted = [key for key in mapping if key[0] in have]
-            per_katan = round(written / max(1, len(counted)))
-            estimated = sorted({siman for siman, _ in mapping
-                                if siman not in have and siman <= len(chapters)})
-            for (siman, k), seif in sorted(mapping.items()):
-                if siman in estimated and 1 <= seif <= chapters[siman - 1]:
-                    mb_comments[offsets[siman - 1] + seif - 1].append((per_katan, k))
-            for cs in mb_comments:
-                cs.sort(key=lambda x: x[1])
-            print(f"  Mishnah Berurah: simanim {min(estimated)}-{max(estimated)} estimated "
-                  f"at {per_katan} letters per se'if katan", file=sys.stderr)
-            sources.append(source(mb, "Mishnah Berurah"))
-        b = Builder(["mishnah-berurah"] if mb_comments else [])
+            for cid in ("mishnah-berurah", "biur-halacha", "magen-avraham", "taz"):
+                ctitle = OC_LINKED.get(cid, "Biur Halacha")
+                c = ex.best(ctitle, PREFERRED["mb"] if cid == "mishnah-berurah" else [])
+                body = c["text"][""] if isinstance(c["text"], dict) else c["text"]
+                if cid == "biur-halacha":
+                    # already arranged by siman and se'if
+                    comm[cid] = [[(x, None) for x in per] for per in chapter_comments(chapters, body)]
+                else:
+                    comm[cid], est = linked_comments(ex, ctitle, body, chapters, offsets, len(pieces),
+                                                     estimate=cid == "mishnah-berurah")
+                    if est:
+                        estimated = est
+                sources.append(source(c, ctitle))
+        b = Builder(list(comm))
         for i, p in enumerate(pieces):
-            b.piece([p], [("mishnah-berurah", 0, c, k) for c, k in mb_comments[i]]
-                    if mb_comments else [])
+            b.piece([p], [(cid, 0, x, k) for cid, per in comm.items() for x, k in per[i]])
         rec = b.record({"id": f"shulchan-aruch/{pslug}", "collection": "shulchan-aruch",
                         "en": f"Shulchan Aruch {en}", "he": f"שולחן ערוך {he}",
                         "sefaria": title, "unit": "seif", "shape": "chapters",
@@ -767,8 +859,84 @@ def build_tur(ex):
                         "first": 1, "sources": [source(v, "Tur")]})
 
 
+def merge_editions(texts):
+    """Join several editions of one sefer: section by section, the edition that
+    has the most text there. Returns (text, indexes of the editions used)."""
+    used = set()
+
+    def go(nodes):
+        nodes = [(i, n) for i, n in nodes if n]
+        if not nodes:
+            return []
+        if all(isinstance(n, dict) for _, n in nodes):
+            keys = []
+            for _, n in nodes:
+                keys += [k for k in n if k not in keys]
+            return {k: go([(i, n.get(k)) for i, n in nodes]) for k in keys}
+        i, n = max(nodes, key=lambda x: deep_weight(x[1]))
+        used.add(i)
+        return n
+
+    return go(list(enumerate(texts))), used
+
+
+def named_pieces(text):
+    """A sefer of any layout -> its sections in order: (names, numbers, segments).
+    A section is the smallest list that holds the paragraphs themselves."""
+    out = []
+
+    def walk(node, titles, nums):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                walk(v, titles + ([k] if k else []), nums)
+        elif isinstance(node, list) and node:
+            if all(not isinstance(x, list) for x in node):
+                if deep_weight(node):
+                    out.append((titles, nums, node))
+            else:
+                for i, x in enumerate(node):
+                    if isinstance(x, list):
+                        walk(x, titles, nums + [i + 1])
+                    elif deep_weight(x):
+                        out.append((titles, nums + [i + 1], [x]))
+
+    walk(text, [], [])
+    return out
+
+
+def build_named(ex):
+    for collection, title, en, unit, pref in NAMED:
+        editions = ex.allowed(title)
+        editions.sort(key=lambda v: (v["versionTitle"] not in pref, -deep_weight(v["text"])))
+        if not editions:
+            left_out(f"{title}: no Public Domain or CC0 edition on Sefaria")
+            continue
+        text, used = merge_editions([v["text"] for v in editions])
+        sources = [source(editions[i], title) for i in sorted(used)]
+        base = {"id": f"{collection}/{slug(en)}", "collection": collection, "en": en,
+                "he": editions[0]["heTitle"], "sefaria": title, "unit": unit, "sources": sources}
+        plain = isinstance(text, list) and all(isinstance(ch, list) and all(not isinstance(x, list) for x in ch)
+                                                for ch in text if ch)
+        b = Builder([])
+        if plain:
+            chapters, pieces = chapter_pieces(text)
+            for p in pieces:
+                b.piece([p])
+            yield b.record({**base, "shape": "chapters", "chapters": chapters})
+            continue
+        labels, refs = [], []
+        for titles, nums, segs in named_pieces(text):
+            name = ", ".join(titles)
+            num = ":".join(map(str, nums))
+            labels.append(f"{name} {num}".strip() if name else num)
+            refs.append(title + (f", {name}" if name else "") + (f" {num}" if num else ""))
+            b.piece(segs)
+        yield b.record({**base, "shape": "named", "labels": labels, "refs": refs})
+
+
 BUILDERS = {"tanakh": build_tanakh, "mishnah": build_mishnah, "bavli": build_bavli,
-            "rambam": build_rambam, "shulchan-aruch": build_sa, "tur": build_tur}
+            "rambam": build_rambam, "shulchan-aruch": build_sa, "tur": build_tur,
+            "named": build_named}
 
 
 def catalog_entry(record):
@@ -776,7 +944,8 @@ def catalog_entry(record):
     entry["pieces"] = len(record["stops"])
     entry["stops"] = len(record["weights"])
     entry["letters"] = sum(record["weights"])
-    entry["commentaries"] = [{"id": c["id"], "en": c["en"], "he": c["he"]}
+    on = DEFAULT_ON.get(record["collection"], set())
+    entry["commentaries"] = [{"id": c["id"], "en": c["en"], "he": c["he"], "default": c["id"] in on}
                              for c in record["commentaries"]]
     return entry
 
@@ -816,6 +985,8 @@ def main():
             ranks[f"{key}/{slug(name)}"] = i
     for i, (_, s, _, _) in enumerate(SA_PARTS):
         ranks[f"shulchan-aruch/{s}"] = ranks[f"tur/{s}"] = i
+    for i, (col, _, en, _, _) in enumerate(NAMED):
+        ranks[f"{col}/{slug(en)}"] = i
     records = [json.loads(f.read_text(encoding="utf-8")) for f in OUT.glob("*/*.json")]
     records.sort(key=lambda r: (order[r["collection"]], ranks.get(r["id"], 999)))
     catalog = {"generatedFrom": INDEX, "collections": COLLECTIONS,

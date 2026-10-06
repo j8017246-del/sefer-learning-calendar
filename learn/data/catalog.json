@@ -30,6 +30,21 @@
    "id": "tur",
    "en": "Tur",
    "he": "טור"
+  },
+  {
+   "id": "halacha",
+   "en": "Halacha seforim",
+   "he": "ספרי הלכה"
+  },
+  {
+   "id": "mussar",
+   "en": "Mussar & Machshava",
+   "he": "מוסר ומחשבה"
+  },
+  {
+   "id": "midrash",
+   "en": "Midrash & Aggadah",
+   "he": "מדרש ואגדה"
   }
  ],
  "seforim": [
@@ -42,7 +57,44 @@
    "pieces": 1533,
    "stops": 1533,
    "letters": 78143,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "onkelos",
+     "en": "Onkelos",
+     "he": "אונקלוס",
+     "default": false
+    },
+    {
+     "id": "ramban",
+     "en": "Ramban",
+     "he": "רמב״ן",
+     "default": false
+    },
+    {
+     "id": "ibn-ezra",
+     "en": "Ibn Ezra",
+     "he": "אבן עזרא",
+     "default": false
+    },
+    {
+     "id": "sforno",
+     "en": "Sforno",
+     "he": "ספורנו",
+     "default": false
+    },
+    {
+     "id": "or-hachaim",
+     "en": "Or HaChaim",
+     "he": "אור החיים",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/exodus",
@@ -53,7 +105,38 @@
    "pieces": 1210,
    "stops": 1210,
    "letters": 63595,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "onkelos",
+     "en": "Onkelos",
+     "he": "אונקלוס",
+     "default": false
+    },
+    {
+     "id": "ibn-ezra",
+     "en": "Ibn Ezra",
+     "he": "אבן עזרא",
+     "default": false
+    },
+    {
+     "id": "sforno",
+     "en": "Sforno",
+     "he": "ספורנו",
+     "default": false
+    },
+    {
+     "id": "or-hachaim",
+     "en": "Or HaChaim",
+     "he": "אור החיים",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/leviticus",
@@ -64,7 +147,44 @@
    "pieces": 859,
    "stops": 859,
    "letters": 44812,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "onkelos",
+     "en": "Onkelos",
+     "he": "אונקלוס",
+     "default": false
+    },
+    {
+     "id": "ramban",
+     "en": "Ramban",
+     "he": "רמב״ן",
+     "default": false
+    },
+    {
+     "id": "ibn-ezra",
+     "en": "Ibn Ezra",
+     "he": "אבן עזרא",
+     "default": false
+    },
+    {
+     "id": "sforno",
+     "en": "Sforno",
+     "he": "ספורנו",
+     "default": false
+    },
+    {
+     "id": "or-hachaim",
+     "en": "Or HaChaim",
+     "he": "אור החיים",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/numbers",
@@ -75,7 +195,44 @@
    "pieces": 1288,
    "stops": 1288,
    "letters": 63588,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "onkelos",
+     "en": "Onkelos",
+     "he": "אונקלוס",
+     "default": false
+    },
+    {
+     "id": "ramban",
+     "en": "Ramban",
+     "he": "רמב״ן",
+     "default": false
+    },
+    {
+     "id": "ibn-ezra",
+     "en": "Ibn Ezra",
+     "he": "אבן עזרא",
+     "default": false
+    },
+    {
+     "id": "sforno",
+     "en": "Sforno",
+     "he": "ספורנו",
+     "default": false
+    },
+    {
+     "id": "or-hachaim",
+     "en": "Or HaChaim",
+     "he": "אור החיים",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/deuteronomy",
@@ -86,7 +243,44 @@
    "pieces": 956,
    "stops": 956,
    "letters": 55034,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "onkelos",
+     "en": "Onkelos",
+     "he": "אונקלוס",
+     "default": false
+    },
+    {
+     "id": "ramban",
+     "en": "Ramban",
+     "he": "רמב״ן",
+     "default": false
+    },
+    {
+     "id": "ibn-ezra",
+     "en": "Ibn Ezra",
+     "he": "אבן עזרא",
+     "default": false
+    },
+    {
+     "id": "sforno",
+     "en": "Sforno",
+     "he": "ספורנו",
+     "default": false
+    },
+    {
+     "id": "or-hachaim",
+     "en": "Or HaChaim",
+     "he": "אור החיים",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/joshua",
@@ -97,7 +291,26 @@
    "pieces": 658,
    "stops": 658,
    "letters": 39955,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/judges",
@@ -108,7 +321,26 @@
    "pieces": 618,
    "stops": 618,
    "letters": 39039,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/i-samuel",
@@ -119,7 +351,26 @@
    "pieces": 811,
    "stops": 811,
    "letters": 51707,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/ii-samuel",
@@ -130,7 +381,26 @@
    "pieces": 695,
    "stops": 695,
    "letters": 42592,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/i-kings",
@@ -141,7 +411,26 @@
    "pieces": 817,
    "stops": 817,
    "letters": 50839,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/ii-kings",
@@ -152,7 +441,26 @@
    "pieces": 719,
    "stops": 719,
    "letters": 48162,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/isaiah",
@@ -163,7 +471,26 @@
    "pieces": 1291,
    "stops": 1291,
    "letters": 67120,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/jeremiah",
@@ -174,7 +501,26 @@
    "pieces": 1364,
    "stops": 1364,
    "letters": 85567,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/ezekiel",
@@ -185,7 +531,26 @@
    "pieces": 1273,
    "stops": 1273,
    "letters": 75181,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/hosea",
@@ -196,7 +561,26 @@
    "pieces": 197,
    "stops": 197,
    "letters": 9406,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/joel",
@@ -207,7 +591,26 @@
    "pieces": 73,
    "stops": 73,
    "letters": 3876,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/amos",
@@ -218,7 +621,26 @@
    "pieces": 146,
    "stops": 146,
    "letters": 8050,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/obadiah",
@@ -229,7 +651,26 @@
    "pieces": 21,
    "stops": 21,
    "letters": 1124,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/jonah",
@@ -240,7 +681,26 @@
    "pieces": 48,
    "stops": 48,
    "letters": 2700,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/micah",
@@ -251,7 +711,26 @@
    "pieces": 105,
    "stops": 105,
    "letters": 5586,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/nahum",
@@ -262,7 +741,26 @@
    "pieces": 47,
    "stops": 47,
    "letters": 2272,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/habakkuk",
@@ -273,7 +771,26 @@
    "pieces": 56,
    "stops": 56,
    "letters": 2603,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/zephaniah",
@@ -284,7 +801,26 @@
    "pieces": 53,
    "stops": 53,
    "letters": 3005,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/haggai",
@@ -295,7 +831,26 @@
    "pieces": 38,
    "stops": 38,
    "letters": 2342,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/zechariah",
@@ -306,7 +861,26 @@
    "pieces": 211,
    "stops": 211,
    "letters": 12464,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/malachi",
@@ -317,7 +891,26 @@
    "pieces": 55,
    "stops": 55,
    "letters": 3450,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/psalms",
@@ -328,7 +921,26 @@
    "pieces": 2527,
    "stops": 2527,
    "letters": 79156,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/proverbs",
@@ -339,7 +951,26 @@
    "pieces": 915,
    "stops": 915,
    "letters": 26819,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/job",
@@ -350,7 +981,26 @@
    "pieces": 1070,
    "stops": 1070,
    "letters": 32124,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/song-of-songs",
@@ -361,7 +1011,26 @@
    "pieces": 117,
    "stops": 117,
    "letters": 5168,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/ruth",
@@ -372,7 +1041,14 @@
    "pieces": 85,
    "stops": 85,
    "letters": 5002,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/lamentations",
@@ -383,7 +1059,14 @@
    "pieces": 154,
    "stops": 154,
    "letters": 6116,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/ecclesiastes",
@@ -394,7 +1077,26 @@
    "pieces": 222,
    "stops": 222,
    "letters": 11065,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/esther",
@@ -405,7 +1107,14 @@
    "pieces": 167,
    "stops": 167,
    "letters": 12189,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/daniel",
@@ -416,7 +1125,26 @@
    "pieces": 357,
    "stops": 357,
    "letters": 24816,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/ezra",
@@ -427,7 +1155,26 @@
    "pieces": 280,
    "stops": 280,
    "letters": 15952,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/nehemiah",
@@ -438,7 +1185,26 @@
    "pieces": 405,
    "stops": 405,
    "letters": 22633,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/i-chronicles",
@@ -449,7 +1215,26 @@
    "pieces": 943,
    "stops": 943,
    "letters": 44769,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "tanakh/ii-chronicles",
@@ -460,7 +1245,26 @@
    "pieces": 822,
    "stops": 822,
    "letters": 55126,
-   "commentaries": []
+   "commentaries": [
+    {
+     "id": "rashi",
+     "en": "Rashi",
+     "he": "רש״י",
+     "default": false
+    },
+    {
+     "id": "metzudat-david",
+     "en": "Metzudas David",
+     "he": "מצודת דוד",
+     "default": false
+    },
+    {
+     "id": "metzudat-zion",
+     "en": "Metzudas Tzion",
+     "he": "מצודת ציון",
+     "default": false
+    }
+   ]
   },
   {
    "id": "mishnah/berakhot",
@@ -475,7 +1279,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -492,7 +1303,8 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
     }
    ]
   },
@@ -509,7 +1321,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -526,7 +1345,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -543,7 +1369,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -560,7 +1393,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -577,7 +1417,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -594,7 +1441,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -611,7 +1465,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -628,7 +1489,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -645,7 +1513,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -662,7 +1537,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -679,7 +1561,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -696,7 +1585,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -713,7 +1609,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -730,7 +1633,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -747,7 +1657,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -764,7 +1681,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -781,7 +1705,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -798,7 +1729,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -815,7 +1753,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -832,7 +1777,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -849,7 +1801,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -866,7 +1825,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -883,7 +1849,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -900,7 +1873,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -917,7 +1897,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -934,7 +1921,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -951,7 +1945,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -968,7 +1969,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -985,7 +1993,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1002,7 +2017,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1019,7 +2041,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1036,7 +2065,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1053,7 +2089,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1070,7 +2113,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1087,7 +2137,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1104,7 +2161,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1121,7 +2185,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1138,7 +2209,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1155,7 +2233,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1172,7 +2257,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1189,7 +2281,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1206,7 +2305,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1223,7 +2329,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1240,7 +2353,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1257,7 +2377,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1274,7 +2401,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1291,7 +2425,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1308,7 +2449,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1325,7 +2473,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1342,7 +2497,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1359,7 +2521,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1376,7 +2545,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1393,7 +2569,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1410,7 +2593,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1427,7 +2617,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1444,7 +2641,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1461,7 +2665,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1478,7 +2689,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1495,7 +2713,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1512,7 +2737,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1529,7 +2761,14 @@
     {
      "id": "bartenura",
      "en": "Bartenura",
-     "he": "ברטנורא"
+     "he": "ברטנורא",
+     "default": true
+    },
+    {
+     "id": "tosafot-yom-tov",
+     "en": "Tosafos Yom Tov",
+     "he": "תוספות יום טוב",
+     "default": false
     }
    ]
   },
@@ -1546,12 +2785,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1568,12 +2809,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1590,12 +2833,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1612,12 +2857,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1634,12 +2881,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1656,12 +2905,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1678,12 +2929,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1700,12 +2953,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1722,12 +2977,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1744,12 +3001,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1766,12 +3025,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1788,12 +3049,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1810,12 +3073,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1832,12 +3097,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1854,12 +3121,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1876,12 +3145,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1898,12 +3169,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1920,12 +3193,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1942,12 +3217,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1964,12 +3241,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -1986,12 +3265,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2008,12 +3289,14 @@
     {
      "id": "rashi",
      "en": "Rashi / Rashbam",
-     "he": "רש״י / רשב״ם"
+     "he": "רש״י / רשב״ם",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2041,12 +3324,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2063,12 +3348,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2085,12 +3372,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2107,12 +3396,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2129,12 +3420,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2151,12 +3444,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2173,12 +3468,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2195,12 +3492,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2217,12 +3516,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2239,12 +3540,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2261,12 +3564,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2283,12 +3588,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -2316,12 +3623,14 @@
     {
      "id": "rashi",
      "en": "Rashi",
-     "he": "רש״י"
+     "he": "רש״י",
+     "default": true
     },
     {
      "id": "tosafot",
      "en": "Tosafot",
-     "he": "תוספות"
+     "he": "תוספות",
+     "default": true
     }
    ]
   },
@@ -3207,7 +4516,26 @@
     {
      "id": "mishnah-berurah",
      "en": "Mishnah Berurah",
-     "he": "משנה ברורה"
+     "he": "משנה ברורה",
+     "default": true
+    },
+    {
+     "id": "biur-halacha",
+     "en": "Biur Halacha",
+     "he": "ביאור הלכה",
+     "default": false
+    },
+    {
+     "id": "magen-avraham",
+     "en": "Magen Avraham",
+     "he": "מגן אברהם",
+     "default": false
+    },
+    {
+     "id": "taz",
+     "en": "Taz",
+     "he": "ט״ז",
+     "default": false
     }
    ]
   },
@@ -3286,6 +4614,204 @@
    "pieces": 426,
    "stops": 17414,
    "letters": 1043136,
+   "commentaries": []
+  },
+  {
+   "id": "halacha/kitzur-shulchan-aruch",
+   "collection": "halacha",
+   "en": "Kitzur Shulchan Aruch",
+   "he": "קיצור שלחן ערוך",
+   "unit": "seif",
+   "pieces": 2765,
+   "stops": 22517,
+   "letters": 650315,
+   "commentaries": []
+  },
+  {
+   "id": "halacha/chayei-adam",
+   "collection": "halacha",
+   "en": "Chayei Adam",
+   "he": "חיי אדם",
+   "unit": "section",
+   "pieces": 220,
+   "stops": 17172,
+   "letters": 1023641,
+   "commentaries": []
+  },
+  {
+   "id": "halacha/aruch-hashulchan",
+   "collection": "halacha",
+   "en": "Aruch HaShulchan",
+   "he": "ערוך השולחן",
+   "unit": "siman",
+   "pieces": 706,
+   "stops": 144047,
+   "letters": 8273937,
+   "commentaries": []
+  },
+  {
+   "id": "halacha/ben-ish-chai",
+   "collection": "halacha",
+   "en": "Ben Ish Chai",
+   "he": "בן איש חי",
+   "unit": "section",
+   "pieces": 2155,
+   "stops": 35680,
+   "letters": 1644384,
+   "commentaries": []
+  },
+  {
+   "id": "halacha/sefer-hamitzvos",
+   "collection": "halacha",
+   "en": "Sefer HaMitzvos",
+   "he": "ספר המצוות",
+   "unit": "section",
+   "pieces": 631,
+   "stops": 5785,
+   "letters": 269932,
+   "commentaries": []
+  },
+  {
+   "id": "mussar/mesillas-yesharim",
+   "collection": "mussar",
+   "en": "Mesillas Yesharim",
+   "he": "מסילת ישרים",
+   "unit": "section",
+   "pieces": 27,
+   "stops": 3700,
+   "letters": 127623,
+   "commentaries": []
+  },
+  {
+   "id": "mussar/shaarei-teshuvah",
+   "collection": "mussar",
+   "en": "Sha'arei Teshuvah",
+   "he": "שערי תשובה",
+   "unit": "section",
+   "pieces": 339,
+   "stops": 4049,
+   "letters": 153926,
+   "commentaries": []
+  },
+  {
+   "id": "mussar/chovos-halevavos",
+   "collection": "mussar",
+   "en": "Chovos HaLevavos",
+   "he": "חובות הלבבות",
+   "unit": "section",
+   "pieces": 93,
+   "stops": 6665,
+   "letters": 372843,
+   "commentaries": []
+  },
+  {
+   "id": "mussar/nefesh-hachaim",
+   "collection": "mussar",
+   "en": "Nefesh HaChaim",
+   "he": "נפש החיים",
+   "unit": "section",
+   "pieces": 98,
+   "stops": 5457,
+   "letters": 255414,
+   "commentaries": []
+  },
+  {
+   "id": "mussar/derech-hashem",
+   "collection": "mussar",
+   "en": "Derech Hashem",
+   "he": "דרך ה'",
+   "unit": "section",
+   "pieces": 28,
+   "stops": 2021,
+   "letters": 120810,
+   "commentaries": []
+  },
+  {
+   "id": "mussar/tomer-devorah",
+   "collection": "mussar",
+   "en": "Tomer Devorah",
+   "he": "תומר דבורה",
+   "unit": "section",
+   "pieces": 133,
+   "stops": 861,
+   "letters": 37670,
+   "commentaries": []
+  },
+  {
+   "id": "mussar/pele-yoetz",
+   "collection": "mussar",
+   "en": "Pele Yoetz",
+   "he": "פלא יועץ",
+   "unit": "section",
+   "pieces": 393,
+   "stops": 25294,
+   "letters": 916882,
+   "commentaries": []
+  },
+  {
+   "id": "mussar/shelah",
+   "collection": "mussar",
+   "en": "Shelah",
+   "he": "שני לוחות הברית",
+   "unit": "section",
+   "pieces": 379,
+   "stops": 135588,
+   "letters": 4841595,
+   "commentaries": []
+  },
+  {
+   "id": "mussar/likutei-moharan",
+   "collection": "mussar",
+   "en": "Likutei Moharan",
+   "he": "ליקוטי מוהר\"ן",
+   "unit": "section",
+   "pieces": 1275,
+   "stops": 42022,
+   "letters": 1120787,
+   "commentaries": []
+  },
+  {
+   "id": "midrash/ein-yaakov",
+   "collection": "midrash",
+   "en": "Ein Yaakov",
+   "he": "עין יעקב",
+   "unit": "section",
+   "pieces": 350,
+   "stops": 60472,
+   "letters": 1604182,
+   "commentaries": []
+  },
+  {
+   "id": "midrash/bereishis-rabbah",
+   "collection": "midrash",
+   "en": "Bereishis Rabbah",
+   "he": "בראשית רבה",
+   "unit": "section",
+   "pieces": 843,
+   "stops": 17352,
+   "letters": 453726,
+   "commentaries": []
+  },
+  {
+   "id": "midrash/midrash-tanchuma",
+   "collection": "midrash",
+   "en": "Midrash Tanchuma",
+   "he": "מדרש תנחומא",
+   "unit": "section",
+   "pieces": 767,
+   "stops": 37709,
+   "letters": 1016774,
+   "commentaries": []
+  },
+  {
+   "id": "midrash/pirkei-derabbi-eliezer",
+   "collection": "midrash",
+   "en": "Pirkei DeRabbi Eliezer",
+   "he": "פרקי דרבי אליעזר",
+   "unit": "section",
+   "pieces": 656,
+   "stops": 5629,
+   "letters": 172888,
    "commentaries": []
   }
  ]

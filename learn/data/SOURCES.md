@@ -11,170 +11,357 @@ marked Public Domain or CC0 are used, except the Gemara's own text:
 | Sefer | Text | Edition | License |
 |---|---|---|---|
 | Bereishis (בראשית) | Genesis | Tanach with Text Only | Public Domain |
+| Bereishis (בראשית) | Rashi on Genesis | On Your Way | Public Domain |
+| Bereishis (בראשית) | Onkelos Genesis | Onkelos Genesis | Public Domain |
+| Bereishis (בראשית) | Ramban on Genesis | On Your Way | Public Domain |
+| Bereishis (בראשית) | Ibn Ezra on Genesis | Piotrkow, 1907-1911 | Public Domain |
+| Bereishis (בראשית) | Sforno on Genesis | Vocalized Edition | Public Domain |
+| Bereishis (בראשית) | Or HaChaim on Genesis | Vocalized Edition | Public Domain |
 | Shemos (שמות) | Exodus | Tanach with Text Only | Public Domain |
+| Shemos (שמות) | Rashi on Exodus | On Your Way | Public Domain |
+| Shemos (שמות) | Onkelos Exodus | Onkelos Exodus | Public Domain |
+| Shemos (שמות) | Ibn Ezra on Exodus | Piotrkow, 1907-1911 | Public Domain |
+| Shemos (שמות) | Sforno on Exodus | Vocalized Edition | Public Domain |
+| Shemos (שמות) | Or HaChaim on Exodus | Vocalized Edition | Public Domain |
 | Vayikra (ויקרא) | Leviticus | Tanach with Text Only | Public Domain |
+| Vayikra (ויקרא) | Rashi on Leviticus | Pentateuch with Rashi's commentary by M. Rosenbaum and A.M. Silbermann, 1929-1934 | Public Domain |
+| Vayikra (ויקרא) | Onkelos Leviticus | Onkelos Leviticus | Public Domain |
+| Vayikra (ויקרא) | Ramban on Leviticus | On Your Way New | Public Domain |
+| Vayikra (ויקרא) | Ibn Ezra on Leviticus | On Your Way | Public Domain |
+| Vayikra (ויקרא) | Sforno on Leviticus | On Your Way | Public Domain |
+| Vayikra (ויקרא) | Or HaChaim on Leviticus | Vocalized Edition | Public Domain |
 | Bamidbar (במדבר) | Numbers | Tanach with Text Only | Public Domain |
+| Bamidbar (במדבר) | Rashi on Numbers | Pentateuch with Rashi's commentary by M. Rosenbaum and A.M. Silbermann -- corrected vocalization | Public Domain |
+| Bamidbar (במדבר) | Onkelos Numbers | Onkelos Numbers | Public Domain |
+| Bamidbar (במדבר) | Ramban on Numbers | Vocalized Edition | Public Domain |
+| Bamidbar (במדבר) | Ibn Ezra on Numbers | On Your Way | Public Domain |
+| Bamidbar (במדבר) | Sforno on Numbers | On Your Way | Public Domain |
+| Bamidbar (במדבר) | Or HaChaim on Numbers | Vocalized Edition | Public Domain |
 | Devarim (דברים) | Deuteronomy | Tanach with Text Only | Public Domain |
+| Devarim (דברים) | Rashi on Deuteronomy | Pentateuch with Rashi's commentary by M. Rosenbaum and A.M. Silbermann, 1929-1934 | Public Domain |
+| Devarim (דברים) | Onkelos Deuteronomy | Onkelos Deuteronomy | Public Domain |
+| Devarim (דברים) | Ramban on Deuteronomy | On Your Way new | Public Domain |
+| Devarim (דברים) | Ibn Ezra on Deuteronomy | On Your Way | Public Domain |
+| Devarim (דברים) | Sforno on Deuteronomy | On Your Way | Public Domain |
+| Devarim (דברים) | Or HaChaim on Deuteronomy | Vocalized Edition | Public Domain |
 | Yehoshua (יהושע) | Joshua | Tanach with Text Only | Public Domain |
+| Yehoshua (יהושע) | Rashi on Joshua | On Your Way | Public Domain |
+| Yehoshua (יהושע) | Metzudat David on Joshua | On Your Way | Public Domain |
+| Yehoshua (יהושע) | Metzudat Zion on Joshua | On Your Way | Public Domain |
 | Shoftim (שופטים) | Judges | Tanach with Text Only | Public Domain |
+| Shoftim (שופטים) | Rashi on Judges | On Your Way | Public Domain |
+| Shoftim (שופטים) | Metzudat David on Judges | On Your Way | Public Domain |
+| Shoftim (שופטים) | Metzudat Zion on Judges | On Your Way | Public Domain |
 | Shmuel I (שמואל א) | I Samuel | Tanach with Text Only | Public Domain |
+| Shmuel I (שמואל א) | Rashi on I Samuel | On Your Way | Public Domain |
+| Shmuel I (שמואל א) | Metzudat David on I Samuel | On Your Way | Public Domain |
+| Shmuel I (שמואל א) | Metzudat Zion on I Samuel | On Your Way | Public Domain |
 | Shmuel II (שמואל ב) | II Samuel | Tanach with Text Only | Public Domain |
+| Shmuel II (שמואל ב) | Rashi on II Samuel | On Your Way | Public Domain |
+| Shmuel II (שמואל ב) | Metzudat David on II Samuel | On Your Way | Public Domain |
+| Shmuel II (שמואל ב) | Metzudat Zion on II Samuel | On Your Way | Public Domain |
 | Melachim I (מלכים א) | I Kings | Tanach with Text Only | Public Domain |
+| Melachim I (מלכים א) | Rashi on I Kings | On Your Way -- new | Public Domain |
+| Melachim I (מלכים א) | Metzudat David on I Kings | On Your Way | Public Domain |
+| Melachim I (מלכים א) | Metzudat Zion on I Kings | On Your Way | Public Domain |
 | Melachim II (מלכים ב) | II Kings | Tanach with Text Only | Public Domain |
+| Melachim II (מלכים ב) | Rashi on II Kings | On Your Way -- new | Public Domain |
+| Melachim II (מלכים ב) | Metzudat David on II Kings | On Your Way | Public Domain |
+| Melachim II (מלכים ב) | Metzudat Zion on II Kings | On Your Way | Public Domain |
 | Yeshayahu (ישעיהו) | Isaiah | Tanach with Text Only | Public Domain |
+| Yeshayahu (ישעיהו) | Rashi on Isaiah | On Your Way | Public Domain |
+| Yeshayahu (ישעיהו) | Metzudat David on Isaiah | On Your Way | Public Domain |
+| Yeshayahu (ישעיהו) | Metzudat Zion on Isaiah | On Your Way | Public Domain |
 | Yirmiyahu (ירמיהו) | Jeremiah | Tanach with Text Only | Public Domain |
+| Yirmiyahu (ירמיהו) | Rashi on Jeremiah | On Your Way | Public Domain |
+| Yirmiyahu (ירמיהו) | Metzudat David on Jeremiah | On Your Way | Public Domain |
+| Yirmiyahu (ירמיהו) | Metzudat Zion on Jeremiah | On Your Way | Public Domain |
 | Yechezkel (יחזקאל) | Ezekiel | Tanach with Text Only | Public Domain |
+| Yechezkel (יחזקאל) | Rashi on Ezekiel | On Your Way | Public Domain |
+| Yechezkel (יחזקאל) | Metzudat David on Ezekiel | On Your Way | Public Domain |
+| Yechezkel (יחזקאל) | Metzudat Zion on Ezekiel | On Your Way | Public Domain |
 | Hoshea (הושע) | Hosea | Tanach with Text Only | Public Domain |
+| Hoshea (הושע) | Rashi on Hosea | On Your Way | Public Domain |
+| Hoshea (הושע) | Metzudat David on Hosea | On Your Way | Public Domain |
+| Hoshea (הושע) | Metzudat Zion on Hosea | On Your Way | Public Domain |
 | Yoel (יואל) | Joel | Tanach with Text Only | Public Domain |
+| Yoel (יואל) | Rashi on Joel | Sefaria vocalized edition | Public Domain |
+| Yoel (יואל) | Metzudat David on Joel | On Your Way | Public Domain |
+| Yoel (יואל) | Metzudat Zion on Joel | On Your Way | Public Domain |
 | Amos (עמוס) | Amos | Tanach with Text Only | Public Domain |
+| Amos (עמוס) | Rashi on Amos | On Your Way | Public Domain |
+| Amos (עמוס) | Metzudat David on Amos | On Your Way | Public Domain |
+| Amos (עמוס) | Metzudat Zion on Amos | On Your Way | Public Domain |
 | Ovadiah (עובדיה) | Obadiah | Tanach with Text Only | Public Domain |
+| Ovadiah (עובדיה) | Rashi on Obadiah | On Your Way | Public Domain |
+| Ovadiah (עובדיה) | Metzudat David on Obadiah | On Your Way | Public Domain |
+| Ovadiah (עובדיה) | Metzudat Zion on Obadiah | On Your Way | Public Domain |
 | Yonah (יונה) | Jonah | Tanach with Text Only | Public Domain |
+| Yonah (יונה) | Rashi on Jonah | On Your Way | Public Domain |
+| Yonah (יונה) | Metzudat David on Jonah | On Your Way | Public Domain |
+| Yonah (יונה) | Metzudat Zion on Jonah | On Your Way | Public Domain |
 | Michah (מיכה) | Micah | Tanach with Text Only | Public Domain |
+| Michah (מיכה) | Rashi on Micah | Sefaria vocalized edition | Public Domain |
+| Michah (מיכה) | Metzudat David on Micah | On Your Way | Public Domain |
+| Michah (מיכה) | Metzudat Zion on Micah | On Your Way | Public Domain |
 | Nachum (נחום) | Nahum | Tanach with Text Only | Public Domain |
+| Nachum (נחום) | Rashi on Nahum | Sefaria vocalized edition | Public Domain |
+| Nachum (נחום) | Metzudat David on Nahum | On Your Way | Public Domain |
+| Nachum (נחום) | Metzudat Zion on Nahum | On Your Way | Public Domain |
 | Chavakuk (חבקוק) | Habakkuk | Tanach with Text Only | Public Domain |
+| Chavakuk (חבקוק) | Rashi on Habakkuk | Sefaria vocalized edition | Public Domain |
+| Chavakuk (חבקוק) | Metzudat David on Habakkuk | On Your Way | Public Domain |
+| Chavakuk (חבקוק) | Metzudat Zion on Habakkuk | On Your Way | Public Domain |
 | Tzefaniah (צפניה) | Zephaniah | Tanach with Text Only | Public Domain |
+| Tzefaniah (צפניה) | Rashi on Zephaniah | Sefaria vocalized edition | Public Domain |
+| Tzefaniah (צפניה) | Metzudat David on Zephaniah | On Your Way | Public Domain |
+| Tzefaniah (צפניה) | Metzudat Zion on Zephaniah | On Your Way | Public Domain |
 | Chaggai (חגי) | Haggai | Tanach with Text Only | Public Domain |
+| Chaggai (חגי) | Rashi on Haggai | Sefaria vocalized edition | Public Domain |
+| Chaggai (חגי) | Metzudat David on Haggai | On Your Way | Public Domain |
+| Chaggai (חגי) | Metzudat Zion on Haggai | On Your Way | Public Domain |
 | Zechariah (זכריה) | Zechariah | Tanach with Text Only | Public Domain |
+| Zechariah (זכריה) | Rashi on Zechariah | On Your Way | Public Domain |
+| Zechariah (זכריה) | Metzudat David on Zechariah | On Your Way | Public Domain |
+| Zechariah (זכריה) | Metzudat Zion on Zechariah | On Your Way | Public Domain |
 | Malachi (מלאכי) | Malachi | Tanach with Text Only | Public Domain |
+| Malachi (מלאכי) | Rashi on Malachi | Sefaria vocalized edition | Public Domain |
+| Malachi (מלאכי) | Metzudat David on Malachi | On Your Way | Public Domain |
+| Malachi (מלאכי) | Metzudat Zion on Malachi | On Your Way | Public Domain |
 | Tehillim (תהילים) | Psalms | Tanach with Text Only | Public Domain |
+| Tehillim (תהילים) | Rashi on Psalms | On Your Way | Public Domain |
+| Tehillim (תהילים) | Metzudat David on Psalms | On Your Way | Public Domain |
+| Tehillim (תהילים) | Metzudat Zion on Psalms | On Your Way | Public Domain |
 | Mishlei (משלי) | Proverbs | Tanach with Text Only | Public Domain |
+| Mishlei (משלי) | Rashi on Proverbs | On Your Way | Public Domain |
+| Mishlei (משלי) | Metzudat David on Proverbs | On Your Way | Public Domain |
+| Mishlei (משלי) | Metzudat Zion on Proverbs | On Your Way | Public Domain |
 | Iyov (איוב) | Job | Tanach with Text Only | Public Domain |
+| Iyov (איוב) | Rashi on Job | On Your Way | Public Domain |
+| Iyov (איוב) | Metzudat David on Job | On Your Way | Public Domain |
+| Iyov (איוב) | Metzudat Zion on Job | On Your Way | Public Domain |
 | Shir HaShirim (שיר השירים) | Song of Songs | Tanach with Text Only | Public Domain |
+| Shir HaShirim (שיר השירים) | Rashi on Song of Songs | On Your Way | Public Domain |
+| Shir HaShirim (שיר השירים) | Metzudat David on Song of Songs | On Your Way | Public Domain |
+| Shir HaShirim (שיר השירים) | Metzudat Zion on Song of Songs | On Your Way | Public Domain |
 | Rus (רות) | Ruth | Tanach with Text Only | Public Domain |
+| Rus (רות) | Rashi on Ruth | On Your Way | Public Domain |
 | Eichah (איכה) | Lamentations | Tanach with Text Only | Public Domain |
+| Eichah (איכה) | Rashi on Lamentations | On Your Way | Public Domain |
 | Koheles (קהלת) | Ecclesiastes | Tanach with Text Only | Public Domain |
+| Koheles (קהלת) | Rashi on Ecclesiastes | On Your Way | Public Domain |
+| Koheles (קהלת) | Metzudat David on Ecclesiastes | On Your Way | Public Domain |
+| Koheles (קהלת) | Metzudat Zion on Ecclesiastes | On Your Way | Public Domain |
 | Esther (אסתר) | Esther | Tanach with Text Only | Public Domain |
+| Esther (אסתר) | Rashi on Esther | On Your Way | Public Domain |
 | Daniel (דניאל) | Daniel | Tanach with Text Only | Public Domain |
+| Daniel (דניאל) | Rashi on Daniel | On Your Way | Public Domain |
+| Daniel (דניאל) | Metzudat David on Daniel | On Your Way | Public Domain |
+| Daniel (דניאל) | Metzudat Zion on Daniel | On Your Way | Public Domain |
 | Ezra (עזרא) | Ezra | Tanach with Text Only | Public Domain |
+| Ezra (עזרא) | Rashi on Ezra | On Your Way | Public Domain |
+| Ezra (עזרא) | Metzudat David on Ezra | On Your Way | Public Domain |
+| Ezra (עזרא) | Metzudat Zion on Ezra | On Your Way | Public Domain |
 | Nechemiah (נחמיה) | Nehemiah | Tanach with Text Only | Public Domain |
+| Nechemiah (נחמיה) | Rashi on Nehemiah | On Your Way | Public Domain |
+| Nechemiah (נחמיה) | Metzudat David on Nehemiah | On Your Way | Public Domain |
+| Nechemiah (נחמיה) | Metzudat Zion on Nehemiah | On Your Way | Public Domain |
 | Divrei HaYamim I (דברי הימים א) | I Chronicles | Tanach with Text Only | Public Domain |
+| Divrei HaYamim I (דברי הימים א) | Rashi on I Chronicles | On Your Way | Public Domain |
+| Divrei HaYamim I (דברי הימים א) | Metzudat David on I Chronicles | On Your Way | Public Domain |
+| Divrei HaYamim I (דברי הימים א) | Metzudat Zion on I Chronicles | On Your Way | Public Domain |
 | Divrei HaYamim II (דברי הימים ב) | II Chronicles | Tanach with Text Only | Public Domain |
+| Divrei HaYamim II (דברי הימים ב) | Rashi on II Chronicles | On Your Way | Public Domain |
+| Divrei HaYamim II (דברי הימים ב) | Metzudat David on II Chronicles | On Your Way | Public Domain |
+| Divrei HaYamim II (דברי הימים ב) | Metzudat Zion on II Chronicles | On Your Way | Public Domain |
 | Mishnah Berachos (משנה ברכות) | Mishnah Berakhot | Torat Emet 357 | Public Domain |
 | Mishnah Berachos (משנה ברכות) | Bartenura on Mishnah Berakhot | On Your Way | Public Domain |
+| Mishnah Berachos (משנה ברכות) | Tosafot Yom Tov on Mishnah Berakhot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Pe'ah (משנה פאה) | Mishnah Peah | Torat Emet 357 | Public Domain |
 | Mishnah Pe'ah (משנה פאה) | Bartenura on Mishnah Peah | On Your Way | Public Domain |
 | Mishnah Demai (משנה דמאי) | Mishnah Demai | Torat Emet 357 | Public Domain |
 | Mishnah Demai (משנה דמאי) | Bartenura on Mishnah Demai | On Your Way | Public Domain |
+| Mishnah Demai (משנה דמאי) | Tosafot Yom Tov on Mishnah Demai | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Kilayim (משנה כלאים) | Mishnah Kilayim | Torat Emet 357 | Public Domain |
 | Mishnah Kilayim (משנה כלאים) | Bartenura on Mishnah Kilayim | On Your Way | Public Domain |
+| Mishnah Kilayim (משנה כלאים) | Tosafot Yom Tov on Mishnah Kilayim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Shevi'is (משנה שביעית) | Mishnah Sheviit | Torat Emet 357 | Public Domain |
 | Mishnah Shevi'is (משנה שביעית) | Bartenura on Mishnah Sheviit | On Your Way | Public Domain |
+| Mishnah Shevi'is (משנה שביעית) | Tosafot Yom Tov on Mishnah Sheviit | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Terumos (משנה תרומות) | Mishnah Terumot | Torat Emet 357 | Public Domain |
 | Mishnah Terumos (משנה תרומות) | Bartenura on Mishnah Terumot | On Your Way | Public Domain |
+| Mishnah Terumos (משנה תרומות) | Tosafot Yom Tov on Mishnah Terumot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Ma'asros (משנה מעשרות) | Mishnah Maasrot | Torat Emet 357 | Public Domain |
 | Mishnah Ma'asros (משנה מעשרות) | Bartenura on Mishnah Maasrot | On Your Way | Public Domain |
+| Mishnah Ma'asros (משנה מעשרות) | Tosafot Yom Tov on Mishnah Maasrot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Ma'aser Sheni (משנה מעשר שני) | Mishnah Maaser Sheni | Torat Emet 357 | Public Domain |
 | Mishnah Ma'aser Sheni (משנה מעשר שני) | Bartenura on Mishnah Maaser Sheni | On Your Way | Public Domain |
+| Mishnah Ma'aser Sheni (משנה מעשר שני) | Tosafot Yom Tov on Mishnah Maaser Sheni | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Challah (משנה חלה) | Mishnah Challah | Torat Emet 357 | Public Domain |
 | Mishnah Challah (משנה חלה) | Bartenura on Mishnah Challah | On Your Way | Public Domain |
+| Mishnah Challah (משנה חלה) | Tosafot Yom Tov on Mishnah Challah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Orlah (משנה ערלה) | Mishnah Orlah | Torat Emet 357 | Public Domain |
 | Mishnah Orlah (משנה ערלה) | Bartenura on Mishnah Orlah | On Your Way | Public Domain |
+| Mishnah Orlah (משנה ערלה) | Tosafot Yom Tov on Mishnah Orlah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Bikkurim (משנה ביכורים) | Mishnah Bikkurim | Torat Emet 357 | Public Domain |
 | Mishnah Bikkurim (משנה ביכורים) | Bartenura on Mishnah Bikkurim | On Your Way | Public Domain |
+| Mishnah Bikkurim (משנה ביכורים) | Tosafot Yom Tov on Mishnah Bikkurim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Shabbos (משנה שבת) | Mishnah Shabbat | Torat Emet 357 | Public Domain |
 | Mishnah Shabbos (משנה שבת) | Bartenura on Mishnah Shabbat | On Your Way | Public Domain |
+| Mishnah Shabbos (משנה שבת) | Tosafot Yom Tov on Mishnah Shabbat | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Eruvin (משנה עירובין) | Mishnah Eruvin | Torat Emet 357 | Public Domain |
 | Mishnah Eruvin (משנה עירובין) | Bartenura on Mishnah Eruvin | On Your Way | Public Domain |
+| Mishnah Eruvin (משנה עירובין) | Tosafot Yom Tov on Mishnah Eruvin | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Pesachim (משנה פסחים) | Mishnah Pesachim | Torat Emet 357 | Public Domain |
 | Mishnah Pesachim (משנה פסחים) | Bartenura on Mishnah Pesachim | On Your Way | Public Domain |
+| Mishnah Pesachim (משנה פסחים) | Tosafot Yom Tov on Mishnah Pesachim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Shekalim (משנה שקלים) | Mishnah Shekalim | Torat Emet 357 | Public Domain |
 | Mishnah Shekalim (משנה שקלים) | Bartenura on Mishnah Shekalim | On Your Way | Public Domain |
+| Mishnah Shekalim (משנה שקלים) | Tosafot Yom Tov on Mishnah Shekalim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Yoma (משנה יומא) | Mishnah Yoma | Torat Emet 357 | Public Domain |
 | Mishnah Yoma (משנה יומא) | Bartenura on Mishnah Yoma | On Your Way | Public Domain |
+| Mishnah Yoma (משנה יומא) | Tosafot Yom Tov on Mishnah Yoma | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Sukkah (משנה סוכה) | Mishnah Sukkah | Torat Emet 357 | Public Domain |
 | Mishnah Sukkah (משנה סוכה) | Bartenura on Mishnah Sukkah | On Your Way | Public Domain |
+| Mishnah Sukkah (משנה סוכה) | Tosafot Yom Tov on Mishnah Sukkah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Beitzah (משנה ביצה) | Mishnah Beitzah | Torat Emet 357 | Public Domain |
 | Mishnah Beitzah (משנה ביצה) | Bartenura on Mishnah Beitzah | On Your Way | Public Domain |
+| Mishnah Beitzah (משנה ביצה) | Tosafot Yom Tov on Mishnah Beitzah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Rosh Hashanah (משנה ראש השנה) | Mishnah Rosh Hashanah | Torat Emet 357 | Public Domain |
 | Mishnah Rosh Hashanah (משנה ראש השנה) | Bartenura on Mishnah Rosh Hashanah | On Your Way | Public Domain |
+| Mishnah Rosh Hashanah (משנה ראש השנה) | Tosafot Yom Tov on Mishnah Rosh Hashanah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Taanis (משנה תענית) | Mishnah Ta'anit | Torat Emet 357 | Public Domain |
 | Mishnah Taanis (משנה תענית) | Bartenura on Mishnah Taanit | On Your Way | Public Domain |
+| Mishnah Taanis (משנה תענית) | Tosafot Yom Tov on Mishnah Taanit | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Megillah (משנה מגילה) | Mishnah Megillah | Torat Emet 357 | Public Domain |
 | Mishnah Megillah (משנה מגילה) | Bartenura on Mishnah Megillah | On Your Way | Public Domain |
+| Mishnah Megillah (משנה מגילה) | Tosafot Yom Tov on Mishnah Megillah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Moed Katan (משנה מועד קטן) | Mishnah Moed Katan | Torat Emet 357 | Public Domain |
 | Mishnah Moed Katan (משנה מועד קטן) | Bartenura on Mishnah Moed Katan | On Your Way | Public Domain |
+| Mishnah Moed Katan (משנה מועד קטן) | Tosafot Yom Tov on Mishnah Moed Katan | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Chagigah (משנה חגיגה) | Mishnah Chagigah | Torat Emet 357 | Public Domain |
 | Mishnah Chagigah (משנה חגיגה) | Bartenura on Mishnah Chagigah | On Your Way | Public Domain |
+| Mishnah Chagigah (משנה חגיגה) | Tosafot Yom Tov on Mishnah Chagigah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Yevamos (משנה יבמות) | Mishnah Yevamot | Torat Emet 357 | Public Domain |
 | Mishnah Yevamos (משנה יבמות) | Bartenura on Mishnah Yevamot | On Your Way | Public Domain |
+| Mishnah Yevamos (משנה יבמות) | Tosafot Yom Tov on Mishnah Yevamot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Kesubos (משנה כתובות) | Mishnah Ketubot | Torat Emet 357 | Public Domain |
 | Mishnah Kesubos (משנה כתובות) | Bartenura on Mishnah Ketubot | On Your Way | Public Domain |
+| Mishnah Kesubos (משנה כתובות) | Tosafot Yom Tov on Mishnah Ketubot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Nedarim (משנה נדרים) | Mishnah Nedarim | Torat Emet 357 | Public Domain |
 | Mishnah Nedarim (משנה נדרים) | Bartenura on Mishnah Nedarim | On Your Way | Public Domain |
+| Mishnah Nedarim (משנה נדרים) | Tosafot Yom Tov on Mishnah Nedarim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Nazir (משנה נזיר) | Mishnah Nazir | Torat Emet 357 | Public Domain |
 | Mishnah Nazir (משנה נזיר) | Bartenura on Mishnah Nazir | On Your Way | Public Domain |
+| Mishnah Nazir (משנה נזיר) | Tosafot Yom Tov on Mishnah Nazir | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Sotah (משנה סוטה) | Mishnah Sotah | Torat Emet 357 | Public Domain |
 | Mishnah Sotah (משנה סוטה) | Bartenura on Mishnah Sotah | On Your Way | Public Domain |
+| Mishnah Sotah (משנה סוטה) | Tosafot Yom Tov on Mishnah Sotah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Gittin (משנה גיטין) | Mishnah Gittin | Torat Emet 357 | Public Domain |
 | Mishnah Gittin (משנה גיטין) | Bartenura on Mishnah Gittin | On Your Way | Public Domain |
+| Mishnah Gittin (משנה גיטין) | Tosafot Yom Tov on Mishnah Gittin | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Kiddushin (משנה קידושין) | Mishnah Kiddushin | Torat Emet 357 | Public Domain |
 | Mishnah Kiddushin (משנה קידושין) | Bartenura on Mishnah Kiddushin | On Your Way | Public Domain |
+| Mishnah Kiddushin (משנה קידושין) | Tosafot Yom Tov on Mishnah Kiddushin | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Bava Kamma (משנה בבא קמא) | Mishnah Bava Kamma | Torat Emet 357 | Public Domain |
 | Mishnah Bava Kamma (משנה בבא קמא) | Bartenura on Mishnah Bava Kamma | On Your Way | Public Domain |
+| Mishnah Bava Kamma (משנה בבא קמא) | Tosafot Yom Tov on Mishnah Bava Kamma | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Bava Metzia (משנה בבא מציעא) | Mishnah Bava Metzia | Torat Emet 357 | Public Domain |
 | Mishnah Bava Metzia (משנה בבא מציעא) | Bartenura on Mishnah Bava Metzia | On Your Way | Public Domain |
+| Mishnah Bava Metzia (משנה בבא מציעא) | Tosafot Yom Tov on Mishnah Bava Metzia | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Bava Basra (משנה בבא בתרא) | Mishnah Bava Batra | Torat Emet 357 | Public Domain |
 | Mishnah Bava Basra (משנה בבא בתרא) | Bartenura on Mishnah Bava Batra | On Your Way | Public Domain |
+| Mishnah Bava Basra (משנה בבא בתרא) | Tosafot Yom Tov on Mishnah Bava Batra | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Sanhedrin (משנה סנהדרין) | Mishnah Sanhedrin | Torat Emet 357 | Public Domain |
 | Mishnah Sanhedrin (משנה סנהדרין) | Bartenura on Mishnah Sanhedrin | On Your Way | Public Domain |
+| Mishnah Sanhedrin (משנה סנהדרין) | Tosafot Yom Tov on Mishnah Sanhedrin | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Makkos (משנה מכות) | Mishnah Makkot | Torat Emet 357 | Public Domain |
 | Mishnah Makkos (משנה מכות) | Bartenura on Mishnah Makkot | On Your Way | Public Domain |
+| Mishnah Makkos (משנה מכות) | Tosafot Yom Tov on Mishnah Makkot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Shevuos (משנה שבועות) | Mishnah Shevuot | Torat Emet 357 | Public Domain |
 | Mishnah Shevuos (משנה שבועות) | Bartenura on Mishnah Shevuot | On Your Way | Public Domain |
+| Mishnah Shevuos (משנה שבועות) | Tosafot Yom Tov on Mishnah Shevuot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Eduyos (משנה עדיות) | Mishnah Eduyot | Torat Emet 357 | Public Domain |
 | Mishnah Eduyos (משנה עדיות) | Bartenura on Mishnah Eduyot | On Your Way | Public Domain |
+| Mishnah Eduyos (משנה עדיות) | Tosafot Yom Tov on Mishnah Eduyot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Avodah Zarah (משנה עבודה זרה) | Mishnah Avodah Zarah | Torat Emet 357 | Public Domain |
 | Mishnah Avodah Zarah (משנה עבודה זרה) | Bartenura on Mishnah Avodah Zarah | On Your Way | Public Domain |
+| Mishnah Avodah Zarah (משנה עבודה זרה) | Tosafot Yom Tov on Mishnah Avodah Zarah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Avos (משנה אבות) | Pirkei Avot | Torat Emet 357 | Public Domain |
 | Avos (משנה אבות) | Bartenura on Pirkei Avot | On Your Way | Public Domain |
+| Avos (משנה אבות) | Tosafot Yom Tov on Pirkei Avot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Horayos (משנה הוריות) | Mishnah Horayot | Torat Emet 357 | Public Domain |
 | Mishnah Horayos (משנה הוריות) | Bartenura on Mishnah Horayot | On Your Way | Public Domain |
+| Mishnah Horayos (משנה הוריות) | Tosafot Yom Tov on Mishnah Horayot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Zevachim (משנה זבחים) | Mishnah Zevachim | Torat Emet 357 | Public Domain |
 | Mishnah Zevachim (משנה זבחים) | Bartenura on Mishnah Zevachim | On Your Way | Public Domain |
+| Mishnah Zevachim (משנה זבחים) | Tosafot Yom Tov on Mishnah Zevachim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Menachos (משנה מנחות) | Mishnah Menachot | Torat Emet 357 | Public Domain |
 | Mishnah Menachos (משנה מנחות) | Bartenura on Mishnah Menachot | On Your Way | Public Domain |
+| Mishnah Menachos (משנה מנחות) | Tosafot Yom Tov on Mishnah Menachot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Chullin (משנה חולין) | Mishnah Chullin | Torat Emet 357 | Public Domain |
 | Mishnah Chullin (משנה חולין) | Bartenura on Mishnah Chullin | On Your Way | Public Domain |
+| Mishnah Chullin (משנה חולין) | Tosafot Yom Tov on Mishnah Chullin | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Bechoros (משנה בכורות) | Mishnah Bekhorot | Torat Emet 357 | Public Domain |
 | Mishnah Bechoros (משנה בכורות) | Bartenura on Mishnah Bekhorot | On Your Way | Public Domain |
+| Mishnah Bechoros (משנה בכורות) | Tosafot Yom Tov on Mishnah Bekhorot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Arachin (משנה ערכין) | Mishnah Arakhin | Torat Emet 357 | Public Domain |
 | Mishnah Arachin (משנה ערכין) | Bartenura on Mishnah Arakhin | On Your Way | Public Domain |
+| Mishnah Arachin (משנה ערכין) | Tosafot Yom Tov on Mishnah Arakhin | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Temurah (משנה תמורה) | Mishnah Temurah | Torat Emet 357 | Public Domain |
 | Mishnah Temurah (משנה תמורה) | Bartenura on Mishnah Temurah | On Your Way | Public Domain |
+| Mishnah Temurah (משנה תמורה) | Tosafot Yom Tov on Mishnah Temurah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Kerisos (משנה כריתות) | Mishnah Keritot | Torat Emet 357 | Public Domain |
 | Mishnah Kerisos (משנה כריתות) | Bartenura on Mishnah Keritot | On Your Way | Public Domain |
+| Mishnah Kerisos (משנה כריתות) | Tosafot Yom Tov on Mishnah Keritot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Me'ilah (משנה מעילה) | Mishnah Meilah | Torat Emet 357 | Public Domain |
 | Mishnah Me'ilah (משנה מעילה) | Bartenura on Mishnah Meilah | On Your Way | Public Domain |
+| Mishnah Me'ilah (משנה מעילה) | Tosafot Yom Tov on Mishnah Meilah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Tamid (משנה תמיד) | Mishnah Tamid | Torat Emet 357 | Public Domain |
 | Mishnah Tamid (משנה תמיד) | Bartenura on Mishnah Tamid | On Your Way | Public Domain |
+| Mishnah Tamid (משנה תמיד) | Tosafot Yom Tov on Mishnah Tamid | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Middos (משנה מדות) | Mishnah Middot | Torat Emet 357 | Public Domain |
 | Mishnah Middos (משנה מדות) | Bartenura on Mishnah Middot | On Your Way | Public Domain |
+| Mishnah Middos (משנה מדות) | Tosafot Yom Tov on Mishnah Middot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Kinnim (משנה קינים) | Mishnah Kinnim | Torat Emet 357 | Public Domain |
 | Mishnah Kinnim (משנה קינים) | Bartenura on Mishnah Kinnim | On Your Way | Public Domain |
+| Mishnah Kinnim (משנה קינים) | Tosafot Yom Tov on Mishnah Kinnim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Keilim (משנה כלים) | Mishnah Kelim | Torat Emet 357 | Public Domain |
 | Mishnah Keilim (משנה כלים) | Bartenura on Mishnah Kelim | On Your Way | Public Domain |
+| Mishnah Keilim (משנה כלים) | Tosafot Yom Tov on Mishnah Kelim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Oholos (משנה אהלות) | Mishnah Oholot | Torat Emet 357 | Public Domain |
 | Mishnah Oholos (משנה אהלות) | Bartenura on Mishnah Oholot | On Your Way | Public Domain |
+| Mishnah Oholos (משנה אהלות) | Tosafot Yom Tov on Mishnah Oholot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Nega'im (משנה נגעים) | Mishnah Negaim | Torat Emet 357 | Public Domain |
 | Mishnah Nega'im (משנה נגעים) | Bartenura on Mishnah Negaim | On Your Way | Public Domain |
+| Mishnah Nega'im (משנה נגעים) | Tosafot Yom Tov on Mishnah Negaim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Parah (משנה פרה) | Mishnah Parah | Torat Emet 357 | Public Domain |
 | Mishnah Parah (משנה פרה) | Bartenura on Mishnah Parah | On Your Way | Public Domain |
+| Mishnah Parah (משנה פרה) | Tosafot Yom Tov on Mishnah Parah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Taharos (משנה טהרות) | Mishnah Tahorot | Torat Emet 357 | Public Domain |
 | Mishnah Taharos (משנה טהרות) | Bartenura on Mishnah Tahorot | On Your Way | Public Domain |
+| Mishnah Taharos (משנה טהרות) | Tosafot Yom Tov on Mishnah Tahorot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Mikva'os (משנה מקואות) | Mishnah Mikvaot | Torat Emet 357 | Public Domain |
 | Mishnah Mikva'os (משנה מקואות) | Bartenura on Mishnah Mikvaot | On Your Way | Public Domain |
+| Mishnah Mikva'os (משנה מקואות) | Tosafot Yom Tov on Mishnah Mikvaot | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Niddah (משנה נדה) | Mishnah Niddah | Torat Emet 357 | Public Domain |
 | Mishnah Niddah (משנה נדה) | Bartenura on Mishnah Niddah | On Your Way | Public Domain |
+| Mishnah Niddah (משנה נדה) | Tosafot Yom Tov on Mishnah Niddah | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Machshirin (משנה מכשירין) | Mishnah Makhshirin | Torat Emet 357 | Public Domain |
 | Mishnah Machshirin (משנה מכשירין) | Bartenura on Mishnah Makhshirin | On Your Way | Public Domain |
+| Mishnah Machshirin (משנה מכשירין) | Tosafot Yom Tov on Mishnah Makhshirin | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Zavim (משנה זבים) | Mishnah Zavim | Torat Emet 357 | Public Domain |
 | Mishnah Zavim (משנה זבים) | Bartenura on Mishnah Zavim | On Your Way | Public Domain |
+| Mishnah Zavim (משנה זבים) | Tosafot Yom Tov on Mishnah Zavim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Tevul Yom (משנה טבול יום) | Mishnah Tevul Yom | Torat Emet 357 | Public Domain |
 | Mishnah Tevul Yom (משנה טבול יום) | Bartenura on Mishnah Tevul Yom | On Your Way | Public Domain |
+| Mishnah Tevul Yom (משנה טבול יום) | Tosafot Yom Tov on Mishnah Tevul Yom | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Yadayim (משנה ידים) | Mishnah Yadayim | Torat Emet 357 | Public Domain |
 | Mishnah Yadayim (משנה ידים) | Bartenura on Mishnah Yadayim | On Your Way | Public Domain |
+| Mishnah Yadayim (משנה ידים) | Tosafot Yom Tov on Mishnah Yadayim | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Mishnah Uktzin (משנה עוקצים) | Mishnah Oktzin | Torat Emet 357 | Public Domain |
 | Mishnah Uktzin (משנה עוקצים) | Bartenura on Mishnah Oktzin | On Your Way | Public Domain |
+| Mishnah Uktzin (משנה עוקצים) | Tosafot Yom Tov on Mishnah Oktzin | Mishnah, ed. Romm, Vilna 1913 | Public Domain |
 | Berachos (ברכות) | Berakhot | Wikisource Talmud Bavli | CC-BY-SA |
 | Berachos (ברכות) | Rashi on Berakhot | Vilna Edition | Public Domain |
 | Berachos (ברכות) | Tosafot on Berakhot | Vilna Edition | Public Domain |
@@ -364,6 +551,9 @@ marked Public Domain or CC0 are used, except the Gemara's own text:
 | Hilchos Melachim uMilchamos (משנה תורה, הלכות מלכים ומלחמות) | Mishneh Torah, Kings and Wars | Torat Emet 363 | Public Domain |
 | Shulchan Aruch Orach Chaim (שולחן ערוך אורח חיים) | Shulchan Arukh, Orach Chayim | Torat Emet 363 | Public Domain |
 | Shulchan Aruch Orach Chaim (שולחן ערוך אורח חיים) | Mishnah Berurah | On Your Way | Public Domain |
+| Shulchan Aruch Orach Chaim (שולחן ערוך אורח חיים) | Biur Halacha | Biur Halacha | Public Domain |
+| Shulchan Aruch Orach Chaim (שולחן ערוך אורח חיים) | Magen Avraham | Magen Avraham | Public Domain |
+| Shulchan Aruch Orach Chaim (שולחן ערוך אורח חיים) | Turei Zahav on Shulchan Arukh, Orach Chayim | Maginei Eretz: Shulchan Aruch Orach Chaim, Lemberg, 1893 | Public Domain |
 | Shulchan Aruch Yoreh De'ah (שולחן ערוך יורה דעה) | Shulchan Arukh, Yoreh De'ah | Torat Emet 357 | Public Domain |
 | Shulchan Aruch Even HaEzer (שולחן ערוך אבן העזר) | Shulchan Arukh, Even HaEzer | Torat Emet 357 | Public Domain |
 | Shulchan Aruch Choshen Mishpat (שולחן ערוך חושן משפט) | Shulchan Arukh, Choshen Mishpat | Shulhan Arukh, Hoshen ha-Mishpat, Lemberg, 1898 | Public Domain |
@@ -371,10 +561,38 @@ marked Public Domain or CC0 are used, except the Gemara's own text:
 | Tur Yoreh De'ah (טור יורה דעה) | Tur | Yoreh Deah, Vilna, 1923 | Public Domain |
 | Tur Even HaEzer (טור אבן העזר) | Tur | Even HaEzer, Vilna, 1923 | Public Domain |
 | Tur Choshen Mishpat (טור חושן משפט) | Tur | Choshen Mishpat, Vilna, 1923 | Public Domain |
+| Kitzur Shulchan Aruch (קיצור שלחן ערוך) | Kitzur Shulchan Arukh | Torat Emet 357 | Public Domain |
+| Chayei Adam (חיי אדם) | Chayyei Adam | Chayei Adam, Vilna, 1844 | Public Domain |
+| Aruch HaShulchan (ערוך השולחן) | Arukh HaShulchan | Aruch HaShulchan, Vilna 1923-29 | Public Domain |
+| Aruch HaShulchan (ערוך השולחן) | Arukh HaShulchan | Aruch HaShulchan, Choshen Mishpat. Vilna 1923-29 | Public Domain |
+| Ben Ish Chai (בן איש חי) | Ben Ish Hai | Ben Ish Hai -- Wikisource | Public Domain |
+| Ben Ish Chai (בן איש חי) | Ben Ish Hai | Ben Ish Chai, Jerusalem, 1898 | Public Domain |
+| Sefer HaMitzvos (ספר המצוות) | Sefer HaMitzvot | Sefer HaMitzvot, Warsaw 1883 | Public Domain |
+| Mesillas Yesharim (מסילת ישרים) | Mesillat Yesharim | Shechem Messilat Yesharim | Public Domain |
+| Sha'arei Teshuvah (שערי תשובה) | Sha'arei Teshuvah | Sefaria Vocalized Edition | Public Domain |
+| Chovos HaLevavos (חובות הלבבות) | Duties of the Heart | Chovat Halevavot, Warsaw 1875 | Public Domain |
+| Chovos HaLevavos (חובות הלבבות) | Duties of the Heart | Vocalized Edition | Public Domain |
+| Chovos HaLevavos (חובות הלבבות) | Duties of the Heart | Chovat Halevavot, Amsterdam 1768. | Public Domain |
+| Nefesh HaChaim (נפש החיים) | Nefesh HaChayim | Vilna, 1874 | Public Domain |
+| Derech Hashem (דרך ה') | Derekh Hashem | Handwritten Manuscript EH 47 C 32. 1896 | Public Domain |
+| Tomer Devorah (תומר דבורה) | Tomer Devorah | Torat Emet | Public Domain |
+| Pele Yoetz (פלא יועץ) | Pele Yoetz | Torat Emet | Public Domain |
+| Shelah (שני לוחות הברית) | Shenei Luchot HaBerit | Shenei Luchot HaBrit, based on Amsterdam, 1698 ed. Part III | Public Domain |
+| Shelah (שני לוחות הברית) | Shenei Luchot HaBerit | Shenei Luchot HaBrit, based on Amsterdam, 1698 ed. Part II | Public Domain |
+| Shelah (שני לוחות הברית) | Shenei Luchot HaBerit | Shenei Luchot HaBrit, based on Amsterdam, 1698 ed. Part I | Public Domain |
+| Likutei Moharan (ליקוטי מוהר"ן) | Likutei Moharan | Likutei Moharan - rabenubook.com | Public Domain |
+| Likutei Moharan (ליקוטי מוהר"ן) | Likutei Moharan | Likutei Moharan Tinyana - rabenubook.com | Public Domain |
+| Likutei Moharan (ליקוטי מוהר"ן) | Likutei Moharan | Likutei Moharan -- Wikisource | Public Domain |
+| Likutei Moharan (ליקוטי מוהר"ן) | Likutei Moharan | Likutei Moharan - Or HaGanuz | Public Domain |
+| Ein Yaakov (עין יעקב) | Ein Yaakov | Daat | Public Domain |
+| Bereishis Rabbah (בראשית רבה) | Bereshit Rabbah | Daat Bereshit Rabbah | Public Domain |
+| Midrash Tanchuma (מדרש תנחומא) | Midrash Tanchuma | Midrash Tanchuma -- Torat Emet | Public Domain |
+| Pirkei DeRabbi Eliezer (פרקי דרבי אליעזר) | Pirkei DeRabbi Eliezer | Pirke DeRabbi Eliezer, Sefaria Vocalized Edition | Public Domain |
 
 ## Left out
 
 - "No Hebrew edition of 'Rashi on Tamid' in the export"
+- "No Hebrew edition of 'Tosafot Yom Tov on Mishnah Peah' in the export"
 - "No Hebrew edition of 'Tosafot on Tamid' in the export"
 - Mishneh Torah, Blessings: no Public Domain or CC0 edition on Sefaria
 - Mishneh Torah, Circumcision: no Public Domain or CC0 edition on Sefaria
