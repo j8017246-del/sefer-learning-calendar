@@ -93,11 +93,10 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    listed anywhere. Hudi mainly uses the private claude.ai preview, because
    the Claude browser is not available in cloud chats:
    https://claude.ai/artifact/QmhMUd7ZMiyjaemZkYSNsh
-   It is ONE self-contained page (`python3 tools/build_preview.py OUT.html`:
-   styles, scripts and all data packed in with gzip+base64, about 8 MB), because
-   Hudi's iPad only allows approved addresses and the earlier preview, which
-   fetched ~230 separate data files, never finished loading there. To update,
-   rebuild and publish the same file path / that artifact URL. (The older
+   Build the page with `python3 tools/build_preview.py OUT.html` (styles and
+   scripts inlined) and publish it to that artifact URL with `learn/data/*`
+   as files next to it (root `learn`); `--pack` instead packs all data into
+   the page (was used while the iPad could not load previews). (The older
    preview https://claude.ai/artifact/HAjsBZdTcMqpvPdcnXcXa6 is superseded.)
    iPad fix (solved): previews load from a separate address; Hudi's iPad Screen
    Time "Allowed Websites" needed claudeusercontent.com (also added:
