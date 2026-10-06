@@ -130,7 +130,10 @@ form .group, fieldset, details.drawer {
   box-shadow: var(--shadow); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   margin: 14px 0 0; padding: 14px 16px 16px;
 }
-legend { font: 800 .78rem var(--font); letter-spacing: .1em; text-transform: uppercase; padding: 0 6px; color: var(--card-muted); }
+/* Card titles sit inside the card, the same as the drawers' titles. */
+legend { float: left; width: 100%; font: 800 .78rem var(--font); letter-spacing: .1em; text-transform: uppercase;
+  padding: 0; margin: 0 0 6px; color: var(--card-muted); line-height: 20px; }
+legend + * { clear: both; }
 label { display: block; margin: 12px 0 0; font-weight: 700; font-size: .95rem; }
 fieldset > label:first-of-type, .group > label:first-child { margin-top: 2px; }
 label.inline { display: flex; align-items: center; gap: 10px; font-weight: 500; margin: 8px 0; }
@@ -149,7 +152,7 @@ details.drawer[open] { padding-bottom: 16px; }
 details.drawer > summary {
   list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 8px;
   font: 800 .78rem var(--font); letter-spacing: .1em; text-transform: uppercase; color: var(--card-muted);
-  padding: 12px 0; min-height: 44px;
+  padding: 10px 0; min-height: 44px; line-height: 20px;
 }
 details.drawer > summary::-webkit-details-marker { display: none; }
 details.drawer > summary::after {
