@@ -72,7 +72,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   Mesillas Yesharim, ...) have Hebrew section names from Sefaria's own
   schemas (`heLabels`), shown by default; Settings has "Section names: Hebrew
   / English" (`learning-calendar-names` in browser storage).
-- **Tests**: 32 engine tests and 14 screen tests, all passing.
+- **Tests**: 33 engine tests and 14 screen tests, all passing.
 
 ## Left out (told Hudi)
 

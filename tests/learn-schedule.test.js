@@ -538,6 +538,17 @@ test("every sefer in the catalog schedules cleanly over a year", () => {
   }
 });
 
+test("section names are in Hebrew, or English if the person chooses", () => {
+  const chovos = load("mussar/chovos-halevavos");
+  const p = chovos.labels.findIndex((x) => x === "First Treatise on Unity 3");
+  assert(p > 0);
+  assert.strictEqual(Pieces.pieceLabel(chovos, p), "שער ראשון - שער ייחוד ג");
+  assert.strictEqual(Pieces.findPiece(chovos, "First Treatise on Unity 3"), p);
+  Pieces.setSectionNames("en");
+  try { assert.strictEqual(Pieces.pieceLabel(chovos, p), "First Treatise on Unity 3"); }
+  finally { Pieces.setSectionNames("he"); }
+});
+
 test("names are Hebrew with English alongside", () => {
   for (const e of catalog.seforim) {
     assert(/[א-ת]/.test(e.he), `${e.id} has no Hebrew name`);
