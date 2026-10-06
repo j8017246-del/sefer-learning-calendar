@@ -33,10 +33,12 @@ function serve() {
   const url = `http://127.0.0.1:${server.address().port}/`;
   const browser = await chromium.launch(process.env.PLAYWRIGHT_BROWSERS_PATH ? {} : { executablePath: "/opt/pw-browsers/chromium" });
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  // fonts come from Google Fonts on a real phone; the test does without them
+  await context.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+  page.on("console", (m) => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await page.clock.setFixedTime(new Date("2026-10-11T09:00:00"));
 
   let passed = 0;
@@ -92,8 +94,8 @@ function serve() {
   const card = await page.textContent(".card");
   assert.match(card, /ברכות/);
   assert.match(card, /Day 1 of 78/);
-  assert.match(card, /Start: the beginning of 2a/);
-  assert.match(card, /Stop: 2b, until the words/);
+  assert.match(card, /Start\s*the beginning of 2a/);
+  assert.match(card, /Stop\s*2b, until the words/);
   assert.match(card, /Rashi through/);
   assert.match(card, /Tosafot through/);
   const href = await page.getAttribute(".card a.button", "href");
@@ -117,12 +119,12 @@ function serve() {
   // three days later, two days missed
   await page.clock.setFixedTime(new Date("2026-10-14T09:00:00"));
   await page.reload();
-  await page.waitForSelector(".status.behind");
+  await page.waitForSelector(".pill.behind");
   assert.match(await page.textContent(".card"), /2 days behind/);
   await page.click("[data-missed]");
   await page.click('#missed button[value="push"]');
-  await page.waitForSelector(".status.ok");
-  assert.match(await page.textContent(".card"), /finishing Mon, Jan 11, 2027/);
+  await page.waitForSelector(".pill.ok");
+  assert.match(await page.textContent(".card"), /Finishing Mon, Jan 11, 2027/);
   ok("missed days: pushing moves the finish date later");
 
   // the whole schedule
@@ -137,7 +139,32 @@ function serve() {
   assert.match(await page.textContent("#about"), /Wikisource Talmud Bavli/);
   ok("About credits the Wikisource Gemara");
 
+  // Settings: choose a look, change its colors, reset
+  await page.click('[data-go="settings"]');
+  await page.click('[data-look-id="glass"]');
+  assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.look), "glass");
+  const darkInk = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--ink").trim());
+  assert.strictEqual(darkInk, "#f3f5fa", "light text on the dark look");
+  await page.evaluate(() => { const i = document.querySelector("#colorBg"); i.value = "#ffffff"; i.dispatchEvent(new Event("input")); });
+  assert.strictEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--ink").trim()), "#111318",
+    "text turns dark on a light background");
+  await page.click('[data-swatch="#db2777"]');
+  assert.strictEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()), "#db2777");
+  await page.reload();
+  await page.waitForSelector(".card");
+  assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.look), "glass", "the look is remembered");
+  await page.click('[data-go="settings"]');
+  await page.click("#resetColors");
+  assert.strictEqual(await page.inputValue("#colorBg"), "#0b1022");
+  await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-settings.png"), fullPage: true });
+  await page.click('[data-go="today"]');
+  await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-today-glass.png") });
+  await page.click('[data-go="settings"]');
+  await page.click('[data-look-id="minimal"]');
+  ok("Settings: five looks, colors can be changed and reset, and the choice is remembered");
+
   // backup as text, then load it back over a cleared phone
+  await page.click('[data-go="about"]');
   await page.click("#backup");
   const backup = await page.inputValue("#backupText");
   assert.strictEqual(JSON.parse(backup).plans.length, 1);

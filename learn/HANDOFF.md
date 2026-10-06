@@ -38,7 +38,15 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   checkbox list with search, Select all and Clear. `SeferPieces.combine()`
   joins the data files in order, so a day can run from the end of one
   masechta or hilchos into the next. Saved plans keep `seferIds` and `name`.
-- **Tests**: 29 engine tests and 13 screen tests, all passing.
+- **Looks and Settings** (Hudi asked): Settings screen with five looks
+  (Clean Minimal, Midnight Glass, Bold Gradient, Black & Gold, Calm Teal);
+  in each the background, cards, main and second colors can be changed (color
+  pickers and quick swatches) and reset. Text color follows automatically for
+  readability. Choice kept in browser storage (`learning-calendar-look`).
+  The app also gained a bottom bar (Today, Add, Settings, About), progress
+  circles, and the Hebrew date (from the browser's Hebrew calendar).
+  Samples Hudi chose from: https://claude.ai/artifact/T5nKBpk4GCCqDQnsMPBQVD
+- **Tests**: 29 engine tests and 14 screen tests, all passing.
 
 ## Left out (told Hudi)
 

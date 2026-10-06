@@ -40,7 +40,7 @@
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
   const he = (s) => `<bdi lang="he" dir="rtl">${esc(s)}</bdi>`;
-  const words = (s) => `“${he(s)}”`;
+  const words = (s) => `<span class="words">“${he(s)}”</span>`;
   function toast(msg) {
     const t = $("toast");
     t.textContent = msg;
@@ -126,13 +126,155 @@
     return out;
   }
 
+  // ---- looks (Settings) ---------------------------------------------------------
+  //
+  // Five looks; in each the person may change the background, cards and the two
+  // accent colors. Text color follows automatically so it stays readable.
+
+  const LOOK_STORE = "learning-calendar-look";
+  const LOOKS = {
+    minimal: { name: "Clean Minimal", bg: "#f5f6f8", surface: "#ffffff", accent: "#2563eb", accent2: "#111318",
+      font: '"Figtree"', display: '"Figtree"', he: '"Assistant"', radius: "22px", btn: "14px" },
+    glass: { name: "Midnight Glass", bg: "#0b1022", surface: "#ffffff", accent: "#7c5cff", accent2: "#22c3ee", glass: true,
+      font: '"Manrope"', display: '"Manrope"', he: '"Heebo"', radius: "22px", btn: "14px" },
+    gradient: { name: "Bold Gradient", bg: "#f3f1fb", surface: "#ffffff", accent: "#4f2bd8", accent2: "#ec4899",
+      font: '"Sora"', display: '"Sora"', he: '"Rubik"', radius: "22px", btn: "14px" },
+    gold: { name: "Black & Gold", bg: "#0e0d0c", surface: "#1a1815", accent: "#d4af5a", accent2: "#a8832f",
+      font: '"DM Sans"', display: '"Cormorant Garamond"', he: '"Frank Ruhl Libre"', radius: "18px", btn: "12px" },
+    teal: { name: "Calm Teal", bg: "#eaf6f3", surface: "#ffffff", accent: "#0f9f8a", accent2: "#5ccfb9",
+      font: '"Nunito"', display: '"Nunito"', he: '"Varela Round"', radius: "28px", btn: "999px" },
+  };
+  const SWATCHES = ["#2563eb", "#7c5cff", "#db2777", "#e11d48", "#ea580c", "#d4af5a", "#16a34a", "#0f9f8a", "#0891b2", "#111318"];
+
+  function readLook() {
+    try {
+      const v = JSON.parse(localStorage.getItem(LOOK_STORE));
+      if (v && LOOKS[v.look]) return { look: v.look, colors: v.colors || {} };
+    } catch (e) { /* storage blocked: use the default */ }
+    return { look: "minimal", colors: {} };
+  }
+  let lookState = readLook();
+  function saveLook() {
+    try { localStorage.setItem(LOOK_STORE, JSON.stringify(lookState)); } catch (e) { /* not saved; still applied */ }
+  }
+  const colorsOf = (id) => ({ ...LOOKS[id], ...(lookState.colors[id] || {}) });
+
+  // Dark text on light colors, light text on dark ones.
+  function isDark(hex) {
+    const n = parseInt(hex.slice(1), 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b) < 0.22;
+  }
+  const inkOn = (hex) => (isDark(hex) ? "#f3f5fa" : "#111318");
+
+  function applyLook() {
+    const id = lookState.look, L = LOOKS[id], c = colorsOf(id), root = document.documentElement;
+    root.dataset.look = id;
+    const ink = inkOn(c.bg);
+    const cardInk = L.glass ? ink : inkOn(c.surface);
+    const vars = {
+      "--bg": c.bg, "--surface": c.surface, "--accent": c.accent, "--accent-2": c.accent2,
+      "--ink": ink, "--card-ink": cardInk,
+      "--card-fill": L.glass ? `color-mix(in srgb, ${c.surface} 9%, transparent)` : c.surface,
+      "--blur": L.glass ? "blur(16px)" : "none",
+      "--bg-image": L.glass
+        ? `radial-gradient(120% 70% at 10% 0%, color-mix(in srgb, ${c.accent} 45%, transparent) 0%, transparent 55%), radial-gradient(90% 60% at 100% 30%, color-mix(in srgb, ${c.accent2} 38%, transparent) 0%, transparent 60%)`
+        : id === "teal" ? `linear-gradient(180deg, ${c.bg} 0%, color-mix(in srgb, ${c.bg} 30%, #ffffff) 45%)` : "none",
+      "--primary": id === "minimal" ? c.accent2 : c.accent,
+      "--primary-ink": inkOn(id === "minimal" ? c.accent2 : c.accent),
+      "--accent-ink": inkOn(c.accent),
+      "--shadow": isDark(c.bg) ? "0 18px 40px -22px rgba(0,0,0,.8)" : "0 1px 2px rgba(17,19,24,.06), 0 14px 34px -16px rgba(17,19,24,.22)",
+      "--tab-bg": L.glass ? `color-mix(in srgb, ${c.bg} 70%, transparent)` : id === "gradient" ? "#1c1640" : `color-mix(in srgb, ${c.surface} 92%, transparent)`,
+      "--tab-ink": id === "gradient" ? "#a39fc4" : `color-mix(in srgb, ${cardInk} 55%, transparent)`,
+      "--tab-on": id === "gradient" ? "#ffffff" : c.accent,
+      "--font": `${L.font}, system-ui, -apple-system, "Segoe UI", sans-serif`,
+      "--font-display": `${L.display}, ${L.font}, Georgia, serif`,
+      "--font-he": `${L.he}, "Arial Hebrew", system-ui, sans-serif`,
+      "--radius": L.radius, "--radius-btn": L.btn,
+    };
+    for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = c.bg;
+  }
+
+  function renderSettings() {
+    const cur = lookState.look;
+    $("looks").innerHTML = Object.entries(LOOKS).map(([id, L]) => {
+      const c = colorsOf(id);
+      const bg = L.glass ? `radial-gradient(90% 80% at 0% 0%, ${c.accent}88, transparent 60%), ${c.bg}` : id === "gradient" ? `linear-gradient(140deg, ${c.accent}, ${c.accent2})` : c.bg;
+      const card = L.glass ? "rgba(255,255,255,.14)" : c.surface;
+      const btn = id === "minimal" ? c.accent2 : ["glass", "gradient", "gold"].includes(id) ? `linear-gradient(135deg, ${c.accent}, ${c.accent2})` : c.accent;
+      return `<button type="button" class="look" data-look-id="${id}" aria-pressed="${id === cur}">
+        <span class="mini" style="background:${bg}"><i style="background:${card}"></i><i style="background:${card};width:80%"></i><i class="b" style="background:${btn}"></i></span>
+        <b>${esc(L.name)}</b></button>`;
+    }).join("");
+    const c = colorsOf(cur);
+    $("colorBg").value = c.bg; $("colorSurface").value = c.surface;
+    $("colorAccent").value = c.accent; $("colorAccent2").value = c.accent2;
+    $("swatches").innerHTML = SWATCHES.map((h) => `<button type="button" data-swatch="${h}" style="background:${h}" aria-label="Main color ${h}"></button>`).join("");
+  }
+
+  function setColor(key, value) {
+    const id = lookState.look;
+    lookState.colors[id] = { ...(lookState.colors[id] || {}), [key]: value };
+    saveLook(); applyLook(); renderSettings();
+  }
+
+  $("looks").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-look-id]");
+    if (!b) return;
+    lookState.look = b.dataset.lookId;
+    saveLook(); applyLook(); renderSettings();
+  });
+  document.querySelectorAll(".colors input[type=color]").forEach((inp) =>
+    inp.addEventListener("input", () => setColor(inp.dataset.key, inp.value)));
+  $("swatches").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-swatch]");
+    if (b) setColor("accent", b.dataset.swatch);
+  });
+  $("resetColors").addEventListener("click", () => {
+    delete lookState.colors[lookState.look];
+    saveLook(); applyLook(); renderSettings(); toast("Colors reset");
+  });
+  applyLook();
+
   // ---- views ------------------------------------------------------------------
 
   function show(view) {
     document.querySelectorAll(".view").forEach((v) => { v.hidden = v.id !== view; });
+    document.querySelectorAll(".tabbar [data-go]").forEach((b) => {
+      if (b.dataset.go === view) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+    });
     if (view === "today") renderToday();
     if (view === "add") openSetup();
+    if (view === "settings") renderSettings();
     window.scrollTo(0, 0);
+  }
+
+  // A progress circle: pct done, drawn to scale.
+  function ring(pct, size = 64) {
+    const r = 27, c = 2 * Math.PI * r, p = Math.max(0, Math.min(100, pct));
+    return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 64 64" role="img" aria-label="${p}% done">
+      <circle class="bg" cx="32" cy="32" r="${r}" stroke-width="7"/>
+      <circle class="fg" cx="32" cy="32" r="${r}" stroke-width="7" stroke-dasharray="${(c * p / 100).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 32 32)"/>
+      <text x="32" y="37" text-anchor="middle">${p}%</text></svg>`;
+  }
+
+  // Hebrew date, e.g. "כ״ה תשרי", from the browser's Hebrew calendar.
+  function gematria(n) {
+    const ones = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"], tens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
+    let s = n === 15 ? "טו" : n === 16 ? "טז" : tens[Math.floor(n / 10)] + ones[n % 10];
+    return s.length > 1 ? s.slice(0, -1) + "״" + s.slice(-1) : s + "׳";
+  }
+  function hebrewDate(iso) {
+    try {
+      const [y, m, d] = iso.split("-").map(Number);
+      const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long" }).formatToParts(new Date(y, m - 1, d, 12));
+      const day = +parts.find((x) => x.type === "day").value, month = parts.find((x) => x.type === "month").value;
+      return `${gematria(day)} ${month}`;
+    } catch (e) {
+      return "";
+    }
   }
 
   // How a day's portion reads on a card: where to start, where to stop.
@@ -145,55 +287,71 @@
     const comm = r.commentaries.map((c) => c.seifKatan != null
       ? `${esc(c.en)} through ${c.siman !== P.positions(sefer)[r.end.piece].chapter ? `siman ${c.siman}, ` : ""}se'if katan ${c.seifKatan}`
       : c.words ? `${esc(c.en)} through ${words(c.words)}` : "").filter(Boolean);
-    return `<p><span class="where">Start:</span> ${startText}</p>
-      <p><span class="where">Stop:</span> ${endText}</p>
-      ${comm.length ? `<p class="comm">${comm.join("<br>")}</p>` : ""}
-      ${comms.length && !comm.length ? `<p class="comm">With ${esc(comms.map((id) => sefer.commentaries.find((c) => c.id === id).en).join(" and "))} on all of it</p>` : ""}`;
+    return `<div class="kv"><span class="k">Start</span><span class="v">${startText}</span></div>
+      <div class="kv"><span class="k">Stop</span><span class="v">${endText}</span></div>
+      ${comm.length ? `<p class="comm" style="margin:0">${comm.join(" · ")}</p>` : ""}`;
   }
 
   function renderToday() {
-    const today = todayIso();
-    $("todayDate").textContent = niceDate(today, true);
+    const today = todayIso(), hd = hebrewDate(today);
+    $("todayDate").innerHTML = `${esc(niceDate(today, true))}${hd ? ` · ${he(hd)}` : ""}`;
     $("empty").hidden = plans.length > 0;
     $("cards").innerHTML = plans.map((x) => cardHtml(x, today)).join("");
+    let done = 0, total = 0;
+    for (const x of plans) {
+      const learning = x.plan.portions.filter((p) => p.to >= p.from);
+      total += learning.length;
+      done += learning.filter((p) => p.done).length;
+    }
+    $("todayRing").innerHTML = total ? ring(Math.round(done / total * 100)) : "";
   }
 
   function cardHtml(x, today) {
     const { sefer, plan } = x, comms = plan.commentaries || [];
     const st = S.status(plan, sefer, today);
     const learning = plan.portions.filter((p) => p.to >= p.from);
+    const pct = learning.length ? Math.round(learning.filter((p) => p.done).length / learning.length * 100) : 0;
     // the portion to learn now: the oldest one not done, up to today
     const now = learning.find((p) => !p.done && p.date <= today);
     const todays = learning.find((p) => p.date === today);
-    let body, status;
+    const commNames = comms.map((id) => (sefer.commentaries.find((c) => c.id === id) || {}).en).filter(Boolean);
+    const pills = [];
+    let body;
     if (st.finished) {
-      status = `<span class="status ok">Finished! Mazal tov</span>`;
+      pills.push(`<span class="pill ok">Finished! Mazal tov</span>`);
       body = "";
     } else if (now) {
-      const n = learning.indexOf(now) + 1;
-      status = st.behind
-        ? `<span class="status behind">${st.behind} day${st.behind > 1 ? "s" : ""} behind</span>`
-        : `<span class="status ok">On schedule</span>`;
-      body = `<p class="meta">Day ${n} of ${learning.length}${now.date !== today ? ` · from ${niceDate(now.date)}` : ""}</p>
+      pills.push(`<span class="pill">Day ${learning.indexOf(now) + 1} of ${learning.length}</span>`);
+      pills.push(st.behind
+        ? `<span class="pill behind">${st.behind} day${st.behind > 1 ? "s" : ""} behind</span>`
+        : `<span class="pill ok">On schedule</span>`);
+      body = `${now.date !== today ? `<p class="comm">From ${niceDate(now.date)}</p>` : ""}
         <div class="portion">${portionHtml(sefer, comms, now)}</div>
         <div class="actions">
           <button class="primary" data-done="${x.id}" data-date="${now.date}">Done</button>
           <a class="button" href="${esc(P.sefariaUrl(sefer, now.from, now.to))}" target="_blank" rel="noopener">Open on Sefaria</a>
         </div>
-        <div class="actions" style="margin-top:8px">
+        <div class="actions">
           ${st.behind ? `<button data-missed="${x.id}">I missed days: what now?</button>` : `<button class="link" data-cant="${x.id}">I can't learn today</button>`}
         </div>`;
     } else {
-      status = st.ahead ? `<span class="status ok">Ahead by ${st.ahead}</span>` : `<span class="status ok">On schedule</span>`;
+      pills.push(st.ahead ? `<span class="pill ok">Ahead by ${st.ahead}</span>` : `<span class="pill ok">On schedule</span>`);
       const doneToday = todays && todays.done;
-      body = `<p class="meta">${doneToday ? `<span class="done-mark">✓ Done for today</span> <button class="link" data-undo="${x.id}" data-date="${today}">Undo</button>` : "No learning today."}</p>
-        ${st.next ? `<p class="next">Next, ${niceDate(st.next.date)}: ${portionLine(sefer, comms, st.next)}</p>
+      body = `<p>${doneToday ? `<span class="done-mark">✓ Done for today</span> <button class="link" data-undo="${x.id}" data-date="${today}">Undo</button>` : "No learning today."}</p>
+        ${st.next ? `<p class="comm">Next, ${niceDate(st.next.date)}: ${portionLine(sefer, comms, st.next)}</p>
           <div class="actions"><button data-done="${x.id}" data-date="${st.next.date}">Learn ahead: mark ${niceDate(st.next.date)} done</button></div>` : ""}`;
     }
     return `<article class="card">
-      <h2><span><span class="he">${he(sefer.he)}</span> · ${esc(sefer.en)}</span> ${status}</h2>
+      <div class="card-top">
+        <div>
+          <div class="card-title">${he(sefer.he)}</div>
+          <div class="card-sub">${esc(sefer.en)}${commNames.length ? ` · with ${esc(commNames.join(" & "))}` : ""}</div>
+          <div class="pills">${pills.join("")}</div>
+        </div>
+        ${ring(pct, 56)}
+      </div>
       ${body}
-      <p class="next"><button class="link" data-open="${x.id}">See the whole schedule</button> · finishing ${st.finishDate ? niceDate(st.finishDate, true) : "—"}</p>
+      <div class="card-foot"><button class="link" data-open="${x.id}">See the whole schedule</button><span>Finishing ${st.finishDate ? niceDate(st.finishDate, true) : "—"}</span></div>
     </article>`;
   }
 

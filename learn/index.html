@@ -5,21 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1f3a5f">
 <title>Learning Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Heebo:wght@400;500;700&family=Figtree:wght@400;600;800&family=Assistant:wght@400;600;700&family=Sora:wght@400;600;700&family=Rubik:wght@400;500;700&family=Cormorant+Garamond:wght@500;700&family=Frank+Ruhl+Libre:wght@500;700&family=DM+Sans:wght@400;500;700&family=Nunito:wght@400;700;800&family=Varela+Round&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<header class="top">
-  <button class="link title" data-go="today">Learning Calendar</button>
-  <nav>
-    <button class="link" data-go="add">+ Add</button>
-    <button class="link" data-go="about">About</button>
-  </nav>
-</header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><linearGradient id="ringGradient" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" style="stop-color: var(--accent)"/><stop offset="1" style="stop-color: var(--accent-2)"/>
+  </linearGradient></defs>
+</svg>
 
 <main>
   <!-- Today: every sefer being learned -->
   <section id="today" class="view">
-    <p class="date" id="todayDate">Loading…</p>
+    <header class="today-head">
+      <div><small id="todayDate">Loading…</small><h1>Today</h1></div>
+      <div id="todayRing"></div>
+    </header>
     <div id="cards"></div>
     <div id="empty" class="empty" hidden>
       <p>Choose a sefer and how you want to learn it. The app gives you each day's place to start and stop in your own sefer.</p>
@@ -31,12 +34,14 @@
   <section id="add" class="view" hidden>
     <h1>Add a sefer</h1>
     <form id="setup" autocomplete="off">
-      <label>Collection
-        <select id="collection"></select>
-      </label>
-      <label>Sefer
-        <button type="button" id="seferPick" class="pick"></button>
-      </label>
+      <div class="group">
+        <label>Collection
+          <select id="collection"></select>
+        </label>
+        <label>Sefer
+          <button type="button" id="seferPick" class="pick"></button>
+        </label>
+      </div>
       <fieldset id="commentaryBox" hidden>
         <legend>Learn together with</legend>
         <div id="commentaries" class="chips"></div>
@@ -61,7 +66,7 @@
         </label>
       </fieldset>
 
-      <label>Start on <input type="date" id="startDate"></label>
+      <div class="group"><label>Start on <input type="date" id="startDate"></label></div>
 
       <fieldset>
         <legend>Days I learn</legend>
@@ -105,6 +110,28 @@
     </details>
     <ol id="planDays" class="days"></ol>
     <button class="danger" id="deletePlan">Stop learning this sefer</button>
+  </section>
+
+  <!-- Settings: the look and its colors -->
+  <section id="settings" class="view" hidden>
+    <h1>Settings</h1>
+    <fieldset>
+      <legend>Look</legend>
+      <div id="looks" class="looks"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Colors</legend>
+      <p class="hint" style="margin-top:0">Change any color of this look. Text turns light or dark by itself to stay easy to read.</p>
+      <div class="colors">
+        <label><input type="color" id="colorBg" data-key="bg"> Background</label>
+        <label><input type="color" id="colorSurface" data-key="surface"> Cards</label>
+        <label><input type="color" id="colorAccent" data-key="accent"> Main color</label>
+        <label><input type="color" id="colorAccent2" data-key="accent2"> Second color</label>
+      </div>
+      <p class="hint">Quick main colors:</p>
+      <div id="swatches" class="swatches"></div>
+      <button type="button" id="resetColors" style="margin-top:14px">Reset this look's colors</button>
+    </fieldset>
   </section>
 
   <!-- About, backup, sources -->
@@ -171,6 +198,13 @@
     <button value="no">Cancel</button>
   </form>
 </dialog>
+
+<nav class="tabbar" aria-label="Screens">
+  <button data-go="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M9 15l2 2 4-4"/></svg>Today</button>
+  <button data-go="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add</button>
+  <button data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A4.7 4.7 0 0 0 22 10.7C22 5.9 17.5 2 12 2Z"/></svg>Settings</button>
+  <button data-go="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>About</button>
+</nav>
 
 <div id="toast" role="status"></div>
 
