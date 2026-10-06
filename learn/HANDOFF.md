@@ -84,6 +84,9 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    fetched ~230 separate data files, never finished loading there. To update,
    rebuild and publish the same file path / that artifact URL. (The older
    preview https://claude.ai/artifact/HAjsBZdTcMqpvPdcnXcXa6 is superseded.)
+   iPad fix (solved): previews load from a separate address; Hudi's iPad Screen
+   Time "Allowed Websites" needed claudeusercontent.com (also added:
+   claudemcpcontent.com, claude.site, fonts.googleapis.com, fonts.gstatic.com).
 2. Yom Tov suggestions for days off.
 3. Make the data files smaller before release (21 MB in total; one sefer
    loads at a time).
