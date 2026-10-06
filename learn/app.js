@@ -572,9 +572,11 @@
 
   async function start() {
     try {
-      catalog = await (await fetch("data/catalog.json")).json();
+      const res = await fetch("data/catalog.json");
+      if (!res.ok) throw new Error(`the list of sefarim answered ${res.status}`);
+      catalog = await res.json();
     } catch (e) {
-      document.querySelector("main").innerHTML = "<p>Could not load the list of sefarim. Check the connection and try again.</p>";
+      $("todayDate").textContent = `Could not load the list of sefarim (${e.message}). Check the connection and try again.`;
       return;
     }
     plans = await loadPlans(readStore().plans || []);
