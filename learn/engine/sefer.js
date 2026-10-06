@@ -96,9 +96,14 @@
     if (!pos) throw new RangeError(`No piece ${p} in ${sefer.en}`);
     if (sefer.shape === "chapters") return `${pos.chapter}:${pos.verse}`;
     if (sefer.shape === "daf") return `${pos.daf}${pos.side}`;
-    if (sefer.shape === "named") return pos.label;
+    if (sefer.shape === "named") return (sectionNames === "he" && sefer.heLabels?.[p]) || pos.label;
     return String(pos.number);
   }
+
+  // Section names of seforim like Chovos HaLevavos: "he" (שער ראשון - שער ייחוד ג)
+  // or "en" (First Treatise on Unity 3), as the person chose in Settings.
+  let sectionNames = "he";
+  function setSectionNames(lang) { sectionNames = lang === "en" ? "en" : "he"; }
 
   // How a piece is named in a sentence: "9b", "2:3", "siman 128".
   function pieceName(sefer, p) {
@@ -109,7 +114,10 @@
   function findPiece(sefer, label) {
     const want = String(label).trim().toLowerCase().replace(/^siman\s+/, "");
     const n = pieceCount(sefer);
-    for (let p = 0; p < n; p++) if (pieceLabel(sefer, p).toLowerCase() === want) return p;
+    for (let p = 0; p < n; p++) {
+      if (pieceLabel(sefer, p).toLowerCase() === want) return p;
+      if (sefer.shape === "named" && [sefer.labels[p], sefer.heLabels?.[p]].some((x) => x && x.toLowerCase() === want)) return p;
+    }
     throw new RangeError(`${sefer.en} has no ${label}`);
   }
 
@@ -448,7 +456,7 @@
   const either = (name, single) => (sefer, ...args) => (sefer.shape === "multi" ? multi[name](sefer, ...args) : single(sefer, ...args));
 
   const api = {
-    pieceCount, stopCount, pieceOf, stopRange, combine,
+    pieceCount, stopCount, pieceOf, stopRange, combine, setSectionNames,
     positions: either("positions", positions),
     pieceLabel: either("pieceLabel", pieceLabel),
     pieceName: either("pieceName", pieceName),

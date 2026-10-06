@@ -904,6 +904,38 @@ def named_pieces(text):
     return out
 
 
+def hebrew_number(n):
+    """3 -> ג, 15 -> טו, 16 -> טז, 122 -> קכב."""
+    out = ""
+    for value, letter in ((400, "ת"), (300, "ש"), (200, "ר"), (100, "ק")):
+        while n >= value:
+            out, n = out + letter, n - value
+    if n == 15:
+        return out + "טו"
+    if n == 16:
+        return out + "טז"
+    tens, ones = divmod(n, 10)
+    return out + " יכלמנסעפצ"[tens].strip() + " אבגדהוזחט"[ones].strip()
+
+
+def hebrew_titles(editions):
+    """English section path -> Hebrew name, from the editions' own schemas."""
+    out = {}
+
+    def walk(node, path):
+        for child in node.get("nodes", []):
+            en, he = child.get("enTitle", ""), child.get("heTitle", "")
+            sub = path + ((en,) if en else ())
+            if en and he and sub not in out:
+                out[sub] = he
+            walk(child, sub)
+
+    for v in editions:
+        if isinstance(v.get("schema"), dict):
+            walk(v["schema"], ())
+    return out
+
+
 def build_named(ex):
     for collection, title, en, unit, pref in NAMED:
         editions = ex.allowed(title)
@@ -924,14 +956,18 @@ def build_named(ex):
                 b.piece([p])
             yield b.record({**base, "shape": "chapters", "chapters": chapters})
             continue
-        labels, refs = [], []
+        labels, he_labels, refs = [], [], []
+        he_names = hebrew_titles(editions)
         for titles, nums, segs in named_pieces(text):
             name = ", ".join(titles)
             num = ":".join(map(str, nums))
             labels.append(f"{name} {num}".strip() if name else num)
+            he_name = ", ".join(he_names.get(tuple(titles[:i + 1]), titles[i]) for i in range(len(titles)))
+            he_num = ":".join(hebrew_number(n) for n in nums)
+            he_labels.append(f"{he_name} {he_num}".strip() if he_name else he_num)
             refs.append(title + (f", {name}" if name else "") + (f" {num}" if num else ""))
             b.piece(segs)
-        yield b.record({**base, "shape": "named", "labels": labels, "refs": refs})
+        yield b.record({**base, "shape": "named", "labels": labels, "heLabels": he_labels, "refs": refs})
 
 
 BUILDERS = {"tanakh": build_tanakh, "mishnah": build_mishnah, "bavli": build_bavli,

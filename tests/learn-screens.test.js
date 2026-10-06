@@ -83,9 +83,18 @@ function serve() {
   assert.strictEqual(await page.textContent("#amountUnit"), "amudim");
   await page.fill("#amount", "1");
   await page.waitForFunction(() => document.querySelector("#amountUnit").textContent === "amud");
+  await page.check('input[name="mode"][value="time"]');
+  assert(await page.isVisible("#timeBox"), "the minutes box shows");
+  await page.fill("#minutes", "10");
+  await page.waitForFunction(() => /\d{3} days/.test(document.querySelector("#preview").textContent));
+  const tenMin = parseInt(await page.textContent("#preview"));
+  await page.fill("#minutes", "20");
+  await page.waitForFunction((n) => parseInt(document.querySelector("#preview").textContent) < n * 0.6, tenMin);
+  assert.match(await page.textContent("#timeHint"), /about \d+ hours/);
   await page.check('input[name="mode"][value="finish"]');
   await page.waitForFunction(() => /78 days/.test(document.querySelector("#preview").textContent));
   assert(!(await page.isVisible("#amountBox")));
+  assert(!(await page.isVisible("#timeBox")));
   ok("the preview shows the number of days and the first day's place");
   await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-setup.png"), fullPage: true });
 

@@ -58,7 +58,21 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   Eliezer). Seforim with named sections use shape "named" (labels + Sefaria
   refs per section); several editions are merged section by section.
   Commentaries ticked at first: Rashi/Tosafot (Shas), Bartenura, Mishnah Berurah.
-- **Tests**: 31 engine tests and 14 screen tests, all passing.
+- **The time I have each day** (Hudi asked): a third "How much" choice. The
+  person gives minutes a day and a pace (slower / average / faster); the app
+  works out the days and finish date from average learning speeds, in letters
+  a minute, per collection and per commentary (`SPEED` in `engine/schedule.js`;
+  Gemara 80, Rashi on Shas 110, Tosafot 55, Tanach 220, Mishnah 120, ...).
+  These are estimates: Berachos alone comes to about 57 hours, with Rashi and
+  Tosafot about 125; Orach Chaim with Mishnah Berurah about 425. Days stay even
+  in letters, commentary included.
+- **Drawers** (Hudi asked): "Only part of the sefer" and "Days off" are cards
+  that open and close.
+- **Section names in Hebrew** (Hudi asked): named seforim (Chovos HaLevavos,
+  Mesillas Yesharim, ...) have Hebrew section names from Sefaria's own
+  schemas (`heLabels`), shown by default; Settings has "Section names: Hebrew
+  / English" (`learning-calendar-names` in browser storage).
+- **Tests**: 32 engine tests and 14 screen tests, all passing.
 
 ## Left out (told Hudi)
 

@@ -97,6 +97,30 @@ test("the settings set the size: any daily amount, even a tenth of an amud", () 
   }
 });
 
+test("the settings set the size: the minutes a person has each day", () => {
+  const plan = (m, comms = RT, pace) => S.buildPlan({ ...sample, commentaries: comms, endDate: null,
+    minutesPerDay: m, pace, lighterDays: [] }, berakhot);
+  const days = (p) => p.portions.filter((x) => x.to >= x.from).length;
+  const ten = plan(10), twenty = plan(20), sixty = plan(60);
+  [ten, twenty, sixty].forEach(assertCovers);
+  // Twice the time is about half the days; the total time matches.
+  assert(Math.abs(days(ten) / days(twenty) - 2) < 0.15, `${days(ten)} vs ${days(twenty)} days`);
+  const hours = S.totalMinutes(berakhot, RT, sample.from, sample.to) / 60;
+  assert(Math.abs(days(sixty) - hours) / hours < 0.07, `${days(sixty)} days of an hour, ${hours.toFixed(0)} hours in all`);
+  // Commentaries take longer; a faster pace takes fewer days.
+  assert(days(plan(10, [])) < days(ten) / 1.5, "the Gemara alone takes far fewer days");
+  assert(days(plan(10, RT, 1.4)) < days(ten) / 1.3, "a faster pace takes fewer days");
+  // Ten minutes of Gemara is far less than an amud: most days stop inside one.
+  // (A long Tosafot is never cut, so a day with one runs longer.)
+  const sizes = plan(10, []).portions.slice(0, -1).map(lettersOf(berakhot, []));
+  const day = median(sizes);
+  const off = sizes.filter((x) => Math.abs(x - day) / day > 0.3).length / sizes.length;
+  assert(off < 0.05, `days are even (${(off * 100).toFixed(1)}% off)`);
+  // Saved and read back with the minutes.
+  const back = S.fromSaved(S.toSaved(ten, berakhot), berakhot);
+  assert.strictEqual(back.minutesPerDay, 10);
+});
+
 test("the settings set the size: a lighter Friday, and nothing on Shabbos", () => {
   const plan = S.buildPlan(sample, berakhot);
   const size = lettersOf(berakhot, RT);
@@ -402,7 +426,7 @@ test("bad settings are refused", () => {
   assert.throws(() => S.buildPlan({ ...sample, learningDays: [] }, berakhot), /learning day/);
   assert.throws(() => S.buildPlan({ ...sample, endDate: "2026-10-01" }, berakhot), /before the start/);
   assert.throws(() => S.buildPlan({ ...sample, to: 999999 }, berakhot), /outside/);
-  assert.throws(() => S.buildPlan({ ...sample, endDate: null }, berakhot), /finish date or a daily amount/);
+  assert.throws(() => S.buildPlan({ ...sample, endDate: null }, berakhot), /finish date, a daily amount or the minutes/);
   assert.throws(() => S.buildPlan({ ...sample, endDate: "2026-10-16", learningDays: [6] }, berakhot), /no learning days/);
 });
 

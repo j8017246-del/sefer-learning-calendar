@@ -123,7 +123,7 @@ button.danger { color: var(--danger); background: transparent; border-color: cur
 button.link { border: 0; background: none; padding: 4px 0; min-height: 0; color: var(--accent); font-weight: 700; }
 button:disabled { opacity: .5; cursor: default; }
 
-form .group, fieldset {
+form .group, fieldset, details.drawer {
   background: var(--card-fill); color: var(--card-ink);
   border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
@@ -142,6 +142,22 @@ textarea { font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; min-he
 input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; min-height: 0; margin: 0; accent-color: var(--accent); }
 details { margin: 14px 0 0; }
 summary { cursor: pointer; color: var(--accent); font-weight: 700; padding: 6px 0; }
+/* A card that opens and closes, with the same heading as the other cards. */
+details.drawer { padding: 4px 16px; }
+details.drawer[open] { padding-bottom: 16px; }
+details.drawer > summary {
+  list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font: 800 .78rem var(--font); letter-spacing: .1em; text-transform: uppercase; color: var(--card-muted);
+  padding: 12px 0; min-height: 44px;
+}
+details.drawer > summary::-webkit-details-marker { display: none; }
+details.drawer > summary::after {
+  content: ""; width: 8px; height: 8px; flex: none; margin-right: 4px;
+  border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent);
+  transform: rotate(45deg); transition: transform .2s;
+}
+details.drawer[open] > summary::after { transform: rotate(-135deg); }
+details.drawer > summary .hint { margin: 0 auto 0 6px; letter-spacing: 0; text-transform: none; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
 .row > label { flex: 1 1 140px; }
 .row.tight { flex-wrap: nowrap; align-items: center; font-weight: 500; }

@@ -239,6 +239,22 @@
   });
   applyLook();
 
+  // Section names (Chovos HaLevavos, Mesillas Yesharim, ...) in Hebrew or English.
+  const NAMES_STORE = "learning-calendar-names";
+  let sectionNames = "he";
+  try { sectionNames = localStorage.getItem(NAMES_STORE) === "en" ? "en" : "he"; } catch (e) { /* no storage */ }
+  P.setSectionNames(sectionNames);
+  document.querySelectorAll('input[name="names"]').forEach((r) => {
+    r.checked = r.value === sectionNames;
+    r.addEventListener("change", () => {
+      sectionNames = r.value;
+      P.setSectionNames(sectionNames);
+      try { localStorage.setItem(NAMES_STORE, sectionNames); } catch (e) { /* no storage */ }
+      renderToday();
+      toast(sectionNames === "he" ? "Section names in Hebrew" : "Section names in English");
+    });
+  });
+
   // ---- views ------------------------------------------------------------------
 
   function show(view) {
@@ -428,7 +444,8 @@
     $("planTitle").innerHTML = `${he(sefer.he)} · ${esc(sefer.en)}`;
     const commNames = comms.map((c) => sefer.commentaries.find((k) => k.id === c).en);
     $("planSummary").textContent = `${learning.length} days, ${niceDate(plan.portions[0].date, true)} to ${niceDate(learning.at(-1).date, true)}`
-      + (commNames.length ? `, with ${commNames.join(" and ")}` : "") + ".";
+      + (commNames.length ? `, with ${commNames.join(" and ")}` : "")
+      + (plan.minutesPerDay && !plan.endDate ? `, about ${plan.minutesPerDay} minutes a day` : "") + ".";
     $("editEnd").value = plan.endDate || learning.at(-1).date;
     $("planDays").innerHTML = plan.portions.map((p) => `<li class="${p.date === today ? "today" : ""} ${p.to < p.from ? "off" : ""}">
         <span class="d">${niceDate(p.date)}</span>
@@ -442,7 +459,7 @@
     e.preventDefault();
     const x = findPlan(current);
     const changes = {};
-    if ($("editEnd").value) Object.assign(changes, { endDate: $("editEnd").value, dailyPieces: null });
+    if ($("editEnd").value) Object.assign(changes, { endDate: $("editEnd").value, dailyPieces: null, minutesPerDay: null });
     if ($("editOffStart").value) {
       changes.daysOff = (x.plan.daysOff || []).concat({ start: $("editOffStart").value, end: $("editOffEnd").value || $("editOffStart").value, label: "" });
     }
@@ -615,7 +632,11 @@
       daysOff: setupDaysOff.slice(),
     };
     if (mode() === "finish") settings.endDate = $("endDate").value;
-    else settings.dailyPieces = +$("amount").value;
+    else if (mode() === "amount") settings.dailyPieces = +$("amount").value;
+    else {
+      settings.minutesPerDay = +$("minutes").value;
+      settings.pace = +document.querySelector('input[name="pace"]:checked').value;
+    }
     return { sefer, plan: S.buildPlan(settings, sefer) };
   }
 
@@ -626,6 +647,8 @@
       const learning = plan.portions.filter((p) => p.to >= p.from);
       const comms = plan.commentaries;
       box.classList.remove("error");
+      const hours = S.totalMinutes(sefer, comms, plan.from, plan.to, plan.pace || 1) / 60;
+      $("timeHint").textContent = `At this pace the whole of it takes about ${hours < 10 ? hours.toFixed(1) : Math.round(hours)} hours of learning.`;
       box.innerHTML = `<b>${learning.length} days</b>, finishing ${niceDate(learning.at(-1).date, true)}.<br>
         First day, ${niceDate(learning[0].date)}: ${portionLine(sefer, comms, learning[0])}`;
       $("create").disabled = false;
@@ -645,9 +668,11 @@
   document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener("change", () => {
     $("finishBox").hidden = mode() !== "finish";
     $("amountBox").hidden = mode() !== "amount";
+    $("timeBox").hidden = mode() !== "time";
     preview();
   }));
-  ["endDate", "amount", "startDate", "fromPiece", "toPiece"].forEach((id) => $(id).addEventListener("input", preview));
+  document.querySelectorAll('input[name="pace"]').forEach((r) => r.addEventListener("change", preview));
+  ["endDate", "amount", "minutes", "startDate", "fromPiece", "toPiece"].forEach((id) => $(id).addEventListener("input", preview));
   $("amount").addEventListener("input", async () => {
     $("amountUnit").textContent = unitName(entryOf(chosenIds[0]), +$("amount").value);
   });
@@ -665,6 +690,7 @@
   function renderDaysOff() {
     $("daysOffList").innerHTML = setupDaysOff.map((d, i) => `<p>${niceDate(d.start)}${d.end !== d.start ? ` – ${niceDate(d.end)}` : ""}
       ${d.label ? `(${esc(d.label)})` : ""} <button type="button" class="link" data-off="${i}">remove</button></p>`).join("");
+    $("daysOffCount").textContent = setupDaysOff.length ? `(${setupDaysOff.length})` : "";
   }
   $("daysOffList").addEventListener("click", (e) => {
     const i = e.target.dataset.off;

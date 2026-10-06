@@ -20,7 +20,9 @@
  *     from, to,                 // first and last stop (inclusive); see SeferPieces.stopRange
  *     commentaries: ["rashi"],  // learned together with the main text
  *     startDate,
- *     endDate | dailyPieces,    // finish by a date, or so many pieces a day (0.5 = half an amud)
+ *     endDate | dailyPieces | minutesPerDay,  // finish by a date, so many pieces a day
+ *                               // (0.5 = half an amud), or so many minutes a day
+ *     pace: 1,                  // with minutesPerDay: 0.7 slower, 1 average, 1.4 faster
  *     learningDays: [0..6],     // 0 = Sunday
  *     lighterDays: [5],         // subset of learningDays
  *     lighterWeight: 0.65,
@@ -176,6 +178,51 @@
     return total / (Pieces.pieceOf(sefer, to) - Pieces.pieceOf(sefer, from) + 1);
   }
 
+  // ---- time a day -------------------------------------------------------
+
+  // Average learning speed, in letters a minute, for someone learning from a
+  // sefer with understanding (not just reading). These are estimates: the
+  // person can choose a slower or faster pace. Gemara is slow (Aramaic, the
+  // give and take), Tosafot slower still; Tanach and mussar are quicker.
+  const SPEED = {
+    main: { tanakh: 220, mishnah: 120, bavli: 80, rambam: 160, "shulchan-aruch": 140, tur: 120,
+      halacha: 170, mussar: 200, midrash: 180 },
+    commentary: { "bavli/rashi": 110, "bavli/tosafot": 55, onkelos: 200, rashi: 150, ramban: 110,
+      "ibn-ezra": 110, "or-hachaim": 110, bartenura: 140, "tosafot-yom-tov": 100,
+      "mishnah-berurah": 130, "biur-halacha": 90, "magen-avraham": 90, taz: 90 },
+    other: 140,
+  };
+
+  function speedOf(sefer, commentaryId) {
+    const col = sefer.collection;
+    if (commentaryId == null) return SPEED.main[col] || SPEED.other;
+    return SPEED.commentary[`${col}/${commentaryId}`] || SPEED.commentary[commentaryId] || SPEED.other;
+  }
+
+  // Letters a minute for the plan's range, counting the main text and each
+  // chosen commentary at its own speed, then times the person's pace.
+  function lettersPerMinute(sefer, commentaries, from, to, pace = 1) {
+    const main = Pieces.stopWeights(sefer, []);
+    let letters = 0, minutes = 0, mainLetters = 0;
+    for (let i = from; i <= to; i++) mainLetters += main[i];
+    letters += mainLetters; minutes += mainLetters / speedOf(sefer);
+    for (const c of commentaries || []) {
+      const withC = Pieces.stopWeights(sefer, [c]);
+      let cl = 0;
+      for (let i = from; i <= to; i++) cl += withC[i] - main[i];
+      letters += cl; minutes += cl / speedOf(sefer, c);
+    }
+    return minutes > 0 ? (letters / minutes) * (pace || 1) : SPEED.other;
+  }
+
+  // About how many minutes the whole range takes at this pace.
+  function totalMinutes(sefer, commentaries, from, to, pace = 1) {
+    const w = Pieces.stopWeights(sefer, commentaries || []);
+    let letters = 0;
+    for (let i = from; i <= to; i++) letters += w[i];
+    return letters / lettersPerMinute(sefer, commentaries, from, to, pace);
+  }
+
   // ---- building ---------------------------------------------------------
 
   function validate(plan, sefer) {
@@ -184,7 +231,9 @@
     if (!plan.learningDays?.length) throw new Error("Choose at least one learning day");
     toDay(plan.startDate);
     if (plan.endDate != null && plan.endDate < plan.startDate) throw new Error("The finish date is before the start");
-    if (plan.endDate == null && !(plan.dailyPieces > 0)) throw new Error("Choose a finish date or a daily amount");
+    if (plan.endDate == null && !(plan.dailyPieces > 0) && !(plan.minutesPerDay > 0)) {
+      throw new Error("Choose a finish date, a daily amount or the minutes you have each day");
+    }
   }
 
   // Split [from, to] starting at `start`, by the plan's finish date or amount.
@@ -194,7 +243,9 @@
     if (endDate != null) {
       return splitOverDates(weights, levels, from, to, learningDates(plan, start, endDate, skip));
     }
-    const perDay = plan.dailyPieces * averagePiece(sefer, weights, plan.from, plan.to);
+    const perDay = plan.minutesPerDay > 0
+      ? plan.minutesPerDay * lettersPerMinute(sefer, plan.commentaries, plan.from, plan.to, plan.pace)
+      : plan.dailyPieces * averagePiece(sefer, weights, plan.from, plan.to);
     return splitByAmount(plan, weights, levels, from, to, start, perDay, skip);
   }
 
@@ -314,7 +365,7 @@
   // ---- saving -----------------------------------------------------------
 
   const SETTINGS = ["seferId", "seferIds", "name", "commentaries", "startDate", "endDate", "dailyPieces",
-    "learningDays", "lighterDays", "lighterWeight", "daysOff", "history"];
+    "minutesPerDay", "pace", "learningDays", "lighterDays", "lighterWeight", "daysOff", "history"];
 
   // A plan as it is kept on the phone and in the backup file: every stop by
   // its lasting address. A day is saved as where it starts and where the next
@@ -345,7 +396,7 @@
   const api = {
     LIGHTER_WEIGHT, addDays, weekday, dayOff, dayWeight, learningDates, nextLearningDate,
     splitOverDates, buildPlan, markDone, status, reschedule, rebuildRemaining, firstOpenPiece,
-    toSaved, fromSaved,
+    toSaved, fromSaved, SPEED, lettersPerMinute, totalMinutes,
   };
   global.LearningSchedule = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

@@ -47,7 +47,7 @@
         <div id="commentaries" class="chips"></div>
       </fieldset>
 
-      <details id="rangeBox">
+      <details id="rangeBox" class="drawer">
         <summary>Only part of the sefer</summary>
         <div class="row">
           <label>From <input id="fromPiece" inputmode="text" placeholder=""></label>
@@ -60,10 +60,21 @@
         <legend>How much</legend>
         <label class="inline"><input type="radio" name="mode" value="finish" checked> Finish by a date</label>
         <label class="inline"><input type="radio" name="mode" value="amount"> A set amount a day</label>
+        <label class="inline"><input type="radio" name="mode" value="time"> The time I have each day</label>
         <label id="finishBox">Finish by <input type="date" id="endDate"></label>
         <label id="amountBox" hidden>Each day
           <span class="row tight"><input type="number" id="amount" min="0.05" step="0.05" value="1"> <span id="amountUnit">amud</span></span>
         </label>
+        <div id="timeBox" hidden>
+          <label>Minutes each day
+            <span class="row tight"><input type="number" id="minutes" min="1" step="1" value="10"> <span>minutes</span></span>
+          </label>
+          <p class="hint" style="margin:6px 0 2px">My pace</p>
+          <label class="inline"><input type="radio" name="pace" value="0.7"> Slower</label>
+          <label class="inline"><input type="radio" name="pace" value="1" checked> Average</label>
+          <label class="inline"><input type="radio" name="pace" value="1.4"> Faster</label>
+          <p class="hint" id="timeHint"></p>
+        </div>
       </fieldset>
 
       <div class="group"><label>Start on <input type="date" id="startDate"></label></div>
@@ -76,8 +87,8 @@
         </label>
       </fieldset>
 
-      <fieldset>
-        <legend>Days off</legend>
+      <details id="daysOffBox" class="drawer">
+        <summary>Days off <span id="daysOffCount" class="hint"></span></summary>
         <div id="daysOffList"></div>
         <div class="row">
           <label>From <input type="date" id="offStart"></label>
@@ -85,7 +96,7 @@
         </div>
         <label>Reason (optional) <input id="offLabel" placeholder="Vacation, Yom Tov…"></label>
         <button type="button" id="addOff">Add days off</button>
-      </fieldset>
+      </details>
 
       <div id="preview" class="preview" aria-live="polite"></div>
       <button class="primary" id="create" type="submit">Start learning</button>
@@ -131,6 +142,12 @@
       <p class="hint">Quick main colors:</p>
       <div id="swatches" class="swatches"></div>
       <button type="button" id="resetColors" style="margin-top:14px">Reset this look's colors</button>
+    </fieldset>
+    <fieldset>
+      <legend>Section names</legend>
+      <p class="hint" style="margin-top:0">For seforim divided into named sections, like Chovos HaLevavos and Mesillas Yesharim.</p>
+      <label class="inline"><input type="radio" name="names" value="he"> Hebrew <bdi lang="he" dir="rtl">(שער ראשון - שער ייחוד ג)</bdi></label>
+      <label class="inline"><input type="radio" name="names" value="en"> English (First Treatise on Unity 3)</label>
     </fieldset>
   </section>
 
