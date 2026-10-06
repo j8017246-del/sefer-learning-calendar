@@ -177,6 +177,7 @@
       "--bg": c.bg, "--surface": c.surface, "--accent": c.accent, "--accent-2": c.accent2,
       "--ink": ink, "--card-ink": cardInk,
       "--card-fill": L.glass ? `color-mix(in srgb, ${c.surface} 9%, transparent)` : c.surface,
+      "--dialog-fill": L.glass ? `color-mix(in srgb, ${c.surface} 10%, ${c.bg})` : c.surface,
       "--blur": L.glass ? "blur(16px)" : "none",
       "--bg-image": L.glass
         ? `radial-gradient(120% 70% at 10% 0%, color-mix(in srgb, ${c.accent} 45%, transparent) 0%, transparent 55%), radial-gradient(90% 60% at 100% 30%, color-mix(in srgb, ${c.accent2} 38%, transparent) 0%, transparent 60%)`

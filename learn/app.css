@@ -12,6 +12,7 @@
   --bg-image: none;
   --surface: #ffffff;
   --card-fill: var(--surface);
+  --dialog-fill: var(--surface);
   --ink: #111318;
   --muted: color-mix(in srgb, var(--ink) 58%, transparent);
   --card-ink: var(--ink);
@@ -235,12 +236,21 @@ button.pick::after { content: "▾"; color: var(--card-muted); }
 /* ---- dialogs and toast -------------------------------------------------- */
 dialog {
   border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; max-width: 440px; width: calc(100% - 32px);
-  background: color-mix(in srgb, var(--surface) 100%, var(--bg)); color: var(--card-ink); box-shadow: var(--shadow);
+  background: var(--dialog-fill); color: var(--card-ink); box-shadow: var(--shadow);
 }
 dialog::backdrop { background: rgba(0, 0, 0, .5); backdrop-filter: blur(3px); }
-dialog form { display: flex; flex-direction: column; gap: 10px; }
-dialog h2 { margin: 0; }
-.pick-list { display: flex; flex-direction: column; gap: 6px; max-height: 55vh; overflow-y: auto; }
+/* A box always fits the screen: the list scrolls inside it, and the buttons stay in view. */
+dialog[open] { display: flex; flex-direction: column; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow: hidden; }
+dialog form { display: flex; flex-direction: column; gap: 10px; min-height: 0; flex: 1 1 auto; overflow-y: auto; }
+dialog h2 { margin: 0; outline: none; }
+dialog .hint { margin: 0; }
+dialog .row { flex-wrap: nowrap; }
+dialog .row > button { flex: 1; }
+.pick-list { display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-height: 52px; overflow-y: auto;
+  overscroll-behavior: contain; padding: 2px; margin: 0 -2px; }
+#seferDialog form, #picker form { overflow: hidden; }
+.pick-list > * { flex: none; }
+.pick-list bdi { font-weight: 700; }
 .pick-list button { justify-content: flex-start; text-align: start; width: 100%; }
 .pick-list button[aria-selected="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .pick-list.checks label { margin: 0; font-weight: 600; display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: var(--radius-btn); padding: 10px 12px; }

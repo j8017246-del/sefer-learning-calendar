@@ -190,7 +190,7 @@
 
 <dialog id="picker">
   <form method="dialog">
-    <h2 id="pickerTitle"></h2>
+    <h2 id="pickerTitle" tabindex="-1" autofocus></h2>
     <input id="pickerSearch" type="search" placeholder="Search" autocomplete="off">
     <div id="pickerList" class="pick-list" role="listbox"></div>
     <button value="cancel">Cancel</button>
@@ -199,7 +199,7 @@
 
 <dialog id="seferDialog">
   <form method="dialog">
-    <h2>Which sefarim?</h2>
+    <h2 tabindex="-1" autofocus>Which sefarim?</h2>
     <p class="hint">Choose one, several, or all. They are learned one after another, in order.</p>
     <input id="seferSearch" type="search" placeholder="Search" autocomplete="off">
     <div class="row"><button type="button" id="seferAll">Select all</button><button type="button" id="seferNone">Clear</button></div>

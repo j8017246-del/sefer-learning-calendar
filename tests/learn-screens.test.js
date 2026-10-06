@@ -57,6 +57,13 @@ function serve() {
   await page.waitForFunction(() => document.querySelector("#seferPick").textContent.includes("Berachos"));
   // several sefarim, or all of them, can be chosen
   await page.click("#seferPick");
+  // the box fits a short screen: the list scrolls inside it and Done stays in view
+  await page.setViewportSize({ width: 390, height: 480 });
+  const done = await page.locator('#seferDialog button[value="done"]').boundingBox();
+  assert(done && done.y + done.height <= 480, `Done is cut off (bottom at ${done && done.y + done.height})`);
+  const listBox = await page.locator("#seferList").boundingBox();
+  assert(listBox.y + listBox.height <= done.y, "the list stays above Done");
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.click("#seferAll");
   await page.click('#seferDialog button[value="done"]');
   await page.waitForFunction(() => /All 37/.test(document.querySelector("#seferPick").textContent));
