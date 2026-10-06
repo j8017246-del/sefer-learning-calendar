@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#1f3a5f">
 <title>Learning Calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Heebo:wght@400;500;700&family=Figtree:wght@400;600;800&family=Assistant:wght@400;600;700&family=Sora:wght@400;600;700&family=Rubik:wght@400;500;700&family=Cormorant+Garamond:wght@500;700&family=Frank+Ruhl+Libre:wght@500;700&family=DM+Sans:wght@400;500;700&family=Nunito:wght@400;700;800&family=Varela+Round&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Heebo:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -19,7 +20,7 @@
 <main>
   <!-- Today: every sefer being learned -->
   <section id="today" class="view">
-    <header class="today-head">
+    <header class="today-head hero">
       <div><small id="todayDate">Loading…</small><h1>Today</h1></div>
       <div id="todayRing"></div>
     </header>
@@ -32,26 +33,38 @@
 
   <!-- Add a sefer -->
   <section id="add" class="view" hidden>
-    <h1>Add a sefer</h1>
+    <header class="hero">
+      <h1>Add a sefer</h1>
+      <p class="hero-sub">Pick a sefer and how you want to learn it. Each day you get where to start and where to stop.</p>
+    </header>
     <form id="setup" autocomplete="off">
-      <div class="group">
+      <div id="cover" class="cover" aria-live="polite">
+        <div class="cover-col" id="coverCol"></div>
+        <div class="cover-he" id="coverHe" lang="he" dir="rtl"></div>
+        <div class="cover-en" id="coverEn"></div>
+      </div>
+      <fieldset>
+        <legend><span class="ico" data-ico="book"></span>Sefer</legend>
         <label>Collection
           <select id="collection"></select>
         </label>
         <label>Sefer
           <button type="button" id="seferPick" class="pick"></button>
         </label>
-      </div>
+      </fieldset>
       <fieldset id="commentaryBox" hidden>
-        <legend>Learn together with</legend>
+        <legend><span class="ico" data-ico="layers"></span>Learn together with</legend>
         <div id="commentaries" class="chips"></div>
       </fieldset>
 
       <fieldset>
-        <legend>How much</legend>
-        <label class="inline"><input type="radio" name="mode" value="finish" checked> Finish by a date</label>
-        <label class="inline"><input type="radio" name="mode" value="amount"> A set amount a day</label>
-        <label class="inline"><input type="radio" name="mode" value="time"> The time I have each day</label>
+        <legend><span class="ico" data-ico="clock"></span>How much</legend>
+        <div class="seg" role="radiogroup" aria-label="How much">
+          <label><input type="radio" name="mode" value="finish" checked><span>Finish date</span></label>
+          <label><input type="radio" name="mode" value="amount"><span>Daily amount</span></label>
+          <label><input type="radio" name="mode" value="time"><span>Time a day</span></label>
+        </div>
+        <p class="hint seg-hint" id="modeHint">Choose the date below. The sefer is shared out evenly until then.</p>
         <label id="amountBox" hidden>Each day
           <span class="row tight"><input type="number" id="amount" min="0.05" step="0.05" value="1"> <span id="amountUnit">amud</span></span>
         </label>
@@ -59,26 +72,28 @@
           <label>Minutes each day
             <span class="row tight"><input type="number" id="minutes" min="1" step="1" value="10"> <span>minutes</span></span>
           </label>
-          <p class="hint" style="margin:6px 0 2px">My pace</p>
-          <label class="inline"><input type="radio" name="pace" value="0.7"> Slower</label>
-          <label class="inline"><input type="radio" name="pace" value="1" checked> Average</label>
-          <label class="inline"><input type="radio" name="pace" value="1.4"> Faster</label>
+          <label class="sub-label">My pace</label>
+          <div class="seg" role="radiogroup" aria-label="My pace">
+            <label><input type="radio" name="pace" value="0.7"><span>Slower</span></label>
+            <label><input type="radio" name="pace" value="1" checked><span>Average</span></label>
+            <label><input type="radio" name="pace" value="1.4"><span>Faster</span></label>
+          </div>
           <p class="hint" id="timeHint"></p>
         </div>
       </fieldset>
 
       <fieldset>
-        <legend>Start on</legend>
+        <legend><span class="ico" data-ico="start"></span>Start on</legend>
         <input type="date" id="startDate" aria-label="Start on">
       </fieldset>
 
       <fieldset id="finishBox">
-        <legend>Finish by</legend>
+        <legend><span class="ico" data-ico="flag"></span>Finish by</legend>
         <input type="date" id="endDate" aria-label="Finish by">
       </fieldset>
 
       <fieldset>
-        <legend>Days I learn</legend>
+        <legend><span class="ico" data-ico="days"></span>Days I learn</legend>
         <div id="days" class="chips"></div>
         <label>Lighter day
           <select id="lighter"></select>
@@ -86,7 +101,7 @@
       </fieldset>
 
       <details id="rangeBox" class="drawer">
-        <summary>Only part of the sefer</summary>
+        <summary><span class="ico" data-ico="range"></span>Only part of the sefer</summary>
         <div class="row">
           <label>From <input id="fromPiece" inputmode="text" placeholder=""></label>
           <label>To <input id="toPiece" inputmode="text" placeholder=""></label>
@@ -95,7 +110,7 @@
       </details>
 
       <details id="daysOffBox" class="drawer">
-        <summary>Days off <span id="daysOffCount" class="hint"></span></summary>
+        <summary><span class="ico" data-ico="off"></span>Days off <span id="daysOffCount" class="hint"></span></summary>
         <div id="daysOffList"></div>
         <div class="row">
           <label>From <input type="date" id="offStart"></label>
@@ -112,8 +127,10 @@
 
   <!-- One sefer's whole schedule -->
   <section id="plan" class="view" hidden>
-    <h1 id="planTitle"></h1>
-    <p id="planSummary" class="hint"></p>
+    <header class="hero">
+      <h1 id="planTitle"></h1>
+      <p id="planSummary" class="hero-sub"></p>
+    </header>
     <details>
       <summary>Change the plan</summary>
       <form id="planEdit">
@@ -132,13 +149,16 @@
 
   <!-- Settings: the look and its colors -->
   <section id="settings" class="view" hidden>
-    <h1>Settings</h1>
+    <header class="hero">
+      <h1>Settings</h1>
+      <p class="hero-sub">Make the app look the way you like.</p>
+    </header>
     <fieldset>
-      <legend>Look</legend>
+      <legend><span class="ico" data-ico="look"></span>Look</legend>
       <div id="looks" class="looks"></div>
     </fieldset>
     <fieldset>
-      <legend>Colors</legend>
+      <legend><span class="ico" data-ico="drop"></span>Colors</legend>
       <p class="hint" style="margin-top:0">Change any color of this look. Text turns light or dark by itself to stay easy to read.</p>
       <div class="colors">
         <label><input type="color" id="colorBg" data-key="bg"> Background</label>
@@ -151,16 +171,22 @@
       <button type="button" id="resetColors" style="margin-top:14px">Reset this look's colors</button>
     </fieldset>
     <fieldset>
-      <legend>Section names</legend>
+      <legend><span class="ico" data-ico="text"></span>Section names</legend>
       <p class="hint" style="margin-top:0">For seforim divided into named sections, like Chovos HaLevavos and Mesillas Yesharim.</p>
-      <label class="inline"><input type="radio" name="names" value="he"> Hebrew <bdi lang="he" dir="rtl">(שער ראשון - שער ייחוד ג)</bdi></label>
-      <label class="inline"><input type="radio" name="names" value="en"> English (First Treatise on Unity 3)</label>
+      <div class="seg" role="radiogroup" aria-label="Section names">
+        <label><input type="radio" name="names" value="he"><span>Hebrew</span></label>
+        <label><input type="radio" name="names" value="en"><span>English</span></label>
+      </div>
+      <p class="hint seg-hint">For example <bdi lang="he" dir="rtl">שער ראשון - שער ייחוד ג</bdi> or First Treatise on Unity 3.</p>
     </fieldset>
   </section>
 
   <!-- About, backup, sources -->
   <section id="about" class="view" hidden>
-    <h1>About</h1>
+    <header class="hero">
+      <h1>About</h1>
+      <p class="hero-sub">How it works, your backup, and where the texts come from.</p>
+    </header>
     <p>Each day the app shows where to start and where to stop in your own printed sefer, named the way printed learning calendars name it: the amud, mishnah, pasuk, halacha, se'if or siman, and the first few words where the day stops. Days are sized by your settings, counting the commentaries you learn together with the text.</p>
     <p>Your progress is kept only on this phone. Save a backup file now and then.</p>
     <div class="row">

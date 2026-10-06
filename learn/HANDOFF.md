@@ -72,6 +72,14 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   Mesillas Yesharim, ...) have Hebrew section names from Sefaria's own
   schemas (`heLabels`), shown by default; Settings has "Section names: Hebrew
   / English" (`learning-calendar-names` in browser storage).
+- **A fuller look** (Hudi asked): Inter and Heebo fonts in every look; a new
+  default look, Liquid Glass (frosted iOS-style panes over a soft color glow,
+  floating glass bottom bar), and Midnight Glass uses the same glass; icons in
+  every card title; a colored top section on each screen; the chosen sefer
+  shown large like a book cover; side-by-side switches for How much, pace and
+  section names; a summary with the number of days, the finish date (also in
+  Hebrew), a timeline and minutes a day; Today cards with a color stripe per
+  collection and a check-mark animation on Done; soft fade-ins.
 - **Tests**: 33 engine tests and 14 screen tests, all passing.
 
 ## Left out (told Hudi)

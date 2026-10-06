@@ -177,7 +177,7 @@ function serve() {
   await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-today-glass.png") });
   await page.click('[data-go="settings"]');
   await page.click('[data-look-id="minimal"]');
-  ok("Settings: five looks, colors can be changed and reset, and the choice is remembered");
+  ok("Settings: six looks, colors can be changed and reset, and the choice is remembered");
 
   // backup as text, then load it back over a cleared phone
   await page.click('[data-go="about"]');

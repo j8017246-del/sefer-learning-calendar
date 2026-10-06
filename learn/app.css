@@ -5,7 +5,7 @@
  * for the look chosen in Settings (Midnight Glass, Clean Minimal, Bold
  * Gradient, Black & Gold, Calm Teal) and for any colors the person changed,
  * and puts data-look on <html> for the few rules that differ by look.
- * The values here are Clean Minimal, used until app.js runs.
+ * The values here are a plain light look, used until app.js runs.
  */
 :root {
   --bg: #f5f6f8;
@@ -31,9 +31,9 @@
   --radius-btn: 14px;
   --shadow: 0 1px 2px rgba(17, 19, 24, .06), 0 14px 34px -16px rgba(17, 19, 24, .22);
   --blur: none;
-  --font: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font: "Inter", -apple-system, system-ui, "Segoe UI", sans-serif;
   --font-display: var(--font);
-  --font-he: "Assistant", "Arial Hebrew", system-ui, sans-serif;
+  --font-he: "Heebo", "Arial Hebrew", system-ui, sans-serif;
   --tab-bg: color-mix(in srgb, var(--surface) 92%, transparent);
   --tab-ink: var(--card-muted);
   --tab-on: var(--accent);
@@ -45,15 +45,17 @@ html { -webkit-text-size-adjust: 100%; background: var(--bg); }
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--bg);
+  background: transparent; /* the page color is on <html>, so the glow behind (body::before) shows */
   color: var(--ink);
-  font: 16.5px/1.5 var(--font);
+  font: 16px/1.5 var(--font);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
 }
 /* the look's background glow stays put behind the page while it scrolls */
 body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--bg-image), var(--bg); pointer-events: none; }
 [lang="he"], .he { font-family: var(--font-he); }
 main { max-width: 640px; margin: 0 auto; padding: 18px 16px 120px; }
-h1 { font: 800 1.9rem/1.15 var(--font-display); letter-spacing: -.02em; margin: 6px 0 16px; text-wrap: balance; }
+h1 { font: 800 1.9rem/1.15 var(--font-display); letter-spacing: -.03em; margin: 6px 0 16px; text-wrap: balance; }
 h2 { font: 700 1.15rem/1.3 var(--font-display); margin: 24px 0 10px; }
 a { color: var(--accent); }
 .hint { color: var(--muted); font-size: .92rem; }
@@ -165,7 +167,8 @@ details.drawer > summary .hint { margin: 0 auto 0 6px; letter-spacing: 0; text-t
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
 .row > label { flex: 1 1 140px; }
 .row.tight { flex-wrap: nowrap; align-items: center; font-weight: 500; }
-.row.tight input { width: 7em; }
+.row.tight { margin-top: 6px; }
+.row.tight input { width: 7em; margin-top: 0; }
 .stack { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .chips label {
@@ -296,3 +299,180 @@ input[type="date"] {
 input[type="date"]::-webkit-date-and-time-value { text-align: start; margin: 0; }
 input[type="date"]::-webkit-calendar-picker-indicator { margin-inline-start: auto; }
 .row > label, fieldset, .group { min-width: 0; }
+
+
+/* ==== polish: icons, top sections, cover, segmented choices, summary ==== */
+
+/* Card titles with a small icon */
+legend, details.drawer > summary { display: flex; align-items: center; gap: 10px; }
+.ico {
+  flex: none; width: 26px; height: 26px; border-radius: 8px; display: inline-grid; place-items: center;
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 45%, var(--accent-2)));
+  color: var(--accent-ink); box-shadow: 0 4px 10px -4px color-mix(in srgb, var(--accent) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.ico svg { width: 15px; height: 15px; }
+details.drawer > summary { justify-content: flex-start; }
+details.drawer > summary::after { margin-left: auto; }
+details.drawer > summary .hint { margin: 0; }
+
+/* The top of each screen: a soft band of the look's colors */
+.hero {
+  margin: -18px -16px 18px; padding: 26px 20px 22px; border-radius: 0 0 30px 30px;
+  background:
+    radial-gradient(90% 120% at 0% 0%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 70%),
+    radial-gradient(70% 100% at 100% 0%, color-mix(in srgb, var(--accent-2) 14%, transparent), transparent 70%);
+}
+.hero h1 { margin: 0; }
+.hero-sub { margin: 6px 0 0; color: var(--muted); font-size: .98rem; max-width: 34em; }
+.today-head.hero { margin-bottom: 18px; }
+[data-glass] .hero { background: none; }
+
+/* The chosen sefer, shown like a book cover */
+.cover {
+  position: relative; overflow: hidden; border-radius: var(--radius); padding: 22px 20px 20px; margin: 0 0 14px;
+  color: var(--accent-ink); text-align: center;
+  background: linear-gradient(140deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 55%, var(--accent-2)) 60%, var(--accent-2) 120%);
+  box-shadow: 0 18px 40px -22px color-mix(in srgb, var(--accent) 90%, transparent), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.cover::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(80% 60% at 50% -10%, rgba(255,255,255,.35), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 22px);
+}
+.cover > * { position: relative; }
+.cover-col { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .82; }
+.cover-he { font: 800 2.3rem/1.15 var(--font-he); margin: 8px 0 4px; text-wrap: balance; }
+.cover-en { font-weight: 600; opacity: .9; }
+.cover:empty, .cover:not([data-col]) { display: none; }
+
+/* Choices side by side, like the switches on a phone */
+.seg {
+  display: flex; gap: 2px; padding: 3px; margin-top: 4px; border-radius: calc(var(--radius-btn) + 3px);
+  background: var(--soft); border: 1px solid var(--line);
+}
+.seg label {
+  position: relative; flex: 1 1 0; margin: 0; min-height: 40px; display: grid; place-items: center; text-align: center;
+  border-radius: var(--radius-btn); font-size: .86rem; font-weight: 600; color: var(--card-muted); padding: 6px 4px;
+  white-space: nowrap; letter-spacing: -.01em;
+  transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.seg input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.seg label:has(input:checked) {
+  color: var(--card-ink); background: var(--seg-on, var(--surface));
+  box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 4px 12px -6px rgba(0,0,0,.25);
+}
+.seg label:has(input:focus-visible) { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 1px; }
+.seg-hint { margin: 10px 0 0; }
+.sub-label { margin-top: 14px; }
+[data-look="gold"], [data-glass="dark"] { --seg-on: color-mix(in srgb, var(--card-ink) 16%, transparent); }
+
+/* The summary at the bottom of Add a sefer */
+.preview { padding: 18px 18px 16px; }
+.sum-big { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 14px; }
+.sum-num { font-weight: 600; color: var(--card-muted); }
+.sum-num b { font: 800 2.4rem/1 var(--font-display); letter-spacing: -.03em; color: var(--card-ink); margin-right: 2px; }
+.sum-end { font-weight: 700; text-align: end; }
+.sum-end small { display: block; font-weight: 600; color: var(--card-muted); font-size: .85rem; }
+.timeline { position: relative; height: 6px; border-radius: 99px; margin: 16px 6px 8px; background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.timeline i { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.timeline::before, .timeline::after {
+  content: ""; position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%);
+  background: var(--dialog-fill); border: 3px solid var(--accent); z-index: 1;
+}
+.timeline::before { left: 0; }
+.timeline::after { left: 100%; border-color: var(--accent-2); }
+.sum-dates { display: flex; justify-content: space-between; gap: 8px; font-size: .78rem; font-weight: 600; color: var(--card-muted); }
+.sum-first { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--line); font-size: .93rem; }
+.preview.error .sum-first { border: 0; }
+
+/* Today: each sefer's card has its own color stripe */
+.sefer-card { position: relative; overflow: hidden; padding-left: 22px; }
+.sefer-card::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+  background: linear-gradient(180deg, var(--col, var(--accent)), color-mix(in srgb, var(--col, var(--accent)) 40%, var(--accent-2)));
+}
+.card-col { font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--col, var(--accent)); margin-bottom: 2px; }
+.card-title { font-size: 1.7rem; font-weight: 800; letter-spacing: 0; }
+[data-col="tanakh"] { --col: #2f6fed; } [data-col="mishnah"] { --col: #0d9488; } [data-col="bavli"] { --col: #d97706; }
+[data-col="rambam"] { --col: #7c3aed; } [data-col="shulchan-aruch"] { --col: #059669; } [data-col="tur"] { --col: #e11d48; }
+[data-col="halacha"] { --col: #0891b2; } [data-col="mussar"] { --col: #4f46e5; } [data-col="midrash"] { --col: #ea580c; }
+[data-look="gold"] .sefer-card { --col: var(--accent); }
+
+/* Done: a quick check mark */
+button.ticked { background: var(--ok) !important; color: #fff !important; }
+.tick { width: 20px; height: 20px; stroke-dasharray: 24; stroke-dashoffset: 24; animation: tick .35s .05s ease-out forwards; }
+@keyframes tick { to { stroke-dashoffset: 0; } }
+.celebrate { animation: pop .5s ease; }
+@keyframes pop { 40% { transform: scale(1.015); } }
+
+/* Screens fade in softly */
+.view:not([hidden]) > *, #cards > .card { animation: rise .38s cubic-bezier(.2, .7, .2, 1) both; }
+.view:not([hidden]) > :nth-child(2) { animation-delay: .04s; }
+.view:not([hidden]) > :nth-child(3) { animation-delay: .08s; }
+#cards > .card:nth-child(2) { animation-delay: .06s; } #cards > .card:nth-child(3) { animation-delay: .12s; }
+#setup > * { animation: rise .38s cubic-bezier(.2, .7, .2, 1) both; }
+#setup > :nth-child(2) { animation-delay: .03s; } #setup > :nth-child(3) { animation-delay: .06s; }
+#setup > :nth-child(4) { animation-delay: .09s; } #setup > :nth-child(n+5) { animation-delay: .12s; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.chips label, .seg label, .pick-list label, .look { transition: transform .12s ease, background .2s ease, border-color .2s ease; }
+.chips label:active, .pick-list label:active, .look:active { transform: scale(.97); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+
+/* ==== Liquid Glass (and Midnight Glass): frosted panes with a bright edge ==== */
+[data-glass] {
+  --glass-blur: blur(28px) saturate(185%);
+  --glass-edge: rgba(255, 255, 255, .65);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, .9), inset 0 -1px 0 rgba(255, 255, 255, .25), inset 0 0 0 .5px rgba(255, 255, 255, .35);
+  --shadow: 0 1px 1px rgba(16, 24, 64, .04), 0 12px 32px -14px rgba(16, 24, 64, .28);
+  --line: color-mix(in srgb, var(--card-ink) 10%, transparent);
+  --soft: color-mix(in srgb, var(--surface) 45%, transparent);
+  --seg-on: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+[data-glass="dark"] {
+  --glass-edge: rgba(255, 255, 255, .16);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -1px 0 rgba(255, 255, 255, .05), inset 0 0 0 .5px rgba(255, 255, 255, .08);
+  --shadow: 0 16px 40px -18px rgba(0, 0, 0, .8);
+  --soft: rgba(255, 255, 255, .07);
+  --seg-on: rgba(255, 255, 255, .18);
+}
+[data-glass] .card, [data-glass] fieldset, [data-glass] form .group, [data-glass] details.drawer,
+[data-glass] .days li, [data-glass] .preview, [data-glass] .tabbar, [data-glass] dialog, [data-glass] .look {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 55%);
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  border-color: var(--glass-edge);
+  box-shadow: var(--glass-hi), var(--shadow);
+}
+[data-glass="dark"] .card, [data-glass="dark"] fieldset, [data-glass="dark"] details.drawer, [data-glass="dark"] .days li,
+[data-glass="dark"] .preview, [data-glass="dark"] .tabbar, [data-glass="dark"] dialog, [data-glass="dark"] .look {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, 0) 60%);
+}
+[data-glass] .preview { background-color: color-mix(in srgb, var(--accent) 8%, var(--card-fill)); }
+[data-glass] input, [data-glass] select, [data-glass] button:not(.primary):not(.link):not(.ticked), [data-glass] .chips label, [data-glass] .pick-list.checks label {
+  background-color: var(--soft); border-color: var(--glass-edge);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 45%, transparent);
+}
+[data-glass="dark"] input, [data-glass="dark"] select, [data-glass="dark"] button:not(.primary):not(.link):not(.ticked),
+[data-glass="dark"] .chips label, [data-glass="dark"] .pick-list.checks label { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08); }
+[data-glass] .chips label:has(input:checked), [data-glass] .pick-list.checks label:has(input:checked) {
+  background-color: color-mix(in srgb, var(--accent) 16%, var(--soft)); border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+[data-glass] button.primary {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, 0) 55%), linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 50%, var(--accent-2)));
+  color: var(--accent-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -1px 0 rgba(0, 0, 0, .08), 0 10px 26px -12px color-mix(in srgb, var(--accent) 90%, transparent);
+}
+[data-glass] .seg { background: var(--soft); border-color: var(--glass-edge); }
+[data-glass] .seg label:has(input:checked) { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 4px 14px -6px rgba(16, 24, 64, .35); }
+[data-glass="dark"] .seg label:has(input:checked) { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 4px 14px -6px rgba(0, 0, 0, .6); }
+/* the bottom bar floats as a glass capsule; the chosen tab is a brighter lens */
+[data-glass] .tabbar { border-radius: 999px; padding: 6px; background-color: var(--tab-bg); }
+[data-glass] .tabbar button { border-radius: 999px; }
+[data-glass] .tabbar.tabbar button:not([aria-current]):not(.primary) { background: none; border-color: transparent; box-shadow: none; }
+[data-glass] .tabbar button[aria-current="page"] {
+  background: color-mix(in srgb, var(--surface) 70%, transparent); color: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), 0 4px 14px -6px rgba(16, 24, 64, .3);
+}
+[data-glass="dark"] .tabbar button[aria-current="page"] { background: rgba(255, 255, 255, .14); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22); color: #fff; }
+[data-glass] dialog::backdrop { background: rgba(10, 14, 30, .28); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+[data-glass] .cover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 18px 40px -20px color-mix(in srgb, var(--accent) 90%, transparent); }
+[data-glass] #toast { background: color-mix(in srgb, var(--ink) 82%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }

@@ -133,17 +133,20 @@
   // accent colors. Text color follows automatically so it stays readable.
 
   const LOOK_STORE = "learning-calendar-look";
+  const INTER = '"Inter"', HEEBO = '"Heebo"';
   const LOOKS = {
+    ios: { name: "Liquid Glass", bg: "#e8edf7", surface: "#ffffff", accent: "#0a84ff", accent2: "#bf5af2", glass: 0.5,
+      font: INTER, display: INTER, he: HEEBO, radius: "26px", btn: "16px" },
+    glass: { name: "Midnight Glass", bg: "#0b1022", surface: "#ffffff", accent: "#7c5cff", accent2: "#22c3ee", glass: 0.08,
+      font: INTER, display: INTER, he: HEEBO, radius: "26px", btn: "16px" },
     minimal: { name: "Clean Minimal", bg: "#f5f6f8", surface: "#ffffff", accent: "#2563eb", accent2: "#111318",
-      font: '"Figtree"', display: '"Figtree"', he: '"Assistant"', radius: "22px", btn: "14px" },
-    glass: { name: "Midnight Glass", bg: "#0b1022", surface: "#ffffff", accent: "#7c5cff", accent2: "#22c3ee", glass: true,
-      font: '"Manrope"', display: '"Manrope"', he: '"Heebo"', radius: "22px", btn: "14px" },
+      font: INTER, display: INTER, he: HEEBO, radius: "22px", btn: "14px" },
     gradient: { name: "Bold Gradient", bg: "#f3f1fb", surface: "#ffffff", accent: "#4f2bd8", accent2: "#ec4899",
-      font: '"Sora"', display: '"Sora"', he: '"Rubik"', radius: "22px", btn: "14px" },
+      font: INTER, display: INTER, he: HEEBO, radius: "22px", btn: "14px" },
     gold: { name: "Black & Gold", bg: "#0e0d0c", surface: "#1a1815", accent: "#d4af5a", accent2: "#a8832f",
-      font: '"DM Sans"', display: '"Cormorant Garamond"', he: '"Frank Ruhl Libre"', radius: "18px", btn: "12px" },
+      font: INTER, display: INTER, he: HEEBO, radius: "18px", btn: "12px" },
     teal: { name: "Calm Teal", bg: "#eaf6f3", surface: "#ffffff", accent: "#0f9f8a", accent2: "#5ccfb9",
-      font: '"Nunito"', display: '"Nunito"', he: '"Varela Round"', radius: "28px", btn: "999px" },
+      font: INTER, display: INTER, he: HEEBO, radius: "28px", btn: "999px" },
   };
   const SWATCHES = ["#2563eb", "#7c5cff", "#db2777", "#e11d48", "#ea580c", "#d4af5a", "#16a34a", "#0f9f8a", "#0891b2", "#111318"];
 
@@ -152,7 +155,7 @@
       const v = JSON.parse(localStorage.getItem(LOOK_STORE));
       if (v && LOOKS[v.look]) return { look: v.look, colors: v.colors || {} };
     } catch (e) { /* storage blocked: use the default */ }
-    return { look: "minimal", colors: {} };
+    return { look: "ios", colors: {} };
   }
   let lookState = readLook();
   function saveLook() {
@@ -167,26 +170,36 @@
     return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b) < 0.22;
   }
   const inkOn = (hex) => (isDark(hex) ? "#f3f5fa" : "#111318");
+  // Text on a colored button or badge: white unless the color is quite light (bold text reads well on mid tones).
+  function inkOnColor(hex) {
+    const n = parseInt(hex.slice(1), 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b) < 0.4 ? "#ffffff" : "#111318";
+  }
 
   function applyLook() {
     const id = lookState.look, L = LOOKS[id], c = colorsOf(id), root = document.documentElement;
     root.dataset.look = id;
+    if (L.glass) root.dataset.glass = isDark(c.bg) ? "dark" : "light"; else delete root.dataset.glass;
     const ink = inkOn(c.bg);
     const cardInk = L.glass ? ink : inkOn(c.surface);
     const vars = {
       "--bg": c.bg, "--surface": c.surface, "--accent": c.accent, "--accent-2": c.accent2,
       "--ink": ink, "--card-ink": cardInk,
-      "--card-fill": L.glass ? `color-mix(in srgb, ${c.surface} 9%, transparent)` : c.surface,
-      "--dialog-fill": L.glass ? `color-mix(in srgb, ${c.surface} 10%, ${c.bg})` : c.surface,
+      "--card-fill": L.glass ? `color-mix(in srgb, ${c.surface} ${Math.round(L.glass * 100)}%, transparent)` : c.surface,
+      "--dialog-fill": L.glass ? `color-mix(in srgb, ${c.surface} ${Math.round(Math.min(.86, L.glass + .3) * 100)}%, ${c.bg})` : c.surface,
       "--blur": L.glass ? "blur(16px)" : "none",
       "--bg-image": L.glass
-        ? `radial-gradient(120% 70% at 10% 0%, color-mix(in srgb, ${c.accent} 45%, transparent) 0%, transparent 55%), radial-gradient(90% 60% at 100% 30%, color-mix(in srgb, ${c.accent2} 38%, transparent) 0%, transparent 60%)`
+        ? `radial-gradient(70% 45% at 0% 0%, color-mix(in srgb, ${c.accent} ${isDark(c.bg) ? 45 : 55}%, transparent) 0%, transparent 70%),
+           radial-gradient(60% 40% at 100% 18%, color-mix(in srgb, ${c.accent2} ${isDark(c.bg) ? 38 : 48}%, transparent) 0%, transparent 70%),
+           radial-gradient(70% 45% at 85% 100%, color-mix(in srgb, ${c.accent} 32%, transparent) 0%, transparent 70%),
+           radial-gradient(60% 40% at 0% 75%, color-mix(in srgb, ${c.accent2} 30%, transparent) 0%, transparent 70%)`
         : id === "teal" ? `linear-gradient(180deg, ${c.bg} 0%, color-mix(in srgb, ${c.bg} 30%, #ffffff) 45%)` : "none",
       "--primary": id === "minimal" ? c.accent2 : c.accent,
-      "--primary-ink": inkOn(id === "minimal" ? c.accent2 : c.accent),
-      "--accent-ink": inkOn(c.accent),
+      "--primary-ink": inkOnColor(id === "minimal" ? c.accent2 : c.accent),
+      "--accent-ink": inkOnColor(c.accent),
       "--shadow": isDark(c.bg) ? "0 18px 40px -22px rgba(0,0,0,.8)" : "0 1px 2px rgba(17,19,24,.06), 0 14px 34px -16px rgba(17,19,24,.22)",
-      "--tab-bg": L.glass ? `color-mix(in srgb, ${c.bg} 70%, transparent)` : id === "gradient" ? "#1c1640" : `color-mix(in srgb, ${c.surface} 92%, transparent)`,
+      "--tab-bg": L.glass ? `color-mix(in srgb, ${c.surface} ${isDark(c.bg) ? 10 : 55}%, transparent)` : id === "gradient" ? "#1c1640" : `color-mix(in srgb, ${c.surface} 92%, transparent)`,
       "--tab-ink": id === "gradient" ? "#a39fc4" : `color-mix(in srgb, ${cardInk} 55%, transparent)`,
       "--tab-on": id === "gradient" ? "#ffffff" : c.accent,
       "--font": `${L.font}, system-ui, -apple-system, "Segoe UI", sans-serif`,
@@ -203,8 +216,8 @@
     const cur = lookState.look;
     $("looks").innerHTML = Object.entries(LOOKS).map(([id, L]) => {
       const c = colorsOf(id);
-      const bg = L.glass ? `radial-gradient(90% 80% at 0% 0%, ${c.accent}88, transparent 60%), ${c.bg}` : id === "gradient" ? `linear-gradient(140deg, ${c.accent}, ${c.accent2})` : c.bg;
-      const card = L.glass ? "rgba(255,255,255,.14)" : c.surface;
+      const bg = L.glass ? `radial-gradient(90% 80% at 0% 0%, ${c.accent}88, transparent 60%), radial-gradient(80% 70% at 100% 100%, ${c.accent2}77, transparent 60%), ${c.bg}` : id === "gradient" ? `linear-gradient(140deg, ${c.accent}, ${c.accent2})` : c.bg;
+      const card = L.glass ? (isDark(c.bg) ? "rgba(255,255,255,.14)" : "rgba(255,255,255,.62)") : c.surface;
       const btn = id === "minimal" ? c.accent2 : ["glass", "gradient", "gold"].includes(id) ? `linear-gradient(135deg, ${c.accent}, ${c.accent2})` : c.accent;
       return `<button type="button" class="look" data-look-id="${id}" aria-pressed="${id === cur}">
         <span class="mini" style="background:${bg}"><i style="background:${card}"></i><i style="background:${card};width:80%"></i><i class="b" style="background:${btn}"></i></span>
@@ -239,6 +252,23 @@
     saveLook(); applyLook(); renderSettings(); toast("Colors reset");
   });
   applyLook();
+
+  // Small icons in the card titles.
+  const ICONS = {
+    book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/>',
+    layers: '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    start: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m10.5 13 4 2.5-4 2.5v-5Z"/>',
+    flag: '<path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/>',
+    days: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M9 15l2 2 4-4"/>',
+    range: '<path d="M4 6h16M4 12h11M4 18h7"/>',
+    off: '<path d="M12 3a9 9 0 0 1 9 9H3a9 9 0 0 1 9-9Z"/><path d="M12 12v6.5a2 2 0 0 0 4 0"/>',
+    look: '<circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A4.7 4.7 0 0 0 22 10.7C22 5.9 17.5 2 12 2Z"/>',
+    drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/>',
+    text: '<path d="M4 7V5h16v2M9 19h6M12 5v14"/>',
+  };
+  const icon = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
+  document.querySelectorAll("[data-ico]").forEach((el) => { el.innerHTML = icon(el.dataset.ico); });
 
   // Section names (Chovos HaLevavos, Mesillas Yesharim, ...) in Hebrew or English.
   const NAMES_STORE = "learning-calendar-names";
@@ -359,9 +389,11 @@
         ${st.next ? `<p class="comm">Next, ${niceDate(st.next.date)}: ${portionLine(sefer, comms, st.next)}</p>
           <div class="actions"><button data-done="${x.id}" data-date="${st.next.date}">Learn ahead: mark ${niceDate(st.next.date)} done</button></div>` : ""}`;
     }
-    return `<article class="card">
+    const col = catalog.collections.find((c) => c.id === sefer.collection);
+    return `<article class="card sefer-card" data-col="${esc(sefer.collection)}">
       <div class="card-top">
         <div>
+          ${col ? `<div class="card-col">${esc(col.en)}</div>` : ""}
           <div class="card-title">${he(sefer.he)}</div>
           <div class="card-sub">${esc(sefer.en)}${commNames.length ? ` · with ${esc(commNames.join(" & "))}` : ""}</div>
           <div class="pills">${pills.join("")}</div>
@@ -402,7 +434,12 @@
     if (t.dataset.done) {
       const x = findPlan(t.dataset.done);
       x.plan = S.markDone(x.plan, t.dataset.date);
-      save(); renderToday(); toast("Yasher koach!");
+      save();
+      // a short check mark on the button, then the card moves on
+      t.classList.add("ticked");
+      t.innerHTML = `<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Done`;
+      t.closest(".card")?.classList.add("celebrate");
+      setTimeout(() => { renderToday(); toast("Yasher koach!"); }, 650);
     } else if (t.dataset.undo) {
       const x = findPlan(t.dataset.undo);
       x.plan = S.markDone(x.plan, t.dataset.date, false);
@@ -556,6 +593,12 @@
   // After the chosen sefarim change: commentaries, the button, part-of-sefer hints.
   async function fillSefer() {
     const entries = chosenIds.map(entryOf), all = inCollection();
+    const col = catalog.collections.find((c) => c.id === entries[0].collection);
+    const named = nameFor(chosenIds) || entries[0];
+    $("cover").dataset.col = col.id;
+    $("coverCol").textContent = `${col.en} · ${col.he}`;
+    $("coverHe").textContent = named.he;
+    $("coverEn").textContent = chosenIds.length > 1 && chosenIds.length < all.length ? `${chosenIds.length} sefarim, learned in order` : named.en;
     $("seferPick").textContent = chosenIds.length === 1 ? `${entries[0].he} · ${entries[0].en}`
       : chosenIds.length === all.length ? `All ${all.length}: ${nameFor(chosenIds).en}`
       : `${chosenIds.length} chosen: ${entries.slice(0, 3).map((e) => e.en).join(", ")}${chosenIds.length > 3 ? "…" : ""}`;
@@ -650,8 +693,13 @@
       box.classList.remove("error");
       const hours = S.totalMinutes(sefer, comms, plan.from, plan.to, plan.pace || 1) / 60;
       $("timeHint").textContent = `At this pace the whole of it takes about ${hours < 10 ? hours.toFixed(1) : Math.round(hours)} hours of learning.`;
-      box.innerHTML = `<b>${learning.length} days</b>, finishing ${niceDate(learning.at(-1).date, true)}.<br>
-        First day, ${niceDate(learning[0].date)}: ${portionLine(sefer, comms, learning[0])}`;
+      const first = learning[0].date, last = learning.at(-1).date, hd = hebrewDate(last);
+      const perDay = plan.minutesPerDay && !plan.endDate ? `about ${plan.minutesPerDay} min a day` : `${Math.round(hours * 60 / learning.length)} min a day on average`;
+      box.innerHTML = `<div class="sum-big"><span class="sum-num"><b>${learning.length}</b> days</span>
+          <span class="sum-end">finishing ${niceDate(last, true)}${hd ? `<small>${he(hd)}</small>` : ""}</span></div>
+        <div class="timeline" aria-hidden="true"><i></i></div>
+        <div class="sum-dates"><span>${niceDate(first)}</span><span>${perDay}</span><span>${niceDate(last)}</span></div>
+        <p class="sum-first"><b>First day, ${niceDate(first)}:</b> ${portionLine(sefer, comms, learning[0])}</p>`;
       $("create").disabled = false;
     } catch (err) {
       box.classList.add("error");
@@ -670,6 +718,7 @@
     $("finishBox").hidden = mode() !== "finish";
     $("amountBox").hidden = mode() !== "amount";
     $("timeBox").hidden = mode() !== "time";
+    $("modeHint").hidden = mode() !== "finish";
     preview();
   }));
   document.querySelectorAll('input[name="pace"]').forEach((r) => r.addEventListener("change", preview));
