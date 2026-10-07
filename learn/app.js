@@ -21,6 +21,8 @@
     section: ["section", "sections"],
   };
   const $ = (id) => document.getElementById(id);
+  // listen on an element if the page has it (a page swapped in while open may not yet)
+  const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
 
   let catalog = null;
   const seforim = new Map();        // id -> data file
@@ -250,7 +252,8 @@
     if (meta) meta.content = getComputedStyle(root).getPropertyValue("--bg").trim();
   }
   function saveLook() { try { localStorage.setItem(LOOK_STORE, JSON.stringify(look)); } catch (e) { /* still applied */ } }
-  darkQuery.addEventListener("change", applyLook);
+  if (darkQuery.addEventListener) darkQuery.addEventListener("change", applyLook);
+  else if (darkQuery.addListener) darkQuery.addListener(applyLook);   // older iPads
   applyLook();
 
   function renderSettings() {
@@ -600,7 +603,7 @@
     $("calDetail").innerHTML = !calPick ? "" : `<b>${niceDate(calPick, true)}${p && p.done ? " · done" : ""}</b>${!p ? "Not part of the plan." : p.to < p.from ? "No new learning." : portionLine(sefer, comms, p)}`;
   }
 
-  $("calGrid").addEventListener("click", (e) => {
+  on("calGrid", "click", (e) => {
     const b = e.target.closest("[data-cal]");
     if (!b) return;
     calPick = b.dataset.cal;
@@ -611,7 +614,7 @@
     calMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     renderCalendar(findPlan(current), todayIso());
   };
-  $("planDays").addEventListener("click", (e) => {
+  on("planDays", "click", (e) => {
     const b = e.target.closest("[data-toggle]");
     if (!b) return;
     const x = findPlan(current);
@@ -619,10 +622,10 @@
     if (!save()) toast("Marked, but not saved on this phone");
     renderPlan();
   });
-  $("calPrev").addEventListener("click", () => moveMonth(-1));
-  $("calNext").addEventListener("click", () => moveMonth(1));
+  on("calPrev", "click", () => moveMonth(-1));
+  on("calNext", "click", () => moveMonth(1));
 
-  $("planEdit").addEventListener("submit", (e) => {
+  on("planEdit", "submit", (e) => {
     e.preventDefault();
     const x = findPlan(current), changes = {};
     if ($("editEnd").value) Object.assign(changes, { endDate: $("editEnd").value, dailyPieces: null, minutesPerDay: null });
@@ -638,7 +641,7 @@
     }
   });
 
-  $("deletePlan").addEventListener("click", async () => {
+  on("deletePlan", "click", async () => {
     const x = findPlan(current);
     if (!(await ask(`Stop learning ${x.sefer.en}? Its progress will be removed from this phone.`, "Stop learning it"))) return;
     plans = plans.filter((p) => p.id !== current);
@@ -721,7 +724,7 @@
     $("wizAll").hidden = !!q;
   }
 
-  $("wizCols").addEventListener("click", (e) => {
+  on("wizCols", "click", (e) => {
     const b = e.target.closest("[data-col]");
     if (!b) return;
     wiz.col = b.dataset.col;
@@ -729,8 +732,8 @@
     renderCols(); renderList();
     b.scrollIntoView({ inline: "nearest", block: "nearest" });
   });
-  $("wizSearch").addEventListener("input", renderList);
-  $("wizList").addEventListener("change", (e) => {
+  on("wizSearch", "input", renderList);
+  on("wizList", "change", (e) => {
     const id = e.target.value, col = entryOf(id).collection;
     if (col !== wiz.col) { wiz.col = col; wiz.chosen = []; renderCols(); }
     // keep the catalog's order, so several are learned one after another
@@ -739,8 +742,8 @@
     wiz.chosen = inCollection(wiz.col).map((x) => x.id).filter((x) => set.has(x));
     chosenChanged();
   });
-  $("wizAll").addEventListener("click", () => { wiz.chosen = inCollection(wiz.col).map((e) => e.id); renderList(); chosenChanged(); });
-  $("wizNone").addEventListener("click", () => { wiz.chosen = []; renderList(); chosenChanged(); });
+  on("wizAll", "click", () => { wiz.chosen = inCollection(wiz.col).map((e) => e.id); renderList(); chosenChanged(); });
+  on("wizNone", "click", () => { wiz.chosen = []; renderList(); chosenChanged(); });
 
   // After the chosen sefarim change: their commentaries, the range hints, the unit.
   async function chosenChanged() {
@@ -844,8 +847,8 @@
     }
   }
 
-  $("wizNext").addEventListener("click", () => setStep(wiz.step + 1));
-  $("wizBack").addEventListener("click", () => (wiz.step === 1 ? show(plans.length ? "today" : "today") : setStep(wiz.step - 1)));
+  on("wizNext", "click", () => setStep(wiz.step + 1));
+  on("wizBack", "click", () => (wiz.step === 1 ? show(plans.length ? "today" : "today") : setStep(wiz.step - 1)));
 
   document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener("change", () => {
     $("finishBox").hidden = mode() !== "finish";
@@ -854,10 +857,10 @@
     update();
   }));
   document.querySelectorAll('input[name="pace"]').forEach((r) => r.addEventListener("change", update));
-  ["endDate", "amount", "minutes", "startDate", "fromPiece", "toPiece"].forEach((id) => $(id).addEventListener("input", update));
-  $("amount").addEventListener("input", () => { $("amountUnit").textContent = unitName(entryOf(wiz.chosen[0]), +$("amount").value); });
-  $("commentaries").addEventListener("change", update);
-  $("days").addEventListener("change", update);
+  ["endDate", "amount", "minutes", "startDate", "fromPiece", "toPiece"].forEach((id) => on(id, "input", update));
+  on("amount", "input", () => { $("amountUnit").textContent = unitName(entryOf(wiz.chosen[0]), +$("amount").value); });
+  on("commentaries", "change", update);
+  on("days", "change", update);
 
   // − and + beside the daily amount and the minutes
   document.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => {
@@ -872,12 +875,12 @@
     input.dispatchEvent(new Event("input"));
   }));
 
-  $("lighterRow").addEventListener("click", () => {
+  on("lighterRow", "click", () => {
     const days = checkedDays();
     openPicker("Lighter day", [{ value: "", label: "None" }, ...days.map((d) => ({ value: String(d), label: DAYS[d] }))], wiz.lighter, (v) => { wiz.lighter = v; update(); });
   });
 
-  $("addOff").addEventListener("click", () => {
+  on("addOff", "click", () => {
     const start = $("offStart").value;
     if (!start) return toast("Choose the first day off");
     const end = $("offEnd").value && $("offEnd").value >= start ? $("offEnd").value : start;
@@ -890,14 +893,14 @@
       <button type="button" class="text-btn" data-off="${i}">Remove</button></p>`).join("");
     $("daysOffCount").textContent = wiz.daysOff.length ? String(wiz.daysOff.length) : "";
   }
-  $("daysOffList").addEventListener("click", (e) => {
+  on("daysOffList", "click", (e) => {
     const i = e.target.dataset.off;
     if (i === undefined) return;
     wiz.daysOff.splice(+i, 1);
     renderDaysOff(); update();
   });
 
-  $("create").addEventListener("click", async () => {
+  on("create", "click", async () => {
     try {
       const { sefer, plan } = await draft();
       plans.push({ id: uid(), sefer, plan });
@@ -919,7 +922,7 @@
     return { format: "learning-calendar-backup", version: 1, savedAt: new Date().toISOString(),
       plans: plans.map((x) => ({ id: x.id, ...S.toSaved(x.plan, x.sefer) })) };
   }
-  $("backup").addEventListener("click", () => {
+  on("backup", "click", () => {
     const text = JSON.stringify(backupData());
     try {
       const a = document.createElement("a");
@@ -931,7 +934,7 @@
     $("backupText").value = text;
     $("backupBox").hidden = false;
   });
-  $("copyBackup").addEventListener("click", async () => {
+  on("copyBackup", "click", async () => {
     try {
       await navigator.clipboard.writeText($("backupText").value);
       toast("Backup copied");
@@ -953,12 +956,12 @@
       toast(err instanceof SyntaxError ? "This is not a learning calendar backup." : err.message);
     }
   }
-  $("restore").addEventListener("change", async (e) => {
+  on("restore", "change", async (e) => {
     const file = e.target.files[0];
     e.target.value = "";
     if (file) restore(await file.text());
   });
-  $("loadPasted").addEventListener("click", () => restore($("pasteBackup").value));
+  on("loadPasted", "click", () => restore($("pasteBackup").value));
   document.querySelectorAll(".swatches").forEach((el) => el.addEventListener("click", (e) => {
     const b = e.target.closest("[data-swatch]");
     if (!b) return;
@@ -998,9 +1001,10 @@
 
   async function start() {
     showSavedToday();
-    if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
-      navigator.serviceWorker.register("sw.js").catch(() => { /* works without it, online */ });
-    }
+    // the offline helper; refused in some frames (such as the claude.ai preview), where the app works online
+    try {
+      if (/^https?:$/.test(location.protocol) && navigator.serviceWorker) navigator.serviceWorker.register("sw.js").catch(() => {});
+    } catch (e) { /* not allowed here */ }
     try { history.replaceState({ view: "today" }, "", location.pathname + location.search); } catch (e) { /* fine */ }
     try {
       catalog = await getJson("data/catalog.json");

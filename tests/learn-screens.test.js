@@ -19,12 +19,19 @@ const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
 function serve() {
   return new Promise((resolve) => {
     const server = http.createServer((req, res) => {
+      if (req.url === "/_frame.html") {
+        // the app inside a locked-down frame from another address, like the claude.ai preview
+        const inner = `http://localhost:${server.address().port}/`;
+        res.writeHead(200, { "Content-Type": "text/html" });
+        return res.end(`<!doctype html><iframe sandbox="allow-scripts allow-forms allow-popups allow-modals" src="${inner}" style="width:390px;height:800px"></iframe>`);
+      }
       const file = path.join(ROOT, decodeURIComponent(req.url.split("?")[0]).replace(/\/$/, "/index.html"));
       if (!file.startsWith(ROOT) || !fs.existsSync(file)) { res.writeHead(404); return res.end(); }
-      res.writeHead(200, { "Content-Type": TYPES[path.extname(file)] || "application/octet-stream" });
+      // the claude.ai preview serves its files to its locked-down frame; so does this server
+      res.writeHead(200, { "Content-Type": TYPES[path.extname(file)] || "application/octet-stream", "Access-Control-Allow-Origin": "*" });
       fs.createReadStream(file).pipe(res);
     });
-    server.listen(0, () => resolve(server));
+    server.listen(0, "0.0.0.0", () => resolve(server));
   });
 }
 
@@ -366,7 +373,7 @@ function serve() {
   ok("Back goes to the screen before, and each catch-up choice shows its finish date");
 
   // 15: Today shows at once from the phone, and the app opens without a connection
-  await page.route(/\/data\/.*\.json$/, async (r) => { await new Promise((ok) => setTimeout(ok, 4000)); r.continue(); });
+  await page.route(/\/data\/.*\.json$/, async (r) => { await new Promise((ok) => setTimeout(ok, 4000)); r.continue().catch(() => {}); });
   const t0 = Date.now();
   await page.reload();
   await page.waitForSelector(".lesson");
@@ -389,6 +396,24 @@ function serve() {
   await page2.waitForFunction(() => document.querySelectorAll(".lesson:not(.from-cache)").length === 2, null, { timeout: 15000 });
   await offline.close();
   ok("Today shows at once, and the app works without a connection");
+
+  // inside a locked-down frame like the claude.ai preview (no offline helper, no storage): no errors
+  const frameCtx = await browser.newContext({ viewport: { width: 420, height: 844 } });
+  await frameCtx.route(/fonts\.(googleapis|gstatic)\.com|cdn\.jsdelivr\.net\/npm\/firebase/, (r) => r.abort());
+  const framed = await frameCtx.newPage();
+  const frameErrors = [];
+  framed.on("pageerror", (e) => frameErrors.push("uncaught: " + e.message));
+  framed.on("console", (m) => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) frameErrors.push("console: " + m.text()); });
+  await framed.goto(url + "_frame.html");
+  const inner = () => framed.frames().find((f) => f !== framed.mainFrame());
+  await framed.waitForFunction(() => document.querySelector("iframe"));
+  await framed.waitForTimeout(500);
+  await inner().waitForSelector("#empty:not([hidden])", { timeout: 8000 }).catch(async (e) => {
+    console.error("frame:", frameErrors, inner().url(), await framed.content()); throw e; });
+  assert(!(await inner().$(".error-box")), "no error shown in the frame");
+  assert.deepStrictEqual(frameErrors, []);
+  await frameCtx.close();
+  ok("the app opens without errors inside a locked-down frame");
 
   // ---- comments of 10-07 ----
   // only part of a day: say where I stopped

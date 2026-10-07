@@ -28,7 +28,10 @@
   const UNSYNCED = "learning-calendar-unsynced";  // changes made on this phone not yet in the account
   const LINK_EMAIL = "learning-calendar-link-email";
   const Store = window.LearnStore, Sync = window.LearnSync;
+  if (!document.getElementById("account") || !Store || !Sync) return;   // an older page, swapped in while open
   const $ = (id) => document.getElementById(id);
+  // listen on an element if the page has it (a page swapped in while open may not yet)
+  const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
   const get = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const put = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* nothing kept */ } };
 
@@ -77,7 +80,7 @@
 
   // ---- signing in -----------------------------------------------------------------------
 
-  $("googleSignIn").addEventListener("click", async () => {
+  on("googleSignIn", "click", async () => {
     if (!auth) return;
     const provider = new window.firebase.auth.GoogleAuthProvider();
     try {
@@ -91,7 +94,7 @@
     }
   });
 
-  $("linkForm").addEventListener("submit", async (e) => {
+  on("linkForm", "submit", async (e) => {
     e.preventDefault();
     if (!auth) return;
     const email = $("linkEmail").value.trim();
@@ -227,12 +230,12 @@
 
   // ---- signing out and deleting ---------------------------------------------------------------
 
-  $("signOut").addEventListener("click", async () => {
+  on("signOut", "click", async () => {
     await auth.signOut();
     Store.toast("Signed out. Your plans stay in your account.");
   });
 
-  $("deleteAccount").addEventListener("click", async () => {
+  on("deleteAccount", "click", async () => {
     if (!user) return;
     const ok = await Store.ask("Delete your account and all your plans? This cannot be undone.", "Delete everything");
     if (!ok) return;
