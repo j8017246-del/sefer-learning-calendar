@@ -92,7 +92,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 39 engine, 28 screen, 5 sync, 5 rules and 6 account tests, all passing.
+- **Tests**: 39 engine, 30 screen, 5 sync, 5 rules and 6 account tests, all passing.
 
 - **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
   fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
@@ -169,6 +169,17 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   choosing; space above "About and sources". Not done yet: a daily reminder
   notification (needs a sending service; see Next).
 
+- **Online at https://sefer-calendar.web.app** (Firebase Hosting, Hudi said
+  yes on 10-07; githack had become unreliable). Publish with
+  `cd learn && firebase deploy --only hosting,firestore:rules --project sefer-calendar`
+  (needs a Firebase sign-in for the project; this session used a CI token kept
+  outside the repository). Settings: `learn/firebase.json`, `learn/.firebaserc`.
+  The Firestore rules are published from `learn/firebase/firestore.rules`.
+- **Daily reminder** (Hudi asked): Settings → Daily reminder → Add to my
+  calendar makes a calendar file with one event repeating on the learning
+  days at the chosen time, with an alert and a link to the app. iPhone/iPad
+  open it ("Add All"); other phones save it and open it with the calendar.
+
 ## Left out (told Hudi)
 
 - Rambam: Tefillin/Mezuzah/Sefer Torah, Tzitzis, Berachos, Milah and Seder
@@ -224,9 +235,9 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
 
 ```bash
 npm i -g firebase-tools @firebase/rules-unit-testing firebase   # once (Apache-2.0)
-cd learn/firebase
-firebase emulators:exec --only firestore --project demo-sefer "node ../../tests/firestore-rules.test.js"
-firebase emulators:exec --only auth,firestore --project demo-sefer "node ../../tests/learn-accounts.test.js"
+cd learn
+firebase emulators:exec --only firestore --project demo-sefer "node ../tests/firestore-rules.test.js"
+firebase emulators:exec --only auth,firestore --project demo-sefer "node ../tests/learn-accounts.test.js"
 ```
 In tests only, `localStorage["learning-calendar-emulator"]` on localhost points
 the app at the emulators.

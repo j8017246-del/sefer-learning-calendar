@@ -5,3 +5,5 @@ __pycache__/
 .venv/
 analysis_service/evaluation/private-ground-truth/
 .sefaria-cache/
+*.log
+learn/.firebase/

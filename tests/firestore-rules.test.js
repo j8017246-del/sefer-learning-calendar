@@ -1,6 +1,6 @@
 // Checks learn/firebase/firestore.rules against the Firestore emulator:
 // each person can read and write only their own data.
-// Run:  cd learn/firebase && firebase emulators:exec --only firestore --project demo-sefer "node ../../tests/firestore-rules.test.js"
+// Run:  cd learn && firebase emulators:exec --only firestore --project demo-sefer "node ../tests/firestore-rules.test.js"
 // Needs firebase-tools, @firebase/rules-unit-testing and firebase (Apache-2.0).
 const fs = require("fs");
 const path = require("path");

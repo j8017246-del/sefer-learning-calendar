@@ -2,7 +2,7 @@
 // a phone's plans move into the account on first sign-in, changes are saved
 // by themselves, a second phone shows the same plans, signing out leaves the
 // phone, and deleting the account removes everything.
-// Run:  cd learn/firebase && firebase emulators:exec --only auth,firestore --project demo-sefer "node ../../tests/learn-accounts.test.js"
+// Run:  cd learn && firebase emulators:exec --only auth,firestore --project demo-sefer "node ../tests/learn-accounts.test.js"
 // Needs Playwright and the firebase package (for its web library files).
 const assert = require("assert");
 const http = require("http");
