@@ -315,7 +315,7 @@
     document.body.classList.toggle("in-wizard", view === "add");
     if (view === "today") renderToday();
     if (view === "library") renderLibrary();
-    if (view === "settings") renderSettings();
+    if (view === "settings") { renderSettings(); renderReminder(); }
     if (view === "add") openWizard();
     window.scrollTo(0, 0);
   }
@@ -914,6 +914,55 @@
     } catch (err) {
       toast(err.message);
     }
+  });
+
+  // ---- a daily reminder in the phone's calendar ---------------------------------------------
+  //
+  // One event that repeats on the learning days at the chosen time, with an
+  // alert, as a calendar file (.ics) the phone adds to its own calendar. It
+  // never goes out of date when a plan changes; it opens the app.
+
+  const ICS_DAYS = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+  const APP_URL = "https://sefer-calendar.web.app/";
+  function reminderDays() {
+    const set = new Set();
+    for (const x of plans) for (const d of x.plan.learningDays || []) set.add(d);
+    return set.size ? [...set].sort() : [0, 1, 2, 3, 4, 5];
+  }
+  function renderReminder() {
+    $("reminderDays").textContent = `On ${reminderDays().map((d) => DAYS[d]).join(", ")}${plans.length ? ", the days you learn" : ""}.`;
+  }
+  function reminderIcs(time, days) {
+    const [h, m] = time.split(":").map(Number);
+    // the first learning day from today at that time (today if it has not passed)
+    const now = new Date();
+    let first = todayIso();
+    const passed = now.getHours() * 60 + now.getMinutes() >= h * 60 + m;
+    for (let i = passed ? 1 : 0; i < 8; i++) {
+      const iso = S.addDays(todayIso(), i);
+      if (days.includes(dateOf(iso).getDay())) { first = iso; break; }
+    }
+    const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+    const at = `${first.replace(/-/g, "")}T${String(h).padStart(2, "0")}${String(m).padStart(2, "0")}00`;
+    return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Learning Calendar//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+      "BEGIN:VEVENT", `UID:daily-learning-${uid()}@sefer-calendar.web.app`, `DTSTAMP:${stamp}`,
+      `DTSTART:${at}`, "DURATION:PT15M", `RRULE:FREQ=WEEKLY;BYDAY=${days.map((d) => ICS_DAYS[d]).join(",")}`,
+      "SUMMARY:Time to learn", `DESCRIPTION:Open the Learning Calendar to see today's place: ${APP_URL}`, `URL:${APP_URL}`,
+      "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:Time to learn", "TRIGGER:PT0M", "END:VALARM",
+      "END:VEVENT", "END:VCALENDAR", ""].join("\r\n");
+  }
+  on("addReminder", "click", () => {
+    const ics = reminderIcs($("reminderTime").value || "20:00", reminderDays());
+    const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
+    const a = document.createElement("a");
+    a.href = url;
+    // iPhone and iPad show "Add to Calendar" when the file is opened, not saved
+    const apple = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (!apple) a.download = "daily-learning-reminder.ics";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   });
 
   // ---- backup -------------------------------------------------------------------------------

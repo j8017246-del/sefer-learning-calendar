@@ -415,10 +415,29 @@ function serve() {
   await frameCtx.close();
   ok("the app opens without errors inside a locked-down frame");
 
+  // a daily reminder in the phone's own calendar: one repeating event on the learning days
+  await page.click('.tabbar [data-go="settings"]');
+  await page.fill("#reminderTime", "20:15");
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click("#addReminder")]);
+  assert.match(download.suggestedFilename(), /\.ics$/);
+  const ics = fs.readFileSync(await download.path(), "utf8");
+  assert.match(ics, /BEGIN:VCALENDAR\r\n/);
+  // the days are the days the plans learn (here one plan learns every day, Shabbos too)
+  const learnDays = await page.evaluate(() => [...new Set(JSON.parse(localStorage.getItem("learning-calendar-v1")).plans
+    .flatMap((p) => p.learningDays))].sort());
+  const byday = learnDays.map((d) => ["SU", "MO", "TU", "WE", "TH", "FR", "SA"][d]).join(",");
+  assert.match(ics, new RegExp(`RRULE:FREQ=WEEKLY;BYDAY=${byday}\r\n`));
+  assert.match(await page.textContent("#reminderDays"), learnDays.includes(6) ? /Shabbos/ : /Fri\./);
+  assert.match(ics, /DTSTART:\d{8}T201500\r\n/);
+  assert.match(ics, /BEGIN:VALARM\r\nACTION:DISPLAY/);
+  assert.match(ics, /SUMMARY:Time to learn/);
+  ok("Add to my calendar makes one repeating reminder on the learning days");
+
   // ---- comments of 10-07 ----
   // only part of a day: say where I stopped
   const doneCount = () => page.evaluate(() => JSON.parse(localStorage.getItem("learning-calendar-v1")).plans
     .reduce((n, p) => n + p.portions.filter((d) => d.done).length, 0));
+  await page.click('.tabbar [data-go="today"]');
   const before = await doneCount();
   await page.locator(".lesson [data-part]").first().click();
   assert.match(await page.textContent("#pickerTitle"), /Where did you stop/);
