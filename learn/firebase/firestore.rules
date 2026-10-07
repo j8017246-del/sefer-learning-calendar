@@ -1,0 +1,25 @@
+rules_version = '2';
+// Each person may read and write only their own data:
+//   users/{uid}               - who they are (email), when they last saved
+//   users/{uid}/plans/{plan}  - one learning plan, as text (field "data")
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(["email", "updatedAt"]);
+      match /plans/{planId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && planId.matches("^[A-Za-z0-9_-]{1,64}$")
+          && request.resource.data.keys().hasOnly(["data", "updatedAt"])
+          && request.resource.data.data is string
+          && request.resource.data.data.size() < 900000;
+      }
+    }
+    // everything else is closed
+  }
+}

@@ -4,8 +4,8 @@
  * kept the first time it is used. Screens are taken fresh from the network
  * when there is one; data files from the phone first.
  */
-const CACHE = "learning-calendar-v1";
-const SHELL = ["./", "index.html", "app.css", "app.js", "engine/sefer.js", "engine/schedule.js", "data/catalog.json"];
+const CACHE = "learning-calendar-v2";
+const SHELL = ["./", "index.html", "app.css", "app.js", "accounts.js", "engine/sefer.js", "engine/schedule.js", "engine/sync.js", "data/catalog.json"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

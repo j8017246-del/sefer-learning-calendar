@@ -37,6 +37,8 @@ function serve() {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, serviceWorkers: "block" });
   // fonts come from Google Fonts on a real phone; the test does without them
   await context.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+  // no real accounts in the tests: the Firebase library does not load, as with no connection
+  await context.route(/cdn\.jsdelivr\.net\/npm\/firebase/, (r) => r.abort());
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
@@ -199,7 +201,17 @@ function serve() {
   await page.check('input[name="style"][value="glass"]');
   ok("Settings: theme, style and color can be changed and are remembered");
 
-  // backup as text, then load it back over a cleared phone
+  // without signing in, the account says what it needs and the app keeps working
+  await page.waitForFunction(() => /needs a connection/.test(document.querySelector("#accountNote").textContent));
+  assert(await page.isDisabled("#googleSignIn"));
+  await page.click('#settings [data-go="privacy"]');
+  assert.match(await page.textContent("#privacy"), /email address and your learning plans/);
+  assert.match(await page.textContent("#privacy"), /Nothing is sold/);
+  await page.click('#privacy [data-go="settings"]');
+  ok("without an account the app works on the phone, and the privacy page says what is kept");
+
+  // export as text (in Settings, under Export and import), then load it back over a cleared phone
+  await page.click("#settings details.inline-details > summary");
   await page.click("#backup");
   const backup = await page.inputValue("#backupText");
   assert.strictEqual(JSON.parse(backup).plans.length, 1);
@@ -207,7 +219,8 @@ function serve() {
   await page.reload();
   await page.waitForSelector("#empty:not([hidden])");
   await page.click('.tabbar [data-go="settings"]');
-  await page.click("#settings .inline-details summary");
+  await page.click("#settings details.inline-details > summary");
+  await page.click("#settings details.inline-details details.inline-details > summary");
   await page.fill("#pasteBackup", backup);
   await page.click("#loadPasted");
   await page.waitForSelector(".lesson");
@@ -363,6 +376,7 @@ function serve() {
   // offline, in a browser of its own with the same plans on the phone
   const offline = await browser.newContext({ viewport: { width: 390, height: 844 }, storageState: await context.storageState() });
   await offline.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+  await offline.route(/cdn\.jsdelivr\.net\/npm\/firebase/, (r) => r.abort());
   const page2 = await offline.newPage();
   await page2.clock.setFixedTime(new Date("2026-10-15T09:00:00"));
   await page2.goto(url);

@@ -92,7 +92,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 38 engine tests and 24 screen tests, all passing.
+- **Tests**: 38 engine, 25 screen, 5 sync, 5 rules and 6 account tests, all passing.
 
 - **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
   fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
@@ -145,6 +145,22 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
       finish date it would give.
   17. README and this file updated; the screen tests fail without Playwright.
 
+- **Accounts** (Hudi, 10-07): sign in with Google or an emailed link
+  (Firebase Authentication, project `sefer-calendar`); each signed-in
+  person's plans are saved to Firestore after every change
+  (`users/{uid}/plans/{id}` = the saved plan as text), with Firestore's
+  offline mode; on first sign-in on a phone its plans move into the account
+  (`engine/sync.js`, `mergeOnFirstSignIn`: nothing lost, the copy with more
+  days done wins); signing out takes the account's plans off the phone;
+  Delete account removes plans, profile and the sign-in. Without signing in
+  the app works as before (phone only). `accounts.js` loads the Firebase web
+  library (compat build 10.14.1 from jsDelivr, Apache-2.0) after the app has
+  opened. Rules: `firebase/firestore.rules` (owner only, plan text only).
+  Privacy page in Settings. Export/import kept under Settings, folded away.
+  Sign-in does not work inside the claude.ai preview (it blocks outside
+  connections); it works on the website (githack link or later hosting) once
+  that address is added to Firebase's authorized domains.
+
 ## Left out (told Hudi)
 
 - Rambam: Tefillin/Mezuzah/Sefer Torah, Tzitzis, Berachos, Milah and Seder
@@ -193,6 +209,17 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    the manual backup.
 3. Make the data files smaller before release (29 MB in total; one sefer
    loads at a time).
+
+## Accounts: tests with the Firebase emulators
+
+```bash
+npm i -g firebase-tools @firebase/rules-unit-testing firebase   # once (Apache-2.0)
+cd learn/firebase
+firebase emulators:exec --only firestore --project demo-sefer "node ../../tests/firestore-rules.test.js"
+firebase emulators:exec --only auth,firestore --project demo-sefer "node ../../tests/learn-accounts.test.js"
+```
+In tests only, `localStorage["learning-calendar-emulator"]` on localhost points
+the app at the emulators.
 
 ## How to run
 

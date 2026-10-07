@@ -429,3 +429,10 @@ dialog.sheet .muted { text-align: center; margin: 0 0 6px; }
 /* today's cards from the phone, shown while the sefarim load: not tappable yet */
 .lesson.from-cache { pointer-events: none; }
 .lesson.from-cache .btn, .lesson.from-cache .text-btn { opacity: .6; }
+
+/* account */
+#signedOut, #signedIn { display: flex; flex-direction: column; gap: 12px; }
+.btn.wide { width: 100%; }
+.link-form { display: flex; flex-direction: column; gap: 6px; }
+.account-who { margin: 0; overflow-wrap: anywhere; }
+.btn.danger-soft { color: var(--danger); }

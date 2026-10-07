@@ -142,17 +142,44 @@
   }
   // Saves every plan: those on screen, and those that could not be loaded,
   // exactly as they were saved. Returns false (and says so) when it fails.
+  // Every save also goes to the person's account when signed in (accounts.js).
+  const saveListeners = [];
+  const allRecords = () => plans.map((x) => ({ id: x.id, ...S.toSaved(x.plan, x.sefer) })).concat(unloaded);
   function save() {
-    const data = { version: 1, plans: plans.map((x) => ({ id: x.id, ...S.toSaved(x.plan, x.sefer) })).concat(unloaded) };
+    const records = allRecords();
     try {
-      localStorage.setItem(STORE, JSON.stringify(data));
+      localStorage.setItem(STORE, JSON.stringify({ version: 1, plans: records }));
       saveFailed = false;
     } catch (e) {
       saveFailed = true;
     }
+    for (const fn of saveListeners) fn(records);
     $("saveWarn").hidden = !saveFailed;
     return !saveFailed;
   }
+
+  // For accounts.js: read the plans, put in the account's plans, hear of saves.
+  window.LearnStore = {
+    records: allRecords,
+    onSave(fn) { saveListeners.push(fn); },
+    async replace(records, { quiet = false } = {}) {
+      const { loaded, failed } = await loadPlans(records);
+      plans = loaded;
+      unloaded = failed;
+      if (quiet) { try { localStorage.setItem(STORE, JSON.stringify({ version: 1, plans: allRecords() })); } catch (e) { /* shown on next save */ } }
+      else save();
+      if (!$("today").hidden) renderToday();
+      else if (!$("library").hidden) renderLibrary();
+      else if (!$("plan").hidden && !findPlan(current)) show("library");
+    },
+    clearPhone() {
+      for (const k of [STORE, TODAY_STORE]) { try { localStorage.removeItem(k); } catch (e) { /* nothing kept */ } }
+    },
+    ready: null,
+    toast: (m) => toast(m),
+    ask: (t, y) => ask(t, y),
+    show: (v) => show(v),
+  };
   // Reads saved plans. Those whose sefer cannot be loaded are returned
   // untouched in `failed`, so they are never lost.
   const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
@@ -232,7 +259,7 @@
 
   // ---- screens ------------------------------------------------------------------------
 
-  const TAB_OF = { today: "today", library: "library", plan: "library", settings: "settings", about: "settings" };
+  const TAB_OF = { today: "today", library: "library", plan: "library", settings: "settings", about: "settings", privacy: "settings" };
   // Each screen is a step in the browser's history, so the phone's Back button
   // returns to the screen before.
   function remember(state) {
@@ -934,6 +961,8 @@
     plans = loaded;
     unloaded = failed;
     show("today");
+    window.LearnStore.loaded = true;
+    if (window.LearnStore.whenReady) window.LearnStore.whenReady();
   }
   start();
 })();

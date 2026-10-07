@@ -93,6 +93,25 @@
 <section id="settings" class="view" hidden>
   <header class="topbar"><div><p class="eyebrow">Learning Calendar</p><h1>Settings</h1></div></header>
 
+  <h3 class="group-title">Account</h3>
+  <div class="panel form-rows" id="account">
+    <div id="signedOut">
+      <p class="note">Sign in to keep your plans in your account: saved by itself after every change, and the same on every phone and computer. Without signing in, plans are kept on this phone only.</p>
+      <button class="btn primary wide" id="googleSignIn" disabled>Continue with Google</button>
+      <form id="linkForm" class="link-form">
+        <label class="field" for="linkEmail">Or get a sign-in link by email</label>
+        <div class="two"><input type="email" id="linkEmail" autocomplete="email" placeholder="you@example.com" required><button class="btn" id="sendLink" disabled>Email me a link</button></div>
+      </form>
+      <p class="note" id="accountNote"></p>
+    </div>
+    <div id="signedIn" hidden>
+      <p class="account-who">Signed in as <b id="accountEmail"></b></p>
+      <p class="note" id="syncState">Your plans are saved to your account after every change.</p>
+      <div class="two"><button class="btn" id="signOut">Sign out</button><button class="btn danger-soft" id="deleteAccount">Delete account</button></div>
+    </div>
+    <button class="row-link" data-go="privacy">Privacy <svg data-icon="next"></svg></button>
+  </div>
+
   <h3 class="group-title">Appearance</h3>
   <div class="panel form-rows">
     <div class="field">Theme
@@ -122,12 +141,12 @@
     <p class="note">For seforim divided into named sections, like Chovos HaLevavos: <bdi lang="he" dir="rtl">שער ראשון - שער ייחוד ג</bdi> or First Treatise on Unity 3.</p>
   </div>
 
-  <h3 class="group-title">Backup</h3>
-  <div class="panel form-rows">
-    <p class="note">Your progress is kept only on this phone. Save a backup now and then.</p>
+  <details class="panel inline-details">
+    <summary>Export and import <svg data-icon="down"></svg></summary>
+    <p class="note">A copy of your plans as a file, to keep or to move by hand. Not needed when you are signed in.</p>
     <div class="two">
-      <button class="btn" id="backup">Save backup</button>
-      <label class="btn">Load backup file <input type="file" id="restore" accept=".json,application/json" hidden></label>
+      <button class="btn" id="backup">Export</button>
+      <label class="btn">Import a file <input type="file" id="restore" accept=".json,application/json" hidden></label>
     </div>
     <div id="backupBox" class="form-rows" hidden>
       <p class="note">If no file was saved, copy this text and keep it somewhere safe, for example in an email to yourself.</p>
@@ -139,10 +158,23 @@
       <textarea id="pasteBackup" placeholder="Paste the backup text here"></textarea>
       <button class="btn" id="loadPasted">Load this backup</button>
     </details>
-  </div>
+  </details>
 
   <div class="panel list-rows">
     <button class="row-link" data-go="about">About and sources <svg data-icon="next"></svg></button>
+  </div>
+</section>
+
+<!-- ===== Privacy ===== -->
+<section id="privacy" class="view" hidden>
+  <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg>Settings</button></header>
+  <h1>Privacy</h1>
+  <div class="prose">
+    <p>If you sign in, we store two things: your email address and your learning plans (which seforim, your settings, and which days you marked done).</p>
+    <p>We keep them only to show them back to you, on any phone or computer where you sign in. Nothing is sold, and nothing is shared with anyone.</p>
+    <p>They are kept with Google Firebase, the service that runs the sign-in and the saving. Each account can reach only its own plans.</p>
+    <p>If you do not sign in, nothing leaves your phone: your plans are kept in this browser only.</p>
+    <p>You can delete your account and all your plans at any time: Settings, then Delete account.</p>
   </div>
 </section>
 
@@ -313,6 +345,8 @@
 </script>
 <script src="engine/sefer.js"></script>
 <script src="engine/schedule.js"></script>
+<script src="engine/sync.js"></script>
 <script src="app.js"></script>
+<script src="accounts.js"></script>
 </body>
 </html>
