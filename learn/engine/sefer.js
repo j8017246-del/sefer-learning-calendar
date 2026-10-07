@@ -32,7 +32,7 @@
 
   function hidden(obj, key, make) {
     if (!Object.prototype.hasOwnProperty.call(obj, key)) {
-      Object.defineProperty(obj, key, { value: make(), enumerable: false });
+      Object.defineProperty(obj, key, { value: make(), enumerable: false, configurable: true });
     }
     return obj[key];
   }
@@ -300,6 +300,31 @@
     return found;
   }
 
+  // Make sure a saved place is the start of a stop, so that a day saved before
+  // the data was rebuilt still starts and ends exactly where it did. When the
+  // new data has no stop there, the stop around it is split in two, and the
+  // new stop gets the opening words saved with the plan. Single data files
+  // only (before they are joined). Returns true when a stop was added.
+  function keepPlace(sefer, addr, words = "") {
+    if (addr === "end" || !sefer.offsets) return false;
+    const [piece, seg, offset] = placeOf(sefer, addr);
+    const s = stopAt(sefer, addr);
+    if (sefer.segments[s] === seg && sefer.offsets[s] === offset) return false;
+    if (pieceOf(sefer, s) !== piece) return false;
+    const w = sefer.weights[s];
+    const before = sefer.segments[s] === seg ? offset - sefer.offsets[s] : Math.round(w / 2);
+    const first = Math.max(0, Math.min(w, before));
+    sefer.weights.splice(s, 1, first, w - first);
+    sefer.markers.splice(s + 1, 0, words);
+    sefer.segments.splice(s + 1, 0, seg);
+    sefer.offsets.splice(s + 1, 0, offset);
+    sefer.stops[piece] += 1;
+    // comments learned after stop s now come after the new stop, which ends where s ended
+    for (const c of sefer.commentaries || []) c.after = c.after.map((a) => (a >= s ? a + 1 : a));
+    for (const key of ["_breaks", "_pieceStarts", "_stopPieces", "_weights"]) delete sefer[key];
+    return true;
+  }
+
   function sefariaRef(sefer, s, atEnd) {
     const p = pieceOf(sefer, s), pos = positions(sefer)[p];
     if (sefer.shape === "chapters") return `${pos.chapter}.${pos.verse}`;
@@ -436,17 +461,27 @@
         commentaries: r.commentaries.map((k) => ({ ...k, piece: k.piece - b.firstPiece })) });
       return comm ? `${text}; ${comm}` : text;
     },
+    // In a joined plan each address starts with its sefer's own id:
+    // "mussar/mesillas-yesharim|Mesillat Yesharim, Introduction:1@0".
     address(c, s) {
       if (s >= c.weights.length) return "end";
       const x = partOf(c, s);
-      return address(x.sefer, s - x.firstStop);
+      return `${x.sefer.id}|${address(x.sefer, s - x.firstStop)}`;
     },
     stopAt(c, addr) {
       if (addr === "end") return c.weights.length;
-      const x = c.parts.slice().sort((a, b) => b.sefer.sefaria.length - a.sefer.sefaria.length)
-        .find((y) => addr.startsWith(y.sefer.sefaria + " "));
+      const bar = addr.indexOf("|");
+      let x, place = addr;
+      if (bar >= 0) {
+        x = c.parts.find((y) => y.sefer.id === addr.slice(0, bar));
+        place = addr.slice(bar + 1);
+      } else {
+        // saved before 10-07: the sefer's Sefaria name, then a space or a comma
+        x = c.parts.slice().sort((a, b) => b.sefer.sefaria.length - a.sefer.sefaria.length)
+          .find((y) => addr.startsWith(y.sefer.sefaria + " ") || addr.startsWith(y.sefer.sefaria + ","));
+      }
       if (!x) throw new RangeError(`${c.en} has no place ${addr}`);
-      return x.firstStop + stopAt(x.sefer, addr);
+      return x.firstStop + stopAt(x.sefer, place);
     },
     sefariaUrl(c, from, to) {
       const a = partOf(c, from), b = partOf(c, to);
@@ -458,7 +493,7 @@
   const either = (name, single) => (sefer, ...args) => (sefer.shape === "multi" ? multi[name](sefer, ...args) : single(sefer, ...args));
 
   const api = {
-    pieceCount, stopCount, pieceOf, stopRange, combine, setSectionNames,
+    pieceCount, stopCount, pieceOf, stopRange, combine, setSectionNames, keepPlace,
     positions: either("positions", positions),
     pieceLabel: either("pieceLabel", pieceLabel),
     pieceName: either("pieceName", pieceName),

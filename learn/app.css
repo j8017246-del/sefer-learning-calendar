@@ -401,3 +401,8 @@ dialog.sheet .muted { text-align: center; margin: 0 0 6px; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 @media (min-width: 700px) { h1 { font-size: 2.3rem; } }
+
+/* saving failed: a note that stays at the top until a save works */
+.save-warn { position: sticky; top: 0; z-index: 8; margin: 0; padding: 10px 16px; text-align: center; font-size: .9rem; font-weight: 600;
+  background: var(--warn); color: #fff; }
+.load-failed h2 { font-size: 1.1rem; }

@@ -24,6 +24,8 @@
   let catalog = null;
   const seforim = new Map();        // id -> data file
   let plans = [];                   // [{ id, sefer, plan }]
+  let unloaded = [];                // saved plans whose sefer could not be loaded, kept as saved
+  let saveFailed = false;
   let current = null;               // plan open on its own screen
   let selectedDate = null;          // day chosen in Today's week strip
   let calMonth = null;              // "YYYY-MM" shown in a plan's calendar
@@ -137,22 +139,37 @@
   function readStore() {
     try { return JSON.parse(localStorage.getItem(STORE)) || { plans: [] }; } catch (e) { return { plans: [] }; }
   }
+  // Saves every plan: those on screen, and those that could not be loaded,
+  // exactly as they were saved. Returns false (and says so) when it fails.
   function save() {
-    const data = { version: 1, plans: plans.map((x) => ({ id: x.id, ...S.toSaved(x.plan, x.sefer) })) };
-    try { localStorage.setItem(STORE, JSON.stringify(data)); } catch (e) { toast("Could not save on this phone. Save a backup."); }
-  }
-  async function loadPlans(saved) {
-    const out = [];
-    for (const s of saved) {
-      try {
-        const sefer = await loadCombined(s.seferIds || [s.seferId], s.name);
-        out.push({ id: s.id || uid(), sefer, plan: S.fromSaved(s, sefer) });
-      } catch (e) {
-        console.error(e);
-        toast(`Could not read the plan for ${s.seferId}`);
-      }
+    const data = { version: 1, plans: plans.map((x) => ({ id: x.id, ...S.toSaved(x.plan, x.sefer) })).concat(unloaded) };
+    try {
+      localStorage.setItem(STORE, JSON.stringify(data));
+      saveFailed = false;
+    } catch (e) {
+      saveFailed = true;
     }
-    return out;
+    $("saveWarn").hidden = !saveFailed;
+    return !saveFailed;
+  }
+  // Reads saved plans. Those whose sefer cannot be loaded are returned
+  // untouched in `failed`, so they are never lost.
+  const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
+  async function loadPlans(saved) {
+    const results = await Promise.all(saved.map(async (s) => {
+      try {
+        const ids = s.seferIds || [s.seferId];
+        const parts = await Promise.all(ids.map(loadSefer));
+        // data rebuilt since the plan was saved: keep its places exactly
+        if (S.keepSavedPlaces(s, parts).length) combined.clear();
+        const sefer = await loadCombined(ids, s.name);
+        return { ok: { id: SAFE_ID.test(s.id || "") ? s.id : uid(), sefer, plan: S.fromSaved(s, sefer) } };
+      } catch (e) {
+        console.warn(e);
+        return { failed: s };
+      }
+    }));
+    return { loaded: results.filter((r) => r.ok).map((r) => r.ok), failed: results.filter((r) => r.failed).map((r) => r.failed) };
   }
   const findPlan = (id) => plans.find((x) => x.id === id);
 
@@ -255,7 +272,7 @@
     const d = dateOf(selectedDate), hd = hebrewDate(selectedDate);
     $("todayTitle").textContent = selectedDate === today ? "Today" : d.toLocaleDateString("en-US", { weekday: "long" });
     $("todayDate").innerHTML = `${esc(d.toLocaleDateString("en-US", { weekday: selectedDate === today ? "long" : undefined, month: "long", day: "numeric" }))}${hd ? ` · ${he(hd)}` : ""}`;
-    $("empty").hidden = plans.length > 0;
+    $("empty").hidden = plans.length + unloaded.length > 0;
     $("week").hidden = !plans.length;
 
     // the week around today
@@ -272,7 +289,7 @@
     $("dayStatus").textContent = !plans.length ? "" : !due.length ? "Nothing new to learn on this day."
       : doneCount === due.length ? `All done${selectedDate === today ? " for today" : ""}. Yasher koach!`
       : `${due.length - doneCount} of ${due.length} still to learn`;
-    $("cards").innerHTML = plans.map((x) => lessonHtml(x, today)).join("");
+    $("cards").innerHTML = plans.map((x) => lessonHtml(x, today)).join("") + unloadedHtml();
   }
 
   function lessonHtml(x, today) {
@@ -293,8 +310,8 @@
         ${p ? `<div class="count"><b>${learning.indexOf(p) + 1}<span class="muted">/${learning.length}</span></b>day</div>` : ""}
       </div>`;
     const foot = `<div class="lesson-foot">${status}<span>Finishing ${st.finishDate ? niceDate(st.finishDate, true) : "—"}</span></div>
-      <div class="lesson-foot"><button class="text-btn" data-open="${x.id}">Whole schedule</button>
-        ${isToday && !st.finished ? (st.behind ? `<button class="text-btn" data-missed="${x.id}">Catch up</button>` : `<button class="text-btn" data-cant="${x.id}">I can't learn today</button>`) : ""}</div>`;
+      <div class="lesson-foot"><button class="text-btn" data-open="${esc(x.id)}">Whole schedule</button>
+        ${isToday && !st.finished ? (st.behind ? `<button class="text-btn" data-missed="${esc(x.id)}">Catch up</button>` : `<button class="text-btn" data-cant="${esc(x.id)}">I can't learn today</button>`) : ""}</div>`;
 
     if (st.finished && isToday) {
       return `<article class="panel lesson is-done">${head}<p class="done-mark">${icon("check")} Finished the whole sefer. Mazal tov!</p>${foot}</article>`;
@@ -304,16 +321,16 @@
         ${p.date !== selectedDate ? `<p class="next-line">From ${niceDate(p.date)}</p>` : ""}
         ${routeHtml(sefer, comms, p)}
         <div class="lesson-actions">
-          <button class="btn primary" data-done="${x.id}" data-date="${p.date}">Mark as done</button>
+          <button class="btn primary" data-done="${esc(x.id)}" data-date="${esc(p.date)}">Mark as done</button>
           <a class="btn ext" href="${esc(P.sefariaUrl(sefer, p.from, p.to))}" target="_blank" rel="noopener" aria-label="Open on Sefaria">Sefaria ${icon("ext")}</a>
         </div>${foot}</article>`;
     }
     const day = learning.find((q) => q.date === selectedDate);
     const next = isToday ? st.next : null;
     return `<article class="panel lesson is-done">${head}
-      ${day && day.done ? `<p><span class="done-mark">${icon("check")} Done</span> <button class="text-btn" data-undo="${x.id}" data-date="${day.date}">Undo</button></p>` : `<p class="next-line">No learning on this day.</p>`}
+      ${day && day.done ? `<p><span class="done-mark">${icon("check")} Done</span> <button class="text-btn" data-undo="${esc(x.id)}" data-date="${esc(day.date)}">Undo</button></p>` : `<p class="next-line">No learning on this day.</p>`}
       ${next ? `<p class="next-line">Next, ${niceDate(next.date)}: ${portionLine(sefer, comms, next)}</p>
-        <button class="btn" data-done="${x.id}" data-date="${next.date}">Learn ahead: mark ${niceDate(next.date)} done</button>` : ""}
+        <button class="btn" data-done="${esc(x.id)}" data-date="${esc(next.date)}">Learn ahead: mark ${niceDate(next.date)} done</button>` : ""}
       ${foot}</article>`;
   }
 
@@ -354,10 +371,10 @@
     if (t.dataset.done) {
       const x = findPlan(t.dataset.done);
       x.plan = S.markDone(x.plan, t.dataset.date);
-      save();
       t.classList.add("ticked");
       t.innerHTML = `<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Done`;
-      setTimeout(() => { renderToday(); toast("Yasher koach!"); }, 600);
+      const saved = save();
+      setTimeout(() => { renderToday(); toast(saved ? "Yasher koach!" : "Marked, but not saved on this phone"); }, 600);
     } else if (t.dataset.undo) {
       const x = findPlan(t.dataset.undo);
       x.plan = S.markDone(x.plan, t.dataset.date, false);
@@ -368,24 +385,44 @@
       askMissed(findPlan(t.dataset.cant), true);
     } else if (t.dataset.open) {
       openPlan(t.dataset.open);
+    } else if (t.dataset.retry) {
+      retryUnloaded();
     }
   });
+
+  // Plans whose sefer could not be downloaded: a card each, with Retry.
+  function unloadedHtml() {
+    return unloaded.map((s) => {
+      const id = (s.seferIds || [s.seferId])[0], e = catalog.seforim.find((x) => x.id === id);
+      const name = s.name ? s.name.en : e ? e.en : "A sefer";
+      return `<article class="panel lesson load-failed"><h2>${esc(name)}</h2>
+        <p class="note">Could not load this sefer. Your progress in it is kept. Check the connection and try again.</p>
+        <button class="btn" data-retry="1">Retry</button></article>`;
+    }).join("");
+  }
+  async function retryUnloaded() {
+    const { loaded, failed } = await loadPlans(unloaded);
+    plans = plans.concat(loaded);
+    unloaded = failed;
+    if (failed.length) toast("Still could not load it");
+    if (!$("library").hidden) renderLibrary(); else renderToday();
+  }
 
   // ---- Seforim ----------------------------------------------------------------------------
 
   function renderLibrary() {
     const today = todayIso();
-    $("libraryEmpty").hidden = plans.length > 0;
+    $("libraryEmpty").hidden = plans.length + unloaded.length > 0;
     $("libraryList").innerHTML = plans.map((x) => {
       const st = S.status(x.plan, x.sefer, today), learning = learningOf(x.plan);
       const done = learning.filter((p) => p.done).length, percent = pct(x.plan);
-      return `<button class="panel plan-row" data-open="${x.id}">
+      return `<button class="panel plan-row" data-open="${esc(x.id)}">
         <span class="plan-row-top"><span class="he-title" lang="he" dir="rtl">${esc(x.sefer.he)}</span><span class="muted">${percent}%</span></span>
         <span class="muted">${esc(x.sefer.en)}</span>
         <span class="progress"><i style="width:${percent}%"></i></span>
         <span class="plan-row-meta"><span>${done} of ${learning.length} days${st.behind ? ` · ${st.behind} behind` : ""}</span><span>Finishing ${st.finishDate ? niceDate(st.finishDate, true) : "—"}</span></span>
       </button>`;
-    }).join("");
+    }).join("") + unloadedHtml();
   }
 
   // ---- one sefer --------------------------------------------------------------------------
@@ -762,7 +799,9 @@
       const data = JSON.parse(text);
       if (data.format !== "learning-calendar-backup" || !Array.isArray(data.plans)) throw new Error("This is not a learning calendar backup.");
       if (plans.length && !(await ask(`Replace the ${plans.length} sefer${plans.length > 1 ? "im" : ""} on this phone with the ${data.plans.length} in the backup?`, "Replace"))) return;
-      plans = await loadPlans(data.plans);
+      const { loaded, failed } = await loadPlans(data.plans);
+      if (failed.length) throw new Error("Part of this backup could not be read. Nothing was changed.");
+      plans = loaded;
       save(); show("today"); toast("Backup loaded");
     } catch (err) {
       toast(err instanceof SyntaxError ? "This is not a learning calendar backup." : err.message);
@@ -790,7 +829,9 @@
       $("todayDate").textContent = `Could not load the list of sefarim (${e.message}). Check the connection and try again.`;
       return;
     }
-    plans = await loadPlans(readStore().plans || []);
+    const { loaded, failed } = await loadPlans(readStore().plans || []);
+    plans = loaded;
+    unloaded = failed;
     show("today");
   }
   start();

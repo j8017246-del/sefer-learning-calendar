@@ -299,43 +299,101 @@
 
   // ---- rescheduling -----------------------------------------------------
 
+  // The stretches of the plan not yet learned, in reading order: [{ from, to }].
+  // Days marked done (in any order) are left out, so they are never repeated.
+  function openRuns(plan, from = plan.from, to = plan.to) {
+    const done = new Uint8Array(Math.max(0, to - from + 1));
+    for (const p of plan.portions) {
+      if (!p.done || !hasLearning(p)) continue;
+      for (let k = Math.max(p.from, from); k <= Math.min(p.to, to); k++) done[k - from] = 1;
+    }
+    const runs = [];
+    for (let k = from; k <= to; k++) {
+      if (done[k - from]) continue;
+      if (runs.length && runs[runs.length - 1].to === k - 1) runs[runs.length - 1].to = k;
+      else runs.push({ from: k, to: k });
+    }
+    return runs;
+  }
+
+  // Split several stretches from `start`: by finish date, the learning days are
+  // shared among the stretches by size (at least one each); by amount, one
+  // stretch after another. A day never runs from one stretch into the next.
+  function splitRuns(plan, sefer, runs, start, endDate, skip) {
+    const taken = new Set(skip || []);
+    const out = [];
+    if (!runs.length) return out;
+    if (endDate == null) {
+      let from = start;
+      for (const r of runs) {
+        const part = split(plan, sefer, r.from, r.to, from, null, taken);
+        out.push(...part);
+        part.forEach((p) => taken.add(p.date));
+        from = addDays(part[part.length - 1].date, 1);
+      }
+      return out;
+    }
+    const weights = Pieces.stopWeights(sefer, plan.commentaries || []);
+    const levels = Pieces.breakLevels(sefer);
+    const size = runs.map((r) => { let w = 0; for (let k = r.from; k <= r.to; k++) w += weights[k]; return w; });
+    const dates = learningDates(plan, start, endDate, taken);
+    let d = 0, last = addDays(start, -1);
+    runs.forEach((r, i) => {
+      const left = dates.length - d, runsLeft = runs.length - i;
+      const sizeLeft = size.slice(i).reduce((a, b) => a + b, 0) || 1;
+      let n = i === runs.length - 1 ? left : Math.min(left - (runsLeft - 1), Math.round(left * size[i] / sizeLeft));
+      n = Math.max(n, left > 0 ? 1 : 0);
+      let mine = dates.slice(d, d + n);
+      d += n;
+      if (!mine.length) mine = [{ date: nextLearningDate(plan, last, false, taken), weight: 1 }];   // past the finish date
+      out.push(...splitOverDates(weights, levels, r.from, r.to, mine));
+      mine.forEach((x) => taken.add(x.date));
+      last = mine[mine.length - 1].date;
+    });
+    return out;
+  }
+
   // What to do about unfinished days before today (and today itself when
   // includeToday is set, for "I can't learn today"):
   //   "push"   - every unfinished portion moves later, keeping its size;
   //              the finish date moves by the number of missed days.
-  //   "spread" - the unfinished pieces are re-split over the learning days
+  //   "spread" - what is not yet learned is re-split over the learning days
   //              left before the current finish date.
   //   "double" - the missed pieces are added to the next learning day.
+  // Days already done stay as they are, even when done out of order.
   function reschedule(plan, sefer, { today, choice, includeToday = false }) {
     const missed = overdue(plan, today, includeToday);
     if (!missed.length) return plan;
     const taken = new Set(plan.portions.filter((p) => p.done).map((p) => p.date));
     const resume = nextLearningDate(plan, today, !includeToday, taken);
     const kept = plan.portions.filter((p) => p.done || (p.date < resume && !hasLearning(p)));
-    const open = plan.portions.filter((p) => hasLearning(p) && !p.done);
+    const open = plan.portions.filter((p) => hasLearning(p) && !p.done).sort((a, b) => a.from - b.from);
+    const lay = (list, iso) => list.map((p) => { const q = { ...p, date: iso }; iso = nextLearningDate(plan, iso, false, taken); return q; });
     let moved;
 
     if (choice === "push") {
-      // Keep each open portion as it is and lay them on the next learning days.
-      moved = [];
-      let iso = resume;
-      for (const p of open) {
-        moved.push({ ...p, date: iso });
-        iso = nextLearningDate(plan, iso, false, taken);
-      }
+      // Keep each open portion as it is and lay them, in reading order, on the next learning days.
+      moved = lay(open, resume);
     } else if (choice === "spread") {
       const finish = plan.portions.filter(hasLearning).slice(-1)[0].date;
-      const from = open[0].from, to = open[open.length - 1].to;
       if (finish < resume) return reschedule(plan, sefer, { today, choice: "push", includeToday });
-      moved = split(plan, sefer, from, to, resume, finish, taken);
+      moved = splitRuns(plan, sefer, openRuns(plan), resume, finish, taken);
     } else if (choice === "double") {
-      const later = open.filter((p) => p.date >= resume);
-      const missedFrom = missed[0].from, missedTo = missed[missed.length - 1].to;
-      if (later.length) {
-        moved = later.map((p, i) => (i === 0 ? { ...p, from: missedFrom } : p));
-        if (later[0].date !== resume) moved[0] = { ...moved[0], date: resume };
-      } else {
-        moved = [{ date: resume, from: missedFrom, to: missedTo, done: false }];
+      // The missed days and the next day become one day, where they run on
+      // without a done day between them; anything else follows on later days.
+      const missedSet = new Set(missed);
+      const later = open.filter((p) => !missedSet.has(p));
+      const first = missed.concat(later.slice(0, 1)).sort((a, b) => a.from - b.from);
+      const groups = [];
+      for (const p of first) {
+        const g = groups[groups.length - 1];
+        if (g && g.to + 1 === p.from) g.to = p.to; else groups.push({ date: p.date, from: p.from, to: p.to, done: false });
+      }
+      const rest = later.slice(1);
+      moved = lay(groups, resume);
+      let iso = moved[moved.length - 1].date;
+      for (const p of rest) {
+        if (p.date > iso) { moved.push(p); iso = p.date; } else { iso = nextLearningDate(plan, iso, false, taken); moved.push({ ...p, date: iso }); }
       }
     } else {
       throw new Error(`Unknown choice "${choice}"`);
@@ -349,16 +407,16 @@
   }
 
   // Settings changed (days, days off, finish date, amount): re-split what is
-  // left from `today`, keeping finished days as they are.
+  // not yet learned from `today`, keeping finished days as they are.
   function rebuildRemaining(plan, sefer, today, changes = {}) {
     const next = { ...plan, ...changes };
     validate(next, sefer);
     const done = plan.portions.filter((p) => p.done);
-    const from = firstOpenPiece(plan);
-    if (from > next.to) return { ...next, portions: done };
+    const runs = openRuns(plan, next.from, next.to);
+    if (!runs.length) return { ...next, portions: done };
     const start = today > next.startDate ? today : next.startDate;
     const taken = new Set(done.map((p) => p.date));
-    const rest = split(next, sefer, from, next.to, start, next.endDate, taken);
+    const rest = splitRuns(next, sefer, runs, start, next.endDate, taken);
     const portions = done.concat(rest).sort((a, b) => a.date.localeCompare(b.date));
     return { ...next, portions };
   }
@@ -380,7 +438,43 @@
     saved.portions = plan.portions.map((p) => ({
       date: p.date, from: at(p.from), until: at(p.to >= p.from ? p.to + 1 : p.from), done: !!p.done,
     }));
+    // the opening words at each place, so a place can be kept exactly after a rebuild
+    saved.words = {};
+    for (const p of plan.portions) {
+      for (const s of [p.from, p.to + 1]) {
+        if (s < Pieces.stopCount(sefer) && s >= 0) saved.words[at(s)] = wordsAt(sefer, s);
+      }
+    }
+    if (dataVersion(sefer)) saved.dataVersion = dataVersion(sefer);
     return saved;
+  }
+
+  function wordsAt(sefer, s) {
+    if (sefer.shape !== "multi") return (sefer.markers && sefer.markers[s]) || "";
+    const part = sefer.parts.filter((x) => x.firstStop <= s).pop();
+    return (part.sefer.markers && part.sefer.markers[s - part.firstStop]) || "";
+  }
+  const dataVersion = (sefer) => (sefer.shape === "multi" ? sefer.parts.map((x) => x.sefer.dataVersion || "").join("+") : sefer.dataVersion) || "";
+
+  // Before a saved plan is read against data that may have been rebuilt: make
+  // every place it names the start of a stop in the data files (`parts`, by
+  // id, before they are joined). Returns the ids of the files that changed.
+  function keepSavedPlaces(saved, parts) {
+    const byId = new Map(parts.map((x) => [x.id, x]));
+    const changed = new Set();
+    const places = [saved.from, saved.until];
+    for (const p of saved.portions || []) places.push(p.from, p.until);
+    for (const addr of places) {
+      if (!addr || addr === "end") continue;
+      const bar = addr.indexOf("|");
+      const part = bar >= 0 ? byId.get(addr.slice(0, bar)) : parts.length === 1 ? parts[0] : null;
+      if (!part) continue;
+      const place = bar >= 0 ? addr.slice(bar + 1) : addr;
+      try {
+        if (Pieces.keepPlace(part, place, (saved.words || {})[addr] || "")) changed.add(part.id);
+      } catch (e) { /* a place outside this file: stopAt reports it later */ }
+    }
+    return [...changed];
   }
 
   function fromSaved(saved, sefer) {
@@ -397,7 +491,7 @@
   const api = {
     LIGHTER_WEIGHT, addDays, weekday, dayOff, dayWeight, learningDates, nextLearningDate,
     splitOverDates, buildPlan, markDone, status, reschedule, rebuildRemaining, firstOpenPiece,
-    toSaved, fromSaved, SPEED, lettersPerMinute, totalMinutes,
+    toSaved, fromSaved, keepSavedPlaces, SPEED, lettersPerMinute, totalMinutes,
   };
   global.LearningSchedule = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

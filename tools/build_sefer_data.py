@@ -25,6 +25,7 @@ Usage:
 """
 import argparse
 import csv
+import hashlib
 import json
 import os
 import re
@@ -600,6 +601,10 @@ class Builder:
                 c["nums"] = e["nums"]
             comms.append(c)
         rec["commentaries"] = comms
+        # The data's version: changes whenever the stopping points change. Saved
+        # plans keep it, and keep their exact places when it differs.
+        places = json.dumps([rec["stops"], rec.get("segments"), rec.get("offsets")], separators=(",", ":"))
+        rec["dataVersion"] = hashlib.sha1(places.encode()).hexdigest()[:12]
         return write(rec)
 
 

@@ -92,7 +92,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 34 engine tests and 15 screen tests, all passing.
+- **Tests**: 37 engine tests and 18 screen tests, all passing.
 
 - **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
   fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
@@ -105,6 +105,24 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   to finish if any stop starts mid-sentence (Builder.check), and the
   day-splitting now prefers paragraph ends a little. Days are a little less
   even for very small days; tests adjusted and explained.
+
+- **Audit of 10-07, Part A** (Codex; Hudi: backups will be replaced by
+  accounts, so backup-only items were skipped: item 3, and backup field checks
+  in item 1):
+  1. Plan ids and dates are escaped wherever they go into the page; a saved id
+     that is not plain letters/digits is replaced on load.
+  2. A plan whose sefer fails to download is kept exactly as saved, shown as a
+     "Could not load … Retry" card, and saved back untouched with the others.
+  4. Joined plans (whole Halacha, Mussar, Midrash collections) save each
+     address with its sefer's id ("mussar/x|Ref:1@0"); old addresses still read.
+  5. Push, Spread, Double up and changing a plan re-split only what is not yet
+     done (`openRuns`/`splitRuns`); days done out of order stay as they are.
+  6. A failed save shows "not saved on this phone" (a note that stays) instead
+     of "Yasher koach!".
+  7. Each data file has a `dataVersion`; plans save the opening words at their
+     places; on load `keepSavedPlaces` splits a stop where a saved place no
+     longer starts one, so days stay exactly where they were.
+  Part B (items 8–17) is next, on Hudi's word.
 
 ## Left out (told Hudi)
 

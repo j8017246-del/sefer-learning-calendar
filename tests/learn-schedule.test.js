@@ -563,6 +563,85 @@ test("section names are in Hebrew, or English if the person chooses", () => {
   finally { Pieces.setSectionNames("he"); }
 });
 
+// ---- audit of 10-07 (Part A) -------------------------------------------------
+
+test("a plan of a whole collection is saved and opens again, in every collection", () => {
+  for (const col of catalog.collections) {
+    const ids = catalog.seforim.filter((e) => e.collection === col.id).map((e) => e.id);
+    const sefer = Pieces.combine(ids.map(load), { id: ids.join("+"), en: col.en, he: col.he });
+    const plan = S.buildPlan({ ...Pieces.stopRange(sefer, 0, Pieces.pieceCount(sefer) - 1), commentaries: [],
+      startDate: "2026-10-11", endDate: "2027-10-10", learningDays: [0, 1, 2, 3, 4, 5], lighterDays: [] }, sefer);
+    const back = S.fromSaved(JSON.parse(JSON.stringify(S.toSaved(plan, sefer))), sefer);
+    assert.deepStrictEqual(back.portions, plan.portions, `${col.id}: the days come back the same`);
+  }
+});
+
+// Every stop is learned on exactly one day, whatever order the days are in.
+function assertEachStopOnce(plan) {
+  const seen = new Map();
+  for (const p of plan.portions) {
+    if (p.to < p.from) continue;
+    for (let k = p.from; k <= p.to; k++) {
+      assert(!seen.has(k), `stop ${k} is on ${seen.get(k)} and again on ${p.date}`);
+      seen.set(k, p.date);
+    }
+  }
+  for (let k = plan.from; k <= plan.to; k++) assert(seen.has(k), `stop ${k} is on no day`);
+  const dates = plan.portions.map((p) => p.date);
+  assert.strictEqual(new Set(dates).size, dates.length, "two portions on one date");
+}
+
+test("days done out of order are never learned again (push, spread, double, changing the plan)", () => {
+  const base = S.buildPlan(sample, berakhot);
+  const learning = base.portions.filter((p) => p.to >= p.from);
+  let plan = S.markDone(base, learning[2].date);                 // day 3 done, days 1 and 2 not
+  plan = S.markDone(plan, learning[3].date);                     // day 4 done ...
+  plan = S.markDone(plan, learning[3].date, false);              // ... and undone
+  plan = S.markDone(plan, learning[6].date);                     // day 7 done ahead of time
+  const today = learning[5].date;
+  const keep = (r) => [learning[2], learning[6]].forEach((d) =>
+    assert(r.portions.some((p) => p.done && p.date === d.date && p.from === d.from && p.to === d.to), `day done on ${d.date} stays`));
+  for (const choice of ["push", "spread", "double"]) {
+    for (const includeToday of [false, true]) {
+      const r = S.reschedule(plan, berakhot, { today, choice, includeToday });
+      assertEachStopOnce(r);
+      keep(r);
+    }
+  }
+  const changed = S.rebuildRemaining(plan, berakhot, today, { endDate: "2027-01-29" });
+  assertEachStopOnce(changed);
+  keep(changed);
+  const byAmount = S.rebuildRemaining(plan, berakhot, today, { endDate: null, dailyPieces: 1 });
+  assertEachStopOnce(byAmount);
+  keep(byAmount);
+});
+
+test("after the data is rebuilt, days already saved start and stop exactly where they did", () => {
+  const plan0 = S.buildPlan({ seferId: "mishnah/berakhot", ...whole(mBerakhot), commentaries: [], startDate: "2026-10-11",
+    endDate: "2026-11-30", learningDays: [0, 1, 2, 3, 4, 5, 6], lighterDays: [] }, mBerakhot);
+  let plan = plan0;
+  for (const p of plan0.portions.slice(0, 5)) plan = S.markDone(plan, p.date);
+  const saved = JSON.parse(JSON.stringify(S.toSaved(plan, mBerakhot)));
+  // a "rebuild": every stop that starts a day is merged into the stop before it
+  // (as when a comma is no longer a stopping point), so those places are gone
+  const rebuilt = JSON.parse(JSON.stringify(mBerakhot));
+  const starts = new Set(plan.portions.map((p) => p.from).filter((k) => k > 0 && rebuilt.offsets[k] > 0));
+  for (const k of [...starts].sort((a, b) => b - a)) {
+    rebuilt.weights[k - 1] += rebuilt.weights[k];
+    for (const key of ["weights", "markers", "segments", "offsets"]) rebuilt[key].splice(k, 1);
+    rebuilt.stops[Pieces.pieceOf(mBerakhot, k)] -= 1;
+  }
+  assert(starts.size > 3, "the test moves several saved places");
+  assert.throws(() => assert.deepStrictEqual(S.toSaved(S.fromSaved(saved, rebuilt), rebuilt).portions, saved.portions),
+    "without keeping places, the days move");
+  const fresh = JSON.parse(JSON.stringify(rebuilt));
+  S.keepSavedPlaces(saved, [fresh]);
+  const back = S.fromSaved(saved, fresh);
+  assert.deepStrictEqual(S.toSaved(back, fresh).portions, saved.portions, "every day starts and stops where it did");
+  const firstOpen = back.portions.find((p) => !p.done);
+  assert.strictEqual(fresh.markers[firstOpen.from], mBerakhot.markers[plan.portions.find((p) => !p.done).from], "with the same opening words");
+});
+
 test("names are Hebrew with English alongside", () => {
   for (const e of catalog.seforim) {
     assert(/[א-ת]/.test(e.he), `${e.id} has no Hebrew name`);

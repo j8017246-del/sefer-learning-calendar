@@ -234,6 +234,44 @@ function serve() {
   assert.match(list, /Mishnah Berachos [\d:]+.* to Mishnah Pe'ah/);
   ok("two masechtos make one schedule that runs from one into the next");
 
+  // ---- audit of 10-07 (Part A) ----
+  // a saved plan whose id is made to run code, next to the Mishnah plan
+  await page.evaluate(async () => {
+    const P = window.SeferPieces, S = window.LearningSchedule;
+    const ruth = await (await fetch("data/tanakh/ruth.json")).json();
+    const plan = S.buildPlan({ seferId: "tanakh/ruth", ...P.stopRange(ruth, 0, P.pieceCount(ruth) - 1), commentaries: [],
+      startDate: "2026-10-14", endDate: "2026-10-20", learningDays: [0, 1, 2, 3, 4, 5, 6], lighterDays: [] }, ruth);
+    const store = JSON.parse(localStorage.getItem("learning-calendar-v1"));
+    store.plans.push({ id: '"><img src=x onerror="window.__pwned=1">', ...S.toSaved(plan, ruth) });
+    localStorage.setItem("learning-calendar-v1", JSON.stringify(store));
+  });
+  // one sefer's file cannot be downloaded
+  await page.route(/data\/mishnah\/peah\.json$/, (r) => r.fulfill({ status: 503, body: "" }));
+  await page.reload();
+  await page.waitForSelector(".lesson");
+  await page.waitForSelector(".load-failed");
+  assert.match(await page.textContent(".load-failed"), /Could not load/);
+  assert.strictEqual(await page.evaluate(() => window.__pwned), undefined, "a saved id never runs as code");
+  ok("a saved plan's id is never run as code");
+  await page.click(".lesson [data-done]");
+  await page.waitForTimeout(800);
+  const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("learning-calendar-v1")).plans);
+  assert.strictEqual(kept.length, 2, "the plan that could not load is still saved");
+  assert(kept.some((x) => (x.seferIds || []).includes("mishnah/peah")));
+  await page.unroute(/data\/mishnah\/peah\.json$/);
+  await page.click(".load-failed [data-retry]");
+  await page.waitForFunction(() => document.querySelectorAll(".lesson").length === 2 && !document.querySelector(".load-failed"));
+  ok("a sefer that fails to download keeps its plan, with Retry");
+
+  // saving fails: say so, and keep saying so
+  await page.evaluate(() => { Storage.prototype.setItem = () => { throw new Error("full"); }; });
+  await page.click(".lesson [data-done]");
+  await page.waitForSelector("#saveWarn:not([hidden])");
+  await page.waitForTimeout(800);
+  assert.doesNotMatch(await page.textContent("#toast"), /Yasher koach/);
+  assert(await page.isVisible("#saveWarn"), "the note stays");
+  ok("a failed save says so and the note stays");
+
   assert.deepStrictEqual(errors, []);
   ok("no errors in the page");
   await browser.close();
