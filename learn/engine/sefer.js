@@ -332,12 +332,14 @@
   function breakLevels(sefer) {
     return hidden(sefer, "_breaks", () => {
       const out = new Uint8Array(stopCount(sefer)), starts = pieceStarts(sefer);
+      // the end of a paragraph (the next stop starts a new segment)
+      if (sefer.offsets) for (let k = 0; k + 1 < out.length; k++) if (sefer.offsets[k + 1] === 0) out[k] = 1;
       positions(sefer).forEach((p, i) => {
         const last = starts[i + 1] - 1;
         if (last < starts[i]) return;
-        out[last] = (sefer.shape === "chapters" && p.last) || (sefer.shape === "daf" && p.side === "b") ? 2 : 1;
+        out[last] = (sefer.shape === "chapters" && p.last) || (sefer.shape === "daf" && p.side === "b") ? 3 : 2;
       });
-      out[out.length - 1] = 2;
+      out[out.length - 1] = 3;
       return out;
     });
   }

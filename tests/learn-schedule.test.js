@@ -66,7 +66,7 @@ test("the settings set the size: the same sefer over different lengths of time",
   // [finish date, days, share of days within 10% / 25% of the usual day]
   const perDay = {};
   for (const [end, days, within10, within25] of [
-    ["2026-12-18", 60, 0.95, 1], ["2027-10-10", 313, 0.85, 0.95], ["2029-10-11", 941, 0.4, 0.75]]) {
+    ["2026-12-18", 60, 0.95, 1], ["2027-10-10", 313, 0.8, 0.95], ["2029-10-11", 941, 0.3, 0.7]]) {
     const plan = S.buildPlan({ ...sample, endDate: end }, berakhot);
     assertCovers(plan);
     assert.strictEqual(plan.portions.length, days);
@@ -75,7 +75,8 @@ test("the settings set the size: the same sefer over different lengths of time",
     const day = median(sizes);
     perDay[end] = sizes.reduce((a, b) => a + b, 0) / sizes.length;
     const share = (t) => sizes.filter((x) => Math.abs(x - day) / day <= t).length / sizes.length;
-    // a long Tosafot on one line is learned with that line, so small days vary more
+    // a long Tosafot on one line is learned with that line, and a day ends only
+    // at the end of a sentence, so small days vary more
     assert(share(0.1) >= within10, `${end}: ${share(0.1).toFixed(2)} of days within 10% of ${day}`);
     assert(share(0.25) >= within25, `${end}: ${share(0.25).toFixed(2)} of days within 25% of ${day}`);
   }
@@ -93,7 +94,9 @@ test("the settings set the size: any daily amount, even a tenth of an amud", () 
     const sizes = plan.portions.slice(0, -1).map(lettersOf(berakhot, comms));
     const day = median(sizes);
     const off = sizes.filter((x) => Math.abs(x - day) / day > 0.25).length;
-    assert(off / sizes.length < 0.05, `${off} of ${sizes.length} days more than 25% off at ${amount} amud a day`);
+    // a tenth of an amud is a sentence or two, and a day ends only at a sentence's end
+    const allowed = amount < 0.25 ? 0.25 : 0.05;
+    assert(off / sizes.length < allowed, `${off} of ${sizes.length} days more than 25% off at ${amount} amud a day`);
   }
 });
 
@@ -168,7 +171,8 @@ test("a day can stop inside a long siman (Tur, Orach Chaim 128 over five days)",
   assert.strictEqual(plan.portions.length, 5);
   const sizes = plan.portions.map(lettersOf(turOC, []));
   const day = median(sizes);
-  for (const x of sizes) assert(Math.abs(x - day) / day < 0.05, `a day of ${x} letters against ${day}`);
+  // each day ends where a din ends (the Tur has no periods), so days differ a little
+  for (const x of sizes) assert(Math.abs(x - day) / day < 0.4, `a day of ${x} letters against ${day}`);
   const text = S.status(plan, turOC, "2026-10-12").today.text;
   assert.match(text, /^Tur Orach Chaim, siman 128, from the words “.+”, until the words “.+”$/);
 });
@@ -536,6 +540,16 @@ test("every sefer in the catalog schedules cleanly over a year", () => {
       assert(Pieces.sefariaUrl(sefer, p.from, p.to).startsWith("https://www.sefaria.org/"));
     }
   }
+});
+
+test("a day never stops in the middle of a sentence (Chovos HaLevavos, introduction)", () => {
+  // This paragraph is printed with almost no periods; it used to be cut every
+  // 60 letters, so a day could stop at "לחברו בספר". Now the whole sentence is
+  // one stopping point, and each stopping point starts a sentence.
+  const chovos = load("mussar/chovos-halevavos");
+  assert(!chovos.markers.some((m) => m.startsWith("לחברו בספר")), "no stop starts in the middle of that sentence");
+  const inPara = chovos.markers.filter((m, k) => chovos.segments[k] === 30 && k < 200);
+  assert(inPara.length <= 2, `paragraph 30 has ${inPara.length} stopping points`);
 });
 
 test("section names are in Hebrew, or English if the person chooses", () => {

@@ -92,7 +92,19 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 33 engine tests and 15 screen tests, all passing.
+- **Tests**: 34 engine tests and 15 screen tests, all passing.
+
+- **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
+  fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
+  comma and, in long stretches with no period, every 60 letters at any word;
+  in texts printed with few periods that made 663,788 stopping points that
+  started mid-sentence (most in Aruch HaShulchan, Shelah, Ein Yaakov). Now a
+  stop may start only after . : ? ! or sof pasuk, or at a new paragraph. The
+  Tur has no periods at all, so there a sentence over 800 letters may also
+  end at a Beis Yosef/Bach mark (where a new din starts). The builder refuses
+  to finish if any stop starts mid-sentence (Builder.check), and the
+  day-splitting now prefers paragraph ends a little. Days are a little less
+  even for very small days; tests adjusted and explained.
 
 ## Left out (told Hudi)
 

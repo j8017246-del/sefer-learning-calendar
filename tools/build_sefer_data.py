@@ -262,7 +262,7 @@ TAG = re.compile(r"<[^>]+>")
 LETTER = re.compile(r"[א-ת]")
 NIKUD = re.compile(r"[֑-ֽֿ-ׇ]")
 ANCHOR = re.compile(r"<i\b[^>]*data-commentator[^>]*>\s*</i>")
-SENTENCE_END = re.compile(r"(?<=[.:?;!,])\s+|\x00")
+SENTENCE_END = re.compile(r"(?<=[.:?!׃])\s+")
 CITATION = re.compile(r"\([^()]*\)|\[[^\[\]]*\]")
 WORD = re.compile(r"[א-ת׳״'\"]+")
 
@@ -377,21 +377,44 @@ def trim(weights):
 
 # ---- stopping points -------------------------------------------------------
 #
-# A day may end at the smallest natural break in the text: every sentence
-# and clause end (. : ? ; ! ,) and, in the Tur, every commentary reference
-# mark. Where a stretch has no such break it is cut every MAX_STOP letters at
-# a word, about one printed line. Fragments shorter than MIN_STOP letters (a
-# word or two) are joined to the next one.
+# A day may end only where a reader would stop: at the end of a sentence
+# (. : ? ! or sof pasuk) or of a paragraph (a Sefaria segment). Never at a
+# comma, and never in the middle of a sentence: a long sentence, or a
+# paragraph printed without periods, stays one stopping point however long it
+# is. Sentences shorter than MIN_STOP letters (a word or two) are joined to
+# the next one. Builder.check() refuses any stop that starts mid-sentence.
+#
+# (Until 10-07 the builder also cut at every comma and, where a stretch had no
+# break, every 60 letters at any word. In texts printed with few periods, such
+# as Chovos HaLevavos, that put stops in the middle of sentences. MID_SENTENCE
+# counts, per sefer, the stops those old rules would have added.)
 
 MIN_STOP = 15
-MAX_STOP = 60
+# The Tur is printed without periods. There a sentence longer than LONG_RUN
+# letters may also end at a commentary mark (where the Beis Yosef or Bach
+# begins), which in the print falls where a new din starts.
+LONG_RUN = 800
+SOFT = "\x01"
+soft_breaks = [False]
 MIN_WORDS, MAX_WORDS = 3, 6
+MID_SENTENCE = {}     # sefer id -> stops the old rules would have put mid-sentence
+MID_FAILURES = []     # stops found starting mid-sentence (must stay empty)
+_pending = [0, []]     # counts and failures of the sefer being built, until record()
 
 
 def clean(text):
-    t = ANCHOR.sub(" \x00 ", text)
+    t = ANCHOR.sub(f" {SOFT} " if soft_breaks[0] else " ", text)
     t = TAG.sub(" ", t).replace("־", " ")
     return NIKUD.sub("", t)
+
+
+def old_rule_cuts(part):
+    """How many extra cuts the old rules (commas, every 60 letters) made in one sentence."""
+    n = 0
+    for clause in re.split(r"(?<=[;,])\s+", part):
+        w = weigh(clause)
+        n += 1 + (w // 60 if w > 120 else 0)
+    return n - 1
 
 
 def sentences(text):
@@ -400,29 +423,18 @@ def sentences(text):
     if not isinstance(text, str):
         return []
     out, before = [], 0
-    for part in SENTENCE_END.split(clean(text)):
-        part = " ".join(part.split())
-        n = weigh(part)
-        if not n:
-            continue
-        if n <= MAX_STOP * 2:
+    for sentence in SENTENCE_END.split(clean(text)):
+        parts = [sentence]
+        if SOFT in sentence and weigh(sentence) > LONG_RUN:
+            parts = sentence.split(SOFT)
+        for part in parts:
+            part = " ".join(part.replace(SOFT, " ").split())
+            n = weigh(part)
+            if not n:
+                continue
             out.append((part, before))
-        else:
-            # a long run with no break: cut it every ~MAX_STOP letters at a word
-            cur, cur_n, at = [], 0, before
-            for w in part.split(" "):
-                cur.append(w)
-                cur_n += weigh(w)
-                if cur_n >= MAX_STOP:
-                    out.append((" ".join(cur), at))
-                    at += cur_n
-                    cur, cur_n = [], 0
-            if cur:
-                if out and cur_n < MIN_STOP:
-                    out[-1] = (out[-1][0] + " " + " ".join(cur), out[-1][1])
-                else:
-                    out.append((" ".join(cur), at))
-        before += n
+            _pending[0] += old_rule_cuts(part)
+            before += n
     return out
 
 
@@ -491,8 +503,11 @@ class Builder:
         else:
             sents = []   # (letters, text, segment number, offset)
             for s, seg in enumerate(segments):
+                base = 0   # letters before this part, when a segment has several parts
                 for x in flatten(seg):
-                    sents.extend((weigh(t), t, s + 1, at) for t, at in sentences(x))
+                    parts = sentences(x)
+                    sents.extend((weigh(t), t, s + 1, base + at) for t, at in parts)
+                    base += sum(weigh(t) for t, _ in parts)
             last_stop_of_seg = {}
             if not sents:
                 self.weights.append(0)
@@ -552,11 +567,23 @@ class Builder:
             while i < len(text) and letters < self.offsets[k]:
                 letters += 1 if LETTER.match(text[i]) else 0
                 i += 1
-            ahead = " ".join(WORD.findall(text[i:])[:30])
+            # (opening words skip bracketed notes and citations, as words_of does)
+            ahead = " ".join(WORD.findall(text[i:])[:30] + WORD.findall(CITATION.sub(" ", text[i:]))[:30])
             if not all(w in ahead.split(" ") for w in self.markers[k].split(" ")):
-                CHECK_FAILURES.append(f"{self.markers[k]!r} not at {self.segments[k]}@{self.offsets[k]}")
+                CHECK_FAILURES.append(f"{self.markers[k]!r} not at {self.segments[k]}@{self.offsets[k]}: {ahead[:60]!r} / {[str(x)[:80] for x in flatten(segments[self.segments[k] - 1])][:3]}")
+            # a stop inside a paragraph must follow the end of a sentence
+            # (the punctuation after the last letter before it counts)
+            j = i
+            while j < len(text) and not LETTER.match(text[j]):
+                j += 1
+            before = re.sub(r"[^א-ת.:?!׃\x01]", "", text[:j])
+            if self.offsets[k] > 0 and not re.search(r"[.:?!׃\x01]$", before):
+                _pending[1].append(f"{self.markers[k]!r} at {self.segments[k]}@{self.offsets[k]} after {text[max(0, j - 50):j]!r}")
 
     def record(self, base):
+        MID_SENTENCE[base["id"]] = _pending[0]
+        MID_FAILURES.extend(f"{base['id']}: {m}" for m in _pending[1])
+        _pending[0], _pending[1] = 0, []
         rec = dict(base)
         rec["stops"] = self.counts
         rec["weights"] = self.weights
@@ -851,8 +878,10 @@ def build_tur(ex):
         while simanim and deep_weight(simanim[-1]) == 0:
             simanim.pop()
         b = Builder([])
+        soft_breaks[0] = True
         for s in simanim:
             b.piece(s if isinstance(s, list) else [s])
+        soft_breaks[0] = False
         yield b.record({"id": f"tur/{pslug}", "collection": "tur",
                         "en": f"Tur {en}", "he": f"טור {he}",
                         "sefaria": f"Tur, {part}", "unit": "siman", "shape": "list",
@@ -1031,10 +1060,17 @@ def main():
                                       encoding="utf-8")
     if args.only == ",".join(BUILDERS):
         write_sources(records)
+    old = sorted(MID_SENTENCE.items(), key=lambda kv: -kv[1])
+    print(f"old rules would have put {sum(MID_SENTENCE.values())} stops mid-sentence; most in: "
+          + ", ".join(f"{k} {v}" for k, v in old[:8]), file=sys.stderr)
+    if MID_FAILURES:
+        print(f"{len(MID_FAILURES)} stops start mid-sentence, e.g. {MID_FAILURES[:3]}", file=sys.stderr)
+        sys.exit(1)
     if CHECK_FAILURES:
         print(f"{len(CHECK_FAILURES)} stops failed the opening-words check, e.g. "
               f"{CHECK_FAILURES[:3]}", file=sys.stderr)
         sys.exit(1)
+    print("sentence check: every stop starts a sentence or a paragraph", file=sys.stderr)
     print("opening-words check: every stop's words are at its address", file=sys.stderr)
 
 

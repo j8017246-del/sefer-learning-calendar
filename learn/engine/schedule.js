@@ -41,9 +41,10 @@
   const DAY_MS = 86400000;
   const LIGHTER_WEIGHT = 0.65;
   // How far from its exact share a day may move to end at a better place:
-  // the end of a perek or whole daf (level 2), or of an amud, se'if, siman,
-  // halacha, mishnah or pasuk (level 1). Otherwise it ends at the nearest stop.
-  const BREAK_TOLERANCE = [0, 0.03, 0.05];
+  // the end of a perek or whole daf (level 3), of an amud, se'if, siman,
+  // halacha, mishnah or pasuk (level 2), or of a paragraph (level 1).
+  // Otherwise it ends at the nearest stop, which is always a sentence end.
+  const BREAK_TOLERANCE = [0, 0.02, 0.03, 0.05];
   const MAX_DAYS = 366 * 30;
 
   // ---- dates ------------------------------------------------------------
