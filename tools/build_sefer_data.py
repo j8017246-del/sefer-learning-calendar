@@ -486,6 +486,7 @@ class Builder:
         self.split = split
         self.counts, self.weights, self.markers = [], [], []
         self.segments, self.offsets = [], []
+        self.nth = {}   # stop -> which time its opening words appear in the piece (2nd, 3rd...)
         self.comm = {cid: {"after": [], "weights": [], "heads": [], "nums": []}
                      for cid in comm_ids}
 
@@ -528,10 +529,23 @@ class Builder:
                         groups[-1].extend(cur)
                     else:
                         groups.append(cur)
+                # where each sentence's words begin in the piece's words
+                word_at, n = [], 0
+                for x in sents:
+                    word_at.append(n)
+                    n += len(words_of(x[1]))
                 for g in groups:
                     stop = len(self.weights)
                     self.weights.append(sum(sents[k][0] for k in g))
-                    self.markers.append(opening_words(" ".join(sents[k][1] for k in g), piece_words))
+                    marker = opening_words(" ".join(sents[k][1] for k in g), piece_words)
+                    self.markers.append(marker)
+                    # the same words earlier in the piece: say which time they are
+                    mw = marker.split(" ") if marker else []
+                    if mw:
+                        start = min(word_at[g[0]], len(piece_words))
+                        times = 1 + sum(1 for i in range(start) if piece_words[i:i + len(mw)] == mw)
+                        if times > 1:
+                            self.nth[stop] = times
                     self.segments.append(sents[g[0]][2])
                     self.offsets.append(sents[g[0]][3])
                     for k in g:
@@ -590,6 +604,8 @@ class Builder:
         rec["weights"] = self.weights
         if self.split:
             rec["markers"] = self.markers
+            if self.nth:
+                rec["nth"] = {str(k): v for k, v in sorted(self.nth.items())}
             rec["segments"] = self.segments
             rec["offsets"] = self.offsets
         comms = []

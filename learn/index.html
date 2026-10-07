@@ -82,7 +82,7 @@
   </form>
 
   <details class="panel all-days">
-    <summary>Every day of the plan <svg data-icon="down"></svg></summary>
+    <summary><span id="planDaysTitle">Days of the plan</span> <svg data-icon="down"></svg></summary>
     <ol id="planDays" class="day-list"></ol>
   </details>
 
@@ -109,7 +109,7 @@
       </div>
     </div>
     <div class="field">Color
-      <div class="swatches" id="swatches"></div>
+      <div class="swatches" id="swatches" role="radiogroup" aria-label="Color"></div>
     </div>
   </div>
 
@@ -172,8 +172,9 @@
     <h1>Choose a sefer</h1>
     <div class="search"><svg data-icon="search"></svg><input type="search" id="wizSearch" placeholder="Search in English or Hebrew" autocomplete="off"></div>
     <div class="chips-scroll" id="wizCols" role="tablist" aria-label="Collections"></div>
-    <div class="list-tools"><span id="wizChosen" class="muted"></span><span><button class="text-btn" id="wizAll">Select all</button><button class="text-btn" id="wizNone">Clear</button></span></div>
+    <div class="list-tools"><span id="wizChosen" class="muted"></span><span><button class="text-btn" id="wizAll">Select all available</button><button class="text-btn" id="wizNone">Clear</button></span></div>
     <div class="panel pick-rows" id="wizList"></div>
+    <p class="note col-note" id="colNote"></p>
 
     <div id="commentaryBox" hidden>
       <h3 class="group-title">Learn together with</h3>
@@ -232,7 +233,8 @@
     <h3 class="group-title">Days I learn</h3>
     <div class="panel form-rows">
       <div class="day-toggles" id="days"></div>
-      <button type="button" class="row-link" id="lighterRow">Lighter day <span class="row-value" id="lighterValue">Fri</span><svg data-icon="next"></svg></button>
+      <button type="button" class="row-link" id="lighterRow" aria-describedby="lighterHint">Lighter day <span class="row-value" id="lighterValue">Fri</span><svg data-icon="next"></svg></button>
+      <p class="note" id="lighterHint">A shorter day, about two-thirds of a usual day, for example before Shabbos.</p>
       <label class="row-link">Start on <input type="date" id="startDate" class="row-date"></label>
     </div>
 
@@ -283,7 +285,7 @@
 <dialog id="picker" class="sheet">
   <form method="dialog">
     <h2 id="pickerTitle"></h2>
-    <div id="pickerList" class="pick-rows"></div>
+    <div id="pickerList" class="pick-rows" role="listbox"></div>
     <button value="cancel" class="text-btn center">Cancel</button>
   </form>
 </dialog>

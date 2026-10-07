@@ -170,13 +170,19 @@
   //   commentaries: [{ id, en, he, through, piece }] the last comment learned,
   //                 by dibbur hamatchil or se'if katan; only when the day
   //                 stops inside a piece
+  // When a stop's opening words also appear earlier in the same piece: which
+  // time they appear (2 = the second time), so the place is found at once.
+  const nthOf = (sefer, s) => (sefer.nth && sefer.nth[s]) || 1;
+  const ORDINALS = ["", "", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
+  const timeText = (n) => (n > 1 ? ` (the ${ORDINALS[n] || `${n}th`} time)` : "");
+
   function rangeParts(sefer, from, to, commentaryIds = []) {
     if (to < from) return null;
     const a = pieceOf(sefer, from), b = pieceOf(sefer, to);
     const markers = sefer.markers || [];
     const parts = {
-      start: { piece: a, label: pieceLabel(sefer, a), words: startsPiece(sefer, from) ? null : markers[from] || null },
-      end: { piece: b, label: pieceLabel(sefer, b), until: endsPiece(sefer, to) ? null : markers[to + 1] || null },
+      start: { piece: a, label: pieceLabel(sefer, a), words: startsPiece(sefer, from) ? null : markers[from] || null, nth: nthOf(sefer, from) },
+      end: { piece: b, label: pieceLabel(sefer, b), until: endsPiece(sefer, to) ? null : markers[to + 1] || null, nth: nthOf(sefer, to + 1) },
       commentaries: [],
     };
     if (parts.end.until) {
@@ -214,8 +220,8 @@
     const pos = positions(sefer);
     const head = sefer.shape === "list" || sefer.shape === "named" ? `${sefer.en}, ` : `${sefer.en} `;
     const a = pieceName(sefer, r.start.piece), b = pieceName(sefer, r.end.piece);
-    const fromWords = r.start.words ? `, from the words “${r.start.words}”` : "";
-    const untilWords = r.end.until ? `, until the words “${r.end.until}”` : "";
+    const fromWords = r.start.words ? `, from the words “${r.start.words}”${timeText(r.start.nth)}` : "";
+    const untilWords = r.end.until ? `, until the words “${r.end.until}”${timeText(r.end.nth)}` : "";
     let text;
     if (r.start.piece === r.end.piece) {
       text = !fromWords && !untilWords
@@ -321,6 +327,7 @@
     sefer.stops[piece] += 1;
     // comments learned after stop s now come after the new stop, which ends where s ended
     for (const c of sefer.commentaries || []) c.after = c.after.map((a) => (a >= s ? a + 1 : a));
+    if (sefer.nth) sefer.nth = Object.fromEntries(Object.entries(sefer.nth).map(([k, v]) => [+k > s ? +k + 1 : +k, v]));
     for (const key of ["_breaks", "_pieceStarts", "_stopPieces", "_weights"]) delete sefer[key];
     return true;
   }
@@ -453,8 +460,8 @@
       if (a === b) return describeRange(a.sefer, from - a.firstStop, to - a.firstStop, has(a, comms));
       const r = multi.rangeParts(c, from, to, comms);
       const nameA = multi.pieceName(c, r.start.piece), nameB = multi.pieceName(c, r.end.piece);
-      const fromWords = r.start.words ? `, from the words “${r.start.words}”,` : "";
-      const end = r.end.until ? `${nameB}, until the words “${r.end.until}”`
+      const fromWords = r.start.words ? `, from the words “${r.start.words}”${timeText(r.start.nth)},` : "";
+      const end = r.end.until ? `${nameB}, until the words “${r.end.until}”${timeText(r.end.nth)}`
         : b.sefer.shape === "chapters" ? nameB : `the end of ${nameB}`;
       const text = `${nameA}${fromWords} to ${end}`;
       const comm = commentaryText(b.sefer, { ...r, end: { ...r.end, piece: r.end.piece - b.firstPiece },
@@ -493,7 +500,7 @@
   const either = (name, single) => (sefer, ...args) => (sefer.shape === "multi" ? multi[name](sefer, ...args) : single(sefer, ...args));
 
   const api = {
-    pieceCount, stopCount, pieceOf, stopRange, combine, setSectionNames, keepPlace,
+    pieceCount, stopCount, pieceOf, stopRange, combine, setSectionNames, keepPlace, timeText,
     positions: either("positions", positions),
     pieceLabel: either("pieceLabel", pieceLabel),
     pieceName: either("pieceName", pieceName),

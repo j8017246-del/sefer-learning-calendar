@@ -13,6 +13,7 @@
   const STORE = "learning-calendar-v1";
   const LOOK_STORE = "learning-calendar-appearance";
   const NAMES_STORE = "learning-calendar-names";
+  const TODAY_STORE = "learning-calendar-today";
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const UNITS = {
     pasuk: ["pasuk", "pesukim"], mishnah: ["mishnah", "mishnayos"], amud: ["amud", "amudim"],
@@ -191,7 +192,9 @@
     root.dataset.theme = dark ? "dark" : "light";
     root.dataset.style = look.style;
     root.style.setProperty("--accent", look.accent);
-    root.style.setProperty("--accent-ink", luminance(look.accent) < 0.4 ? "#ffffff" : "#111215");
+    // text on the color: whichever of white or near-black has more contrast
+    const L = luminance(look.accent), onWhite = 1.05 / (L + 0.05), onDark = (L + 0.05) / (luminance("#111215") + 0.05);
+    root.style.setProperty("--accent-ink", onWhite >= onDark ? "#ffffff" : "#111215");
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = getComputedStyle(root).getPropertyValue("--bg").trim();
   }
@@ -204,8 +207,8 @@
     document.querySelectorAll('input[name="style"]').forEach((r) => { r.checked = r.value === look.style; });
     document.querySelectorAll('input[name="names"]').forEach((r) => { r.checked = r.value === sectionNames; });
     const custom = !SWATCHES.includes(look.accent);
-    $("swatches").innerHTML = SWATCHES.map((h) => `<button type="button" data-swatch="${h}" style="background:${h}" aria-label="Color ${h}" aria-pressed="${h === look.accent}"></button>`).join("")
-      + `<label aria-pressed="${custom}" title="Any color"><input type="color" id="accentCustom" value="${look.accent}" aria-label="Any color"></label>`;
+    $("swatches").innerHTML = SWATCHES.map((h) => `<button type="button" role="radio" data-swatch="${h}" style="background:${h}" aria-label="Color ${h}" aria-checked="${h === look.accent}"></button>`).join("")
+      + `<label title="Any color"><input type="color" role="radio" id="accentCustom" value="${look.accent}" aria-label="Any color" aria-checked="${custom}"></label>`;
   }
   document.addEventListener("change", (e) => {
     const t = e.target;
@@ -230,7 +233,21 @@
   // ---- screens ------------------------------------------------------------------------
 
   const TAB_OF = { today: "today", library: "library", plan: "library", settings: "settings", about: "settings" };
-  function show(view) {
+  // Each screen is a step in the browser's history, so the phone's Back button
+  // returns to the screen before.
+  function remember(state) {
+    const cur = history.state || {};
+    if (cur.view === state.view && cur.id === state.id) return;
+    try { history.pushState(state, "", "#" + state.view); } catch (e) { /* some frames refuse; Back just leaves */ }
+  }
+  window.addEventListener("popstate", (e) => {
+    const st = e.state || { view: "today" };
+    if (st.view === "plan" && findPlan(st.id)) openPlan(st.id, true);
+    else show(st.view === "plan" ? "library" : st.view, true);
+  });
+
+  function show(view, fromHistory = false) {
+    if (!fromHistory) remember({ view });
     document.querySelectorAll(".view").forEach((v) => { v.hidden = v.id !== view; });
     document.querySelectorAll(".tabbar [data-go]").forEach((b) => {
       if (b.dataset.go === TAB_OF[view]) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
@@ -248,8 +265,8 @@
     const r = P.rangeParts(sefer, p.from, p.to, comms);
     if (!r) return "";
     const start = P.pieceName(sefer, r.start.piece), end = P.pieceName(sefer, r.end.piece);
-    const startText = r.start.words ? `${esc(start)}, from the words ${words(r.start.words)}` : `the beginning of ${esc(start)}`;
-    const endText = r.end.until ? `${esc(end)}, until the words ${words(r.end.until)}` : `the end of ${esc(end)}`;
+    const startText = r.start.words ? `${esc(start)}, from the words ${words(r.start.words)}${esc(P.timeText(r.start.nth))}` : `the beginning of ${esc(start)}`;
+    const endText = r.end.until ? `${esc(end)}, until the words ${words(r.end.until)}${esc(P.timeText(r.end.nth))}` : `the end of ${esc(end)}`;
     const comm = r.commentaries.map((c) => c.seifKatan != null
       ? `${esc(c.en)} through ${c.siman !== P.positions(sefer)[r.end.piece].chapter ? `siman ${c.siman}, ` : ""}se'if katan ${c.seifKatan}`
       : c.words ? `${esc(c.en)} through ${words(c.words)}` : "").filter(Boolean);
@@ -290,6 +307,11 @@
       : doneCount === due.length ? `All done${selectedDate === today ? " for today" : ""}. Yasher koach!`
       : `${due.length - doneCount} of ${due.length} still to learn`;
     $("cards").innerHTML = plans.map((x) => lessonHtml(x, today)).join("") + unloadedHtml();
+    // keep today's screen on the phone, so it shows at once next time
+    try {
+      localStorage.setItem(TODAY_STORE, JSON.stringify({ date: today, selected: selectedDate, title: $("todayTitle").textContent,
+        when: $("todayDate").innerHTML, status: $("dayStatus").textContent, week: $("week").innerHTML, cards: $("cards").innerHTML }));
+    } catch (e) { /* only a convenience */ }
   }
 
   function lessonHtml(x, today) {
@@ -314,7 +336,9 @@
         ${isToday && !st.finished ? (st.behind ? `<button class="text-btn" data-missed="${esc(x.id)}">Catch up</button>` : `<button class="text-btn" data-cant="${esc(x.id)}">I can't learn today</button>`) : ""}</div>`;
 
     if (st.finished && isToday) {
-      return `<article class="panel lesson is-done">${head}<p class="done-mark">${icon("check")} Finished the whole sefer. Mazal tov!</p>${foot}</article>`;
+      const lastDone = learning.filter((q) => q.done).sort((a, b) => a.date.localeCompare(b.date)).pop();
+      return `<article class="panel lesson is-done">${head}<p class="done-mark">${icon("check")} Finished the whole sefer. Mazal tov!</p>
+        ${lastDone ? `<button class="text-btn" data-undo="${esc(x.id)}" data-date="${esc(lastDone.date)}">Undo the last day</button>` : ""}${foot}</article>`;
     }
     if (p && !p.done) {
       return `<article class="panel lesson">${head}
@@ -351,6 +375,17 @@
     const st = S.status(x.plan, x.sefer, today);
     $("missedTitle").textContent = includeToday ? "Can't learn today" : `You missed ${st.behind} day${st.behind > 1 ? "s" : ""}`;
     $("missedText").textContent = includeToday ? "What should happen to today's portion?" : "What should happen to the portions you missed?";
+    // each choice shows the finish date it would give
+    const LABELS = { push: "Push the finish date later", spread: "Spread it over the coming days", double: "Double up on the next day" };
+    for (const choice of Object.keys(LABELS)) {
+      let when = "";
+      try {
+        const r = S.reschedule(x.plan, x.sefer, { today, choice, includeToday });
+        const last = r.portions.filter((p) => p.to >= p.from).pop();
+        when = last ? `Finishing ${niceDate(last.date, true)}` : "";
+      } catch (e) { /* leave the date out */ }
+      document.querySelector(`#missed button[value="${choice}"]`).innerHTML = `${LABELS[choice]}${when ? `<small>${esc(when)}</small>` : ""}`;
+    }
     const dlg = $("missed");
     dlg.returnValue = "";
     dlg.onclose = () => {
@@ -427,7 +462,8 @@
 
   // ---- one sefer --------------------------------------------------------------------------
 
-  function openPlan(id) {
+  function openPlan(id, fromHistory = false) {
+    if (!fromHistory) remember({ view: "plan", id });
     current = id;
     calPick = null;
     const x = findPlan(id), first = x.plan.portions[0].date, today = todayIso();
@@ -452,10 +488,20 @@
       <div><b>${st.finishDate ? dateOf(st.finishDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}</b><span>finishing${st.finishDate ? ` ${dateOf(st.finishDate).getFullYear()}` : ""}</span></div>`;
     $("editEnd").value = plan.endDate || learning.at(-1).date;
     renderCalendar(x, today);
-    $("planDays").innerHTML = plan.portions.map((p) => `<li class="${p.date === today ? "today" : ""} ${p.to < p.from ? "off" : ""}">
+  }
+
+  // The days of the month shown in the calendar, each with a button to mark it
+  // done or not done.
+  function renderMonthDays(x, today) {
+    const { sefer, plan } = x, comms = plan.commentaries || [];
+    const [y, m] = calMonth.split("-").map(Number);
+    $("planDaysTitle").textContent = `Days in ${new Date(y, m - 1, 1, 12).toLocaleDateString("en-US", { month: "long", year: "numeric" })}`;
+    const days = plan.portions.filter((p) => p.date.startsWith(calMonth));
+    $("planDays").innerHTML = days.map((p) => `<li class="${p.date === today ? "today" : ""} ${p.to < p.from ? "off" : ""}">
         <span class="d">${niceDate(p.date)}</span>
         <span class="t">${p.to < p.from ? "No new learning" : portionLine(sefer, comms, p)}</span>
-        <span class="ok">${p.done ? "✓" : ""}</span></li>`).join("");
+        ${p.to < p.from ? "<span></span>" : `<button class="mark" data-toggle="${esc(p.date)}" aria-pressed="${!!p.done}" aria-label="${p.done ? "Done; tap to unmark" : "Mark done"}">${p.done ? icon("check") : ""}</button>`}</li>`).join("")
+      || `<li class="off"><span class="t">No days of this plan in this month.</span></li>`;
   }
 
   function renderCalendar(x, today) {
@@ -472,6 +518,7 @@
     }
     $("calGrid").innerHTML = html;
     const p = calPick && byDate.get(calPick);
+    renderMonthDays(x, today);
     $("calDetail").innerHTML = !calPick ? "" : `<b>${niceDate(calPick, true)}${p && p.done ? " · done" : ""}</b>${!p ? "Not part of the plan." : p.to < p.from ? "No new learning." : portionLine(sefer, comms, p)}`;
   }
 
@@ -486,6 +533,14 @@
     calMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     renderCalendar(findPlan(current), todayIso());
   };
+  $("planDays").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-toggle]");
+    if (!b) return;
+    const x = findPlan(current);
+    x.plan = S.markDone(x.plan, b.dataset.toggle, b.getAttribute("aria-pressed") !== "true");
+    if (!save()) toast("Marked, but not saved on this phone");
+    renderPlan();
+  });
   $("calPrev").addEventListener("click", () => moveMonth(-1));
   $("calNext").addEventListener("click", () => moveMonth(1));
 
@@ -517,7 +572,7 @@
   function openPicker(title, options, value, onPick) {
     const dlg = $("picker");
     $("pickerTitle").textContent = title;
-    $("pickerList").innerHTML = options.map((o) => `<button type="button" class="pick-row" data-value="${esc(o.value)}" aria-selected="${o.value === value}">
+    $("pickerList").innerHTML = options.map((o) => `<button type="button" role="option" class="pick-row" data-value="${esc(o.value)}" aria-selected="${o.value === value}">
       <span class="names"><span>${esc(o.label)}</span></span><span class="check">${icon("check")}</span></button>`).join("");
     $("pickerList").onclick = (e) => {
       const b = e.target.closest("[data-value]");
@@ -565,9 +620,22 @@
       `<button type="button" role="tab" data-col="${c.id}" aria-selected="${c.id === wiz.col}">${esc(c.en)}</button>`).join("");
   }
 
+  // What each collection leaves out (no Public Domain edition) or estimates.
+  const COLLECTION_NOTES = {
+    bavli: "Rashi and Tosafot on Sanhedrin are not included: there is no free edition. Tamid has no Rashi or Tosafot on Sefaria. The Yerushalmi is not included.",
+    rambam: "Not included, because there is no free edition: Hilchos Tefillin, Mezuzah and Sefer Torah; Tzitzis; Berachos; Milah; and the Order of Prayers.",
+    "shulchan-aruch": "Mishnah Berurah on Orach Chaim simanim 1 to 186 is estimated: the free edition does not have them, so their length is estimated from the number of se'ifim katanim.",
+    halacha: "Not included, because there is no free edition: Aruch HaShulchan Orach Chaim, Shulchan Aruch HaRav.",
+    mussar: "Not included, because there is no free edition: Tanya, Chofetz Chaim, Shemiras HaLashon, Orchos Tzaddikim, Kuzari, Sefer HaChinuch.",
+    midrash: "Not included, because there is no free edition: Zohar, Mechilta.",
+  };
+  // Search ignores nikud and cantillation, and treats ״ and ׳ like " and '.
+  const plain = (t) => String(t).replace(/[\u0591-\u05C7]/g, "").replace(/[״“”]/g, '"').replace(/[׳‘’]/g, "'").toLowerCase();
+
   function renderList() {
-    const q = $("wizSearch").value.trim().toLowerCase();
-    const list = q ? catalog.seforim.filter((e) => `${e.en} ${e.he}`.toLowerCase().includes(q)) : inCollection(wiz.col);
+    const q = plain($("wizSearch").value.trim());
+    const list = q ? catalog.seforim.filter((e) => plain(`${e.en} ${e.he}`).includes(q)) : inCollection(wiz.col);
+    $("colNote").textContent = q ? "" : COLLECTION_NOTES[wiz.col] || "";
     $("wizList").innerHTML = list.map((e) => `<label class="pick-row">
         <input type="checkbox" value="${e.id}" ${wiz.chosen.includes(e.id) ? "checked" : ""}>
         <span class="names"><span class="en">${esc(e.en)}${q ? ` · ${esc(collectionOf(e.collection).en)}` : ""}</span><span class="he" lang="he" dir="rtl">${esc(e.he)}</span></span>
@@ -601,7 +669,7 @@
     const entries = wiz.chosen.map(entryOf);
     const all = inCollection(wiz.col).length;
     $("wizChosen").textContent = !entries.length ? "" : entries.length === 1 ? `${entries[0].en} chosen`
-      : entries.length === all ? `All ${all} chosen` : `${entries.length} chosen`;
+      : entries.length === all ? `All ${all} available chosen` : `${entries.length} chosen`;
     const comms = [];
     for (const e of entries) for (const c of e.commentaries) if (!comms.some((k) => k.id === c.id)) comms.push(c);
     $("commentaryBox").hidden = !comms.length;
@@ -820,9 +888,42 @@
     saveLook(); applyLook(); renderSettings();
   }));
 
+  // ---- a new day while the app stays open ----------------------------------------------
+
+  let lastToday = todayIso();
+  function checkNewDay() {
+    const t = todayIso();
+    if (t === lastToday) return;
+    if (selectedDate === lastToday) selectedDate = t;
+    lastToday = t;
+    if (!$("today").hidden) renderToday();
+    else if (!$("library").hidden) renderLibrary();
+  }
+  setInterval(checkNewDay, 30000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) checkNewDay(); });
+  window.addEventListener("focus", checkNewDay);
+
   // ---- start ----------------------------------------------------------------------------------
 
+  // Today as it was last shown, while the sefarim load (only if it is still today).
+  function showSavedToday() {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(TODAY_STORE)); } catch (e) { /* none */ }
+    if (!saved || saved.date !== todayIso() || saved.selected !== saved.date || !saved.cards) return;
+    $("todayTitle").textContent = saved.title;
+    $("todayDate").innerHTML = saved.when;
+    $("dayStatus").textContent = saved.status;
+    $("week").innerHTML = saved.week;
+    $("cards").innerHTML = saved.cards.replace(/class="panel lesson/g, 'class="panel lesson from-cache');
+    $("empty").hidden = true;
+  }
+
   async function start() {
+    showSavedToday();
+    if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.register("sw.js").catch(() => { /* works without it, online */ });
+    }
+    try { history.replaceState({ view: "today" }, "", location.pathname + location.search); } catch (e) { /* fine */ }
     try {
       catalog = await getJson("data/catalog.json");
     } catch (e) {

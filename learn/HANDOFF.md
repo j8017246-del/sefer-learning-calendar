@@ -38,7 +38,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   checkbox list with search, Select all and Clear. `SeferPieces.combine()`
   joins the data files in order, so a day can run from the end of one
   masechta or hilchos into the next. Saved plans keep `seferIds` and `name`.
-- **Looks and Settings** (Hudi asked): Settings screen with five looks
+- **Looks and Settings** (superseded on 10-07 by the rebuilt screens: theme, style, color). Earlier: Settings screen with five looks
   (Clean Minimal, Midnight Glass, Bold Gradient, Black & Gold, Calm Teal);
   in each the background, cards, main and second colors can be changed (color
   pickers and quick swatches) and reset. Text color follows automatically for
@@ -92,7 +92,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 37 engine tests and 18 screen tests, all passing.
+- **Tests**: 38 engine tests and 24 screen tests, all passing.
 
 - **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
   fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
@@ -122,7 +122,28 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   7. Each data file has a `dataVersion`; plans save the opening words at their
      places; on load `keepSavedPlaces` splits a stop where a saved place no
      longer starts one, so days stay exactly where they were.
-  Part B (items 8–17) is next, on Hudi's word.
+- **Audit of 10-07, Part B** (each with a test that failed first):
+  8. Finishing keeps "Undo the last day"; each day in a sefer's schedule has a
+     button to mark it done or not done.
+  9. Today moves to the new day at midnight and when the app comes back into view.
+  10. Where a stop's opening words appear earlier in the same piece, the data
+      says which time (`nth`), shown as "(the second time)".
+  11. Skipped (backups only; accounts will replace them).
+  12. Each collection says what it leaves out or estimates before choosing
+      (Rambam sections, Sanhedrin's Rashi/Tosafot, Mishnah Berurah 1–186 ...);
+      "Select all available".
+  13. Hebrew search ignores nikud and treats ״ ׳ like " '.
+  14. Choices wrap at large text; day circles, swatches and small buttons are
+      44 by 44; text on colored buttons picked by contrast; color choices are
+      radios; the choice list is a listbox. (Keyboard access to "Load backup
+      file" skipped: backups are going away.)
+  15. Today shows at once from the phone (saved screen) while seforim load in
+      parallel; a sefer's days are listed a month at a time; `sw.js` lets the
+      app open offline.
+  16. The phone's Back button moves between screens; "Lighter day" is
+      explained (about two-thirds of a day); each catch-up choice shows the
+      finish date it would give.
+  17. README and this file updated; the screen tests fail without Playwright.
 
 ## Left out (told Hudi)
 
@@ -165,10 +186,13 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    iPad fix (solved): previews load from a separate address; Hudi's iPad Screen
    Time "Allowed Websites" needed claudeusercontent.com (also added:
    claudemcpcontent.com, claude.site, fonts.googleapis.com, fonts.gstatic.com).
-2. Yom Tov suggestions for days off.
-3. Make the data files smaller before release (21 MB in total; one sefer
+2. Part C of the audit, on Hudi's word: Yom Tov suggestions for days off (ask
+   Israel or outside Israel), printable weekly sheet and calendar-file export,
+   one-tap Daf Yomi, reminders, sharing with a chavrusa, a full Hebrew screen,
+   accounts and sync (these last two only on Hudi's word). Accounts replace
+   the manual backup.
+3. Make the data files smaller before release (29 MB in total; one sefer
    loads at a time).
-4. Works offline (a service worker), so the app opens without a connection.
 
 ## How to run
 

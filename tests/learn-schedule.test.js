@@ -174,7 +174,7 @@ test("a day can stop inside a long siman (Tur, Orach Chaim 128 over five days)",
   // each day ends where a din ends (the Tur has no periods), so days differ a little
   for (const x of sizes) assert(Math.abs(x - day) / day < 0.4, `a day of ${x} letters against ${day}`);
   const text = S.status(plan, turOC, "2026-10-12").today.text;
-  assert.match(text, /^Tur Orach Chaim, siman 128, from the words “.+”, until the words “.+”$/);
+  assert.match(text, /^Tur Orach Chaim, siman 128, from the words “.+”( \(the \w+ time\))?, until the words “.+”( \(the \w+ time\))?$/);
 });
 
 test("a day can stop inside a se'if, a halacha and a mishnah", () => {
@@ -640,6 +640,18 @@ test("after the data is rebuilt, days already saved start and stop exactly where
   assert.deepStrictEqual(S.toSaved(back, fresh).portions, saved.portions, "every day starts and stops where it did");
   const firstOpen = back.portions.find((p) => !p.done);
   assert.strictEqual(fresh.markers[firstOpen.from], mBerakhot.markers[plan.portions.find((p) => !p.done).from], "with the same opening words");
+});
+
+test("when a stop's words appear earlier in the same place, the app says which time (Demai 4:1)", () => {
+  const demai = load("mishnah/demai");
+  const k = Object.keys(demai.nth || {}).map(Number).find((s) => Pieces.pieceLabel(demai, Pieces.pieceOf(demai, s)) === "4:1");
+  assert(k !== undefined, "Demai 4:1 has a stop whose words appear twice");
+  assert.match(Pieces.describeRange(demai, k - 3, k - 1), /until the words “[^”]+” \(the second time\)/);
+  assert.match(Pieces.describeRange(demai, k, k + 1), /from the words “[^”]+” \(the second time\)/);
+  // across all the data, every stop whose words repeat is marked
+  let marked = 0;
+  for (const e of catalog.seforim) marked += Object.keys(load(e.id).nth || {}).length;
+  assert(marked > 1000, `${marked} repeated places are marked`);
 });
 
 test("names are Hebrew with English alongside", () => {

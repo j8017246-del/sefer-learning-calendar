@@ -1,5 +1,5 @@
 // Drives the learning calendar screens in a phone-sized browser.
-// Needs Playwright (MIT). Skips when it is not installed.
+// Needs Playwright (MIT); fails when it is not installed.
 const assert = require("assert");
 const http = require("http");
 const fs = require("fs");
@@ -9,8 +9,8 @@ let chromium;
 try {
   ({ chromium } = require("playwright"));
 } catch (e) {
-  console.log("skip - Playwright is not installed");
-  process.exit(0);
+  console.error("Playwright is not installed. Install it (npm i -g playwright) to run the screen tests.");
+  process.exit(1);
 }
 
 const ROOT = path.join(__dirname, "..", "learn");
@@ -32,7 +32,9 @@ function serve() {
   const server = await serve();
   const url = `http://127.0.0.1:${server.address().port}/`;
   const browser = await chromium.launch(process.env.PLAYWRIGHT_BROWSERS_PATH ? {} : { executablePath: "/opt/pw-browsers/chromium" });
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  // the offline helper (service worker) is tested on its own below; here it would
+  // answer requests the tests block on purpose
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, serviceWorkers: "block" });
   // fonts come from Google Fonts on a real phone; the test does without them
   await context.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
   const page = await context.newPage();
@@ -56,7 +58,7 @@ function serve() {
   await page.click('#wizCols [data-col="bavli"]');
   // the whole collection can be chosen at once
   await page.click("#wizAll");
-  await page.waitForFunction(() => /All 37 chosen/.test(document.querySelector("#wizChosen").textContent));
+  await page.waitForFunction(() => /All 37 available chosen/.test(document.querySelector("#wizChosen").textContent));
   await page.click("#wizNext");
   await page.waitForFunction(() => /days/.test(document.querySelector("#preview").textContent), null, { timeout: 60000 });
   ok("all of Shas can be chosen at once");
@@ -162,9 +164,15 @@ function serve() {
   assert.strictEqual(await page.textContent("#calMonth"), "October 2026");
   await page.click('[data-cal="2026-10-15"]');
   assert.match(await page.textContent("#calDetail"), /Berachos/);
-  const rows = await page.$$eval("#planDays li", (li) => li.length);
-  assert.strictEqual(rows, 78);
-  ok("the sefer's screen shows a calendar and lists every day");
+  // the days are listed a month at a time, with the calendar's month
+  await page.click("#plan .all-days summary");
+  assert.match(await page.textContent("#planDaysTitle"), /October 2026/);
+  const october = await page.$$eval("#planDays li", (li) => li.length);
+  await page.click("#calNext");
+  const november = await page.$$eval("#planDays li", (li) => li.length);
+  assert(october > 10 && october < 25 && november > 20 && november < 30, `${october} and ${november} days listed`);
+  await page.click("#calPrev");
+  ok("the sefer's screen shows a calendar and lists its days a month at a time");
   await shot("learn-plan.png");
 
   // about and sources credit Wikisource
@@ -271,6 +279,102 @@ function serve() {
   assert.doesNotMatch(await page.textContent("#toast"), /Yasher koach/);
   assert(await page.isVisible("#saveWarn"), "the note stays");
   ok("a failed save says so and the note stays");
+
+  // ---- audit of 10-07 (Part B) ----
+  await page.reload();
+  await page.waitForSelector(".lesson");
+  const ruthCard = () => page.locator(".lesson", { hasText: "רות" });
+  // 8: a day's done can be changed from the whole schedule, and the last day keeps Undo
+  await ruthCard().locator("[data-open]").click();
+  await page.click("#plan .all-days summary");
+  for (let i = 0; i < 10; i++) {
+    const open = page.locator('#planDays [data-toggle][aria-pressed="false"]');
+    if (!(await open.count())) break;
+    await open.first().click();
+  }
+  assert.strictEqual(await page.locator('#planDays [data-toggle][aria-pressed="false"]').count(), 0);
+  await page.click('.tabbar [data-go="today"]');
+  await ruthCard().locator("[data-undo]").waitFor();
+  assert.match(await ruthCard().textContent(), /Mazal tov/);
+  await ruthCard().locator("[data-undo]").click();
+  await page.waitForFunction(() => ![...document.querySelectorAll(".lesson")].some((c) => /Mazal tov/.test(c.textContent)));
+  ok("finishing keeps Undo, and days can be marked or unmarked from the whole schedule");
+
+  // 9: the app stays open past midnight
+  await page.clock.setFixedTime(new Date("2026-10-15T00:01:00"));
+  await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+  await page.waitForFunction(() => /October 15/.test(document.querySelector("#todayDate").textContent));
+  ok("Today moves to the new day after midnight");
+
+  // 12 and 13: what is missing is said before choosing; Hebrew search with nikud and quote marks
+  await page.click('#today [data-go="add"]');
+  await page.click('#wizCols [data-col="rambam"]');
+  assert.match(await page.textContent("#colNote"), /Tzitzis/);
+  assert.match(await page.textContent("#wizAll"), /Select all available/);
+  await page.fill("#wizSearch", "בְּרָכוֹת");
+  await page.waitForSelector('#wizList input[value="bavli/berakhot"]');
+  await page.fill("#wizSearch", 'ליקוטי מוהר"ן');
+  await page.waitForSelector('#wizList input[value="mussar/likutei-moharan"]');
+  ok("missing sections are named before choosing, and Hebrew search ignores nikud and quote marks");
+
+  // 14: large text does not run off a small phone; big enough targets; readable colored buttons
+  await page.check('#wizList input[value="mussar/likutei-moharan"]');
+  await page.click("#wizNext");
+  await page.check('input[name="mode"][value="time"]');
+  await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  assert(wide <= 0, `the page is ${wide}px too wide at 200% text`);
+  await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
+  const circle = await page.locator("#days label").first().boundingBox();
+  assert(circle.width >= 44 && circle.height >= 44, `day circle ${circle.width}x${circle.height}`);
+  assert.match(await page.textContent("#lighterHint"), /two-thirds/);
+  await page.click("#lighterRow");
+  assert.strictEqual(await page.getAttribute("#pickerList", "role"), "listbox");
+  assert.strictEqual(await page.getAttribute("#pickerList [aria-selected]", "role"), "option");
+  await page.click('#picker button[value="cancel"]');
+  await page.click("#wizBack");
+  await page.click("#wizBack");
+  await page.click('.tabbar [data-go="settings"]');
+  await page.evaluate(() => { const i = document.querySelector("#accentCustom"); i.value = "#888888"; i.dispatchEvent(new Event("change", { bubbles: true })); });
+  assert.strictEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent-ink").trim()), "#111215",
+    "dark text on a mid-grey button");
+  assert.strictEqual(await page.getAttribute("#accentCustom", "aria-checked"), "true");
+  await page.click('[data-swatch="#2952cc"]');
+  ok("large text wraps, targets are 44 by 44, and colored buttons pick readable text");
+
+  // 16: the phone's Back button moves between screens; catch-up choices show the new finish date
+  await page.click('[data-go="about"]');
+  await page.goBack();
+  await page.waitForSelector("#settings:not([hidden])");
+  await page.click('.tabbar [data-go="today"]');
+  await page.locator("[data-cant]").first().click();
+  assert.match(await page.textContent('#missed button[value="push"]'), /finish(es|ing) .*20\d\d/i);
+  await page.click('#missed button[value="cancel"]');
+  ok("Back goes to the screen before, and each catch-up choice shows its finish date");
+
+  // 15: Today shows at once from the phone, and the app opens without a connection
+  await page.route(/\/data\/.*\.json$/, async (r) => { await new Promise((ok) => setTimeout(ok, 4000)); r.continue(); });
+  const t0 = Date.now();
+  await page.reload();
+  await page.waitForSelector(".lesson");
+  assert(Date.now() - t0 < 2500, `Today took ${Date.now() - t0} ms with slow data`);
+  await page.unroute(/\/data\/.*\.json$/);
+  await page.waitForFunction(() => !document.querySelector(".lesson.from-cache"), null, { timeout: 15000 });
+  // offline, in a browser of its own with the same plans on the phone
+  const offline = await browser.newContext({ viewport: { width: 390, height: 844 }, storageState: await context.storageState() });
+  await offline.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+  const page2 = await offline.newPage();
+  await page2.clock.setFixedTime(new Date("2026-10-15T09:00:00"));
+  await page2.goto(url);
+  await page2.waitForSelector(".lesson:not(.from-cache)");
+  await page2.evaluate(() => navigator.serviceWorker.ready);
+  await page2.reload();
+  await page2.waitForSelector(".lesson:not(.from-cache)");
+  await offline.setOffline(true);
+  await page2.reload();
+  await page2.waitForFunction(() => document.querySelectorAll(".lesson:not(.from-cache)").length === 2, null, { timeout: 15000 });
+  await offline.close();
+  ok("Today shows at once, and the app works without a connection");
 
   assert.deepStrictEqual(errors, []);
   ok("no errors in the page");

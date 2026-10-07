@@ -406,3 +406,26 @@ dialog.sheet .muted { text-align: center; margin: 0 0 6px; }
 .save-warn { position: sticky; top: 0; z-index: 8; margin: 0; padding: 10px 16px; text-align: center; font-size: .9rem; font-weight: 600;
   background: var(--warn); color: #fff; }
 .load-failed h2 { font-size: 1.1rem; }
+
+.day-list li { align-items: center; }
+.day-list .mark { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--faint); background: none; color: var(--ok); display: grid; place-items: center; cursor: pointer; }
+.day-list .mark[aria-pressed="true"] { border-color: var(--ok); background: var(--ok-soft); }
+.day-list .mark svg { width: 20px; height: 20px; }
+.col-note { margin: 10px 4px 0; }
+.col-note:empty { display: none; }
+
+/* large text: choices wrap onto a second line instead of running off the screen */
+.seg { flex-wrap: wrap; }
+.seg label { white-space: normal; flex: 1 1 auto; min-width: 0; min-height: 44px; }
+/* every tap target at least 44 by 44 */
+.day-toggles { display: flex; justify-content: space-between; gap: 2px; flex-wrap: wrap; }
+.day-toggles label { width: 44px; height: 44px; min-width: 44px; max-width: none; aspect-ratio: auto; }
+.icon-btn.small, .text-btn, .back, .week button, .cal-grid button { min-height: 44px; }
+.icon-btn.small { width: 44px; height: 44px; }
+.swatches button, .swatches label { width: 44px; height: 44px; }
+.swatches [aria-checked="true"], .swatches label:has([aria-checked="true"]) { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
+#missed .btn { flex-direction: column; gap: 2px; padding: 8px 18px; }
+#missed .btn small { font-weight: 500; font-size: .8rem; opacity: .8; }
+/* today's cards from the phone, shown while the sefarim load: not tappable yet */
+.lesson.from-cache { pointer-events: none; }
+.lesson.from-cache .btn, .lesson.from-cache .text-btn { opacity: .6; }
