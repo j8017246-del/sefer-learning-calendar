@@ -72,16 +72,27 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   Mesillas Yesharim, ...) have Hebrew section names from Sefaria's own
   schemas (`heLabels`), shown by default; Settings has "Section names: Hebrew
   / English" (`learning-calendar-names` in browser storage).
-- **Look like a real iPhone app** (Hudi: "looks AI-ish"): the phone's own
-  font (San Francisco on iPhone/iPad), sefer names in Frank Ruhl Libre (a
-  classic Hebrew book face), one solid accent color, no gradients, glows,
-  icon badges or card stripes; titles in plain sentence case; iOS-style
-  switches for How much, pace and section names; the chosen sefer's name shown
-  large, right to left, at the top of Add; a plain summary (days, finish date
-  with the Hebrew date, minutes a day, first day). Default look: Liquid Glass
-  (iOS frosted panels on #f2f2f7 with a faint wash of the accent); Midnight
-  Glass is its dark twin. Done shows a short check mark.
-- **Tests**: 33 engine tests and 14 screen tests, all passing.
+- **Screens rebuilt from scratch** (Hudi: "an entire remake ... like a modern
+  professionally developed app"). The engine and data are unchanged; saved
+  plans (`learning-calendar-v1`) still load.
+  - Three tabs: Today, Seforim, Settings, in a floating bar.
+  - Today: a week strip (tap a day to see its place), a status line, and a card
+    per sefer with the start and stop drawn as a short route, Mark as done
+    (check-mark animation), Sefaria, behind/on schedule, Catch up / I can't
+    learn today.
+  - Adding a sefer is three steps: Choose (search in English or Hebrew,
+    collection chips, multi-select, commentaries, part of a sefer), Pace
+    (Finish by / Daily amount / Time a day with − and + buttons, day circles,
+    lighter day, start date, days off), Review. The live result (days and
+    finish date) sits above the button at the bottom.
+  - Seforim: each plan with a progress bar; a sefer's screen has stats, a
+    month calendar (done / to learn / off, tap a day for its place), changing
+    the finish date or days off, every day of the plan, and Stop learning.
+  - Settings: Theme (automatic / light / dark), Style (solid / glass), Color
+    (8 colors or any color), Section names, Backup, About and sources.
+    Stored in `learning-calendar-appearance`.
+  - The phone's own font; sefer names in Frank Ruhl Libre.
+- **Tests**: 33 engine tests and 15 screen tests, all passing.
 
 ## Left out (told Hudi)
 

@@ -3,265 +3,304 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f2f2f7">
+<meta name="theme-color" content="#f4f5f7">
 <title>Learning Calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs><linearGradient id="ringGradient" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" style="stop-color: var(--accent)"/><stop offset="1" style="stop-color: var(--accent-2)"/>
-  </linearGradient></defs>
-</svg>
 
-<main>
-  <!-- Today: every sefer being learned -->
-  <section id="today" class="view">
-    <header class="today-head hero">
-      <div><small id="todayDate">Loading…</small><h1>Today</h1></div>
-      <div id="todayRing"></div>
-    </header>
-    <div id="cards"></div>
-    <div id="empty" class="empty" hidden>
-      <p>Choose a sefer and how you want to learn it. The app gives you each day's place to start and stop in your own sefer.</p>
-      <button class="primary" data-go="add">Choose a sefer</button>
+<!-- ===== Today ===== -->
+<section id="today" class="view">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow" id="todayDate">Loading…</p>
+      <h1 id="todayTitle">Today</h1>
     </div>
-  </section>
+    <button class="icon-btn" data-go="add" aria-label="Add a sefer"><svg data-icon="plus"></svg></button>
+  </header>
+  <nav class="week" id="week" aria-label="This week"></nav>
+  <p class="day-status" id="dayStatus"></p>
+  <div id="cards" class="stack"></div>
+  <div id="empty" class="empty" hidden>
+    <svg class="empty-art" viewBox="0 0 120 80" aria-hidden="true"><path d="M60 18c-12-8-30-9-46-6v54c16-3 34-2 46 6 12-8 30-9 46-6V12c-16-3-34-2-46 6Z"/><path d="M60 18v54"/></svg>
+    <h2>Start your first sefer</h2>
+    <p>Choose a sefer and how you want to learn it. Each day you get where to start and where to stop in your own sefer.</p>
+    <button class="btn primary" data-go="add">Choose a sefer</button>
+  </div>
+</section>
 
-  <!-- Add a sefer -->
-  <section id="add" class="view" hidden>
-    <header class="hero">
-      <h1>Add a sefer</h1>
-      <p class="hero-sub">Pick a sefer and how you want to learn it. Each day you get where to start and where to stop.</p>
-    </header>
-    <form id="setup" autocomplete="off">
-      <fieldset class="sefer-box">
-        <legend>Sefer</legend>
-        <div id="cover" class="cover" aria-live="polite">
-          <div class="cover-he" id="coverHe" lang="he" dir="rtl"></div>
-          <div class="cover-en"><span id="coverEn"></span> · <span id="coverCol"></span></div>
-        </div>
-        <label>Collection
-          <select id="collection"></select>
-        </label>
-        <label>Sefer
-          <button type="button" id="seferPick" class="pick"></button>
-        </label>
-      </fieldset>
-      <fieldset id="commentaryBox" hidden>
-        <legend>Learn together with</legend>
-        <div id="commentaries" class="chips"></div>
-      </fieldset>
+<!-- ===== My seforim ===== -->
+<section id="library" class="view" hidden>
+  <header class="topbar">
+    <div><p class="eyebrow">Learning now</p><h1>Seforim</h1></div>
+    <button class="icon-btn" data-go="add" aria-label="Add a sefer"><svg data-icon="plus"></svg></button>
+  </header>
+  <div id="libraryList" class="list"></div>
+  <div id="libraryEmpty" class="empty" hidden>
+    <h2>Nothing yet</h2>
+    <p>Seforim you learn will be listed here with their progress.</p>
+    <button class="btn primary" data-go="add">Choose a sefer</button>
+  </div>
+</section>
 
-      <fieldset>
-        <legend>How much</legend>
-        <div class="seg" role="radiogroup" aria-label="How much">
-          <label><input type="radio" name="mode" value="finish" checked><span>Finish date</span></label>
-          <label><input type="radio" name="mode" value="amount"><span>Daily amount</span></label>
-          <label><input type="radio" name="mode" value="time"><span>Time a day</span></label>
-        </div>
-        <p class="hint seg-hint" id="modeHint">Choose the date below. The sefer is shared out evenly until then.</p>
-        <label id="amountBox" hidden>Each day
-          <span class="row tight"><input type="number" id="amount" min="0.05" step="0.05" value="1"> <span id="amountUnit">amud</span></span>
-        </label>
-        <div id="timeBox" hidden>
-          <label>Minutes each day
-            <span class="row tight"><input type="number" id="minutes" min="1" step="1" value="10"> <span>minutes</span></span>
-          </label>
-          <label class="sub-label">My pace</label>
-          <div class="seg" role="radiogroup" aria-label="My pace">
-            <label><input type="radio" name="pace" value="0.7"><span>Slower</span></label>
-            <label><input type="radio" name="pace" value="1" checked><span>Average</span></label>
-            <label><input type="radio" name="pace" value="1.4"><span>Faster</span></label>
-          </div>
-          <p class="hint" id="timeHint"></p>
-        </div>
-      </fieldset>
+<!-- ===== One sefer ===== -->
+<section id="plan" class="view" hidden>
+  <header class="navbar">
+    <button class="back" data-go="library"><svg data-icon="back"></svg>Seforim</button>
+  </header>
+  <div class="plan-head">
+    <h1 class="he-title" id="planTitle" lang="he" dir="rtl"></h1>
+    <p class="muted" id="planSub"></p>
+    <div class="progress"><i id="planBar"></i></div>
+    <div class="stats" id="planStats"></div>
+  </div>
 
-      <fieldset>
-        <legend>Start on</legend>
-        <input type="date" id="startDate" aria-label="Start on">
-      </fieldset>
-
-      <fieldset id="finishBox">
-        <legend>Finish by</legend>
-        <input type="date" id="endDate" aria-label="Finish by">
-      </fieldset>
-
-      <fieldset>
-        <legend>Days I learn</legend>
-        <div id="days" class="chips"></div>
-        <label>Lighter day
-          <select id="lighter"></select>
-        </label>
-      </fieldset>
-
-      <details id="rangeBox" class="drawer">
-        <summary>Only part of the sefer</summary>
-        <div class="row">
-          <label>From <input id="fromPiece" inputmode="text" placeholder=""></label>
-          <label>To <input id="toPiece" inputmode="text" placeholder=""></label>
-        </div>
-        <p class="hint" id="rangeHint"></p>
-      </details>
-
-      <details id="daysOffBox" class="drawer">
-        <summary>Days off <span id="daysOffCount" class="hint"></span></summary>
-        <div id="daysOffList"></div>
-        <div class="row">
-          <label>From <input type="date" id="offStart"></label>
-          <label>To <input type="date" id="offEnd"></label>
-        </div>
-        <label>Reason (optional) <input id="offLabel" placeholder="Vacation, Yom Tov…"></label>
-        <button type="button" id="addOff">Add days off</button>
-      </details>
-
-      <div id="preview" class="preview" aria-live="polite"></div>
-      <button class="primary" id="create" type="submit">Start learning</button>
-    </form>
-  </section>
-
-  <!-- One sefer's whole schedule -->
-  <section id="plan" class="view" hidden>
-    <header class="hero">
-      <h1 id="planTitle"></h1>
-      <p id="planSummary" class="hero-sub"></p>
-    </header>
-    <details>
-      <summary>Change the plan</summary>
-      <form id="planEdit">
-        <label>Finish by <input type="date" id="editEnd"></label>
-        <div class="row">
-          <label>Days off from <input type="date" id="editOffStart"></label>
-          <label>to <input type="date" id="editOffEnd"></label>
-        </div>
-        <button type="submit">Save changes</button>
-        <p class="hint">Days already done stay as they are; what is left is shared out again.</p>
-      </form>
-    </details>
-    <ol id="planDays" class="days"></ol>
-    <button class="danger" id="deletePlan">Stop learning this sefer</button>
-  </section>
-
-  <!-- Settings: the look and its colors -->
-  <section id="settings" class="view" hidden>
-    <header class="hero">
-      <h1>Settings</h1>
-      <p class="hero-sub">Make the app look the way you like.</p>
-    </header>
-    <fieldset>
-      <legend>Look</legend>
-      <div id="looks" class="looks"></div>
-    </fieldset>
-    <fieldset>
-      <legend>Colors</legend>
-      <p class="hint" style="margin-top:0">Change any color of this look. Text turns light or dark by itself to stay easy to read.</p>
-      <div class="colors">
-        <label><input type="color" id="colorBg" data-key="bg"> Background</label>
-        <label><input type="color" id="colorSurface" data-key="surface"> Cards</label>
-        <label><input type="color" id="colorAccent" data-key="accent"> Main color</label>
-        <label><input type="color" id="colorAccent2" data-key="accent2"> Second color</label>
-      </div>
-      <p class="hint">Quick main colors:</p>
-      <div id="swatches" class="swatches"></div>
-      <button type="button" id="resetColors" style="margin-top:14px">Reset this look's colors</button>
-    </fieldset>
-    <fieldset>
-      <legend>Section names</legend>
-      <p class="hint" style="margin-top:0">For seforim divided into named sections, like Chovos HaLevavos and Mesillas Yesharim.</p>
-      <div class="seg" role="radiogroup" aria-label="Section names">
-        <label><input type="radio" name="names" value="he"><span>Hebrew</span></label>
-        <label><input type="radio" name="names" value="en"><span>English</span></label>
-      </div>
-      <p class="hint seg-hint">For example <bdi lang="he" dir="rtl">שער ראשון - שער ייחוד ג</bdi> or First Treatise on Unity 3.</p>
-    </fieldset>
-  </section>
-
-  <!-- About, backup, sources -->
-  <section id="about" class="view" hidden>
-    <header class="hero">
-      <h1>About</h1>
-      <p class="hero-sub">How it works, your backup, and where the texts come from.</p>
-    </header>
-    <p>Each day the app shows where to start and where to stop in your own printed sefer, named the way printed learning calendars name it: the amud, mishnah, pasuk, halacha, se'if or siman, and the first few words where the day stops. Days are sized by your settings, counting the commentaries you learn together with the text.</p>
-    <p>Your progress is kept only on this phone. Save a backup file now and then.</p>
-    <div class="row">
-      <button id="backup">Save backup</button>
-      <label class="button">Load backup file <input type="file" id="restore" accept=".json,application/json" hidden></label>
+  <div class="panel calendar">
+    <div class="cal-head">
+      <button class="icon-btn small" id="calPrev" aria-label="Previous month"><svg data-icon="back"></svg></button>
+      <h2 id="calMonth"></h2>
+      <button class="icon-btn small" id="calNext" aria-label="Next month"><svg data-icon="next"></svg></button>
     </div>
-    <div id="backupBox" class="stack" hidden>
-      <p class="hint">If no file was saved, copy this text and keep it somewhere safe (for example, email it to yourself).</p>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-key"><span><i class="k-done"></i>Done</span><span><i class="k-plan"></i>To learn</span><span><i class="k-off"></i>Off</span></div>
+    <div class="cal-detail" id="calDetail"></div>
+  </div>
+
+  <h3 class="group-title">Change the plan</h3>
+  <form class="panel form-rows" id="planEdit">
+    <label class="field">Finish by <input type="date" id="editEnd"></label>
+    <div class="two">
+      <label class="field">Days off from <input type="date" id="editOffStart"></label>
+      <label class="field">until <input type="date" id="editOffEnd"></label>
+    </div>
+    <button type="submit" class="btn">Save changes</button>
+    <p class="note">Days already done stay as they are. What is left is shared out again.</p>
+  </form>
+
+  <details class="panel all-days">
+    <summary>Every day of the plan <svg data-icon="down"></svg></summary>
+    <ol id="planDays" class="day-list"></ol>
+  </details>
+
+  <button class="btn danger-text" id="deletePlan">Stop learning this sefer</button>
+</section>
+
+<!-- ===== Settings ===== -->
+<section id="settings" class="view" hidden>
+  <header class="topbar"><div><p class="eyebrow">Learning Calendar</p><h1>Settings</h1></div></header>
+
+  <h3 class="group-title">Appearance</h3>
+  <div class="panel form-rows">
+    <div class="field">Theme
+      <div class="seg" role="radiogroup" aria-label="Theme">
+        <label><input type="radio" name="theme" value="auto"><span>Automatic</span></label>
+        <label><input type="radio" name="theme" value="light"><span>Light</span></label>
+        <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
+      </div>
+    </div>
+    <div class="field">Style
+      <div class="seg" role="radiogroup" aria-label="Style">
+        <label><input type="radio" name="style" value="solid"><span>Solid</span></label>
+        <label><input type="radio" name="style" value="glass"><span>Glass</span></label>
+      </div>
+    </div>
+    <div class="field">Color
+      <div class="swatches" id="swatches"></div>
+    </div>
+  </div>
+
+  <h3 class="group-title">Section names</h3>
+  <div class="panel form-rows">
+    <div class="seg" role="radiogroup" aria-label="Section names">
+      <label><input type="radio" name="names" value="he"><span>Hebrew</span></label>
+      <label><input type="radio" name="names" value="en"><span>English</span></label>
+    </div>
+    <p class="note">For seforim divided into named sections, like Chovos HaLevavos: <bdi lang="he" dir="rtl">שער ראשון - שער ייחוד ג</bdi> or First Treatise on Unity 3.</p>
+  </div>
+
+  <h3 class="group-title">Backup</h3>
+  <div class="panel form-rows">
+    <p class="note">Your progress is kept only on this phone. Save a backup now and then.</p>
+    <div class="two">
+      <button class="btn" id="backup">Save backup</button>
+      <label class="btn">Load backup file <input type="file" id="restore" accept=".json,application/json" hidden></label>
+    </div>
+    <div id="backupBox" class="form-rows" hidden>
+      <p class="note">If no file was saved, copy this text and keep it somewhere safe, for example in an email to yourself.</p>
       <textarea id="backupText" readonly></textarea>
-      <button id="copyBackup">Copy backup text</button>
+      <button class="btn" id="copyBackup">Copy backup text</button>
     </div>
-    <details>
+    <details class="inline-details">
       <summary>Load a backup from copied text</summary>
       <textarea id="pasteBackup" placeholder="Paste the backup text here"></textarea>
-      <button id="loadPasted">Load this backup</button>
+      <button class="btn" id="loadPasted">Load this backup</button>
     </details>
+  </div>
+
+  <div class="panel list-rows">
+    <button class="row-link" data-go="about">About and sources <svg data-icon="next"></svg></button>
+  </div>
+</section>
+
+<!-- ===== About ===== -->
+<section id="about" class="view" hidden>
+  <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg>Settings</button></header>
+  <h1>About</h1>
+  <div class="prose">
+    <p>Each day the app shows where to start and where to stop in your own printed sefer, named the way printed learning calendars name it: the amud, mishnah, pasuk, halacha, se'if or siman, and the first few words where the day stops. Days are sized by your settings, counting the commentaries you learn together with the text.</p>
     <h2>Sources</h2>
     <p>The sizes of the days and the few words that name each place come from texts published by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>, using only Public Domain editions, except:</p>
     <p class="credit">The Gemara's text: <b>Wikisource Talmud Bavli</b> (<bdi lang="he" dir="rtl">תלמוד בבלי, ויקיטקסט</bdi>), licensed <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA</a>, from <a href="https://he.wikisource.org/wiki/%D7%AA%D7%9C%D7%9E%D7%95%D7%93_%D7%91%D7%91%D7%9C%D7%99" target="_blank" rel="noopener">he.wikisource.org</a>. The app keeps only the first few words of each place in it.</p>
     <p><a href="data/SOURCES.md" target="_blank">Every edition and its license</a></p>
-  </section>
-</main>
+  </div>
+</section>
 
-<dialog id="missed">
+<!-- ===== Add a sefer: three steps ===== -->
+<section id="add" class="view wizard" hidden>
+  <header class="wiz-bar">
+    <button class="text-btn" id="wizBack">Cancel</button>
+    <div class="wiz-steps" aria-hidden="true"><i></i><i></i><i></i></div>
+    <span class="wiz-count" id="wizCount">1 of 3</span>
+  </header>
+
+  <!-- step 1: which sefer -->
+  <div class="wiz-step" id="step1">
+    <h1>Choose a sefer</h1>
+    <div class="search"><svg data-icon="search"></svg><input type="search" id="wizSearch" placeholder="Search in English or Hebrew" autocomplete="off"></div>
+    <div class="chips-scroll" id="wizCols" role="tablist" aria-label="Collections"></div>
+    <div class="list-tools"><span id="wizChosen" class="muted"></span><span><button class="text-btn" id="wizAll">Select all</button><button class="text-btn" id="wizNone">Clear</button></span></div>
+    <div class="panel pick-rows" id="wizList"></div>
+
+    <div id="commentaryBox" hidden>
+      <h3 class="group-title">Learn together with</h3>
+      <div class="panel"><div id="commentaries" class="toggles"></div></div>
+    </div>
+
+    <details class="panel inline-details" id="rangeBox">
+      <summary>Only part of the sefer <svg data-icon="down"></svg></summary>
+      <div class="two">
+        <label class="field">From <input id="fromPiece" autocomplete="off"></label>
+        <label class="field">To <input id="toPiece" autocomplete="off"></label>
+      </div>
+      <p class="note" id="rangeHint"></p>
+    </details>
+  </div>
+
+  <!-- step 2: how to learn it -->
+  <div class="wiz-step" id="step2" hidden>
+    <h1>Set your pace</h1>
+    <p class="he-sub" id="wizSeferName" lang="he" dir="rtl"></p>
+
+    <div class="seg big" role="radiogroup" aria-label="How much">
+      <label><input type="radio" name="mode" value="finish" checked><span>Finish by</span></label>
+      <label><input type="radio" name="mode" value="amount"><span>Daily amount</span></label>
+      <label><input type="radio" name="mode" value="time"><span>Time a day</span></label>
+    </div>
+
+    <div class="panel dial" id="finishBox">
+      <label class="dial-label" for="endDate">Finish on</label>
+      <input type="date" id="endDate" class="dial-date">
+      <p class="note">The sefer is shared out evenly until then.</p>
+    </div>
+    <div class="panel dial" id="amountBox" hidden>
+      <span class="dial-label">Each day</span>
+      <div class="stepper">
+        <button type="button" class="step-btn" data-step="amount" data-by="-1" aria-label="Less">−</button>
+        <div class="step-val"><input type="number" id="amount" min="0.05" step="0.05" value="1" inputmode="decimal"><span id="amountUnit">amud</span></div>
+        <button type="button" class="step-btn" data-step="amount" data-by="1" aria-label="More">+</button>
+      </div>
+    </div>
+    <div class="panel dial" id="timeBox" hidden>
+      <span class="dial-label">Each day</span>
+      <div class="stepper">
+        <button type="button" class="step-btn" data-step="minutes" data-by="-1" aria-label="Less">−</button>
+        <div class="step-val"><input type="number" id="minutes" min="1" step="1" value="10" inputmode="numeric"><span>minutes</span></div>
+        <button type="button" class="step-btn" data-step="minutes" data-by="1" aria-label="More">+</button>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="My pace">
+        <label><input type="radio" name="pace" value="0.7"><span>Slower</span></label>
+        <label><input type="radio" name="pace" value="1" checked><span>Average</span></label>
+        <label><input type="radio" name="pace" value="1.4"><span>Faster</span></label>
+      </div>
+      <p class="note" id="timeHint"></p>
+    </div>
+
+    <h3 class="group-title">Days I learn</h3>
+    <div class="panel form-rows">
+      <div class="day-toggles" id="days"></div>
+      <button type="button" class="row-link" id="lighterRow">Lighter day <span class="row-value" id="lighterValue">Fri</span><svg data-icon="next"></svg></button>
+      <label class="row-link">Start on <input type="date" id="startDate" class="row-date"></label>
+    </div>
+
+    <details class="panel inline-details" id="daysOffBox">
+      <summary>Days off <span class="row-value" id="daysOffCount"></span><svg data-icon="down"></svg></summary>
+      <div id="daysOffList" class="off-list"></div>
+      <div class="two">
+        <label class="field">From <input type="date" id="offStart"></label>
+        <label class="field">To <input type="date" id="offEnd"></label>
+      </div>
+      <label class="field">Reason (optional) <input id="offLabel" placeholder="Vacation, Yom Tov…"></label>
+      <button type="button" class="btn" id="addOff">Add days off</button>
+    </details>
+  </div>
+
+  <!-- step 3: review -->
+  <div class="wiz-step" id="step3" hidden>
+    <h1>Your plan</h1>
+    <div id="review"></div>
+  </div>
+
+  <footer class="wiz-foot">
+    <div class="wiz-sum" id="preview" aria-live="polite"></div>
+    <button class="btn primary" id="wizNext">Next</button>
+    <button class="btn primary" id="create" hidden>Start learning</button>
+  </footer>
+</section>
+
+<!-- bottom bar -->
+<nav class="tabbar" aria-label="Screens">
+  <button data-go="today"><svg data-icon="today"></svg>Today</button>
+  <button data-go="library"><svg data-icon="books"></svg>Seforim</button>
+  <button data-go="settings"><svg data-icon="gear"></svg>Settings</button>
+</nav>
+
+<!-- sheets -->
+<dialog id="missed" class="sheet">
   <form method="dialog">
     <h2 id="missedTitle">You missed a day</h2>
-    <p id="missedText"></p>
-    <button value="push" class="primary">Push the finish date later</button>
-    <button value="spread">Spread it over the coming days</button>
-    <button value="double">Double up on the next day</button>
-    <button value="cancel" class="link">Not now</button>
+    <p id="missedText" class="muted"></p>
+    <button value="push" class="btn primary">Push the finish date later</button>
+    <button value="spread" class="btn">Spread it over the coming days</button>
+    <button value="double" class="btn">Double up on the next day</button>
+    <button value="cancel" class="text-btn center">Not now</button>
   </form>
 </dialog>
 
-<dialog id="picker">
+<dialog id="picker" class="sheet">
   <form method="dialog">
-    <h2 id="pickerTitle" tabindex="-1" autofocus></h2>
-    <input id="pickerSearch" type="search" placeholder="Search" autocomplete="off">
-    <div id="pickerList" class="pick-list" role="listbox"></div>
-    <button value="cancel">Cancel</button>
+    <h2 id="pickerTitle"></h2>
+    <div id="pickerList" class="pick-rows"></div>
+    <button value="cancel" class="text-btn center">Cancel</button>
   </form>
 </dialog>
 
-<dialog id="seferDialog">
-  <form method="dialog">
-    <h2 tabindex="-1" autofocus>Which sefarim?</h2>
-    <p class="hint">Choose one, several, or all. They are learned one after another, in order.</p>
-    <input id="seferSearch" type="search" placeholder="Search" autocomplete="off">
-    <div class="row"><button type="button" id="seferAll">Select all</button><button type="button" id="seferNone">Clear</button></div>
-    <div id="seferList" class="pick-list checks"></div>
-    <button value="done" class="primary">Done</button>
-  </form>
-</dialog>
-
-<dialog id="ask">
+<dialog id="ask" class="sheet">
   <form method="dialog">
     <p id="askText"></p>
-    <button value="yes" class="primary" id="askYes">Yes</button>
-    <button value="no">Cancel</button>
+    <button value="yes" class="btn danger" id="askYes">Yes</button>
+    <button value="no" class="btn">Cancel</button>
   </form>
 </dialog>
-
-<nav class="tabbar" aria-label="Screens">
-  <button data-go="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M9 15l2 2 4-4"/></svg>Today</button>
-  <button data-go="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add</button>
-  <button data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A4.7 4.7 0 0 0 22 10.7C22 5.9 17.5 2 12 2Z"/></svg>Settings</button>
-  <button data-go="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>About</button>
-</nav>
 
 <div id="toast" role="status"></div>
 
 <script>
   // If anything fails while the app starts, say so on the page instead of staying blank.
   window.addEventListener("error", function (e) {
-    var m = document.querySelector("main");
-    if (m) m.insertAdjacentHTML("afterbegin", '<p class="preview error">Something went wrong: ' +
+    var m = document.querySelector(".view:not([hidden])") || document.body;
+    m.insertAdjacentHTML("afterbegin", '<p class="error-box">Something went wrong: ' +
       String(e.message || e).replace(/[<&]/g, "") + '. Please tell Claude this message.</p>');
   });
   window.addEventListener("unhandledrejection", function (e) {

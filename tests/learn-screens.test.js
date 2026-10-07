@@ -47,47 +47,45 @@ function serve() {
   await page.goto(url);
   await page.waitForSelector("#empty:not([hidden])");
   ok("opens with nothing to learn yet");
+  const shot = (name, full = true) => page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", name), fullPage: full });
 
   // Add Berachos with Rashi and Tosafot, finishing in three months
   await page.click("#empty button");
-  // choose from the in-page lists (native dropdowns do not open in the claude.ai preview)
-  await page.click("#collectionPick");
-  await page.click('#pickerList [data-value="bavli"]');
-  await page.waitForFunction(() => document.querySelector("#collectionPick").textContent.includes("Shas"));
-  await page.waitForFunction(() => document.querySelector("#seferPick").textContent.includes("Berachos"));
-  // several sefarim, or all of them, can be chosen
-  await page.click("#seferPick");
-  // the box fits a short screen: the list scrolls inside it and Done stays in view
-  await page.setViewportSize({ width: 390, height: 480 });
-  const done = await page.locator('#seferDialog button[value="done"]').boundingBox();
-  assert(done && done.y + done.height <= 480, `Done is cut off (bottom at ${done && done.y + done.height})`);
-  const listBox = await page.locator("#seferList").boundingBox();
-  assert(listBox.y + listBox.height <= done.y, "the list stays above Done");
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.click("#seferAll");
-  await page.click('#seferDialog button[value="done"]');
-  await page.waitForFunction(() => /All 37/.test(document.querySelector("#seferPick").textContent));
+  await page.waitForSelector("#add:not([hidden]) #wizList .pick-row");
+  assert(await page.isDisabled("#wizNext"), "Next waits for a sefer");
+  await page.click('#wizCols [data-col="bavli"]');
+  // the whole collection can be chosen at once
+  await page.click("#wizAll");
+  await page.waitForFunction(() => /All 37 chosen/.test(document.querySelector("#wizChosen").textContent));
+  await page.click("#wizNext");
   await page.waitForFunction(() => /days/.test(document.querySelector("#preview").textContent), null, { timeout: 60000 });
-  assert.match(await page.textContent("#preview"), /Berachos 2a/);
   ok("all of Shas can be chosen at once");
-  await page.click("#seferPick");
-  await page.click("#seferNone");
-  await page.fill("#seferSearch", "ברכות");
-  await page.check('#seferList input[value="bavli/berakhot"]');
-  await page.click('#seferDialog button[value="done"]');
-  await page.waitForFunction(() => document.querySelector("#seferPick").textContent.includes("Berachos"));
-  assert.strictEqual(await page.textContent("#lighterPick"), "Fri");
+  await page.click("#wizBack");
+  await page.click("#wizNone");
+  // search finds a sefer by its Hebrew name
+  await page.fill("#wizSearch", "ברכות");
+  await page.check('#wizList input[value="bavli/berakhot"]');
+  await page.waitForFunction(() => /Berachos chosen/.test(document.querySelector("#wizChosen").textContent));
+  assert(await page.isChecked('#commentaries input[value="rashi"]'), "Rashi is on at first");
+  assert(await page.isChecked('#commentaries input[value="tosafot"]'));
+  await shot("learn-step1.png");
+  // the list fits a short screen: it scrolls inside, and Next stays in view
+  await page.setViewportSize({ width: 390, height: 560 });
+  const next = await page.locator("#wizNext").boundingBox();
+  assert(next && next.y + next.height <= 560, "Next is cut off");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.click("#wizNext");
+  assert.strictEqual(await page.textContent("#lighterValue"), "Fri", "Friday is the lighter day at first");
   await page.fill("#endDate", "2027-01-08");
   await page.waitForFunction(() => /78 days/.test(document.querySelector("#preview").textContent));
-  const previewText = await page.textContent("#preview");
-  assert.match(previewText, /finishing Fri, Jan 8, 2027/);
-  assert.match(previewText, /Berachos 2a to 2b, until the words/);
-  assert.strictEqual(await page.inputValue("#lighter"), "5", "Friday is the lighter day at first");
+  assert.match(await page.textContent("#preview"), /finishing Fri, Jan 8, 2027/);
   assert(!(await page.isVisible("#amountBox")), "the daily amount is hidden while finishing by a date");
   await page.check('input[name="mode"][value="amount"]');
   await page.fill("#amount", "0.5");
   await page.waitForFunction(() => /2\d\d days/.test(document.querySelector("#preview").textContent));
   assert.strictEqual(await page.textContent("#amountUnit"), "amudim");
+  await page.click('[data-step="amount"][data-by="1"]');
+  await page.waitForFunction(() => document.querySelector("#amount").value === "0.75");
   await page.fill("#amount", "1");
   await page.waitForFunction(() => document.querySelector("#amountUnit").textContent === "amud");
   await page.check('input[name="mode"][value="time"]');
@@ -100,27 +98,33 @@ function serve() {
   assert.match(await page.textContent("#timeHint"), /about \d+ hours/);
   await page.check('input[name="mode"][value="finish"]');
   await page.waitForFunction(() => /78 days/.test(document.querySelector("#preview").textContent));
-  assert(!(await page.isVisible("#amountBox")));
-  assert(!(await page.isVisible("#timeBox")));
-  ok("the preview shows the number of days and the first day's place");
-  await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-setup.png"), fullPage: true });
+  await shot("learn-step2.png");
+  await page.click("#wizNext");
+  await page.waitForFunction(() => /78/.test(document.querySelector("#review").textContent));
+  const review = await page.textContent("#review");
+  assert.match(review, /Finishing Fri, Jan 8, 2027/);
+  assert.match(review, /Berachos 2a to 2b, until the words/);
+  assert.match(review, /Rashi, Tosafot/);
+  ok("the steps show the number of days, the finish date and the first day's place");
+  await shot("learn-step3.png");
 
   await page.click("#create");
-  await page.waitForSelector(".card");
-  const card = await page.textContent(".card");
+  await page.waitForSelector(".lesson");
+  const card = await page.textContent(".lesson");
   assert.match(card, /ברכות/);
-  assert.match(card, /Day 1 of 78/);
+  assert.match(card, /1\/78/);
   assert.match(card, /Start\s*the beginning of 2a/);
   assert.match(card, /Stop\s*2b, until the words/);
   assert.match(card, /Rashi through/);
   assert.match(card, /Tosafot through/);
-  const href = await page.getAttribute(".card a.button", "href");
+  const href = await page.getAttribute(".lesson a.ext", "href");
   assert.match(href, /^https:\/\/www\.sefaria\.org\/Berakhot\.2a-2b\.\d+$/);
   ok("today's card shows where to start and stop, the commentaries, and the Sefaria link");
-  await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-today.png"), fullPage: true });
+  await shot("learn-today.png", false);
 
   await page.click("[data-done]");
   await page.waitForSelector(".done-mark");
+  assert.match(await page.textContent("#dayStatus"), /All done/);
   ok("Done marks today");
 
   // the plan is kept on the phone, by address
@@ -132,67 +136,74 @@ function serve() {
   assert(!JSON.stringify(stored).includes('"to"'));
   ok("progress stays after closing the app, saved by place in the text");
 
+  // another day of the week shows that day's place
+  await page.click('#week [data-day="2026-10-13"]');
+  await page.waitForFunction(() => /Tuesday/.test(document.querySelector("#todayTitle").textContent));
+  assert.match(await page.textContent(".lesson"), /3\/78/);
+  ok("the week strip shows another day's place");
+
   // three days later, two days missed
   await page.clock.setFixedTime(new Date("2026-10-14T09:00:00"));
   await page.reload();
   await page.waitForSelector(".pill.behind");
-  assert.match(await page.textContent(".card"), /2 days behind/);
+  assert.match(await page.textContent(".lesson"), /2 days behind/);
   await page.click("[data-missed]");
   await page.click('#missed button[value="push"]');
   await page.waitForSelector(".pill.ok");
-  assert.match(await page.textContent(".card"), /Finishing Mon, Jan 11, 2027/);
+  assert.match(await page.textContent(".lesson"), /Finishing Mon, Jan 11, 2027/);
   ok("missed days: pushing moves the finish date later");
 
-  // the whole schedule
-  await page.click("[data-open]");
-  await page.waitForSelector("#plan:not([hidden]) #planDays li");
+  // the sefer's own screen: calendar and every day
+  await page.click('.tabbar [data-go="library"]');
+  await page.waitForSelector(".plan-row");
+  assert.match(await page.textContent(".plan-row"), /1 of 78 days/);
+  await page.click(".plan-row");
+  await page.waitForSelector("#plan:not([hidden]) #calGrid button.done");
+  assert.strictEqual(await page.textContent("#calMonth"), "October 2026");
+  await page.click('[data-cal="2026-10-15"]');
+  assert.match(await page.textContent("#calDetail"), /Berachos/);
   const rows = await page.$$eval("#planDays li", (li) => li.length);
   assert.strictEqual(rows, 78);
-  ok("the whole schedule lists every day");
+  ok("the sefer's screen shows a calendar and lists every day");
+  await shot("learn-plan.png");
 
   // about and sources credit Wikisource
+  await page.click('.tabbar [data-go="settings"]');
   await page.click('[data-go="about"]');
   assert.match(await page.textContent("#about"), /Wikisource Talmud Bavli/);
   ok("About credits the Wikisource Gemara");
 
-  // Settings: choose a look, change its colors, reset
-  await page.click('[data-go="settings"]');
-  await page.click('[data-look-id="glass"]');
-  assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.look), "glass");
-  const darkInk = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--ink").trim());
-  assert.strictEqual(darkInk, "#f3f5fa", "light text on the dark look");
-  await page.evaluate(() => { const i = document.querySelector("#colorBg"); i.value = "#ffffff"; i.dispatchEvent(new Event("input")); });
-  assert.strictEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--ink").trim()), "#111318",
-    "text turns dark on a light background");
-  await page.click('[data-swatch="#db2777"]');
-  assert.strictEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()), "#db2777");
+  // Settings: theme, style, color; remembered
+  await page.click('.tabbar [data-go="settings"]');
+  await page.check('input[name="theme"][value="dark"]');
+  assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.theme), "dark");
+  await page.check('input[name="style"][value="solid"]');
+  assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.style), "solid");
+  await page.click('[data-swatch="#0f8f80"]');
+  assert.strictEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()), "#0f8f80");
   await page.reload();
-  await page.waitForSelector(".card");
-  assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.look), "glass", "the look is remembered");
-  await page.click('[data-go="settings"]');
-  await page.click("#resetColors");
-  assert.strictEqual(await page.inputValue("#colorBg"), "#0b0c10");
-  await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-settings.png"), fullPage: true });
-  await page.click('[data-go="today"]');
-  await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-today-glass.png") });
-  await page.click('[data-go="settings"]');
-  await page.click('[data-look-id="minimal"]');
-  ok("Settings: six looks, colors can be changed and reset, and the choice is remembered");
+  await page.waitForSelector(".lesson");
+  assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.theme), "dark", "the theme is remembered");
+  await shot("learn-today-dark.png", false);
+  await page.click('.tabbar [data-go="settings"]');
+  await shot("learn-settings.png");
+  await page.check('input[name="theme"][value="light"]');
+  await page.check('input[name="style"][value="glass"]');
+  ok("Settings: theme, style and color can be changed and are remembered");
 
   // backup as text, then load it back over a cleared phone
-  await page.click('[data-go="about"]');
   await page.click("#backup");
   const backup = await page.inputValue("#backupText");
   assert.strictEqual(JSON.parse(backup).plans.length, 1);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector("#empty:not([hidden])");
-  await page.click('[data-go="about"]');
-  await page.click("#about summary");
+  await page.click('.tabbar [data-go="settings"]');
+  await page.click("#settings .inline-details summary");
   await page.fill("#pasteBackup", backup);
   await page.click("#loadPasted");
-  await page.waitForSelector(".card");
-  assert.match(await page.textContent(".card"), /Berachos/);
+  await page.waitForSelector(".lesson");
+  assert.match(await page.textContent(".lesson"), /Berachos/);
   ok("a backup copied as text loads back");
 
   // stopping a sefer asks inside the page first
@@ -202,24 +213,22 @@ function serve() {
   assert(await page.isVisible("#plan"));
   await page.click("#deletePlan");
   await page.click("#askYes");
-  await page.waitForSelector("#empty:not([hidden])");
+  await page.waitForSelector("#libraryEmpty:not([hidden])");
   ok("stopping a sefer asks first, inside the page");
 
   // two masechtos of Mishnah as one plan, crossing from one into the next
-  await page.click('[data-go="add"]');
-  await page.click("#collectionPick");
-  await page.click('#pickerList [data-value="mishnah"]');
-  await page.click("#seferPick");
-  await page.click("#seferNone");
-  await page.check('#seferList input[value="mishnah/berakhot"]');
-  await page.check('#seferList input[value="mishnah/peah"]');
-  await page.click('#seferDialog button[value="done"]');
-  await page.waitForFunction(() => /2 chosen/.test(document.querySelector("#seferPick").textContent));
+  await page.click('#libraryEmpty [data-go="add"]');
+  await page.click('#wizCols [data-col="mishnah"]');
+  await page.check('#wizList input[value="mishnah/berakhot"]');
+  await page.check('#wizList input[value="mishnah/peah"]');
+  await page.waitForFunction(() => /2 chosen/.test(document.querySelector("#wizChosen").textContent));
+  await page.click("#wizNext");
   await page.fill("#endDate", "2026-10-30");
   await page.waitForFunction(() => /finishing Fri, Oct 30, 2026/.test(document.querySelector("#preview").textContent));
+  await page.click("#wizNext");
   await page.click("#create");
-  await page.waitForSelector(".card");
-  assert.match(await page.textContent(".card"), /Mishnah Berachos, Mishnah Pe'ah/);
+  await page.waitForSelector(".lesson");
+  assert.match(await page.textContent(".lesson"), /Mishnah Berachos, Mishnah Pe'ah/);
   await page.click("[data-open]");
   const list = await page.textContent("#planDays");
   assert.match(list, /Mishnah Berachos [\d:]+.* to Mishnah Pe'ah/);
