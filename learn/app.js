@@ -133,20 +133,22 @@
   // accent colors. Text color follows automatically so it stays readable.
 
   const LOOK_STORE = "learning-calendar-look";
-  const INTER = '"Inter"', HEEBO = '"Heebo"';
+  // The phone's own font for the screens (San Francisco on iPhone and iPad);
+  // Hebrew names in a classic book face, like the print of a sefer.
+  const SYS = '-apple-system, BlinkMacSystemFont, "SF Pro Text"', BOOK = '"Frank Ruhl Libre"';
   const LOOKS = {
-    ios: { name: "Liquid Glass", bg: "#e8edf7", surface: "#ffffff", accent: "#0a84ff", accent2: "#bf5af2", glass: 0.5,
-      font: INTER, display: INTER, he: HEEBO, radius: "26px", btn: "16px" },
-    glass: { name: "Midnight Glass", bg: "#0b1022", surface: "#ffffff", accent: "#7c5cff", accent2: "#22c3ee", glass: 0.08,
-      font: INTER, display: INTER, he: HEEBO, radius: "26px", btn: "16px" },
+    ios: { name: "Liquid Glass", bg: "#f2f2f7", surface: "#ffffff", accent: "#007aff", accent2: "#5ac8fa", glass: 0.72,
+      font: SYS, display: SYS, he: BOOK, radius: "22px", btn: "12px" },
+    glass: { name: "Midnight Glass", bg: "#0b0c10", surface: "#ffffff", accent: "#0a84ff", accent2: "#64d2ff", glass: 0.09,
+      font: SYS, display: SYS, he: BOOK, radius: "22px", btn: "12px" },
     minimal: { name: "Clean Minimal", bg: "#f5f6f8", surface: "#ffffff", accent: "#2563eb", accent2: "#111318",
-      font: INTER, display: INTER, he: HEEBO, radius: "22px", btn: "14px" },
+      font: SYS, display: SYS, he: BOOK, radius: "18px", btn: "12px" },
     gradient: { name: "Bold Gradient", bg: "#f3f1fb", surface: "#ffffff", accent: "#4f2bd8", accent2: "#ec4899",
-      font: INTER, display: INTER, he: HEEBO, radius: "22px", btn: "14px" },
+      font: SYS, display: SYS, he: BOOK, radius: "20px", btn: "12px" },
     gold: { name: "Black & Gold", bg: "#0e0d0c", surface: "#1a1815", accent: "#d4af5a", accent2: "#a8832f",
-      font: INTER, display: INTER, he: HEEBO, radius: "18px", btn: "12px" },
+      font: SYS, display: SYS, he: BOOK, radius: "16px", btn: "10px" },
     teal: { name: "Calm Teal", bg: "#eaf6f3", surface: "#ffffff", accent: "#0f9f8a", accent2: "#5ccfb9",
-      font: INTER, display: INTER, he: HEEBO, radius: "28px", btn: "999px" },
+      font: SYS, display: SYS, he: BOOK, radius: "22px", btn: "999px" },
   };
   const SWATCHES = ["#2563eb", "#7c5cff", "#db2777", "#e11d48", "#ea580c", "#d4af5a", "#16a34a", "#0f9f8a", "#0891b2", "#111318"];
 
@@ -190,10 +192,8 @@
       "--dialog-fill": L.glass ? `color-mix(in srgb, ${c.surface} ${Math.round(Math.min(.86, L.glass + .3) * 100)}%, ${c.bg})` : c.surface,
       "--blur": L.glass ? "blur(16px)" : "none",
       "--bg-image": L.glass
-        ? `radial-gradient(70% 45% at 0% 0%, color-mix(in srgb, ${c.accent} ${isDark(c.bg) ? 45 : 55}%, transparent) 0%, transparent 70%),
-           radial-gradient(60% 40% at 100% 18%, color-mix(in srgb, ${c.accent2} ${isDark(c.bg) ? 38 : 48}%, transparent) 0%, transparent 70%),
-           radial-gradient(70% 45% at 85% 100%, color-mix(in srgb, ${c.accent} 32%, transparent) 0%, transparent 70%),
-           radial-gradient(60% 40% at 0% 75%, color-mix(in srgb, ${c.accent2} 30%, transparent) 0%, transparent 70%)`
+        ? `radial-gradient(90% 50% at 15% 0%, color-mix(in srgb, ${c.accent} ${isDark(c.bg) ? 26 : 16}%, transparent), transparent 70%),
+           radial-gradient(80% 50% at 100% 100%, color-mix(in srgb, ${c.accent2} ${isDark(c.bg) ? 18 : 14}%, transparent), transparent 70%)`
         : id === "teal" ? `linear-gradient(180deg, ${c.bg} 0%, color-mix(in srgb, ${c.bg} 30%, #ffffff) 45%)` : "none",
       "--primary": id === "minimal" ? c.accent2 : c.accent,
       "--primary-ink": inkOnColor(id === "minimal" ? c.accent2 : c.accent),
@@ -202,9 +202,9 @@
       "--tab-bg": L.glass ? `color-mix(in srgb, ${c.surface} ${isDark(c.bg) ? 10 : 55}%, transparent)` : id === "gradient" ? "#1c1640" : `color-mix(in srgb, ${c.surface} 92%, transparent)`,
       "--tab-ink": id === "gradient" ? "#a39fc4" : `color-mix(in srgb, ${cardInk} 55%, transparent)`,
       "--tab-on": id === "gradient" ? "#ffffff" : c.accent,
-      "--font": `${L.font}, system-ui, -apple-system, "Segoe UI", sans-serif`,
-      "--font-display": `${L.display}, ${L.font}, Georgia, serif`,
-      "--font-he": `${L.he}, "Arial Hebrew", system-ui, sans-serif`,
+      "--font": `${L.font}, system-ui, "Segoe UI", Roboto, sans-serif`,
+      "--font-display": `${L.display}, system-ui, "Segoe UI", Roboto, sans-serif`,
+      "--font-he": `${L.he}, "Times New Roman", serif`,
       "--radius": L.radius, "--radius-btn": L.btn,
     };
     for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v);
@@ -252,23 +252,6 @@
     saveLook(); applyLook(); renderSettings(); toast("Colors reset");
   });
   applyLook();
-
-  // Small icons in the card titles.
-  const ICONS = {
-    book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/>',
-    layers: '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>',
-    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-    start: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m10.5 13 4 2.5-4 2.5v-5Z"/>',
-    flag: '<path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/>',
-    days: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M9 15l2 2 4-4"/>',
-    range: '<path d="M4 6h16M4 12h11M4 18h7"/>',
-    off: '<path d="M12 3a9 9 0 0 1 9 9H3a9 9 0 0 1 9-9Z"/><path d="M12 12v6.5a2 2 0 0 0 4 0"/>',
-    look: '<circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A4.7 4.7 0 0 0 22 10.7C22 5.9 17.5 2 12 2Z"/>',
-    drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/>',
-    text: '<path d="M4 7V5h16v2M9 19h6M12 5v14"/>',
-  };
-  const icon = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
-  document.querySelectorAll("[data-ico]").forEach((el) => { el.innerHTML = icon(el.dataset.ico); });
 
   // Section names (Chovos HaLevavos, Mesillas Yesharim, ...) in Hebrew or English.
   const NAMES_STORE = "learning-calendar-names";
@@ -596,7 +579,7 @@
     const col = catalog.collections.find((c) => c.id === entries[0].collection);
     const named = nameFor(chosenIds) || entries[0];
     $("cover").dataset.col = col.id;
-    $("coverCol").textContent = `${col.en} · ${col.he}`;
+    $("coverCol").textContent = col.en;
     $("coverHe").textContent = named.he;
     $("coverEn").textContent = chosenIds.length > 1 && chosenIds.length < all.length ? `${chosenIds.length} sefarim, learned in order` : named.en;
     $("seferPick").textContent = chosenIds.length === 1 ? `${entries[0].he} · ${entries[0].en}`
@@ -696,10 +679,8 @@
       const first = learning[0].date, last = learning.at(-1).date, hd = hebrewDate(last);
       const perDay = plan.minutesPerDay && !plan.endDate ? `about ${plan.minutesPerDay} min a day` : `${Math.round(hours * 60 / learning.length)} min a day on average`;
       box.innerHTML = `<div class="sum-big"><span class="sum-num"><b>${learning.length}</b> days</span>
-          <span class="sum-end">finishing ${niceDate(last, true)}${hd ? `<small>${he(hd)}</small>` : ""}</span></div>
-        <div class="timeline" aria-hidden="true"><i></i></div>
-        <div class="sum-dates"><span>${niceDate(first)}</span><span>${perDay}</span><span>${niceDate(last)}</span></div>
-        <p class="sum-first"><b>First day, ${niceDate(first)}:</b> ${portionLine(sefer, comms, learning[0])}</p>`;
+          <span class="sum-end">finishing ${niceDate(last, true)}${hd ? ` · ${he(hd)}` : ""}<small>${perDay}</small></span></div>
+        <p class="sum-first"><span>First day, ${niceDate(first)}</span>${portionLine(sefer, comms, learning[0])}</p>`;
       $("create").disabled = false;
     } catch (err) {
       box.classList.add("error");

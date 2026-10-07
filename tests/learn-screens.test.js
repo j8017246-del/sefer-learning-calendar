@@ -171,7 +171,7 @@ function serve() {
   assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.look), "glass", "the look is remembered");
   await page.click('[data-go="settings"]');
   await page.click("#resetColors");
-  assert.strictEqual(await page.inputValue("#colorBg"), "#0b1022");
+  assert.strictEqual(await page.inputValue("#colorBg"), "#0b0c10");
   await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-settings.png"), fullPage: true });
   await page.click('[data-go="today"]');
   await page.screenshot({ path: path.join(process.env.SCREENSHOTS || "/tmp", "learn-today-glass.png") });
