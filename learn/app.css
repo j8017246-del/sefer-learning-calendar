@@ -436,3 +436,8 @@ dialog.sheet .muted { text-align: center; margin: 0 0 6px; }
 .link-form { display: flex; flex-direction: column; gap: 6px; }
 .account-who { margin: 0; overflow-wrap: anywhere; }
 .btn.danger-soft { color: var(--danger); }
+
+.done-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: var(--r-md); background: var(--ok-soft); }
+.btn.small-btn { min-height: 44px; padding: 0 16px; border-radius: 99px; background: var(--surface); font-size: .9rem; }
+.part-btn { align-self: flex-start; padding-left: 0; }
+#settings > .panel.list-rows { margin-top: 16px; }

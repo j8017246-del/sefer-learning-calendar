@@ -92,7 +92,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 38 engine, 25 screen, 5 sync, 5 rules and 6 account tests, all passing.
+- **Tests**: 39 engine, 28 screen, 5 sync, 5 rules and 6 account tests, all passing.
 
 - **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
   fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
@@ -161,6 +161,14 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   connections); it works on the website (githack link or later hosting) once
   that address is added to Firebase's authorized domains.
 
+- **Comments of 10-07** (Hudi, Shmuel, Hannah): "I only did part of it" on a
+  day's card (choose where you stopped; `markPartial` moves the rest to the
+  next day); Undo shown as a pill next to "Done for today"; the finish date
+  starts at one Hebrew year (the day before the same Hebrew date next year);
+  "Shabbos" instead of "Sat"; the custom color box no longer closes while
+  choosing; space above "About and sources". Not done yet: a daily reminder
+  notification (needs a sending service; see Next).
+
 ## Left out (told Hudi)
 
 - Rambam: Tefillin/Mezuzah/Sefer Torah, Tzitzis, Berachos, Milah and Seder
@@ -204,7 +212,9 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    claudemcpcontent.com, claude.site, fonts.googleapis.com, fonts.gstatic.com).
 2. Part C of the audit, on Hudi's word: Yom Tov suggestions for days off (ask
    Israel or outside Israel), printable weekly sheet and calendar-file export,
-   one-tap Daf Yomi, reminders, sharing with a chavrusa, a full Hebrew screen,
+   one-tap Daf Yomi, reminders (Hudi asked 10-07; a phone notification at a set
+   time needs Firebase Cloud Messaging plus a scheduled sender, which needs
+   Firebase's paid plan), sharing with a chavrusa, a full Hebrew screen,
    accounts and sync (these last two only on Hudi's word). Accounts replace
    the manual backup.
 3. Make the data files smaller before release (29 MB in total; one sefer

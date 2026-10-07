@@ -14,7 +14,7 @@
   const LOOK_STORE = "learning-calendar-appearance";
   const NAMES_STORE = "learning-calendar-names";
   const TODAY_STORE = "learning-calendar-today";
-  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Shabbos"];
   const UNITS = {
     pasuk: ["pasuk", "pesukim"], mishnah: ["mishnah", "mishnayos"], amud: ["amud", "amudim"],
     halacha: ["halacha", "halachos"], seif: ["se'if", "se'ifim"], siman: ["siman", "simanim"],
@@ -67,6 +67,30 @@
     const s = n === 15 ? "טו" : n === 16 ? "טז" : tens[Math.floor(n / 10)] + ones[n % 10];
     return s.length > 1 ? s.slice(0, -1) + "״" + s.slice(-1) : s + "׳";
   }
+  // The day before the same Hebrew date next year (a whole Hebrew year of learning).
+  function oneHebrewYear(iso) {
+    try {
+      const f = new Intl.DateTimeFormat("en-u-ca-hebrew", { day: "numeric", month: "long", year: "numeric" });
+      const parts = (day) => {
+        const o = {};
+        for (const x of f.formatToParts(dateOf(day))) o[x.type] = x.value;
+        return [+o.day, o.month, +o.year];
+      };
+      const [d0, m0, y0] = parts(iso);
+      for (let n = 350; n <= 390; n++) {
+        const [d, m, y] = parts(S.addDays(iso, n));
+        if (y === y0 + 1 && m === m0 && d === d0) return S.addDays(iso, n - 1);
+      }
+      // a date missing next year (30 Cheshvan or Kislev; Adar I or II in a plain year)
+      const adar = (m) => m.startsWith("Adar");
+      for (let n = 350; n <= 390; n++) {
+        const [d, m, y] = parts(S.addDays(iso, n));
+        if (y === y0 + 1 && (m === m0 || (adar(m0) && adar(m))) && d === Math.min(d0, 29)) return S.addDays(iso, d0 > 29 ? n : n - 1);
+      }
+    } catch (e) { /* no Hebrew calendar in this browser */ }
+    return S.addDays(iso, 354);
+  }
+
   function hebrewDate(iso) {
     try {
       const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long" }).formatToParts(dateOf(iso));
@@ -240,8 +264,14 @@
   document.addEventListener("change", (e) => {
     const t = e.target;
     if (t.name === "theme" || t.name === "style") { look[t.name] = t.value; saveLook(); applyLook(); }
-    if (t.id === "accentCustom") { look.accent = t.value; saveLook(); applyLook(); renderSettings(); }
+    if (t.id === "accentCustom") { look.accent = t.value; saveLook(); applyLook(); markSwatches(); }
   });
+  // only the checked marks change, so an open color box is not closed
+  function markSwatches() {
+    document.querySelectorAll("#swatches [data-swatch]").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.swatch === look.accent)));
+    const custom = $("accentCustom");
+    if (custom) custom.setAttribute("aria-checked", String(!SWATCHES.includes(look.accent)));
+  }
   document.addEventListener("input", (e) => {
     if (e.target.id === "accentCustom") { look.accent = e.target.value; applyLook(); }
   });
@@ -374,12 +404,14 @@
         <div class="lesson-actions">
           <button class="btn primary" data-done="${esc(x.id)}" data-date="${esc(p.date)}">Mark as done</button>
           <a class="btn ext" href="${esc(P.sefariaUrl(sefer, p.from, p.to))}" target="_blank" rel="noopener" aria-label="Open on Sefaria">Sefaria ${icon("ext")}</a>
-        </div>${foot}</article>`;
+        </div>
+        ${p.to > p.from ? `<button class="text-btn part-btn" data-part="${esc(x.id)}" data-date="${esc(p.date)}">I only did part of it</button>` : ""}${foot}</article>`;
     }
     const day = learning.find((q) => q.date === selectedDate);
     const next = isToday ? st.next : null;
     return `<article class="panel lesson is-done">${head}
-      ${day && day.done ? `<p><span class="done-mark">${icon("check")} Done</span> <button class="text-btn" data-undo="${esc(x.id)}" data-date="${esc(day.date)}">Undo</button></p>` : `<p class="next-line">No learning on this day.</p>`}
+      ${day && day.done ? `<div class="done-row"><span class="done-mark">${icon("check")} Done${isToday ? " for today" : ""}</span>
+        <button class="btn small-btn" data-undo="${esc(x.id)}" data-date="${esc(day.date)}">Undo</button></div>` : `<p class="next-line">No learning on this day.</p>`}
       ${next ? `<p class="next-line">Next, ${niceDate(next.date)}: ${portionLine(sefer, comms, next)}</p>
         <button class="btn" data-done="${esc(x.id)}" data-date="${esc(next.date)}">Learn ahead: mark ${niceDate(next.date)} done</button>` : ""}
       ${foot}</article>`;
@@ -394,6 +426,23 @@
       dlg.returnValue = "";
       dlg.onclose = () => resolve(dlg.returnValue === "yes");
       dlg.showModal();
+    });
+  }
+
+  // Only part of a day: choose the place you stopped (where you will start next time).
+  function askWhereStopped(x, date) {
+    const p = x.plan.portions.find((q) => q.date === date);
+    const comms = x.plan.commentaries || [];
+    const options = [];
+    for (let k = p.from + 1; k <= p.to; k++) {
+      const r = P.rangeParts(x.sefer, k, k, comms);
+      options.push({ value: String(k), label: `${P.pieceName(x.sefer, r.start.piece)}${r.start.words ? `, “${r.start.words}”${P.timeText(r.start.nth)}` : ""}` });
+    }
+    openPicker("Where did you stop?", options, "", (v) => {
+      x.plan = S.markPartial(x.plan, date, +v);
+      const saved = save();
+      renderToday();
+      toast(saved ? "Saved. Next time starts where you stopped." : "Marked, but not saved on this phone");
     });
   }
 
@@ -447,6 +496,8 @@
       askMissed(findPlan(t.dataset.cant), true);
     } else if (t.dataset.open) {
       openPlan(t.dataset.open);
+    } else if (t.dataset.part) {
+      askWhereStopped(findPlan(t.dataset.part), t.dataset.date);
     } else if (t.dataset.retry) {
       retryUnloaded();
     }
@@ -621,9 +672,9 @@
     const today = todayIso();
     if (!wiz.col) wiz.col = catalog.collections[0].id;
     if (!$("startDate").value) $("startDate").value = today;
-    if (!$("endDate").value) $("endDate").value = S.addDays(today, 90);
+    if (!$("endDate").value) $("endDate").value = oneHebrewYear(today);
     if (!$("days").children.length) {
-      $("days").innerHTML = DAYS.map((d, i) => `<label title="${d}"><input type="checkbox" name="day" value="${i}" ${i < 6 ? "checked" : ""} aria-label="${d}">${d.slice(0, 2)}</label>`).join("");
+      $("days").innerHTML = DAYS.map((d, i) => `<label title="${d}"><input type="checkbox" name="day" value="${i}" ${i < 6 ? "checked" : ""} aria-label="${d}">${i === 6 ? "Sh" : d.slice(0, 2)}</label>`).join("");
     }
     setStep(1);
     renderCols();

@@ -654,6 +654,23 @@ test("when a stop's words appear earlier in the same place, the app says which t
   assert(marked > 1000, `${marked} repeated places are marked`);
 });
 
+test("doing only part of a day: done up to where I stopped, the rest moves to the next day", () => {
+  const plan = S.buildPlan(sample, berakhot);
+  const learning = plan.portions.filter((p) => p.to >= p.from);
+  const day = learning[0], next = learning[1], k = day.from + 4;
+  const r = S.markPartial(plan, day.date, k);
+  assertEachStopOnce(r);
+  const d = r.portions.find((p) => p.date === day.date);
+  assert.deepStrictEqual([d.from, d.to, d.done], [day.from, k - 1, true], "done up to the place I stopped");
+  const n = r.portions.find((p) => p.date === next.date);
+  assert.deepStrictEqual([n.from, n.to, n.done], [k, next.to, false], "tomorrow starts where I stopped");
+  // the last day of a plan: the rest gets a day of its own
+  const lastDay = learning[learning.length - 1];
+  const r2 = S.markPartial(plan, lastDay.date, lastDay.from + 1);
+  assertEachStopOnce(r2);
+  assert(r2.portions.filter((p) => p.to >= p.from).length === learning.length + 1);
+});
+
 test("names are Hebrew with English alongside", () => {
   for (const e of catalog.seforim) {
     assert(/[א-ת]/.test(e.he), `${e.id} has no Hebrew name`);

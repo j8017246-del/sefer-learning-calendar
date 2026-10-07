@@ -265,6 +265,27 @@
     return { ...plan, portions };
   }
 
+  // Only part of a day was learned, up to (not including) stop `stopAt`:
+  // the day is done up to there, and the rest is added to the start of the
+  // next day not yet done (or gets a day of its own after the last one).
+  function markPartial(plan, date, stopAt) {
+    const day = plan.portions.find((p) => p.date === date && hasLearning(p));
+    if (!day || stopAt <= day.from || stopAt > day.to) throw new Error("Choose a place inside that day");
+    const rest = { from: stopAt, to: day.to };
+    const portions = plan.portions.map((p) => (p === day ? { ...p, to: stopAt - 1, done: true } : p));
+    const next = portions.find((p) => p.date > date && hasLearning(p) && !p.done && p.from === day.to + 1);
+    if (next) {
+      const i = portions.indexOf(next);
+      portions[i] = { ...next, from: rest.from };
+    } else {
+      const taken = new Set(portions.map((p) => p.date));
+      const last = portions.filter(hasLearning).map((p) => p.date).sort().pop();
+      portions.push({ date: nextLearningDate(plan, last > date ? last : date, false, taken), ...rest, done: false });
+      portions.sort((a, b) => a.date.localeCompare(b.date));
+    }
+    return { ...plan, portions };
+  }
+
   // First piece not yet learned (to + 1 when everything is done).
   function firstOpenPiece(plan) {
     const open = plan.portions.find((p) => hasLearning(p) && !p.done);
@@ -490,7 +511,7 @@
 
   const api = {
     LIGHTER_WEIGHT, addDays, weekday, dayOff, dayWeight, learningDates, nextLearningDate,
-    splitOverDates, buildPlan, markDone, status, reschedule, rebuildRemaining, firstOpenPiece,
+    splitOverDates, buildPlan, markDone, markPartial, status, reschedule, rebuildRemaining, firstOpenPiece,
     toSaved, fromSaved, keepSavedPlaces, SPEED, lettersPerMinute, totalMinutes,
   };
   global.LearningSchedule = api;

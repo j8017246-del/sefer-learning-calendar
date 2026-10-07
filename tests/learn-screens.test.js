@@ -390,6 +390,53 @@ function serve() {
   await offline.close();
   ok("Today shows at once, and the app works without a connection");
 
+  // ---- comments of 10-07 ----
+  // only part of a day: say where I stopped
+  const doneCount = () => page.evaluate(() => JSON.parse(localStorage.getItem("learning-calendar-v1")).plans
+    .reduce((n, p) => n + p.portions.filter((d) => d.done).length, 0));
+  const before = await doneCount();
+  await page.locator(".lesson [data-part]").first().click();
+  assert.match(await page.textContent("#pickerTitle"), /Where did you stop/);
+  await page.locator("#pickerList [data-value]").nth(1).click();
+  await page.waitForFunction((n) => JSON.parse(localStorage.getItem("learning-calendar-v1")).plans
+    .reduce((m, p) => m + p.portions.filter((d) => d.done).length, 0) === n + 1, before);
+  assert.match(await page.textContent("#toast"), /starts where you stopped/);
+  ok("only part of a day can be marked, by where I stopped");
+
+  // a fresh Add screen: finish in one Hebrew year; Shabbos by name
+  const page3 = await context.newPage();
+  await page3.clock.setFixedTime(new Date("2026-10-15T09:00:00"));
+  await page3.goto(url);
+  await page3.waitForSelector(".lesson");
+  assert.match(await page3.textContent("#week"), /Shabbos/);
+  await page3.click('#today [data-go="add"]');
+  await page3.check('#wizList input[value="tanakh/genesis"]');
+  await page3.click("#wizNext");
+  const oneYear = await page3.evaluate(() => {
+    const f = new Intl.DateTimeFormat("en-u-ca-hebrew", { day: "numeric", month: "long", year: "numeric" });
+    const [y, m, d] = document.querySelector("#endDate").value.split("-").map(Number);
+    const after = f.format(new Date(y, m - 1, d + 1, 12)), start = f.format(new Date(2026, 9, 15, 12));
+    return { after, start };
+  });
+  const [sd, sm, sy] = oneYear.start.split(" "), [ad, am, ay] = oneYear.after.split(" ");
+  assert.deepStrictEqual([ad, am, +ay], [sd, sm, +sy + 1], `finish ${JSON.stringify(oneYear)}`);
+  assert.strictEqual(await page3.getAttribute("#days label:nth-child(7)", "title"), "Shabbos");
+  await page3.close();
+  ok("the finish date starts at one Hebrew year, and Shabbos is called Shabbos");
+
+  // the color spectrum stays open while choosing; space above About and sources
+  await page.click('.tabbar [data-go="settings"]');
+  const picker = await page.$("#accentCustom");
+  await picker.evaluate((i) => { i.value = "#336699"; i.dispatchEvent(new Event("input", { bubbles: true })); i.dispatchEvent(new Event("change", { bubbles: true })); });
+  assert(await picker.evaluate((i) => i.isConnected), "the color box is not replaced while it is open");
+  await page.click('[data-swatch="#2952cc"]');
+  const gap = await page.evaluate(() => {
+    const row = document.querySelector('#settings [data-go="about"]').closest(".panel");
+    return row.getBoundingClientRect().top - row.previousElementSibling.getBoundingClientRect().bottom;
+  });
+  assert(gap >= 12, `${gap}px above About and sources`);
+  ok("the color box stays open, and About and sources has space above it");
+
   assert.deepStrictEqual(errors, []);
   ok("no errors in the page");
   await browser.close();
