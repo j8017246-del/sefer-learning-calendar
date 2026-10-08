@@ -494,3 +494,23 @@ body.gated .tabbar { display: none; }
 .ask-date { margin-top: 12px; }
 #cycleNote { padding: 14px 16px; }
 .pill:not(.ok):not(.behind):not(.review) { background: var(--line); color: var(--muted); }
+
+/* ---- the printable weekly sheet: only it is printed ---- */
+.print-sheet { display: none; }
+.print-btn { align-self: center; margin-top: 4px; }
+@media print {
+  body > *:not(#printSheet) { display: none !important; }
+  body { background: #fff !important; color: #000; }
+  .print-sheet { display: block; font: 11pt/1.4 system-ui, sans-serif; color: #000; }
+  .print-sheet h1 { font-size: 15pt; margin: 0 0 10pt; }
+  .print-sheet table { width: 100%; border-collapse: collapse; }
+  .print-sheet th, .print-sheet td { border: 1px solid #999; padding: 6pt; vertical-align: top; text-align: start; }
+  .print-sheet th { width: 24%; font-weight: 600; }
+  .print-sheet p { margin: 0 0 5pt; }
+  .print-sheet .box { display: inline-block; width: 9pt; height: 9pt; border: 1px solid #000; margin-inline-end: 5pt; vertical-align: -1pt; }
+  .print-sheet .print-foot { font-size: 8.5pt; color: #444; margin-top: 8pt; }
+  tr { break-inside: avoid; }
+}
+.chavrusa { margin: 6px 0 0; font-size: .86rem; color: var(--muted); }
+.chavrusa b { color: var(--ink); font-weight: 600; }
+#shareLink { font-size: .85rem; }

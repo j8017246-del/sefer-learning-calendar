@@ -794,4 +794,18 @@ test("a plan keeps its kind, owner and members, dedication, assigned part and ea
   assert.strictEqual(S.fromSaved({ ...saved, kind: "nonsense" }, berakhot).kind, "personal");
 });
 
+test("Leave out Yom Tov: off unless chosen; two days outside Israel, one in Israel; Chol HaMoed stays", () => {
+  const base = { ...sample, startDate: "2026-09-20", endDate: "2026-10-20", learningDays: [0, 1, 2, 3, 4, 5, 6] };
+  const dates = (p) => p.portions.filter((d) => d.to >= d.from).map((d) => d.date);
+  const plain = dates(S.buildPlan(base, berakhot));
+  assert(plain.includes("2026-09-26") && plain.includes("2026-10-03"), "Yom Tov is a learning day unless chosen");
+  const out = dates(S.buildPlan({ ...base, skipYomTov: true, israel: false }, berakhot));
+  for (const d of ["2026-09-21", "2026-09-26", "2026-09-27", "2026-10-03", "2026-10-04"]) assert(!out.includes(d), `outside Israel ${d} is off`);
+  assert(out.includes("2026-09-28") && out.includes("2026-10-01"), "Chol HaMoed stays a learning day");
+  const il = dates(S.buildPlan({ ...base, skipYomTov: true, israel: true }, berakhot));
+  assert(!il.includes("2026-09-26") && il.includes("2026-09-27") && !il.includes("2026-10-03") && il.includes("2026-10-04"), "in Israel one day");
+  const saved = S.toSaved(S.buildPlan({ ...base, skipYomTov: true, israel: true }, berakhot), berakhot);
+  assert.deepStrictEqual([saved.skipYomTov, saved.israel], [true, true]);
+});
+
 console.log(`${passed} tests passed`);

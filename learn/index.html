@@ -55,6 +55,7 @@
   <nav class="week" id="week" data-t-aria-label="today.thisWeek"></nav>
   <p class="day-status" id="dayStatus"></p>
   <div id="cards" class="stack"></div>
+  <button class="text-btn print-btn" id="printWeek" hidden data-t="print.button"></button>
   <div id="empty" class="empty" hidden>
     <svg class="empty-art" viewBox="0 0 120 80" aria-hidden="true"><path d="M60 18c-12-8-30-9-46-6v54c16-3 34-2 46 6 12-8 30-9 46-6V12c-16-3-34-2-46 6Z"/><path d="M60 18v54"/></svg>
     <h2 data-t="today.startYourFirstSefer"></h2>
@@ -124,6 +125,14 @@
   </form>
 
   <button class="btn" id="reviewPlan" data-t="review.start"></button>
+  <button class="btn" id="sharePlan" data-t="share.button"></button>
+  <div class="panel form-rows" id="shareBox" hidden>
+    <p class="note" data-t="share.howTo"></p>
+    <input id="shareLink" readonly>
+    <div class="two"><button class="btn primary" id="shareSend" data-t="share.send"></button><button class="btn" id="shareCopy" data-t="share.copy"></button></div>
+  </div>
+  <button class="btn" id="exportPlan" data-t="export.button"></button>
+  <p class="note" data-t="export.note"></p>
 
   <details class="panel all-days">
     <summary><span id="planDaysTitle" data-t="plan.daysOfThePlan"></span> <svg data-icon="down"></svg></summary>
@@ -157,6 +166,13 @@
 
   <h3 class="group-title" data-t="settings.appearance"></h3>
   <div class="panel form-rows">
+    <div class="field"><span data-t="settings.language"></span>
+      <div class="seg" role="radiogroup" data-t-aria-label="settings.language">
+        <label><input type="radio" name="lang" value="en"><span data-t="settings.langEnglish" lang="en"></span></label>
+        <label><input type="radio" name="lang" value="he"><span data-t="settings.langHebrew" lang="he"></span></label>
+      </div>
+      <p class="note" data-t="settings.languageNote"></p>
+    </div>
     <div class="field"><span data-t="settings.theme"></span>
       <div class="seg" role="radiogroup" data-t-aria-label="settings.theme">
         <label><input type="radio" name="theme" value="auto"><span data-t="settings.automatic"></span></label>
@@ -228,6 +244,7 @@
     <p data-t="privacy.ifYouDoNot"></p>
     <p data-t="privacy.weMayShowCounts"></p>
     <p data-t="privacy.weOnlyShowYour"></p>
+    <p data-t="privacy.sharing"></p>
     <p data-t="privacy.youCanDeleteYour"></p>
   </div>
 </section>
@@ -354,6 +371,8 @@
       <button type="button" class="row-link" id="lighterRow" aria-describedby="lighterHint"><span data-t="add.lighterDay"></span> <span class="row-value" id="lighterValue" data-t="add.fri"></span><svg data-icon="next"></svg></button>
       <p class="note" id="lighterHint" data-t="add.aShorterDayAbout"></p>
       <label class="row-link"><span data-t="add.startOn"></span> <input type="date" id="startDate" class="row-date"></label>
+      <label class="switch-row"><input type="checkbox" id="skipYomTov"> <span data-t="add.skipYomTov"></span></label>
+      <p class="note" id="yomTovHint"></p>
     </div>
 
     <details class="panel inline-details" id="daysOffBox">
@@ -430,6 +449,7 @@
 </dialog>
 
 <div id="toast" role="status"></div>
+<section id="printSheet" class="print-sheet" aria-hidden="true"></section>
 
 <script>
   // If anything fails while the app starts, say so on the page instead of staying blank.

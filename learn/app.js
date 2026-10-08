@@ -40,7 +40,7 @@
   const dateOf = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d, 12); };
   // Every date with its Hebrew date beside it: "Thu, Oct 8 · כ״ו תשרי".
   function niceDate(iso, withYear = false) {
-    const en = dateOf(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", ...(withYear ? { year: "numeric" } : {}) });
+    const en = dateOf(iso).toLocaleDateString(LearnText.locale(), { weekday: "short", month: "short", day: "numeric", ...(withYear ? { year: "numeric" } : {}) });
     const hd = hebrewDate(iso, withYear);
     return hd ? `${en} · ${hd}` : en;
   }
@@ -48,7 +48,13 @@
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
   const he = (s) => `<bdi lang="he" dir="rtl">${esc(s)}</bdi>`;
-  const words = (s) => `<span class="words">“${he(s)}”</span>`;
+  // Hebrew screens: names in Hebrew; where the Hebrew name is already shown large, no second name
+  const hebrewUI = LearnText.language() === "he";
+  const nm = (o) => (o ? (hebrewUI && o.he ? o.he : o.en) : "");
+  const sub = (o) => (hebrewUI ? "" : o.en);
+  const num = (n) => (hebrewUI ? P.hebrewNumber(n) : String(n));
+  const words = (s) => (hebrewUI ? `<span class="words">"${he(s)}"</span>` : `<span class="words">“${he(s)}”</span>`);
+
   function toast(msg) {
     const t = $("toast");
     t.textContent = msg;
@@ -258,7 +264,16 @@
       try { localStorage.setItem(REMINDER_TIME, v); } catch (e) { /* fine */ }
     },
     tr: (k, v) => tr(k, v),
+    // learning with a chavrusa (accounts.js keeps shares/{id} in the account)
+    onShare(fn) { shareMaker = fn; },
+    setShareInfo(id, info) {
+      shareInfo.set(id, info);
+      if (!$("today").hidden) renderToday();
+    },
+    offerJoin: (saved, info) => offerJoin(saved, info),
   };
+  let shareMaker = null;
+  const shareInfo = new Map();
   // Reads saved plans. Those whose sefer cannot be loaded are returned
   // untouched in `failed`, so they are never lost.
   const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
@@ -334,6 +349,15 @@
     if (e.target.id === "accentCustom") { look.accent = e.target.value; applyLook(); }
   });
 
+  // The language of the screens: English or Hebrew (strings.js reads it when the page opens).
+  document.querySelectorAll('input[name="lang"]').forEach((r) => {
+    r.checked = r.value === LearnText.language();
+    r.addEventListener("change", () => {
+      try { localStorage.setItem("learning-calendar-language", r.value); } catch (e) { /* stays as it is */ }
+      location.reload();
+    });
+  });
+
   // Section names (Chovos HaLevavos, Mesillas Yesharim, ...) in Hebrew or English.
   let sectionNames = "he";
   try { sectionNames = localStorage.getItem(NAMES_STORE) === "en" ? "en" : "he"; } catch (e) { /* default */ }
@@ -386,8 +410,8 @@
     const startText = r.start.words ? `${esc(tr("route.fromWords", { place: start }))} ${words(r.start.words)}${esc(P.timeText(r.start.nth))}` : esc(tr("route.beginningOf", { place: start }));
     const endText = r.end.until ? `${esc(tr("route.untilWords", { place: end }))} ${words(r.end.until)}${esc(P.timeText(r.end.nth))}` : esc(tr("route.endOf", { place: end }));
     const comm = r.commentaries.map((c) => c.seifKatan != null
-      ? esc(tr("route.commSeifKatan", { name: c.en, siman: c.siman !== P.positions(sefer)[r.end.piece].chapter ? tr("route.simanN", { n: c.siman }) : "", n: c.seifKatan }))
-      : c.words ? `${esc(tr("route.commThrough", { name: c.en }))} ${words(c.words)}` : "").filter(Boolean);
+      ? esc(tr("route.commSeifKatan", { name: nm(c), siman: c.siman !== P.positions(sefer)[r.end.piece].chapter ? tr("route.simanN", { n: num(c.siman) }) : "", n: num(c.seifKatan) }))
+      : c.words ? `${esc(tr("route.commThrough", { name: nm(c) }))} ${words(c.words)}` : "").filter(Boolean);
     return `<div class="route">
         <div class="stop"><small>${esc(tr("route.start"))}</small><span class="place">${startText}</span></div>
         <div class="stop end"><small>${esc(tr("route.stop"))}</small><span class="place">${endText}</span></div>
@@ -396,7 +420,7 @@
   }
   // One line, for lists: "Berachos 2b, from the words “…”, to 3b, until the words “…”".
   function portionLine(sefer, comms, p) {
-    return esc(P.describeRange(sefer, p.from, p.to, comms)).replace(/“([^”]*)”/g, (_, w) => `“<bdi lang="he" dir="rtl">${w}</bdi>”`);
+    return esc(P.describeRange(sefer, p.from, p.to, comms)).replace(/([“„])([^”]*)”/g, (_, q, w) => `${q}<bdi lang="he" dir="rtl">${w}</bdi>”`);
   }
 
   // ---- Today -----------------------------------------------------------------------------
@@ -409,6 +433,7 @@
     $("todayDate").innerHTML = `${esc(d.toLocaleDateString(LearnText.locale(), { weekday: selectedDate === today ? "long" : undefined, month: "long", day: "numeric" }))}${hd ? ` · ${he(hebrewDate(selectedDate, true))}` : ""}`;
     $("empty").hidden = plans.length + unloaded.length > 0;
     $("week").hidden = !plans.length;
+    $("printWeek").hidden = !plans.length;
 
     // the week around today
     const first = S.addDays(today, -dateOf(today).getDay());
@@ -441,10 +466,63 @@
     const k = DEDICATION[d.kind];
     return `<p class="dedication">${k ? `${he(k[1])} ` : ""}${esc(d.name)}${k ? ` <span class="muted">· ${esc(tr(k[0]))}</span>` : ""}</p>`;
   }
+  // How the chavrusa is doing, on a shared plan's card.
+  function chavrusaHtml(plan, today) {
+    const info = plan.share && shareInfo.get(plan.share.id);
+    if (!plan.share) return "";
+    if (!info || !info.others.length) return `<p class="chavrusa">${esc(tr("share.waiting"))}</p>`;
+    return info.others.map((o) => `<p class="chavrusa"><b>${esc(o.name)}</b> · ${esc(tr("share.progress", { done: o.done, total: o.total }))}${
+      o.last ? ` · ${esc(o.last === today ? tr("share.doneToday") : tr("share.lastDone", { date: niceDate(o.last) }))}` : ""}</p>`).join("");
+  }
+  // Someone opened a chavrusa's link and signed in: join with the same schedule.
+  async function offerJoin(saved, info) {
+    if (info.mine) return false;
+    const name = nm(saved.name || entryOf(saved.seferId || saved.seferIds[0]) || { en: "" });
+    if (!(await ask(tr("share.joinAsk", { who: info.ownerName, name }), tr("share.join")))) return false;
+    const { loaded, failed } = await loadPlans([{ ...saved, id: uid() }]);
+    if (failed.length || !loaded.length) { toast(tr("load.failed")); return false; }
+    const x = loaded[0];
+    x.plan.share = { id: info.id };
+    x.plan.createdAt = new Date().toISOString();
+    x.plan.kind = x.plan.kind === "cycle" ? "cycle" : "personal";
+    for (const p of x.plan.portions) { p.done = false; delete p.minutes; }
+    plans.push(x);
+    logDay(x, "started", null, { from: P.address(x.sefer, x.plan.from), until: P.address(x.sefer, x.plan.to + 1), finishDate: (learningOf(x.plan).pop() || {}).date || null, note: "joined" });
+    save();
+    selectedDate = todayIso();
+    show("today");
+    toast(tr("share.joined", { who: info.ownerName }));
+    return true;
+  }
+  on("sharePlan", "click", async () => {
+    const x = findPlan(current);
+    if (!shareMaker) return toast(tr("share.signInFirst"));
+    try {
+      $("sharePlan").disabled = true;
+      const { id, link } = await shareMaker({ id: x.id, ...S.toSaved(x.plan, x.sefer), share: x.plan.share });
+      if (!x.plan.share) { x.plan = { ...x.plan, share: { id } }; save(); }
+      $("shareLink").value = link;
+      $("shareBox").hidden = false;
+      $("shareSend").hidden = !navigator.share;
+    } catch (err) {
+      toast(err.message);
+    } finally {
+      $("sharePlan").disabled = false;
+    }
+  });
+  on("shareSend", "click", () => {
+    const x = findPlan(current);
+    navigator.share({ title: nm(planName(x)), text: tr("share.message", { name: nm(planName(x)) }), url: $("shareLink").value }).catch(() => {});
+  });
+  on("shareCopy", "click", async () => {
+    try { await navigator.clipboard.writeText($("shareLink").value); toast(tr("share.copied")); }
+    catch (e) { $("shareLink").select(); toast(tr("backup.selectAndCopy")); }
+  });
+
   // Places the app has no text for (in a public cycle): named, with a Sefaria link.
   function placesHtml(p) {
     if (!p.places || !p.places.length) return "";
-    return `<div class="places">${p.places.map((x) => `<p><b>${esc(x.en)}</b> ${he(x.he)}
+    return `<div class="places">${p.places.map((x) => `<p>${hebrewUI ? "" : `<b>${esc(x.en)}</b> `}${he(x.he)}
       <a class="text-btn" href="https://www.sefaria.org/${esc(x.ref)}" target="_blank" rel="noopener">${esc(tr("cycle.openPlace"))} ${icon("ext")}</a></p>`).join("")}
       <p class="note">${esc(tr("cycle.placeOnly"))}</p></div>`;
   }
@@ -453,7 +531,7 @@
     const { sefer, plan } = x, comms = plan.commentaries || [];
     const st = S.status(plan, sefer, today);
     const learning = learningOf(plan);
-    const commNames = comms.map((id) => (sefer.commentaries.find((c) => c.id === id) || {}).en).filter(Boolean);
+    const commNames = comms.map((id) => nm(sefer.commentaries.find((c) => c.id === id))).filter(Boolean);
     const col = plan.kind === "cycle" ? null : collectionOf(sefer.collection);
     const isToday = selectedDate === today, cycle = plan.kind === "cycle";
     const name = planName(x);
@@ -467,9 +545,9 @@
     const kind = plan.kind === "review" ? `<span class="pill review">${esc(tr("review.pill"))}</span>` : cycle ? `<span class="pill">${esc(tr("cycle.pill"))}</span>` : "";
     const head = `<div class="lesson-head">
         <div><h2 class="he-title" lang="he" dir="rtl">${esc(name.he)}</h2>
-          <div class="lesson-sub">${kind}${esc(name.en)}${commNames.length ? ` · ${esc(tr("lesson.with", { names: commNames.join(" & ") }))}` : ""}${col ? ` · ${esc(col.en)}` : ""}</div></div>
+          <div class="lesson-sub">${kind}${[sub(name), commNames.length ? tr("lesson.with", { names: commNames.join(" & ") }) : "", col ? nm(col) : ""].filter(Boolean).map(esc).join(" · ")}</div></div>
         ${p ? `<div class="count"><b>${learning.indexOf(p) + 1}<span class="muted">/${learning.length}</span></b>${esc(tr("lesson.day"))}</div>` : ""}
-      </div>${dedicationHtml(plan)}`;
+      </div>${dedicationHtml(plan)}${chavrusaHtml(plan, today)}`;
     const foot = `<div class="lesson-foot">${status}<span>${esc(tr("lesson.finishing", { date: st.finishDate ? niceDate(st.finishDate, true) : "—" }))}</span></div>
       <div class="lesson-foot"><button class="text-btn" data-open="${esc(x.id)}">${esc(tr("lesson.wholeSchedule"))}</button>
         ${isToday && !st.finished && !cycle && !plan.paused ? (st.behind ? `<button class="text-btn" data-missed="${esc(x.id)}">${esc(tr("lesson.catchUp"))}</button>` : `<button class="text-btn" data-cant="${esc(x.id)}">${esc(tr("lesson.cantToday"))}</button>`) : ""}</div>`;
@@ -644,9 +722,9 @@
     if (!a) return "";
     const erev = S.addDays(a.date, -1);
     return `<article class="panel suggestion">
-        <div class="lesson-head"><div><h2>${esc(tr("suggest.title", { name: a.sg.en }))} ${he(a.sg.he)}</h2>
+        <div class="lesson-head"><div><h2>${esc(tr("suggest.title", { name: nm(a.sg) }))}${hebrewUI ? "" : ` ${he(a.sg.he)}`}</h2>
           <div class="lesson-sub">${esc(tr("suggest.sub", { date: niceDate(erev, true) }))}</div></div></div>
-        ${a.items.map((it) => `<div class="suggest-row"><span>${esc(it.en || it.entry.en)} ${he(it.he || it.entry.he)}</span>
+        ${a.items.map((it) => `<div class="suggest-row"><span>${hebrewUI ? "" : `${esc(it.en || it.entry.en)} `}${he(it.he || it.entry.he)}</span>
           <button class="btn small-btn" data-suggest="${esc(a.sg.id)}" data-item="${it.i}">${esc(tr("suggest.start"))}</button></div>`).join("")}
         <button class="text-btn" data-suggest-hide="${esc(a.sg.id)}">${esc(tr("suggest.hide"))}</button>
       </article>`;
@@ -670,7 +748,7 @@
       learningDays: [0, 1, 2, 3, 4, 5], lighterDays: [], daysOff: [] }, sefer);
     if (it.en) plan.name = { en: it.en, he: it.he || sefer.he };
     addPlan({ sefer, plan });
-    toast(tr("added", { name: it.en || sefer.en }));
+    toast(tr("added", { name: hebrewUI ? it.he || sefer.he : it.en || sefer.en }));
   }
   function addPlan({ sefer, plan }) {
     plan.createdAt = new Date().toISOString();
@@ -823,7 +901,7 @@
       const done = learning.filter((p) => p.done).length, percent = pct(x.plan);
       return `<button class="panel plan-row" data-open="${esc(x.id)}">
         <span class="plan-row-top"><span class="he-title" lang="he" dir="rtl">${esc(planName(x).he)}</span><span class="muted">${percent}%</span></span>
-        <span class="muted">${x.plan.kind === "review" ? `${esc(tr("review.pill"))} · ` : ""}${esc(planName(x).en)}${x.plan.group ? ` · ${esc(x.plan.group.name)}` : ""}</span>
+        <span class="muted">${x.plan.kind === "review" ? `${esc(tr("review.pill"))} · ` : ""}${esc(sub(planName(x)))}${x.plan.group ? ` · ${esc(hebrewUI ? x.plan.group.he || x.plan.group.name : x.plan.group.name)}` : ""}</span>
         <span class="progress"><i style="width:${percent}%"></i></span>
         <span class="plan-row-meta"><span>${esc(tr("library.daysDone", { n: done, all: learning.length }))}${st.behind ? ` · ${esc(tr("library.behind", { n: st.behind }))}` : ""}</span><span>${esc(tr("lesson.finishing", { date: st.finishDate ? niceDate(st.finishDate, true) : "—" }))}</span></span>
       </button>`;
@@ -848,9 +926,9 @@
     const x = findPlan(current), { sefer, plan } = x, comms = plan.commentaries || [];
     const today = todayIso(), st = S.status(plan, sefer, today), learning = learningOf(plan);
     const done = learning.filter((p) => p.done).length, percent = pct(plan);
-    const commNames = comms.map((c) => sefer.commentaries.find((k) => k.id === c).en);
+    const commNames = comms.map((c) => nm(sefer.commentaries.find((k) => k.id === c)));
     $("planTitle").textContent = planName(x).he;
-    $("planSub").textContent = `${planName(x).en}${commNames.length ? `, ${tr("lesson.with", { names: commNames.join(" & ") })}` : ""}`
+    $("planSub").textContent = [sub(planName(x)), commNames.length ? tr("lesson.with", { names: commNames.join(" & ") }) : ""].filter(Boolean).join(", ")
       + (plan.minutesPerDay && !plan.endDate ? ` · ${tr("plan.aboutMinutes", { n: plan.minutesPerDay })}` : "");
     $("planBar").style.width = percent + "%";
     $("planStats").innerHTML = `<div><b>${done}/${learning.length}</b><span>${esc(tr("plan.daysDone"))}</span></div>
@@ -863,6 +941,8 @@
     $("cycleNote").hidden = !cycle && !plan.group;
     $("cycleNote").textContent = cycle ? tr("cycle.noChanges") : plan.group ? tr("group.changeOnToday") : "";
     $("reviewPlan").hidden = !learning.some((p) => p.done && p.to >= p.from);
+    $("sharePlan").textContent = tr(plan.share ? "share.again" : "share.button");
+    if (current !== renderPlan.last) { $("shareBox").hidden = true; renderPlan.last = current; }
     const ded = plan.dedication || {};
     document.querySelectorAll('input[name="editDedKind"]').forEach((r) => { r.checked = r.value === (ded.kind || ""); });
     $("editDedName").value = ded.name || "";
@@ -878,7 +958,7 @@
     const days = plan.portions.filter((p) => p.date.startsWith(calMonth));
     $("planDays").innerHTML = days.map((p) => `<li class="${p.date === today ? "today" : ""} ${S.hasLearning(p) ? "" : "off"}">
         <span class="d">${niceDate(p.date)}</span>
-        <span class="t">${!S.hasLearning(p) ? esc(tr("plan.noNewLearning")) : `${p.to >= p.from ? portionLine(sefer, comms, p) : ""}${(p.places || []).map((x) => esc(x.en)).join(", ")}`}</span>
+        <span class="t">${!S.hasLearning(p) ? esc(tr("plan.noNewLearning")) : `${p.to >= p.from ? portionLine(sefer, comms, p) : ""}${(p.places || []).map((x) => esc(nm(x))).join(", ")}`}</span>
         ${!S.hasLearning(p) ? "<span></span>" : `<button class="mark" data-toggle="${esc(p.date)}" aria-pressed="${!!p.done}" aria-label="${esc(tr(p.done ? "plan.unmark" : "lesson.markDone"))}">${p.done ? icon("check") : ""}</button>`}</li>`).join("")
       || `<li class="off"><span class="t">${esc(tr("plan.noDaysThisMonth"))}</span></li>`;
   }
@@ -904,7 +984,7 @@
     $("calGrid").innerHTML = html;
     const p = calPick && byDate.get(calPick);
     renderMonthDays(x, today);
-    $("calDetail").innerHTML = !calPick ? "" : `<b>${esc(niceDate(calPick, true))}${p && p.done ? ` · ${esc(tr("cal.done"))}` : ""}</b>${!p ? esc(tr("cal.notInPlan")) : !S.hasLearning(p) ? esc(tr("cal.noNew")) : `${p.to >= p.from ? portionLine(sefer, comms, p) : ""}${(p.places || []).map((x) => esc(x.en)).join(", ")}`}`;
+    $("calDetail").innerHTML = !calPick ? "" : `<b>${esc(niceDate(calPick, true))}${p && p.done ? ` · ${esc(tr("cal.done"))}` : ""}</b>${!p ? esc(tr("cal.notInPlan")) : !S.hasLearning(p) ? esc(tr("cal.noNew")) : `${p.to >= p.from ? portionLine(sefer, comms, p) : ""}${(p.places || []).map((x) => esc(nm(x))).join(", ")}`}`;
   }
 
   on("calGrid", "click", (e) => {
@@ -950,7 +1030,7 @@
 
   on("deletePlan", "click", async () => {
     const x = findPlan(current);
-    if (!(await ask(tr("plan.stopAsk", { name: planName(x).en }), tr("plan.stopYes")))) return;
+    if (!(await ask(tr("plan.stopAsk", { name: nm(planName(x)) }), tr("plan.stopYes")))) return;
     logDay(x, "stopped", null);
     plans = plans.filter((p) => p.id !== current);
     save(); show("library");
@@ -1008,7 +1088,7 @@
 
   function renderCols() {
     $("wizCols").innerHTML = catalog.collections.map((c) =>
-      `<button type="button" role="tab" data-col="${c.id}" aria-selected="${c.id === wiz.col}">${esc(c.en)}</button>`).join("");
+      `<button type="button" role="tab" data-col="${c.id}" aria-selected="${c.id === wiz.col}">${esc(nm(c))}</button>`).join("");
   }
 
   // What each collection leaves out (no Public Domain edition) or estimates.
@@ -1052,13 +1132,13 @@
   async function chosenChanged() {
     const entries = wiz.chosen.map(entryOf);
     const all = inCollection(wiz.col).length;
-    $("wizChosen").textContent = !entries.length ? "" : entries.length === 1 ? tr("add.oneChosen", { name: entries[0].en })
+    $("wizChosen").textContent = !entries.length ? "" : entries.length === 1 ? tr("add.oneChosen", { name: nm(entries[0]) })
       : entries.length === all ? tr("add.allChosen", { n: all }) : tr("add.nChosen", { n: entries.length });
     const comms = [];
     for (const e of entries) for (const c of e.commentaries) if (!comms.some((k) => k.id === c.id)) comms.push(c);
     $("commentaryBox").hidden = !comms.length;
     $("commentaries").innerHTML = comms.map((c) =>
-      `<label><input type="checkbox" name="comm" value="${c.id}" ${c.default ? "checked" : ""}>${esc(c.en)} ${he(c.he)}</label>`).join("");
+      `<label><input type="checkbox" name="comm" value="${c.id}" ${c.default ? "checked" : ""}>${hebrewUI ? "" : `${esc(c.en)} `}${he(c.he)}</label>`).join("");
     $("fromPiece").value = ""; $("toPiece").value = "";
     update();
     if (!entries.length) return;
@@ -1089,6 +1169,7 @@
       learningDays,
       lighterDays: wiz.lighter !== "" && learningDays.includes(+wiz.lighter) ? [+wiz.lighter] : [],
       daysOff: wiz.daysOff.slice(),
+      ...($("skipYomTov").checked ? { skipYomTov: true, israel: S.inIsrael(timeZone()) } : {}),
     };
     if (mode() === "finish") settings.endDate = $("endDate").value;
     else if (mode() === "amount") settings.dailyPieces = +$("amount").value;
@@ -1124,11 +1205,11 @@
       $("wizNext").disabled = false;
       $("create").disabled = false;
       if (wiz.step === 3) {
-        const commNames = comms.map((id) => sefer.commentaries.find((c) => c.id === id).en);
+        const commNames = comms.map((id) => nm(sefer.commentaries.find((c) => c.id === id)));
         const days = plan.learningDays.map((d) => DAYS[d]).join(", ");
         $("review").innerHTML = `<div class="panel review-hero">
             <h2 class="he-title" lang="he" dir="rtl">${esc(sefer.he)}</h2>
-            <p>${esc(sefer.en)}</p>
+            ${hebrewUI ? "" : `<p>${esc(sefer.en)}</p>`}
             <div class="big">${learning.length}<small>${esc(tr("add.days"))}</small></div>
             <p>${esc(tr("lesson.finishing", { date: niceDate(last, true) }))}</p>
             <p>${esc(tr("add.aboutMinutes", { n: perDay }))}</p>
@@ -1163,6 +1244,10 @@
   ["endDate", "amount", "minutes", "startDate", "fromPiece", "toPiece"].forEach((id) => on(id, "input", update));
   on("amount", "input", () => { $("amountUnit").textContent = unitName(entryOf(wiz.chosen[0]), +$("amount").value); });
   on("commentaries", "change", update);
+  on("skipYomTov", "change", () => {
+    $("yomTovHint").textContent = $("skipYomTov").checked ? tr(S.inIsrael(timeZone()) ? "add.yomTovIsrael" : "add.yomTovOutside") : "";
+    update();
+  });
   on("days", "change", update);
 
   // − and + beside the daily amount and the minutes
@@ -1215,7 +1300,7 @@
       renderDaysOff();
       chosenChanged();
       addPlan({ sefer, plan });
-      toast(tr("added", { name: sefer.en }));
+      toast(tr("added", { name: nm(sefer) }));
     } catch (err) {
       toast(err.message);
     }
@@ -1247,7 +1332,7 @@
     renderKol();
   }
   function renderKol() {
-    const commName = (k) => k.comms.map((id) => (catalog.seforim.flatMap((e) => e.commentaries).find((c) => c.id === id) || {}).en).filter(Boolean);
+    const commName = (k) => k.comms.map((id) => nm(catalog.seforim.flatMap((e) => e.commentaries).find((c) => c.id === id))).filter(Boolean);
     $("kolList").innerHTML = kolChoices().map((k) => `<label class="pick-row">
         <input type="checkbox" data-kol="${esc(k.key)}" ${kol.picked.has(k.key) ? "checked" : ""}>
         <span class="names"><span class="en">${esc(k.en)}${commName(k).length ? ` · ${esc(tr("lesson.with", { names: commName(k).join(" & ") }))}` : ""}${k.on ? "" : ` · ${esc(tr("kol.optional"))}`}</span><span class="he" lang="he" dir="rtl">${esc(k.he)}</span></span>
@@ -1326,7 +1411,7 @@
       const joined = plans.some((x) => x.plan.kind === "cycle" && x.plan.cycle === id && !S.status(x.plan, x.sefer, today).finished);
       const { cycleEnd } = C.cycleDay(id, today);
       return `<article class="panel lesson">
-          <div class="lesson-head"><div><h2 class="he-title" lang="he" dir="rtl">${esc(c.he)}</h2><div class="lesson-sub">${esc(c.en)} · ${esc(tr(`cycles.note.${id}`))}</div></div></div>
+          <div class="lesson-head"><div><h2 class="he-title" lang="he" dir="rtl">${esc(c.he)}</h2><div class="lesson-sub">${[sub(c), tr(`cycles.note.${id}`)].filter(Boolean).map(esc).join(" · ")}</div></div></div>
           <p class="next-line">${esc(tr("cycles.today", { name: C.dayName(id, today, names) }))}</p>
           <p class="note">${esc(tr("cycles.ends", { date: niceDate(cycleEnd, true) }))}</p>
           <button class="btn ${joined ? "" : "primary"}" data-join="${esc(id)}" ${joined ? "disabled" : ""}>${esc(tr(joined ? "cycles.joined" : "cycles.join"))}</button>
@@ -1346,7 +1431,7 @@
     plan.commentaries = [...new Set(ids.flatMap((i) => entryOf(i).commentaries.filter((k) => k.default).map((k) => k.id)))]
       .filter((k) => sefer.commentaries.some((x) => x.id === k));
     addPlan({ sefer, plan });
-    toast(tr("cycles.welcome", { name: c.en }));
+    toast(tr("cycles.welcome", { name: nm(c) }));
   }
 
   // ---- review (chazara) of something already learned -------------------------------------------
@@ -1390,6 +1475,85 @@
     x.plan = { ...x.plan, dedication: dedicationFrom("editDedKind", "editDedName") };
     if (!x.plan.dedication) delete x.plan.dedication;
     save(); renderPlan(); toast(tr("dedication.saved"));
+  });
+
+  // ---- every day of a plan in the phone's calendar ----------------------------------------
+  //
+  // One all-day event per learning day with the day's place (start and stop
+  // words) and the Sefaria link. Each day keeps the same id, so adding the
+  // plan again after a change updates the days instead of doubling them.
+
+  const icsText = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+  // lines of at most 75 bytes, as calendar files require
+  function icsFold(line) {
+    const bytes = new TextEncoder().encode(line);
+    if (bytes.length <= 75) return line;
+    const out = [];
+    let cur = "", n = 0;
+    for (const ch of line) {
+      const b = new TextEncoder().encode(ch).length;
+      if (n + b > (out.length ? 74 : 75)) { out.push(cur); cur = ""; n = 0; }
+      cur += ch; n += b;
+    }
+    out.push(cur);
+    return out.join("\r\n ");
+  }
+  function dayText(x, p) {
+    const comms = x.plan.commentaries || [];
+    const parts = [];
+    if (p.to >= p.from) parts.push(P.describeRange(x.sefer, p.from, p.to, comms));
+    for (const pl of p.places || []) parts.push(`${pl.en} (${pl.he})`);
+    return parts.join("; ");
+  }
+  function planIcs(x) {
+    const name = planName(x), stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+    const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Learning Calendar//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+      `X-WR-CALNAME:${icsText(`${name.en} · ${name.he}`)}`];
+    learningOf(x.plan).forEach((p, i, all) => {
+      const d = p.date.replace(/-/g, ""), next = S.addDays(p.date, 1).replace(/-/g, "");
+      const link = p.to >= p.from ? P.sefariaUrl(x.sefer, p.from, p.to) : APP_URL;
+      lines.push("BEGIN:VEVENT", `UID:${x.id}-${d}@sefer-calendar.web.app`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${next}`,
+        `SUMMARY:${icsText(tr("export.summary", { name: name.en, n: i + 1, all: all.length }))}`,
+        `DESCRIPTION:${icsText(`${dayText(x, p)}\n${link}`)}`, `URL:${link}`, "TRANSP:TRANSPARENT", "END:VEVENT");
+    });
+    lines.push("END:VCALENDAR", "");
+    return lines.map(icsFold).join("\r\n");
+  }
+  function openIcs(text, filename) {
+    const url = URL.createObjectURL(new Blob([text], { type: "text/calendar" }));
+    const a = document.createElement("a");
+    a.href = url;
+    const apple = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (!apple) a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  on("exportPlan", "click", () => {
+    const x = findPlan(current);
+    openIcs(planIcs(x), `${(x.plan.seferIds || [x.plan.seferId])[0].replace(/\W+/g, "-")}-schedule.ics`);
+  });
+
+  // ---- a printable sheet for the week ---------------------------------------------------------
+
+  function printSheetHtml(today) {
+    const first = S.addDays(today, -dateOf(today).getDay());
+    const rows = [];
+    for (let i = 0; i < 7; i++) {
+      const iso = S.addDays(first, i);
+      const items = plans.filter((x) => !x.plan.paused).map((x) => ({ x, p: x.plan.portions.find((q) => q.date === iso && S.hasLearning(q)) })).filter((r) => r.p);
+      rows.push(`<tr><th>${esc(dateOf(iso).toLocaleDateString(LearnText.locale(), { weekday: "long", month: "short", day: "numeric" }))}<br><span lang="he">${esc(hebrewDate(iso))}</span></th>
+        <td>${items.length ? items.map(({ x, p }) => `<p><span class="box"></span><b>${esc(planName(x).he)}</b> ${esc(sub(planName(x)))}<br>${esc(dayText(x, p))}</p>`).join("")
+          : `<p class="muted">${esc(tr("print.nothing"))}</p>`}</td></tr>`);
+    }
+    const last = S.addDays(first, 6);
+    return `<h1>${esc(tr("print.title", { from: niceDate(first), to: niceDate(last, true) }))}</h1>
+      <table>${rows.join("")}</table><p class="print-foot">${esc(tr("print.foot"))}</p>`;
+  }
+  on("printWeek", "click", () => {
+    $("printSheet").innerHTML = printSheetHtml(todayIso());
+    window.print();
   });
 
   // ---- a daily reminder in the phone's calendar ---------------------------------------------
@@ -1465,16 +1629,8 @@
     if (!end) return toast(tr("reminder.addSeferFirst"));
     const ics = reminderIcs($("reminderTime").value || "20:00", reminderDays(), end);
     if (!ics) return toast(tr("reminder.noDays"));
-    const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
-    const a = document.createElement("a");
-    a.href = url;
     // iPhone and iPad show "Add to Calendar" when the file is opened, not saved
-    const apple = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    if (!apple) a.download = "daily-learning-reminder.ics";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    openIcs(ics, "daily-learning-reminder.ics");
   });
 
   // ---- backup -------------------------------------------------------------------------------

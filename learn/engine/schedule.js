@@ -91,8 +91,12 @@
     return out;
   }
 
+  // A day off: one the person set, or Yom Tov when the plan leaves it out
+  // (`skipYomTov`; one day in Israel, two outside, by `israel`).
   function dayOff(plan, iso) {
-    return (plan.daysOff || []).find((d) => iso >= d.start && iso <= (d.end || d.start)) || null;
+    const set = (plan.daysOff || []).find((d) => iso >= d.start && iso <= (d.end || d.start));
+    if (set) return set;
+    return plan.skipYomTov && isYomTov(iso, !!plan.israel) ? { start: iso, end: iso, label: "", yomTov: true } : null;
   }
 
   // How much of a full day this date carries: 0 (not learning), lighter, or 1.
@@ -473,7 +477,7 @@
   // ---- saving -----------------------------------------------------------
 
   const SETTINGS = ["seferId", "seferIds", "name", "createdAt", "commentaries", "startDate", "endDate", "dailyPieces",
-    "minutesPerDay", "pace", "group", "paused", "learningDays", "lighterDays", "lighterWeight", "daysOff", "history",
+    "minutesPerDay", "pace", "group", "paused", "learningDays", "lighterDays", "lighterWeight", "daysOff", "skipYomTov", "israel", "share", "history",
     // groundwork for later: who owns the plan and who learns it too, a dedication, the part
     // assigned to one person when a sefer is divided, and the kind of plan
     "owner", "members", "dedication", "assignment", "kind", "cycle"];

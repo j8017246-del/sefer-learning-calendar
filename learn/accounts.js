@@ -175,6 +175,8 @@
     $("signedIn").hidden = !u;
     gate(!u);
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    for (const stop of watching.values()) stop();
+    watching.clear(); sent.clear();
     synced = false;
     last = new Map();
     if (u) {
@@ -210,7 +212,9 @@
         put(OWNER, user.uid);
         write(merged.upload, []);
         if (merged.upload.length) Store.toast(tr(merged.upload.length > 1 ? "account.uploadedMany" : "account.uploadedOne", { n: merged.upload.length }));
-        return show(merged.all);
+        show(merged.all);
+        shared(Store.records());
+        return checkJoin();
       }
       if (get(UNSYNCED)) {
         // changes made here while the account could not be reached: send them
@@ -220,6 +224,8 @@
       }
     }
     show(inLocalOrder(remote, local));
+    shared(Store.records());
+    checkJoin();
   }
 
   function inLocalOrder(remote, local) {
@@ -240,6 +246,7 @@
     if (!synced) return;                                  // sent once the account is read
     const c = Sync.changes(last, records);
     write(c.write, c.remove);
+    shared(records);
   });
 
   function write(records, removeIds) {
@@ -269,6 +276,7 @@
       learningDays: r.learningDays || [], lighterDays: r.lighterDays || [], commentaries: r.commentaries || [],
       group: r.group || null,                    // { id, name } when created together with other plans
       paused: !!r.paused,
+      share: r.share ? r.share.id : null,        // shared with a chavrusa: shares/{id}
       // groundwork, not used yet: learning together, dividing a sefer, kinds of plans
       owner: user.uid,                           // the person who made the plan
       members: Array.isArray(r.members) ? r.members : [],   // others who learn it too (later)
@@ -311,12 +319,14 @@
       Object.assign(fresh, Store.reminder());
       await userRef().set(fresh, { merge: true });
       $("displayName").value = d.displayName || "";
+      myName = d.displayName || "";
       $("shareLearning").checked = d.shareLearning === true;
     } catch (e) { /* offline: shown when back online */ }
   }
   on("displayName", "change", () => {
     if (!user) return;
-    userRef().set({ displayName: $("displayName").value.trim().slice(0, 60), updatedAt: Date.now() }, { merge: true }).catch(() => {});
+    myName = $("displayName").value.trim().slice(0, 60);
+    userRef().set({ displayName: myName, updatedAt: Date.now() }, { merge: true }).catch(() => {});
     Store.toast(tr("account.nameSaved"));
   });
   on("shareLearning", "change", () => {
@@ -328,6 +338,86 @@
     if (!user) return;
     userRef().set({ ...r, updatedAt: Date.now() }, { merge: true }).catch(() => {});
   });
+
+  // ---- learning with a chavrusa: shares/{id} ---------------------------------------------------
+  //
+  // The owner shares one plan: its schedule (without progress) goes into
+  // shares/{id}, with a link holding the id. Whoever opens the link and signs in
+  // can join: they get the same schedule, and each person's progress (name,
+  // days done, last day done) is written there for the others to see.
+  const sharesRef = () => db.collection("shares");
+  let myName = "";
+  const nameOf = () => (myName || (user && user.email ? user.email.split("@")[0] : "") || tr("share.someone")).slice(0, 60);
+  const progressOf = (r) => {
+    const days = (r.portions || []).filter((p) => p.until !== p.from || p.places);
+    const done = days.filter((p) => p.done);
+    return { name: nameOf(), done: done.length, total: days.length, last: done.map((p) => p.date).sort().pop() || null, updatedAt: Date.now() };
+  };
+  const scheduleOnly = (r) => ({ ...r, id: undefined, share: undefined, portions: (r.portions || []).map((p) => ({ date: p.date, from: p.from, until: p.until, done: false, ...(p.places ? { places: p.places } : {}) })) });
+  Store.onShare(async (record) => {
+    if (!user || !synced) throw new Error(tr("share.signInFirst"));
+    if (record.share) return { id: record.share.id, link: `${location.origin}${location.pathname}#join=${record.share.id}` };
+    const id = Array.from(crypto.getRandomValues(new Uint8Array(15)), (b) => "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 56]).join("");
+    await sharesRef().doc(id).set({ owner: user.uid, ownerName: nameOf(), plan: JSON.stringify(scheduleOnly(record)), createdAt: Date.now(),
+      members: [user.uid], progress: { [user.uid]: progressOf(record) } });
+    return { id, link: `${location.origin}${location.pathname}#join=${id}` };
+  });
+  // After every save: my progress in each shared plan, and watch the others'.
+  const sent = new Map(), watching = new Map();
+  function shared(records) {
+    if (!user || !synced) return;
+    const ids = new Set();
+    for (const r of records) {
+      if (!r.share || !r.share.id) continue;
+      ids.add(r.share.id);
+      const p = progressOf(r), key = JSON.stringify({ ...p, updatedAt: 0 });
+      if (sent.get(r.share.id) !== key) {
+        sent.set(r.share.id, key);
+        sharesRef().doc(r.share.id).update({ [`progress.${user.uid}`]: p, members: window.firebase.firestore.FieldValue.arrayUnion(user.uid) })
+          .catch(() => sent.delete(r.share.id));
+      }
+      if (!watching.has(r.share.id)) {
+        watching.set(r.share.id, sharesRef().doc(r.share.id).onSnapshot((snap) => {
+          if (!snap.exists) return;
+          const d = snap.data();
+          Store.setShareInfo(snap.id, { ownerName: d.ownerName, me: user.uid,
+            others: Object.entries(d.progress || {}).filter(([k]) => k !== user.uid).map(([, v]) => v) });
+        }, () => {}));
+      }
+    }
+    for (const [id, stop] of watching) if (!ids.has(id)) { stop(); watching.delete(id); }
+  }
+  // A link to join: kept until signed in, then offered once.
+  const JOIN = "learning-calendar-join";
+  function linkInAddress() {
+    const id = (location.hash.match(/^#join=([A-Za-z0-9_-]{6,64})$/) || [])[1];
+    if (!id) return false;
+    put(JOIN, id);
+    try { history.replaceState(history.state, "", location.pathname); } catch (e) { /* fine */ }
+    return true;
+  }
+  linkInAddress();
+  // the link opened while the app was already open
+  window.addEventListener("hashchange", () => { if (linkInAddress() && synced) checkJoin(); });
+  let joining = false;
+  async function checkJoin() {
+    const id = get(JOIN);
+    if (!id || joining || !user) return;
+    joining = true;
+    try {
+      if (Store.records().some((r) => r.share && r.share.id === id)) { put(JOIN, null); return; }
+      const snap = await sharesRef().doc(id).get();
+      put(JOIN, null);
+      if (!snap.exists) return Store.toast(tr("share.notFound"));
+      const d = snap.data();
+      const joined = await Store.offerJoin(JSON.parse(d.plan), { id, ownerName: d.ownerName, mine: d.owner === user.uid });
+      if (joined) shared(Store.records());
+    } catch (e) {
+      Store.toast(tr("share.notFound"));
+    } finally {
+      joining = false;
+    }
+  }
 
   // ---- signing out and deleting ---------------------------------------------------------------
 
@@ -352,6 +442,16 @@
       return;
     }
     try {
+      // shared plans: the ones this person shared are removed; in others, their progress is
+      for (const r of Store.records()) {
+        if (!r.share || !r.share.id) continue;
+        const ref = sharesRef().doc(r.share.id);
+        try {
+          const snap = await ref.get();
+          if (snap.exists && snap.data().owner === user.uid) await ref.delete();
+          else if (snap.exists) await ref.update({ [`progress.${user.uid}`]: window.firebase.firestore.FieldValue.delete() });
+        } catch (e) { /* already gone */ }
+      }
       // everything: plans, the history of days, and the profile (in batches)
       const refs = [];
       (await plansRef().get()).forEach((d) => refs.push(d.ref));

@@ -68,6 +68,21 @@ const { doc, setDoc, getDoc, deleteDoc, collection, getDocs } = require("firebas
   ok("the reminder time, minutes a day took and the plan's kind and dedication are kept, still private");
   await assertSucceeds(deleteDoc(doc(alice, "users/alice/days/d1")));
 
+  // a plan shared with a chavrusa: open with the link, never listed; each writes only their own progress
+  const share = { owner: "alice", ownerName: "Alice", plan: "{}", createdAt: 1, members: ["alice"], progress: { alice: { name: "Alice", done: 1 } } };
+  await assertSucceeds(setDoc(doc(alice, "shares/s1"), share));
+  await assertFails(setDoc(doc(bob, "shares/s2"), share));
+  await assertFails(getDoc(doc(nobody, "shares/s1")));
+  await assertSucceeds(getDoc(doc(bob, "shares/s1")));
+  await assertFails(getDocs(collection(bob, "shares")));
+  await assertSucceeds(setDoc(doc(bob, "shares/s1"), { ...share, members: ["alice", "bob"], progress: { ...share.progress, bob: { name: "Bob", done: 0 } } }));
+  await assertFails(setDoc(doc(bob, "shares/s1"), { ...share, members: ["alice", "bob"], progress: { alice: { name: "Alice", done: 99 }, bob: { name: "Bob", done: 0 } } }));
+  await assertFails(setDoc(doc(bob, "shares/s1"), { ...share, members: ["bob"], progress: { ...share.progress, bob: { name: "Bob", done: 0 } } }));
+  await assertFails(setDoc(doc(bob, "shares/s1"), { ...share, plan: "{\"x\":1}", members: ["alice", "bob"], progress: { ...share.progress, bob: {} } }));
+  await assertFails(deleteDoc(doc(bob, "shares/s1")));
+  await assertSucceeds(deleteDoc(doc(alice, "shares/s1")));
+  ok("a shared plan opens only with its link, is never listed, and each person writes only their own progress");
+
   await assertSucceeds(deleteDoc(doc(alice, "users/alice/plans/p1")));
   await assertSucceeds(deleteDoc(doc(alice, "users/alice")));
   ok("a person can delete their own data");

@@ -92,8 +92,24 @@
     return { from: starts[fromPiece], to: starts[toPiece + 1] - 1 };
   }
 
-  // The piece's own number: "9b", "2:3", "128".
-  function pieceLabel(sefer, p) {
+  // Hebrew screens (strings.js): places in Hebrew letters, sefarim by their Hebrew names.
+  const hebrew = () => !!(global.LearnText && global.LearnText.language() === "he");
+  const nameOf = (x) => (hebrew() && x.he ? x.he : x.en);
+  function hebrewNumber(n) {
+    const H = [[400, "ת"], [300, "ש"], [200, "ר"], [100, "ק"], [90, "צ"], [80, "פ"], [70, "ע"], [60, "ס"], [50, "נ"], [40, "מ"], [30, "ל"], [20, "כ"], [10, "י"],
+      [9, "ט"], [8, "ח"], [7, "ז"], [6, "ו"], [5, "ה"], [4, "ד"], [3, "ג"], [2, "ב"], [1, "א"]];
+    let s = "";
+    while (n > 0) {
+      if (n % 100 === 15 || n % 100 === 16) { s += n % 100 === 15 ? "טו" : "טז"; n -= n % 100; continue; }
+      const [v, ch] = H.find(([x]) => x <= n);
+      s += ch; n -= v;
+    }
+    return s;
+  }
+  const num = (n) => (hebrew() ? hebrewNumber(n) : String(n));
+
+  // The piece's own number: "9b", "2:3", "128" (in Hebrew "ט ע״ב", "ב:ג", "קכח").
+  function rawLabel(sefer, p) {
     const pos = positions(sefer)[p];
     if (!pos) throw new RangeError(`No piece ${p} in ${sefer.en}`);
     if (sefer.shape === "chapters") return `${pos.chapter}:${pos.verse}`;
@@ -101,6 +117,14 @@
     if (sefer.shape === "named") return (sectionNames === "he" && sefer.heLabels?.[p]) || pos.label;
     return String(pos.number);
   }
+  function hebrewLabel(sefer, p) {
+    const pos = positions(sefer)[p];
+    if (sefer.shape === "chapters") return `${hebrewNumber(pos.chapter)}:${hebrewNumber(pos.verse)}`;
+    if (sefer.shape === "daf") return `${hebrewNumber(pos.daf)} ${pos.side === "a" ? "ע״א" : "ע״ב"}`;
+    if (sefer.shape === "list") return hebrewNumber(pos.number);
+    return rawLabel(sefer, p);
+  }
+  const pieceLabel = (sefer, p) => (hebrew() ? hebrewLabel(sefer, p) : rawLabel(sefer, p));
 
   // Section names of seforim like Chovos HaLevavos: "he" (שער ראשון - שער ייחוד ג)
   // or "en" (First Treatise on Unity 3), as the person chose in Settings.
@@ -117,10 +141,11 @@
     const want = String(label).trim().toLowerCase().replace(/^siman\s+/, "");
     const n = pieceCount(sefer);
     for (let p = 0; p < n; p++) {
-      if (pieceLabel(sefer, p).toLowerCase() === want) return p;
+      if (rawLabel(sefer, p).toLowerCase() === want) return p;
+      if (sefer.shape !== "named" && hebrewLabel(sefer, p).replace(/[״׳"']/g, "") === want.replace(/^סימן\s+/, "").replace(/[״׳"']/g, "")) return p;
       if (sefer.shape === "named" && [sefer.labels[p], sefer.heLabels?.[p]].some((x) => x && x.toLowerCase() === want)) return p;
     }
-    throw new RangeError(say("hasNo", { name: sefer.en, place: label }));
+    throw new RangeError(say("hasNo", { name: nameOf(sefer), place: label }));
   }
 
   // ---- commentaries -------------------------------------------------------
@@ -203,10 +228,10 @@
   function commentaryText(sefer, parts) {
     return parts.commentaries.map((c) => {
       if (c.seifKatan != null) {
-        const siman = positions(sefer)[parts.end.piece].chapter === c.siman ? "" : say("simanComma", { n: c.siman });
-        return say("seifKatan", { name: c.en, siman, n: c.seifKatan });
+        const siman = positions(sefer)[parts.end.piece].chapter === c.siman ? "" : say("simanComma", { n: num(c.siman) });
+        return say("seifKatan", { name: nameOf(c), siman, n: num(c.seifKatan) });
       }
-      return c.words ? say("commThrough", { name: c.en, words: c.words }) : say("commOn", { name: c.en, place: pieceLabel(sefer, c.piece) });
+      return c.words ? say("commThrough", { name: nameOf(c), words: c.words }) : say("commOn", { name: nameOf(c), place: pieceLabel(sefer, c.piece) });
     }).join("; ");
   }
 
@@ -219,7 +244,7 @@
     const r = rangeParts(sefer, from, to, commentaryIds);
     if (!r) return "";
     const pos = positions(sefer);
-    const head = sefer.shape === "list" || sefer.shape === "named" ? `${sefer.en}, ` : `${sefer.en} `;
+    const head = sefer.shape === "list" || sefer.shape === "named" ? `${nameOf(sefer)}, ` : `${nameOf(sefer)} `;
     const a = pieceName(sefer, r.start.piece), b = pieceName(sefer, r.end.piece);
     const fromWords = r.start.words ? say("fromWords", { words: r.start.words, time: timeText(r.start.nth) }) : "";
     const untilWords = r.end.until ? say("untilWords", { words: r.end.until, time: timeText(r.end.nth) }) : "";
@@ -230,11 +255,11 @@
         : `${head}${a}${fromWords}${untilWords || say("toTheEndComma", { place: b })}`;
     } else if (!fromWords && !untilWords && sefer.shape === "chapters") {
       const pa = pos[r.start.piece], pb = pos[r.end.piece];
-      if (pa.verse === 1 && pb.last) text = pa.chapter === pb.chapter ? `${head}${pa.chapter}` : `${head}${pa.chapter}–${pb.chapter}`;
-      else if (pa.chapter === pb.chapter) text = `${head}${pa.chapter}:${pa.verse}–${pb.verse}`;
+      if (pa.verse === 1 && pb.last) text = pa.chapter === pb.chapter ? `${head}${num(pa.chapter)}` : `${head}${num(pa.chapter)}–${num(pb.chapter)}`;
+      else if (pa.chapter === pb.chapter) text = `${head}${num(pa.chapter)}:${num(pa.verse)}–${num(pb.verse)}`;
       else text = `${head}${say("aToB", { a, b })}`;
     } else if (!fromWords && !untilWords && sefer.shape === "list") {
-      text = `${head}${say("simanim", { a: pos[r.start.piece].number, b: pos[r.end.piece].number })}`;
+      text = `${head}${say("simanim", { a: num(pos[r.start.piece].number), b: num(pos[r.end.piece].number) })}`;
     } else {
       // a pasuk, mishnah, halacha or se'if number names a whole piece;
       // an amud or siman reads "to the end of"
@@ -422,14 +447,16 @@
     pieceLabel: (c, p) => { const x = partOf(c, p, "firstPiece"); return pieceLabel(x.sefer, p - x.firstPiece); },
     pieceName(c, p) {
       const x = partOf(c, p, "firstPiece");
-      return `${x.sefer.en}${x.sefer.shape === "list" ? "," : ""} ${pieceName(x.sefer, p - x.firstPiece)}`;
+      return `${nameOf(x.sefer)}${x.sefer.shape === "list" ? "," : ""} ${pieceName(x.sefer, p - x.firstPiece)}`;
     },
     findPiece(c, label) {
       const want = String(label).trim();
-      const x = c.parts.slice().sort((a, b) => b.sefer.en.length - a.sefer.en.length)
-        .find((y) => want.toLowerCase().startsWith(y.sefer.en.toLowerCase() + " "));
-      if (!x) throw new RangeError(say("whichSefer", { example: `${c.parts[0].sefer.en} ${pieceLabel(c.parts[0].sefer, 0)}` }));
-      return x.firstPiece + findPiece(x.sefer, want.slice(x.sefer.en.length + 1).replace(/^,\s*/, ""));
+      // by the sefer's English or Hebrew name, then the place
+      const names = c.parts.flatMap((y) => [[y, y.sefer.en], [y, y.sefer.he]]).filter(([, n]) => n).sort((a, b) => b[1].length - a[1].length);
+      const hit = names.find(([, n]) => want.toLowerCase().startsWith(n.toLowerCase() + " "));
+      if (!hit) throw new RangeError(say("whichSefer", { example: `${nameOf(c.parts[0].sefer)} ${pieceLabel(c.parts[0].sefer, 0)}` }));
+      const [x, n] = hit;
+      return x.firstPiece + findPiece(x.sefer, want.slice(n.length + 1).replace(/^,\s*/, ""));
     },
     stopWeights(c, comms = []) {
       const cache = hidden(c, "_weights", () => new Map()), key = comms.join(",");
@@ -502,7 +529,7 @@
   const either = (name, single) => (sefer, ...args) => (sefer.shape === "multi" ? multi[name](sefer, ...args) : single(sefer, ...args));
 
   const api = {
-    pieceCount, stopCount, pieceOf, stopRange, combine, setSectionNames, keepPlace, timeText,
+    pieceCount, stopCount, pieceOf, stopRange, combine, setSectionNames, keepPlace, timeText, hebrewNumber,
     positions: either("positions", positions),
     pieceLabel: either("pieceLabel", pieceLabel),
     pieceName: either("pieceName", pieceName),

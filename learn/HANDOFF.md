@@ -264,6 +264,30 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   and Yom Tov (EXDATE; Israel by time zone), and Friday and Erev Yom Tov when
   the time is from noon on.
 
+- **The rest of the open items (Hudi, 10-08)**, all with tests:
+  - *Leave out Yom Tov*: a switch when adding a sefer, off unless chosen
+    (`skipYomTov`, `israel` from the phone's time zone: one day in Israel, two
+    outside; Chol HaMoed stays a learning day).
+  - *Printable weekly sheet*: "Print this week" under Today's cards; only
+    `#printSheet` prints (a box to tick per sefer per day).
+  - *Every day in the calendar*: "Add every day to my calendar" on a plan's
+    screen: one all-day event per learning day with the place and Sefaria link,
+    stable ids so adding again updates instead of doubling.
+  - *Learning with a chavrusa*: "Learn with a chavrusa" on a plan's screen makes
+    `shares/{id}` (schedule without progress, owner's name, each member's
+    progress: days done, last day done) and a link `#join=id`. Whoever opens it
+    and signs in can join with the same schedule (their own plan, in their own
+    account, with `share.id`); each card shows the other's progress. Rules: a
+    share is read only by id (never listed), each person adds only themselves
+    and writes only their own progress; the owner can delete it. Deleting an
+    account removes its shares and its progress in others'. Privacy page says so.
+    A change one of them makes to the schedule later is not copied to the other.
+  - *The Hebrew screen*: `STRINGS.he` has every text; Settings → Language
+    (English / עברית) reloads the page in that language (`dir="rtl"`). In
+    Hebrew, places are named in Hebrew letters (`ברכות ט ע״ב`, `ב:ג`, `סימן קכח`)
+    and sefarim by their Hebrew names; typing a place accepts either form.
+  - Not built: reminders sent by the app itself (needs Firebase's paid plan).
+
 ## Left out (told Hudi)
 
 - Rambam: Tefillin/Mezuzah/Sefer Torah, Tzitzis, Berachos, Milah and Seder
@@ -295,10 +319,8 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    --project sefer-calendar`, token in the session scratchpad only). The private
    preview is https://claude.ai/artifact/QmhMUd7ZMiyjaemZkYSNsh (build with
    `python3 tools/build_preview.py OUT.html`, publish with `learn/data/*` as files).
-2. Later, only on Hudi's word: the Hebrew screen itself (`STRINGS.he`),
-   reminders sent by the app (needs a paid Firebase plan), learning together
-   with members, dividing a sefer among people, study partners, the statistics
-   and life-learning charts, printable weekly sheet.
+2. Later, only on Hudi's word: reminders sent by the app (needs a paid Firebase
+   plan), dividing a sefer among people, the statistics and life-learning charts.
 3. Make the data files smaller before release (Kol HaTorah loads all of them).
 
 ## Accounts: tests with the Firebase emulators

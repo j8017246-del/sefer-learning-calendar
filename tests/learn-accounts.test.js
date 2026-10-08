@@ -152,6 +152,33 @@ function serve() {
   await one.page.waitForFunction(() => !document.querySelector(".lesson .done-mark"), null, { timeout: 15000 });
   ok("a change on one phone shows on the other");
 
+  // learning with a chavrusa: phone 1 shares the plan; another person opens the link and joins
+  await one.page.click(".lesson [data-open]");
+  await one.page.waitForSelector("#plan:not([hidden]) #sharePlan");
+  await one.page.click("#sharePlan");
+  await one.page.waitForSelector("#shareBox:not([hidden])", { timeout: 15000 });
+  const link = await one.page.inputValue("#shareLink");
+  assert.match(link, /#join=[A-Za-z0-9]{15}$/);
+  await one.page.click('.tabbar [data-go="today"]');
+  await one.page.waitForFunction(() => /waiting for them to join/.test(document.querySelector(".lesson").textContent), null, { timeout: 15000 });
+  const three = await phone();
+  await three.page.goto(link);
+  await three.page.waitForFunction(() => typeof window.__signInForTest === "function");
+  await three.page.evaluate(() => window.__signInForTest("chavrusa@example.com"));
+  await three.page.waitForSelector("#ask[open]", { timeout: 15000 });
+  assert.match(await three.page.textContent("#askText"), /Learn Rus together with hudi/);
+  await three.page.click("#askYes");
+  await three.page.waitForSelector(".lesson [data-done]", { timeout: 30000 });
+  await three.page.waitForFunction(() => /hudi · 0 of 7 days/.test(document.querySelector(".lesson").textContent), null, { timeout: 15000 });
+  await three.page.click(".lesson [data-done]");
+  await one.page.waitForFunction(() => /chavrusa · 1 of 7 days · done today/.test(document.querySelector(".lesson").textContent), null, { timeout: 15000 });
+  // the joined plan is the chavrusa's own, in their own account; only progress is shared
+  const theirs = await accountPlans(three.page);
+  assert.strictEqual(theirs.length, 1);
+  assert(theirs[0].share && theirs[0].share.id === link.split("=").pop());
+  await three.ctx.close();
+  ok("a chavrusa joins from a link with the same schedule, and each sees how far the other is");
+
   // signing out on phone 2 takes the plan off that phone
   await two.page.click('.tabbar [data-go="settings"]');
   await two.page.click("#signOut");

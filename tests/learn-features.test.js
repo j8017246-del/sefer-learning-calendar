@@ -299,6 +299,96 @@ function serve() {
     ok("in the weeks before Sukkos, a card offers plans that finish by Erev Yom Tov");
   }
 
+
+  // ---- 8. Leave out Yom Tov, a printable week, every day in the calendar ----
+  {
+    const { context, page } = await phone("2026-09-20");
+    await page.click('#today [data-go="add"]');
+    await page.click('#wizCols [data-col="tanakh"]');
+    await page.check('#wizList input[value="tanakh/ruth"]');
+    await page.click("#wizNext");
+    await page.fill("#endDate", "2026-10-20");
+    await page.waitForFunction(() => /days/.test(document.querySelector("#preview").textContent));
+    assert(!(await page.isChecked("#skipYomTov")), "off unless chosen");
+    const before = parseInt(await page.textContent("#preview"));
+    await page.check("#skipYomTov");
+    await page.waitForFunction((n) => parseInt(document.querySelector("#preview").textContent) < n, before);
+    assert.match(await page.textContent("#yomTovHint"), /Chol HaMoed stays a learning day/);
+    await page.click("#wizNext");
+    await page.click("#create");
+    await page.waitForSelector(".lesson");
+    const plan = (await stored(page))[0];
+    assert.strictEqual(plan.skipYomTov, true);
+    const days = plan.portions.filter((d) => d.until !== d.from).map((d) => d.date);
+    for (const d of ["2026-09-21", "2026-09-26", "2026-10-03"]) assert(!days.includes(d), `${d} is Yom Tov`);
+    assert(days.includes("2026-09-29"), "Chol HaMoed is learned");
+    // a printable sheet for this week: only it is printed
+    await page.evaluate(() => { window.print = () => { window.__printed = true; }; });
+    await page.click("#printWeek");
+    assert(await page.evaluate(() => window.__printed));
+    const sheet = await page.textContent("#printSheet");
+    assert.match(sheet, /Learning for Sun, Sep 20/);
+    assert.match(sheet, /רות/);
+    assert.match(sheet, /Rus 1:1/);
+    await page.emulateMedia({ media: "print" });
+    assert(await page.isVisible("#printSheet table") && await page.isHidden(".tabbar"), "only the sheet prints");
+    await page.emulateMedia({ media: "screen" });
+    // every day of the plan in the phone's calendar
+    await page.click("[data-open]");
+    const [file] = await Promise.all([page.waitForEvent("download"), page.click("#exportPlan")]);
+    const ics = fs.readFileSync(await file.path(), "utf8");
+    const events = ics.match(/BEGIN:VEVENT/g).length;
+    assert.strictEqual(events, days.length, "one event per learning day");
+    assert.match(ics, /DTSTART;VALUE=DATE:20260920/);
+    assert.match(ics, /SUMMARY:Rus: day 1 of \d+/);
+    assert.match(ics, /DESCRIPTION:Rus 1:1/);
+    assert(!/DTSTART;VALUE=DATE:20260926/.test(ics), "no event on Yom Tov");
+    assert(ics.split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75), "lines folded for calendars");
+    await context.close();
+    ok("Yom Tov can be left out (off by default), the week prints on one sheet, and every day can go into the calendar");
+  }
+
+  // ---- 9. the whole screen in Hebrew ----
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+    await context.route(/fonts\.(googleapis|gstatic)\.com|cdn\.jsdelivr\.net\/npm\/firebase/, (r) => r.abort());
+    const page = await context.newPage();
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (m) => { if (/No text for/.test(m.text())) errors.push(m.text()); });
+    await page.clock.setFixedTime(new Date("2026-10-11T09:00:00"));
+    await page.goto(url);
+    await page.waitForSelector("#empty:not([hidden])");
+    // chosen in Settings
+    await page.click('.tabbar [data-go="settings"]');
+    await Promise.all([page.waitForEvent("load"), page.check('input[name="lang"][value="he"]')]);
+    await page.waitForSelector("#empty:not([hidden])");
+    assert.strictEqual(await page.getAttribute("html", "dir"), "rtl");
+    assert.strictEqual(await page.textContent("#empty h2"), "התחילו את הספר הראשון");
+    assert.strictEqual(await page.textContent('.tabbar [data-go="settings"]'), "הגדרות");
+    const same = await page.evaluate(() => Object.keys(window.STRINGS.en).filter((k) => !(k in window.STRINGS.he)));
+    assert.deepStrictEqual(same, [], "every text has its Hebrew");
+    await page.click('#today [data-go="add"]');
+    await page.click('#wizCols [data-col="bavli"]');
+    await page.check('#wizList input[value="bavli/berakhot"]');
+    await page.click("#wizNext");
+    await page.fill("#endDate", "2027-01-08");
+    await page.waitForFunction(() => /ימים/.test(document.querySelector("#preview").textContent));
+    await page.click("#wizNext");
+    await page.click("#create");
+    await page.waitForSelector(".lesson");
+    const card = await page.textContent(".lesson");
+    assert.match(card, /ברכות/);
+    assert.match(card, /סימון שנלמד/);
+    assert.match(card, /ב ע״ב, עד המילים/, "places in Hebrew: daf and amud");
+    assert.match(card, /רש״י עד/);
+    assert(!/[A-Za-z]{3,}/.test(card.replace(/Sefaria/g, "")), "no English on the card: " + card);
+    assert.match(await page.textContent("#todayDate"), /ל׳ תשרי תשפ״ז/);
+    const wide = await page.evaluate(() => document.documentElement.scrollWidth);
+    assert(wide <= 390, `${wide}px wide`);
+    await context.close();
+    ok("the whole screen can be in Hebrew, right-to-left, with places named in Hebrew");
+  }
+
   assert.deepStrictEqual(errors, []);
   ok("no errors in the page");
   await browser.close();
