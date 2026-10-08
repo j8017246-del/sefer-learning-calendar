@@ -1,23 +1,37 @@
 rules_version = '2';
 // Each person may read and write only their own data:
-//   users/{uid}               - who they are (email), when they last saved
-//   users/{uid}/plans/{plan}  - one learning plan, as text (field "data")
+//   users/{uid}               - email, optional display name, sharing switch (off unless turned on)
+//   users/{uid}/plans/{plan}  - one learning plan: as text ("data") and in plain fields ("plan")
+//   users/{uid}/days/{day}    - one record per day done, missed or moved; never changed once written
 service cloud.firestore {
   match /databases/{database}/documents {
     function isOwner(uid) {
       return request.auth != null && request.auth.uid == uid;
     }
+    function okId(id) {
+      return id.matches("^[A-Za-z0-9_-]{1,64}$");
+    }
     match /users/{uid} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(["email", "updatedAt"]);
+        && request.resource.data.keys().hasOnly(["email", "updatedAt", "displayName", "shareLearning"])
+        && (!("displayName" in request.resource.data) || (request.resource.data.displayName is string && request.resource.data.displayName.size() <= 60))
+        && (!("shareLearning" in request.resource.data) || request.resource.data.shareLearning is bool);
       match /plans/{planId} {
         allow read, delete: if isOwner(uid);
-        allow create, update: if isOwner(uid)
-          && planId.matches("^[A-Za-z0-9_-]{1,64}$")
-          && request.resource.data.keys().hasOnly(["data", "updatedAt"])
+        allow create, update: if isOwner(uid) && okId(planId)
+          && request.resource.data.keys().hasOnly(["data", "plan", "updatedAt"])
           && request.resource.data.data is string
-          && request.resource.data.data.size() < 900000;
+          && request.resource.data.data.size() < 900000
+          && (!("plan" in request.resource.data) || request.resource.data.plan is map);
+      }
+      match /days/{dayId} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid) && okId(dayId)
+          && request.resource.data.keys().hasOnly(["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate"])
+          && request.resource.data.type is string;
+        // a day's record is kept as it was written
+        allow update: if false;
       }
     }
     // everything else is closed

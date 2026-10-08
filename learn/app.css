@@ -455,3 +455,5 @@ body.gated { overflow: hidden; }
 body.gated .tabbar { display: none; }
 .save-warn.soft { background: var(--raised); color: var(--ink); font-weight: 500; }
 .save-warn .text-btn { padding: 0 4px; font-weight: 600; }
+.switch-row { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: .95rem; color: var(--ink); cursor: pointer; }
+.switch-row input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }

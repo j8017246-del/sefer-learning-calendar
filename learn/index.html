@@ -30,7 +30,7 @@
     <p class="note" id="accountNote" role="status"></p>
     <details class="gate-privacy">
       <summary>What we keep</summary>
-      <p>Your email address and your learning plans, only to show them to you. Nothing is sold or shared. You can delete your account and everything in it from Settings.</p>
+      <p>Your email address and your learning plans, only to show them to you. Nothing is sold or shared. We may show counts of how many people learn each sefer, never who they are. Your name or learning is shown to others only if you turn that on in Settings. You can delete your account and everything in it from Settings.</p>
     </details>
     <button class="text-btn" id="gateClose" hidden>Not now</button>
   </div>
@@ -125,6 +125,10 @@
     <div id="signedIn" hidden>
       <p class="account-who">Signed in as <b id="accountEmail"></b></p>
       <p class="note" id="syncState">Your plans are saved to your account after every change.</p>
+      <label class="field" for="displayName">Display name (optional)</label>
+      <input id="displayName" maxlength="60" autocomplete="name" placeholder="How other learners would see you">
+      <label class="switch-row"><input type="checkbox" id="shareLearning"> <span>Let other learners see what I'm learning</span></label>
+      <p class="note">Off unless you turn it on. Nothing is shown to anyone yet; this is for features coming later.</p>
       <div class="two"><button class="btn" id="signOut">Sign out</button><button class="btn danger-soft" id="deleteAccount">Delete account</button></div>
     </div>
     <button class="row-link" data-go="privacy">Privacy <svg data-icon="next"></svg></button>
@@ -197,10 +201,12 @@
   <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg>Settings</button></header>
   <h1>Privacy</h1>
   <div class="prose">
-    <p>If you sign in, we store two things: your email address and your learning plans (which seforim, your settings, and which days you marked done).</p>
+    <p>If you sign in, we store your email address, a display name if you choose one, and your learning plans: which seforim, your settings, and a record of each day you learned, missed or moved.</p>
     <p>We keep them only to show them back to you, on any phone or computer where you sign in. Nothing is sold, and nothing is shared with anyone.</p>
     <p>They are kept with Google Firebase, the service that runs the sign-in and the saving. Each account can reach only its own plans.</p>
     <p>If you do not sign in, nothing leaves your phone: your plans are kept in this browser only.</p>
+    <p>We may show counts of how many people learn each sefer, never who they are.</p>
+    <p>We only show your name or what you are learning to other learners if you turn on "Let other learners see what I'm learning" in Settings. It is off unless you turn it on.</p>
     <p>You can delete your account and all your plans at any time: Settings, then Delete account.</p>
   </div>
 </section>

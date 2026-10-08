@@ -92,7 +92,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 39 engine, 30 screen, 5 sync, 5 rules and 7 account tests, all passing.
+- **Tests**: 39 engine, 31 screen, 5 sync, 6 rules and 8 account tests, all passing.
 
 - **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
   fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
@@ -190,6 +190,19 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   day the last sefer finishes (RRULE UNTIL), and keeps one id so adding it
   again can replace the old one. Hudi has to delete the old never-ending
   event by hand ("Delete all future events").
+
+- **Groundwork for later features** (Hudi, 10-08; study partners, chats,
+  suggestions, "what most people learn" are NOT built): each plan is also
+  saved in plain fields (`plan`: seferIds, from/until, startDate, createdAt,
+  finishBy, dailyAmount, minutesPerDay, pace, learningDays, lighterDays,
+  commentaries); every day done, partly done, undone, missed or moved, and
+  every plan started/changed/stopped, is its own record in
+  `users/{uid}/days` (date, doneOn, from/until addresses, choice, toDate),
+  never changed once written (queued on the phone in
+  `learning-calendar-events` until sent); the profile has an optional
+  `displayName` and `shareLearning` (off by default). Privacy page says counts
+  may be shown, never who; names/learning only if the switch is on. Rules
+  still owner-only.
 
 ## Left out (told Hudi)
 

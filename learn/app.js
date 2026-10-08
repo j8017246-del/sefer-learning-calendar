@@ -184,10 +184,37 @@
     return !saveFailed;
   }
 
+  // ---- the history of every day ----------------------------------------------------------
+  //
+  // Each day done, partly done, undone, missed or moved is kept as its own
+  // record (never overwritten), with the places it covered by their lasting
+  // addresses. Kept on the phone until accounts.js has sent it to the account.
+  const EVENTS = "learning-calendar-events";
+  const eventListeners = [];
+  function pendingEvents() {
+    try { return JSON.parse(localStorage.getItem(EVENTS)) || []; } catch (e) { return []; }
+  }
+  function logDay(x, type, p, extra = {}) {
+    const rec = {
+      id: uid(), planId: x.id, seferIds: x.plan.seferIds || [x.plan.seferId], type,
+      date: p ? p.date : null, doneOn: type === "done" || type === "partial" ? todayIso() : null, at: new Date().toISOString(),
+      from: p ? P.address(x.sefer, p.from) : null, until: p ? P.address(x.sefer, p.to + 1) : null, ...extra,
+    };
+    try { localStorage.setItem(EVENTS, JSON.stringify(pendingEvents().concat(rec))); } catch (e) { /* sent directly below if signed in */ }
+    for (const fn of eventListeners) fn([rec]);
+  }
+  const portionOn = (x, date) => x.plan.portions.find((q) => q.date === date && q.to >= q.from);
+
   // For accounts.js: read the plans, put in the account's plans, hear of saves.
   window.LearnStore = {
     records: allRecords,
     onSave(fn) { saveListeners.push(fn); },
+    onEvent(fn) { eventListeners.push(fn); },
+    pendingEvents,
+    eventsSent(ids) {
+      const sent = new Set(ids);
+      try { localStorage.setItem(EVENTS, JSON.stringify(pendingEvents().filter((e) => !sent.has(e.id)))); } catch (e) { /* kept */ }
+    },
     async replace(records, { quiet = false } = {}) {
       const { loaded, failed } = await loadPlans(records);
       plans = loaded;
@@ -199,7 +226,7 @@
       else if (!$("plan").hidden && !findPlan(current)) show("library");
     },
     clearPhone() {
-      for (const k of [STORE, TODAY_STORE]) { try { localStorage.removeItem(k); } catch (e) { /* nothing kept */ } }
+      for (const k of [STORE, TODAY_STORE, EVENTS]) { try { localStorage.removeItem(k); } catch (e) { /* nothing kept */ } }
     },
     ready: null,
     toast: (m) => toast(m),
@@ -217,7 +244,9 @@
         // data rebuilt since the plan was saved: keep its places exactly
         if (S.keepSavedPlaces(s, parts).length) combined.clear();
         const sefer = await loadCombined(ids, s.name);
-        return { ok: { id: SAFE_ID.test(s.id || "") ? s.id : uid(), sefer, plan: S.fromSaved(s, sefer) } };
+        const plan = S.fromSaved(s, sefer);
+        if (!plan.createdAt) plan.createdAt = s.startDate;   // made before 10-08: the start date is the best guess
+        return { ok: { id: SAFE_ID.test(s.id || "") ? s.id : uid(), sefer, plan } };
       } catch (e) {
         console.warn(e);
         return { failed: s };
@@ -443,6 +472,7 @@
     }
     openPicker("Where did you stop?", options, "", (v) => {
       x.plan = S.markPartial(x.plan, date, +v);
+      logDay(x, "partial", portionOn(x, date), { stoppedAt: P.address(x.sefer, +v) });
       const saved = save();
       renderToday();
       toast(saved ? "Saved. Next time starts where you stopped." : "Marked, but not saved on this phone");
@@ -470,7 +500,15 @@
     dlg.onclose = () => {
       const choice = dlg.returnValue;
       if (!["push", "spread", "double"].includes(choice)) return;
+      const before = x.plan.portions.filter((q) => q.to >= q.from && !q.done);
+      const missed = before.filter((q) => (includeToday ? q.date <= today : q.date < today));
       x.plan = S.reschedule(x.plan, x.sefer, { today, choice, includeToday });
+      for (const q of missed) logDay(x, "missed", q, { choice });
+      // days whose place moved to another date
+      for (const q of before) {
+        const now = x.plan.portions.find((n) => n.from === q.from && n.to >= n.from);
+        if (now && now.date !== q.date) logDay(x, "moved", q, { choice, toDate: now.date });
+      }
       save(); renderToday();
       toast({ push: "The finish date moved later", spread: "Spread over the coming days", double: "Added to the next day" }[choice]);
     };
@@ -485,6 +523,7 @@
     if (t.dataset.done) {
       const x = findPlan(t.dataset.done);
       x.plan = S.markDone(x.plan, t.dataset.date);
+      logDay(x, "done", portionOn(x, t.dataset.date));
       t.classList.add("ticked");
       t.innerHTML = `<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Done`;
       const saved = save();
@@ -492,6 +531,7 @@
     } else if (t.dataset.undo) {
       const x = findPlan(t.dataset.undo);
       x.plan = S.markDone(x.plan, t.dataset.date, false);
+      logDay(x, "undone", portionOn(x, t.dataset.date));
       save(); renderToday();
     } else if (t.dataset.missed) {
       askMissed(findPlan(t.dataset.missed), false);
@@ -618,7 +658,9 @@
     const b = e.target.closest("[data-toggle]");
     if (!b) return;
     const x = findPlan(current);
-    x.plan = S.markDone(x.plan, b.dataset.toggle, b.getAttribute("aria-pressed") !== "true");
+    const nowDone = b.getAttribute("aria-pressed") !== "true";
+    x.plan = S.markDone(x.plan, b.dataset.toggle, nowDone);
+    logDay(x, nowDone ? "done" : "undone", portionOn(x, b.dataset.toggle));
     if (!save()) toast("Marked, but not saved on this phone");
     renderPlan();
   });
@@ -634,6 +676,7 @@
     }
     try {
       x.plan = S.rebuildRemaining(x.plan, x.sefer, todayIso(), changes);
+      logDay(x, "plan-changed", null, { finishDate: (learningOf(x.plan).pop() || {}).date || null });
       $("editOffStart").value = $("editOffEnd").value = "";
       save(); renderPlan(); toast("Plan updated");
     } catch (err) {
@@ -644,6 +687,7 @@
   on("deletePlan", "click", async () => {
     const x = findPlan(current);
     if (!(await ask(`Stop learning ${x.sefer.en}? Its progress will be removed from this phone.`, "Stop learning it"))) return;
+    logDay(x, "stopped", null);
     plans = plans.filter((p) => p.id !== current);
     save(); show("library");
   });
@@ -903,7 +947,10 @@
   on("create", "click", async () => {
     try {
       const { sefer, plan } = await draft();
-      plans.push({ id: uid(), sefer, plan });
+      plan.createdAt = new Date().toISOString();
+      const x = { id: uid(), sefer, plan };
+      plans.push(x);
+      logDay(x, "started", null, { from: P.address(sefer, plan.from), until: P.address(sefer, plan.to + 1), finishDate: (learningOf(plan).pop() || {}).date || null });
       save();
       wiz.chosen = []; wiz.daysOff = [];
       renderDaysOff();

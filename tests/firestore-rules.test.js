@@ -43,6 +43,22 @@ const { doc, setDoc, getDoc, deleteDoc, collection, getDocs } = require("firebas
   await assertFails(setDoc(doc(alice, "other/thing"), { x: 1 }));
   ok("only plan text in the expected shape is accepted, and nothing outside users/");
 
+  // the groundwork of 10-08: plain plan fields, a record per day, display name and sharing switch
+  await assertSucceeds(setDoc(doc(alice, "users/alice/plans/p1"), { ...plan, plan: { seferIds: ["bavli/berakhot"], startDate: "2026-10-11" } }));
+  const day = { planId: "p1", seferIds: ["bavli/berakhot"], type: "done", date: "2026-10-11", doneOn: "2026-10-11",
+    at: "2026-10-11T20:00:00Z", from: "Berakhot 2a:1@0", until: "Berakhot 2b:3@0" };
+  await assertSucceeds(setDoc(doc(alice, "users/alice/days/d1"), day));
+  await assertFails(setDoc(doc(alice, "users/alice/days/d1"), { ...day, type: "missed" }));
+  await assertFails(setDoc(doc(alice, "users/alice/days/d2"), { ...day, secret: 1 }));
+  await assertFails(getDoc(doc(bob, "users/alice/days/d1")));
+  await assertFails(setDoc(doc(bob, "users/alice/days/d3"), day));
+  await assertSucceeds(setDoc(doc(alice, "users/alice"), { email: "a@example.com", updatedAt: 2, displayName: "Hudi", shareLearning: false }));
+  await assertFails(setDoc(doc(alice, "users/alice"), { email: "a@example.com", updatedAt: 2, shareLearning: "yes" }));
+  await assertFails(setDoc(doc(alice, "users/alice"), { email: "a@example.com", updatedAt: 2, displayName: "x".repeat(61) }));
+  await assertFails(getDoc(doc(bob, "users/alice")));
+  ok("plans in plain fields, a record per day that is never changed, and the profile stay private to their owner");
+  await assertSucceeds(deleteDoc(doc(alice, "users/alice/days/d1")));
+
   await assertSucceeds(deleteDoc(doc(alice, "users/alice/plans/p1")));
   await assertSucceeds(deleteDoc(doc(alice, "users/alice")));
   ok("a person can delete their own data");

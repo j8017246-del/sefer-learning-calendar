@@ -163,6 +163,12 @@ function serve() {
   await page.waitForSelector(".pill.ok");
   assert.match(await page.textContent(".lesson"), /Finishing Mon, Jan 11, 2027/);
   ok("missed days: pushing moves the finish date later");
+  const records = await page.evaluate(() => JSON.parse(localStorage.getItem("learning-calendar-events") || "[]"));
+  const types = new Set(records.map((e) => e.type));
+  for (const t of ["started", "done", "missed", "moved"]) assert(types.has(t), `a "${t}" record is kept`);
+  const missedRec = records.find((e) => e.type === "missed");
+  assert(missedRec.date && /@\d+$/.test(missedRec.from) && /@\d+$/.test(missedRec.until) && missedRec.choice === "push");
+  ok("each day done, missed or moved is kept as its own record, with its places");
 
   // the sefer's own screen: calendar and every day
   await page.click('.tabbar [data-go="library"]');
@@ -216,7 +222,9 @@ function serve() {
   assert(await page.isVisible("#notSavedBar"));
   assert.match(await page.textContent("#signedOutNote"), /needs a connection/);
   await page.click('#settings [data-go="privacy"]');
-  assert.match(await page.textContent("#privacy"), /email address and your learning plans/);
+  assert.match(await page.textContent("#privacy"), /your email address, a display name if you choose one, and your learning plans/);
+  assert.match(await page.textContent("#privacy"), /counts of how many people learn each sefer, never who they are/);
+  assert.match(await page.textContent("#privacy"), /only show your name or what you are learning to other learners if you turn on/);
   assert.match(await page.textContent("#privacy"), /Nothing is sold/);
   await page.click('#privacy [data-go="settings"]');
   ok("without an account the app works on the phone, and the privacy page says what is kept");

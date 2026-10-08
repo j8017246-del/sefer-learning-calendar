@@ -12,8 +12,12 @@
  * The Firebase web library (Apache-2.0) is loaded only after the app has
  * opened, so Today never waits for it.
  *
- * Firestore:  users/{uid}               { email, updatedAt }
- *             users/{uid}/plans/{id}    { data: the saved plan as text, updatedAt }
+ * Firestore:  users/{uid}               { email, updatedAt, displayName, shareLearning (off unless turned on) }
+ *             users/{uid}/plans/{id}    { data: the saved plan as text, plan: the same in plain fields, updatedAt }
+ *             users/{uid}/days/{id}     one record per day done, partly done, undone, missed or moved
+ *                                       (never changed after it is written), and when plans start, change or stop
+ * The plain fields are the same shape for everyone, so later features (study
+ * partners, counts of who learns what) can be built on them; nothing uses them yet.
  * Rules: firebase/firestore.rules (each person reads and writes only their own).
  */
 (function () {
@@ -180,7 +184,7 @@
     if (u) {
       $("accountEmail").textContent = u.email || "your account";
       note("");
-      db.collection("users").doc(u.uid).set({ email: u.email || "", updatedAt: Date.now() }, { merge: true }).catch(() => {});
+      loadProfile(u);
       unsubscribe = plansRef().onSnapshot(received, () => { $("syncState").textContent = "Could not reach your account. Changes are kept on this phone and sent later."; });
     } else if (get(OWNER)) {
       // signed out: the account's plans leave this phone (they stay in the account)
@@ -203,6 +207,7 @@
     const local = Store.records();
     if (!synced) {
       synced = true;
+      setTimeout(() => sendDays(Store.pendingEvents()), 0);
       if (get(OWNER) !== user.uid) {
         // first sign-in on this phone: its plans move into the account
         const merged = Sync.mergeOnFirstSignIn(local, remote);
@@ -245,7 +250,7 @@
     if (!records.length && !removeIds.length) { put(UNSYNCED, null); return; }
     const batch = db.batch(), now = Date.now();
     for (const r of records) {
-      batch.set(plansRef().doc(r.id), { data: JSON.stringify(r), updatedAt: now });
+      batch.set(plansRef().doc(r.id), { data: JSON.stringify(r), plan: plainPlan(r), updatedAt: now });
       last.set(r.id, JSON.stringify(r));
     }
     for (const id of removeIds) {
@@ -256,6 +261,58 @@
       $("syncState").textContent = "Could not save to your account. Changes are kept on this phone and sent later.";
     });
   }
+
+  // A plan in plain fields, the same shape for everyone.
+  function plainPlan(r) {
+    const n = (v) => (v === undefined ? null : v);
+    return {
+      seferIds: r.seferIds || [r.seferId],       // the seforim's standard ids, e.g. "bavli/berakhot"
+      from: n(r.from), until: n(r.until),        // the range, by lasting addresses
+      startDate: n(r.startDate), createdAt: n(r.createdAt),
+      finishBy: n(r.endDate), dailyAmount: n(r.dailyPieces), minutesPerDay: n(r.minutesPerDay), pace: n(r.pace),
+      learningDays: r.learningDays || [], lighterDays: r.lighterDays || [], commentaries: r.commentaries || [],
+    };
+  }
+
+  // ---- the history of every day ----------------------------------------------------------
+  const daysRef = () => db.collection("users").doc(user.uid).collection("days");
+  const DAY_FIELDS = ["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate"];
+  function sendDays(records) {
+    if (!user || get(OWNER) !== user.uid || !synced || !records.length) return;
+    const batch = db.batch();
+    for (const r of records.slice(0, 450)) {
+      const doc = {};
+      for (const k of DAY_FIELDS) if (r[k] !== undefined) doc[k] = r[k];
+      batch.set(daysRef().doc(r.id), doc);
+    }
+    const ids = records.slice(0, 450).map((r) => r.id);
+    batch.commit().then(() => { Store.eventsSent(ids); if (records.length > 450) sendDays(records.slice(450)); }).catch(() => { /* kept on the phone, sent later */ });
+  }
+  Store.onEvent(sendDays);
+
+  // ---- display name and sharing (stored now; nothing uses them yet) ----------------------
+  const userRef = () => db.collection("users").doc(user.uid);
+  async function loadProfile(u) {
+    try {
+      const snap = await userRef().get();
+      const d = snap.exists ? snap.data() : {};
+      const fresh = { email: u.email || "", updatedAt: Date.now() };
+      if (typeof d.shareLearning !== "boolean") fresh.shareLearning = false;   // off unless the person turns it on
+      if (typeof d.displayName !== "string") fresh.displayName = "";
+      await userRef().set(fresh, { merge: true });
+      $("displayName").value = d.displayName || "";
+      $("shareLearning").checked = d.shareLearning === true;
+    } catch (e) { /* offline: shown when back online */ }
+  }
+  on("displayName", "change", () => {
+    if (!user) return;
+    userRef().set({ displayName: $("displayName").value.trim().slice(0, 60), updatedAt: Date.now() }, { merge: true }).catch(() => {});
+    Store.toast("Name saved");
+  });
+  on("shareLearning", "change", () => {
+    if (!user) return;
+    userRef().set({ shareLearning: $("shareLearning").checked, updatedAt: Date.now() }, { merge: true }).catch(() => {});
+  });
 
   // ---- signing out and deleting ---------------------------------------------------------------
 
@@ -280,11 +337,16 @@
       return;
     }
     try {
-      const docs = await plansRef().get();
-      const batch = db.batch();
-      docs.forEach((d) => batch.delete(d.ref));
-      batch.delete(db.collection("users").doc(user.uid));
-      await batch.commit();
+      // everything: plans, the history of days, and the profile (in batches)
+      const refs = [];
+      (await plansRef().get()).forEach((d) => refs.push(d.ref));
+      (await daysRef().get()).forEach((d) => refs.push(d.ref));
+      refs.push(db.collection("users").doc(user.uid));
+      for (let i = 0; i < refs.length; i += 400) {
+        const batch = db.batch();
+        refs.slice(i, i + 400).forEach((r) => batch.delete(r));
+        await batch.commit();
+      }
       if (unsubscribe) { unsubscribe(); unsubscribe = null; }
       await user.delete();
       put(OWNER, null);

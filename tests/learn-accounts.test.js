@@ -94,6 +94,39 @@ function serve() {
   }, null, { timeout: 15000, polling: 500 });
   ok("marking a day done is saved to the account by itself");
 
+  // the groundwork: the plan in plain fields, the day as its own record, the profile with sharing off
+  await one.page.waitForFunction(async () => {
+    const u = window.firebase.auth().currentUser, db = window.firebase.firestore();
+    const days = await db.collection("users").doc(u.uid).collection("days").get({ source: "server" });
+    return days.docs.some((d) => d.data().type === "done");
+  }, null, { timeout: 15000, polling: 500 });
+  const ground = await one.page.evaluate(async () => {
+    const u = window.firebase.auth().currentUser, db = window.firebase.firestore();
+    const plan = (await db.collection("users").doc(u.uid).collection("plans").get({ source: "server" })).docs[0].data().plan;
+    const day = (await db.collection("users").doc(u.uid).collection("days").get({ source: "server" })).docs.map((d) => d.data()).find((d) => d.type === "done");
+    const me = (await db.collection("users").doc(u.uid).get({ source: "server" })).data();
+    return { plan, day, me };
+  });
+  assert.deepStrictEqual(ground.plan.seferIds, ["tanakh/ruth"]);
+  assert.strictEqual(ground.plan.startDate, "2026-10-14");
+  assert(ground.plan.createdAt && ground.plan.from && ground.plan.until && Array.isArray(ground.plan.learningDays));
+  assert.strictEqual(ground.day.date, "2026-10-14");
+  assert.strictEqual(ground.day.doneOn, "2026-10-14");
+  assert.match(ground.day.from, /^Ruth 1:1@0$/);
+  assert.strictEqual(ground.me.shareLearning, false, "sharing is off unless turned on");
+  await one.page.click('.tabbar [data-go="settings"]');
+  await one.page.fill("#displayName", "Hudi");
+  await one.page.press("#displayName", "Tab");
+  await one.page.check("#shareLearning");
+  await one.page.waitForFunction(async () => {
+    const u = window.firebase.auth().currentUser;
+    const me = (await window.firebase.firestore().collection("users").doc(u.uid).get({ source: "server" })).data();
+    return me.displayName === "Hudi" && me.shareLearning === true;
+  }, null, { timeout: 15000, polling: 500 });
+  await one.page.uncheck("#shareLearning");
+  await one.page.click('.tabbar [data-go="today"]');
+  ok("each plan is kept in plain fields, each day as its own record, and the profile with sharing off by default");
+
   // phone 2: the same account shows the same plan, with the day done
   const two = await phone();
   await two.page.waitForSelector("#gate:not([hidden])");
