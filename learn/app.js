@@ -923,16 +923,29 @@
   // never goes out of date when a plan changes; it opens the app.
 
   const ICS_DAYS = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+  function reminderId() {
+    let id = null;
+    try { id = localStorage.getItem("learning-calendar-reminder-id"); } catch (e) { /* none */ }
+    if (!id) { id = uid(); try { localStorage.setItem("learning-calendar-reminder-id", id); } catch (e) { /* fine */ } }
+    return id;
+  }
   const APP_URL = "https://sefer-calendar.web.app/";
   function reminderDays() {
     const set = new Set();
     for (const x of plans) for (const d of x.plan.learningDays || []) set.add(d);
     return set.size ? [...set].sort() : [0, 1, 2, 3, 4, 5];
   }
-  function renderReminder() {
-    $("reminderDays").textContent = `On ${reminderDays().map((d) => DAYS[d]).join(", ")}${plans.length ? ", the days you learn" : ""}.`;
+  // the last day any sefer is learned; the reminder stops after it
+  function reminderEnd() {
+    return plans.map((x) => (learningOf(x.plan).pop() || {}).date).filter(Boolean).sort().pop() || null;
   }
-  function reminderIcs(time, days) {
+  function renderReminder() {
+    const end = reminderEnd();
+    $("addReminder").disabled = !end;
+    $("reminderDays").textContent = !end ? "Add a sefer first; the reminder follows your plans."
+      : `On ${reminderDays().map((d) => DAYS[d]).join(", ")}, the days you learn, until ${niceDate(end, true)}, when your last sefer is finished. If a plan changes, add it again.`;
+  }
+  function reminderIcs(time, days, end) {
     const [h, m] = time.split(":").map(Number);
     // the first learning day from today at that time (today if it has not passed)
     const now = new Date();
@@ -945,14 +958,16 @@
     const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
     const at = `${first.replace(/-/g, "")}T${String(h).padStart(2, "0")}${String(m).padStart(2, "0")}00`;
     return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Learning Calendar//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
-      "BEGIN:VEVENT", `UID:daily-learning-${uid()}@sefer-calendar.web.app`, `DTSTAMP:${stamp}`,
-      `DTSTART:${at}`, "DURATION:PT15M", `RRULE:FREQ=WEEKLY;BYDAY=${days.map((d) => ICS_DAYS[d]).join(",")}`,
+      "BEGIN:VEVENT", `UID:daily-learning-${reminderId()}@sefer-calendar.web.app`, `SEQUENCE:${Math.floor(Date.now() / 1000)}`, `DTSTAMP:${stamp}`,
+      `DTSTART:${at}`, "DURATION:PT15M", `RRULE:FREQ=WEEKLY;BYDAY=${days.map((d) => ICS_DAYS[d]).join(",")};UNTIL=${end.replace(/-/g, "")}T235959`,
       "SUMMARY:Time to learn", `DESCRIPTION:Open the Learning Calendar to see today's place: ${APP_URL}`, `URL:${APP_URL}`,
       "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:Time to learn", "TRIGGER:PT0M", "END:VALARM",
       "END:VEVENT", "END:VCALENDAR", ""].join("\r\n");
   }
   on("addReminder", "click", () => {
-    const ics = reminderIcs($("reminderTime").value || "20:00", reminderDays());
+    const end = reminderEnd();
+    if (!end) return toast("Add a sefer first");
+    const ics = reminderIcs($("reminderTime").value || "20:00", reminderDays(), end);
     const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
     const a = document.createElement("a");
     a.href = url;

@@ -426,10 +426,15 @@ function serve() {
   const learnDays = await page.evaluate(() => [...new Set(JSON.parse(localStorage.getItem("learning-calendar-v1")).plans
     .flatMap((p) => p.learningDays))].sort());
   const byday = learnDays.map((d) => ["SU", "MO", "TU", "WE", "TH", "FR", "SA"][d]).join(",");
-  assert.match(ics, new RegExp(`RRULE:FREQ=WEEKLY;BYDAY=${byday}\r\n`));
+  assert.match(ics, new RegExp(`RRULE:FREQ=WEEKLY;BYDAY=${byday};UNTIL=`));
   assert.match(await page.textContent("#reminderDays"), learnDays.includes(6) ? /Shabbos/ : /Fri\./);
   assert.match(ics, /DTSTART:\d{8}T201500\r\n/);
   assert.match(ics, /BEGIN:VALARM\r\nACTION:DISPLAY/);
+  // it stops when the last sefer is finished, not forever
+  const lastDay = await page.evaluate(() => JSON.parse(localStorage.getItem("learning-calendar-v1")).plans
+    .map((p) => p.portions.filter((d) => d.until !== d.from).map((d) => d.date).pop()).sort().pop());
+  assert.match(ics, new RegExp(`;UNTIL=${lastDay.replace(/-/g, "")}T235959[;\r]`), `ends on ${lastDay}`);
+  assert.match(await page.textContent("#reminderDays"), /until/);
   assert.match(ics, /SUMMARY:Time to learn/);
   ok("Add to my calendar makes one repeating reminder on the learning days");
 
