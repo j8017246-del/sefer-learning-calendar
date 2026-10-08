@@ -288,6 +288,37 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     and sefarim by their Hebrew names; typing a place accepts either form.
   - Not built: reminders sent by the app itself (needs Firebase's paid plan).
 
+- **Safety audit, Part A (Zanvel, 10-08)**: "finished learning is never lost, doubled
+  or changed". Each with a test that failed before (`tests/learn-safety.test.js`,
+  emulators; `tests/learn-sync.test.js`; feature test 10):
+  1. *Nothing deleted for being missing*: `engine/sync.js reconcile()` puts the phone and
+     the account together on every account change. A plan is deleted from the account
+     only from the person's recorded deletions (`learning-calendar-deleted`, with a copy;
+     Settings → Stopped plans → Bring back). A plan another phone deleted leaves this
+     phone only if unchanged here, and a copy is kept.
+  2. *Finished days combined*: each Done/Undo keeps its time (`doneAt`/`undoneAt`, always
+     later than the last action that copy knew). Same schedule: day by day the later action
+     wins; a day done with no time stays done. Only one side changed: that side, unless it
+     would drop a day finished on the other. Schedules really different: both kept
+     (`conflictOf`), the person picks on Today ("Keep this copy"). What the account last
+     had is remembered per plan (`learning-calendar-synced`, fingerprints). The account
+     listener includes metadata changes, so a change from another phone made while this
+     phone's save was going out is not missed.
+  3. *Accounts kept apart*: records carry their owner; switching accounts (or signing out)
+     keeps the old account's unsent learning aside (`learning-calendar-held-<uid>`, given back
+     when it signs in again) and clears the phone first. Every load and write belongs to
+     the sign-in that started it (`session`), and the app's plan loading yields to a newer
+     replace, so late results are dropped.
+  4. *Restore*: the whole file is checked first (`checkBackup`: version, types, real dates,
+     ids, days covering the plan once; every bad entry counts), then loaded with its own
+     copy of the data files. A preview lists every plan; one rule: added, combined with
+     the phone's (nothing removed). A recovery copy is kept first (Settings → "Go back to
+     how it was"); "Backup loaded" only after the save worked.
+  5. *Backup*: version 2 holds every saved plan (also those whose sefer did not load), the
+     day history (from the account when signed in, plus unsent), and unsent deletions; it
+     says how many plans and days it holds, and Settings shows the last backup's date.
+  Part B (items 6-15) and Part C are next; not yet done.
+
 ## Left out (told Hudi)
 
 - Rambam: Tefillin/Mezuzah/Sefer Torah, Tzitzis, Berachos, Milah and Seder
@@ -330,6 +361,7 @@ npm i -g firebase-tools @firebase/rules-unit-testing firebase   # once (Apache-2
 cd learn
 firebase emulators:exec --only firestore --project demo-sefer "node ../tests/firestore-rules.test.js"
 firebase emulators:exec --only auth,firestore --project demo-sefer "node ../tests/learn-accounts.test.js"
+firebase emulators:exec --only auth,firestore --project demo-sefer "node ../tests/learn-safety.test.js"
 ```
 In tests only, `localStorage["learning-calendar-emulator"]` on localhost points
 the app at the emulators.
@@ -340,7 +372,7 @@ the app at the emulators.
 cd learn && python3 -m http.server 8765        # then open http://127.0.0.1:8765
 node tests/learn-schedule.test.js              # engine tests
 node tests/learn-cycles.test.js                # public cycles against published dates
-node tests/learn-sync.test.js                  # account merge rules
+node tests/learn-sync.test.js                  # putting phone and account together; backup checks
 NODE_PATH=$(npm root -g) node tests/learn-screens.test.js    # screen tests (needs Playwright)
 NODE_PATH=$(npm root -g) node tests/learn-features.test.js   # the 10-08 features on screen
 python3 tools/build_sefer_data.py --only yerushalmi   # rebuild one collection (SEFARIA_CACHE=dir for the download cache)

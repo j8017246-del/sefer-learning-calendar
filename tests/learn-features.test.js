@@ -389,6 +389,85 @@ function serve() {
     ok("the whole screen can be in Hebrew, right-to-left, with places named in Hebrew");
   }
 
+
+  // ---- 10. backups: everything is in them; a damaged one changes nothing; a good one shows a preview first ----
+  {
+    const { context, page } = await phone("2026-10-11");
+    await addSefer(page, "tanakh/ruth", "2026-10-17");
+    await page.click(".lesson [data-done]");
+    await page.waitForSelector(".done-row");
+    // a plan whose sefer cannot load right now stays in the backup
+    await page.evaluate(() => {
+      const st = JSON.parse(localStorage.getItem("learning-calendar-v1"));
+      const lost = JSON.parse(JSON.stringify(st.plans[0]));
+      lost.id = "cannot-load"; lost.seferId = "tanakh/not-here";
+      st.plans.push(lost);
+      localStorage.setItem("learning-calendar-v1", JSON.stringify(st));
+    });
+    await page.reload();
+    await page.waitForSelector(".load-failed");
+    await page.click('.tabbar [data-go="settings"]');
+    await page.click("#exportBox > summary");
+    assert.match(await page.textContent("#lastBackup"), /No backup made yet/);
+    await page.click("#backup");
+    await page.waitForSelector("#backupBox:not([hidden])");
+    const good = JSON.parse(await page.inputValue("#backupText"));
+    assert.strictEqual(good.version, 2);
+    assert.deepStrictEqual(good.plans.map((p) => p.id).sort().slice(-1), ["cannot-load"], "the plan that did not load is in the backup");
+    assert.strictEqual(good.plans.length, 2);
+    assert(good.events.some((e) => e.type === "done"), "the history of days is in it");
+    assert.match(await page.textContent("#backupSummary"), /2 plans with 2 days done/);
+    assert.match(await page.textContent("#lastBackup"), /Last backup: Sun, Oct 11, 2026/);
+    const before = await page.evaluate(() => localStorage.getItem("learning-calendar-v1"));
+    // damaged backups: each is refused, and nothing changes
+    await page.click("#exportBox details.inline-details > summary");
+    const damaged = [
+      { ...good, plans: good.plans.concat(null) },
+      { ...good, plans: [good.plans[0], false] },
+      { ...good, version: 7 },
+      { ...good, plans: [{ ...good.plans[0], portions: good.plans[0].portions.map((p, i) => (i === 2 ? { ...p, date: "2026-13-01" } : p)) }] },
+      { ...good, plans: [{ ...good.plans[0], portions: good.plans[0].portions.slice(1) }] },
+      { ...good, plans: [{ ...good.plans[0], seferId: "tanakh/not-here" }] },
+    ];
+    for (const d of damaged) {
+      await page.fill("#pasteBackup", JSON.stringify(d));
+      await page.click("#loadPasted");
+      await page.waitForFunction(() => /cannot be used|not a learning calendar backup/.test(document.querySelector("#toast").textContent), null, { timeout: 8000 }).catch(async (e) => { console.error("damaged", damaged.indexOf(d), await page.textContent("#toast"), await page.$("#ask[open]") ? await page.textContent("#askText") : ""); throw e; });
+      await page.evaluate(() => { document.querySelector("#toast").textContent = ""; });
+      assert(!(await page.$("#ask[open]")), "no preview for a damaged backup");
+      assert.strictEqual(await page.evaluate(() => localStorage.getItem("learning-calendar-v1")), before, "nothing changed");
+    }
+    // a good, older backup: preview first, a copy of the plans as they are now, and nothing finished is lost
+    await page.click('.tabbar [data-go="today"]');
+    await page.click(".lesson [data-done]");                       // day 2 done after the backup was made
+    await page.waitForTimeout(700);
+    await page.click('.tabbar [data-go="settings"]');
+    const old = { ...good, version: 1, events: undefined, plans: [good.plans[0], { ...good.plans[0], id: "from-backup" }] };
+    await page.fill("#pasteBackup", JSON.stringify(old));
+    await page.click("#loadPasted");
+    await page.waitForSelector("#ask[open] .preview-list");
+    const preview = await page.textContent("#askText");
+    assert.match(preview, /This backup has 2 plans/);
+    assert.match(preview, /combined with yours/);
+    assert.match(preview, /new/);
+    await page.click("#askYes");
+    await page.waitForFunction(() => /Backup loaded/.test(document.querySelector("#toast").textContent));
+    const after = await stored(page);
+    const ruth = after.find((p) => p.id === good.plans[0].id);
+    assert.strictEqual(ruth.portions.filter((p) => p.done).length, 2, "the day done after the backup is kept");
+    assert(after.some((p) => p.id === "from-backup") && after.some((p) => p.id === "cannot-load"), "nothing of the phone's is removed");
+    assert(await page.evaluate(() => !!localStorage.getItem("learning-calendar-recovery")), "a copy of the plans before loading is kept");
+    // and it can be undone
+    await page.click('.tabbar [data-go="settings"]');
+    await page.evaluate(() => { document.querySelector("#exportBox").open = true; });
+    await page.click("#undoRestore");
+    await page.click("#askYes");
+    await page.waitForFunction(() => /Back to how it was/.test(document.querySelector("#toast").textContent));
+    assert(!(await stored(page)).some((p) => p.id === "from-backup"), "back to how it was");
+    await context.close();
+    ok("a backup holds every plan and the day history; a damaged one changes nothing; a good one shows a preview, keeps a copy and loses nothing");
+  }
+
   assert.deepStrictEqual(errors, []);
   ok("no errors in the page");
   await browser.close();

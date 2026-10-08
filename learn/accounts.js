@@ -36,6 +36,8 @@
   const OWNER = "learning-calendar-owner";        // the account this phone's plans belong to
   const UNSYNCED = "learning-calendar-unsynced";  // changes made on this phone not yet in the account
   const LINK_EMAIL = "learning-calendar-link-email";
+  const BASE = "learning-calendar-synced";        // { owner, base: { id: fingerprint } }: what the account last had
+  const HELD = "learning-calendar-held-";         // + uid: an account's unsent learning, kept aside while another account is open
   const Store = window.LearnStore, Sync = window.LearnSync;
   if (!document.getElementById("account") || !Store || !Sync) return;   // an older page, swapped in while open
   const $ = (id) => document.getElementById(id);
@@ -49,6 +51,8 @@
   let unsubscribe = null;
   let last = new Map();      // id -> JSON of each plan as the account has it
   let synced = false;        // the account's plans have been read this session
+  let session = 0;
+  let lastKey = null;        // what the last snapshot held, to skip repeats           // which sign-in a load or write belongs to; results of an earlier one are dropped
 
   function note(text) { $("accountNote").textContent = text || ""; }
 
@@ -170,6 +174,8 @@
   // ---- signed in or out -------------------------------------------------------------------
 
   function changed(u) {
+    const my = ++session;
+    const before = get(OWNER);
     user = u;
     $("signedOut").hidden = !!u;
     $("signedIn").hidden = !u;
@@ -178,52 +184,102 @@
     for (const stop of watching.values()) stop();
     watching.clear(); sent.clear();
     synced = false;
+    lastKey = null;
     last = new Map();
+    // the phone holds another account's learning (or the account signed out): keep what
+    // was not yet sent aside for that account, and take everything of it off the screen
+    const leaving = before && (!u || before !== u.uid) ? holdAside(before) : Promise.resolve();
     if (u) {
       $("accountEmail").textContent = u.email || tr("account.yours");
       note("");
-      loadProfile(u);
-      unsubscribe = plansRef().onSnapshot(received, () => { $("syncState").textContent = tr("account.unreachable"); });
-    } else if (get(OWNER)) {
-      // signed out: the account's plans leave this phone (they stay in the account)
-      put(OWNER, null);
-      put(UNSYNCED, null);
-      Store.clearPhone();
-      Store.replace([], { quiet: true }).then(() => Store.show("today"));
+      leaving.then(() => {
+        if (my !== session) return;
+        loadProfile(u, my);
+        // with metadata changes: the moment the account confirms this phone's own save
+        // also brings any change another phone made meanwhile
+        unsubscribe = db.collection("users").doc(u.uid).collection("plans")
+          .onSnapshot({ includeMetadataChanges: true }, (snap) => received(snap, my), () => { if (my === session) $("syncState").textContent = tr("account.unreachable"); });
+      });
+    } else if (before) {
+      leaving.then(() => { if (my === session) Store.show("today"); });
     }
   }
 
+  // An account's learning not yet in the account (plans changed since, day records,
+  // deletions) is kept on this phone under that account, and the phone is cleared.
+  async function holdAside(owner) {
+    const base = baseOf(owner);
+    const plans = Store.records().filter((r) => base[r.id] !== Sync.fingerprint(r));
+    const events = Store.pendingEvents().filter((e) => !e.owner || e.owner === owner);
+    const deleted = Store.deletedList().filter((d) => !d.owner || d.owner === owner);
+    if (plans.length || events.length || deleted.some((d) => !d.sent)) {
+      put(HELD + owner, JSON.stringify({ at: Date.now(), plans, events, deleted, base }));
+    }
+    put(OWNER, null);
+    put(UNSYNCED, null);
+    put(BASE, null);
+    Store.clearPhone();
+    await Store.replace([], { quiet: true });
+  }
+  // Back to that account: its learning kept aside comes back to the phone first.
+  async function takeBack(owner) {
+    let held = null;
+    try { held = JSON.parse(get(HELD + owner)); } catch (e) { /* none */ }
+    if (!held) return;
+    const kept = Store.records(), ids = new Set(kept.map((r) => r.id));
+    try {
+      localStorage.setItem("learning-calendar-events", JSON.stringify(Store.pendingEvents().concat(held.events || [])));
+    } catch (e) { /* sent below */ }
+    Store.putDeleted(Store.deletedList().concat(held.deleted || []));
+    setBase({ ...(held.base || {}), ...baseOf(owner) });
+    await Store.replace(kept.concat((held.plans || []).filter((r) => !ids.has(r.id))), { quiet: true });
+    put(HELD + owner, null);
+  }
+  function baseOf(owner) {
+    try { const b = JSON.parse(get(BASE)); return b && b.owner === owner ? b.base || {} : {}; } catch (e) { return {}; }
+  }
+  function setBase(base) { put(BASE, JSON.stringify({ owner: user.uid, base })); }
+
   const plansRef = () => db.collection("users").doc(user.uid).collection("plans");
 
-  // The account's plans, read the first time and then whenever another phone changes them.
-  async function received(snap) {
-    if (snap.metadata.hasPendingWrites) return;          // our own change, already shown
+  // The account's plans, read the first time and then whenever another phone changes them,
+  // put together with the phone's (engine/sync.js: nothing finished is ever lost).
+  async function received(snap, my) {
+    // an earlier sign-in; our own change not yet confirmed; or only "from the phone's cache" changed
+    if (my !== session || snap.metadata.hasPendingWrites) return;
+    const key = Sync.fingerprint(snap.docs.map((d) => [d.id, d.data().data]));
+    if (synced && key === lastKey) return;
+    lastKey = key;
     const remote = snap.docs.map((d) => {
       try { return JSON.parse(d.data().data); } catch (e) { return null; }
     }).filter((r) => r && r.id);
     last = new Map(remote.map((r) => [r.id, JSON.stringify(r)]));
-    const local = Store.records();
     if (!synced) {
+      if (get(OWNER) !== user.uid) {
+        // first sign-in on this phone: plans made before signing in join the account
+        put(OWNER, user.uid);
+        setBase({});
+      }
+      await takeBack(user.uid);
+      if (my !== session) return;
       synced = true;
       setTimeout(() => sendDays(Store.pendingEvents()), 0);
-      if (get(OWNER) !== user.uid) {
-        // first sign-in on this phone: its plans move into the account
-        const merged = Sync.mergeOnFirstSignIn(local, remote);
-        put(OWNER, user.uid);
-        write(merged.upload, []);
-        if (merged.upload.length) Store.toast(tr(merged.upload.length > 1 ? "account.uploadedMany" : "account.uploadedOne", { n: merged.upload.length }));
-        show(merged.all);
-        shared(Store.records());
-        return checkJoin();
-      }
-      if (get(UNSYNCED)) {
-        // changes made here while the account could not be reached: send them
-        const c = Sync.changes(last, local);
-        write(c.write, c.remove);
-        return;
-      }
     }
-    show(inLocalOrder(remote, local));
+    const local = Store.records();
+    const firstUpload = local.filter((r) => !last.has(r.id)).length;
+    const res = Sync.reconcile({ local, remote, base: baseOf(user.uid), deleted: Store.deletions() });
+    if (res.droppedByOther.length) Store.keepCopies(res.droppedByOther);
+    await show(inLocalOrder(res.show, local), my);
+    if (my !== session) return;
+    // what the account has, remembered as this phone holds it (the same plan read back may be
+    // written slightly differently), so an unchanged plan is never taken for a change here
+    const held = new Map(Store.records().map((r) => [r.id, r]));
+    const base = {};
+    for (const id of Object.keys(res.base)) base[id] = held.has(id) ? Sync.fingerprint(held.get(id)) : res.base[id];
+    setBase(base);
+    write(res.upload, res.remove, my);
+    if (firstUpload && res.upload.length) Store.toast(tr(firstUpload > 1 ? "account.uploadedMany" : "account.uploadedOne", { n: firstUpload }));
+    if (res.conflicts.length) Store.toast(tr("sync.conflict"));
     shared(Store.records());
     checkJoin();
   }
@@ -233,35 +289,38 @@
     return remote.slice().sort((a, b) => (at.has(a.id) ? at.get(a.id) : 1e9) - (at.has(b.id) ? at.get(b.id) : 1e9));
   }
 
-  function show(records) {
+  async function show(records, my) {
     const now = JSON.stringify(Store.records());
-    if (JSON.stringify(records) !== now) Store.replace(records, { quiet: true });
-    $("syncState").textContent = tr("settings.yourPlansAreSaved");
+    if (JSON.stringify(records) !== now) await Store.replace(records, { quiet: true });
+    if (my === session) $("syncState").textContent = tr("settings.yourPlansAreSaved");
   }
 
-  // Every save on this phone: send what changed.
+  // Every save on this phone: send what changed, and the deletions the person made.
+  // A plan missing here is never deleted from the account because of that.
   Store.onSave((records) => {
     if (!user || get(OWNER) !== user.uid) return;
     put(UNSYNCED, "1");
     if (!synced) return;                                  // sent once the account is read
-    const c = Sync.changes(last, records);
-    write(c.write, c.remove);
+    write(Sync.changes(last, records), Store.deletions(), session);
     shared(records);
   });
 
-  function write(records, removeIds) {
-    if (!records.length && !removeIds.length) { put(UNSYNCED, null); return; }
+  // The account confirms each write before the phone counts it as sent.
+  function write(records, removeIds, my) {
+    if (!records.length && !removeIds.length) { if (!Store.deletions().length) put(UNSYNCED, null); return; }
+    const ref = db.collection("users").doc(user.uid).collection("plans");
     const batch = db.batch(), now = Date.now();
-    for (const r of records) {
-      batch.set(plansRef().doc(r.id), { data: JSON.stringify(r), plan: plainPlan(r), updatedAt: now });
-      last.set(r.id, JSON.stringify(r));
-    }
-    for (const id of removeIds) {
-      batch.delete(plansRef().doc(id));
-      last.delete(id);
-    }
-    batch.commit().then(() => put(UNSYNCED, null)).catch(() => {
-      $("syncState").textContent = tr("account.saveFailed");
+    for (const r of records) batch.set(ref.doc(r.id), { data: JSON.stringify(r), plan: plainPlan(r), updatedAt: now });
+    for (const id of removeIds) batch.delete(ref.doc(id));
+    batch.commit().then(() => {
+      if (my !== session) return;
+      const base = baseOf(user.uid);
+      for (const r of records) base[r.id] = Sync.fingerprint(r);
+      for (const id of removeIds) { delete base[id]; Store.deletionSent(id); }
+      setBase(base);
+      if (!Store.deletions().length) put(UNSYNCED, null);
+    }).catch(() => {
+      if (my === session) $("syncState").textContent = tr("account.saveFailed");
     });
   }
 
@@ -293,23 +352,37 @@
   const DAY_FIELDS = ["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate",
     "byHand", "node", "year", "note", "minutes"];
   function sendDays(records) {
-    if (!user || get(OWNER) !== user.uid || !synced || !records.length) return;
+    if (!user || get(OWNER) !== user.uid || !synced) return;
+    records = records.filter((r) => !r.owner || r.owner === user.uid);   // never another account's
+    if (!records.length) return;
+    const my = session, days = daysRef();
     const batch = db.batch();
     for (const r of records.slice(0, 450)) {
       const doc = {};
       for (const k of DAY_FIELDS) if (r[k] !== undefined) doc[k] = r[k];
-      batch.set(daysRef().doc(r.id), doc);
+      batch.set(days.doc(r.id), doc);
     }
     const ids = records.slice(0, 450).map((r) => r.id);
-    batch.commit().then(() => { Store.eventsSent(ids); if (records.length > 450) sendDays(records.slice(450)); }).catch(() => { /* kept on the phone, sent later */ });
+    batch.commit().then(() => {
+      Store.eventsSent(ids);
+      if (my === session && records.length > 450) sendDays(records.slice(450));
+    }).catch(() => { /* kept on the phone, sent later */ });
   }
   Store.onEvent(sendDays);
+  // the whole history of days, for a backup
+  Store.setHistoryProvider(async () => {
+    if (!user || !synced) return [];
+    const snap = await daysRef().get();
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  });
 
   // ---- display name and sharing (stored now; nothing uses them yet) ----------------------
   const userRef = () => db.collection("users").doc(user.uid);
-  async function loadProfile(u) {
+  async function loadProfile(u, my) {
+    const ref = db.collection("users").doc(u.uid);
     try {
-      const snap = await userRef().get();
+      const snap = await ref.get();
+      if (my !== session) return;                         // another account was opened meanwhile
       const d = snap.exists ? snap.data() : {};
       const fresh = { email: u.email || "", updatedAt: Date.now() };
       if (typeof d.shareLearning !== "boolean") fresh.shareLearning = false;   // off unless the person turns it on
@@ -317,7 +390,8 @@
       // the reminder time from the account (another phone may have set it); the time zone of this phone
       if (typeof d.reminderTime === "string") Store.setReminderTime(d.reminderTime);
       Object.assign(fresh, Store.reminder());
-      await userRef().set(fresh, { merge: true });
+      await ref.set(fresh, { merge: true });
+      if (my !== session) return;
       $("displayName").value = d.displayName || "";
       myName = d.displayName || "";
       $("shareLearning").checked = d.shareLearning === true;

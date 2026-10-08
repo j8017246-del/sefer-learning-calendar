@@ -166,10 +166,11 @@ function serve() {
   await three.page.waitForFunction(() => typeof window.__signInForTest === "function");
   await three.page.evaluate(() => window.__signInForTest("chavrusa@example.com"));
   await three.page.waitForSelector("#ask[open]", { timeout: 15000 });
-  assert.match(await three.page.textContent("#askText"), /Learn Rus together with hudi/);
+  assert.match(await three.page.textContent("#askText"), /Learn Rus together with hudi/i);
   await three.page.click("#askYes");
   await three.page.waitForSelector(".lesson [data-done]", { timeout: 30000 });
-  await three.page.waitForFunction(() => /hudi · 0 of 7 days/.test(document.querySelector(".lesson").textContent), null, { timeout: 15000 });
+  // the display name set earlier (Hudi), or the email's name when there is none
+  await three.page.waitForFunction(() => /hudi · 0 of 7 days/i.test(document.querySelector(".lesson").textContent), null, { timeout: 15000 });
   await three.page.click(".lesson [data-done]");
   await one.page.waitForFunction(() => /chavrusa · 1 of 7 days · done today/.test(document.querySelector(".lesson").textContent), null, { timeout: 15000 });
   // the joined plan is the chavrusa's own, in their own account; only progress is shared

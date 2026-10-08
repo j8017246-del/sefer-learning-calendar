@@ -514,3 +514,8 @@ body.gated .tabbar { display: none; }
 .chavrusa { margin: 6px 0 0; font-size: .86rem; color: var(--muted); }
 .chavrusa b { color: var(--ink); font-weight: 600; }
 #shareLink { font-size: .85rem; }
+.conflict { margin: 8px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--warn-soft); display: flex; flex-direction: column; gap: 8px; font-size: .88rem; }
+.conflict p { margin: 0; }
+.conflict .btn { align-self: flex-start; }
+.preview-list { margin: 8px 0; padding-inline-start: 18px; max-height: 40vh; overflow: auto; text-align: start; font-size: .9rem; }
+.preview-list li { margin: 4px 0; }

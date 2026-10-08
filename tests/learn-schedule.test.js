@@ -318,7 +318,9 @@ test("a plan is saved by address and read back the same", () => {
   assert(saved.portions.every((p) => typeof p.from === "string" && typeof p.until === "string"));
   assert(!JSON.stringify(saved).includes('"to"'), "no list positions are saved");
   const back = S.fromSaved(JSON.parse(JSON.stringify(saved)), berakhot);
-  assert.deepStrictEqual(back.portions, plan.portions.map((p) => ({ date: p.date, from: p.from, to: p.to, done: !!p.done })));
+  // each day keeps whether it is done and when it was marked
+  assert.deepStrictEqual(back.portions, plan.portions.map((p) => ({ date: p.date, from: p.from, to: p.to, done: !!p.done, ...(p.doneAt ? { doneAt: p.doneAt } : {}) })));
+  assert(back.portions.slice(0, 5).every((p) => p.doneAt > 0));
   assert.strictEqual(back.from, plan.from);
   assert.strictEqual(back.to, plan.to);
   assert.deepStrictEqual(back.learningDays, plan.learningDays);

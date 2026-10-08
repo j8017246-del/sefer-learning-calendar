@@ -209,14 +209,23 @@
     <p class="note" data-t-html="settings.forSeforimDividedInto"></p>
   </div>
 
-  <details class="panel inline-details">
+  <details class="panel inline-details" id="stoppedBox" hidden>
+    <summary><span data-t="stopped.title"></span> <span class="row-value" id="stoppedCount"></span><svg data-icon="down"></svg></summary>
+    <p class="note" data-t="stopped.note"></p>
+    <div id="stoppedList" class="off-list"></div>
+  </details>
+
+  <details class="panel inline-details" id="exportBox">
     <summary><span data-t="settings.exportAndImport"></span> <svg data-icon="down"></svg></summary>
     <p class="note" data-t="settings.aCopyOfYour"></p>
+    <p class="note" id="lastBackup"></p>
     <div class="two">
       <button class="btn" id="backup" data-t="settings.export"></button>
       <label class="btn"><span data-t="settings.importAFile"></span> <input type="file" id="restore" accept=".json,application/json" hidden></label>
     </div>
+    <button class="btn" id="undoRestore" hidden></button>
     <div id="backupBox" class="form-rows" hidden>
+      <p class="note" id="backupSummary"></p>
       <p class="note" data-t="settings.ifNoFileWas"></p>
       <textarea id="backupText" readonly></textarea>
       <button class="btn" id="copyBackup" data-t="settings.copyBackupText"></button>

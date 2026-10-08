@@ -149,20 +149,22 @@
     if (!res.ok) throw new Error(`${path} answered ${res.status}`);
     return res.json();
   }
-  async function loadSefer(id) {
-    if (!seforim.has(id)) seforim.set(id, await getJson(`data/${id}.json`));
-    return seforim.get(id);
+  // `cache` holds the data files in use; a check of a backup uses a cache of its own, so
+  // nothing it reads can change the plans already on the phone.
+  async function loadSefer(id, cache = seforim) {
+    if (!cache.has(id)) cache.set(id, await getJson(`data/${id}.json`));
+    return cache.get(id);
   }
   // One sefer, or several joined into one (for example all of Rambam).
   const combined = new Map();
-  async function loadCombined(ids, name) {
+  async function loadCombined(ids, name, cache = seforim, joined = combined) {
     const key = ids.join("+") + "|" + (name ? name.en : "");
-    if (!combined.has(key)) {
+    if (!joined.has(key)) {
       const list = [];
-      for (const id of ids) list.push(await loadSefer(id));
-      combined.set(key, P.combine(list, name ? { id: ids.join("+"), en: name.en, he: name.he } : {}));
+      for (const id of ids) list.push(await loadSefer(id, cache));
+      joined.set(key, P.combine(list, name ? { id: ids.join("+"), en: name.en, he: name.he } : {}));
     }
-    return combined.get(key);
+    return joined.get(key);
   }
   // The name of a choice of several sefarim: the collection when it is all of it.
   function nameFor(ids) {
@@ -212,9 +214,21 @@
       id: uid(), planId: x.id, seferIds: x.plan.seferIds || [x.plan.seferId], type,
       date: p ? p.date : null, doneOn: type === "done" || type === "partial" ? todayIso() : null, at: new Date().toISOString(),
       from: p ? P.address(x.sefer, p.from) : null, until: p ? P.address(x.sefer, Math.max(p.from, p.to + 1)) : null, ...extra,
+      owner: ownerNow(),   // the account this phone's learning belongs to (none before signing in); never sent
     };
     try { localStorage.setItem(EVENTS, JSON.stringify(pendingEvents().concat(rec))); } catch (e) { /* sent directly below if signed in */ }
     for (const fn of eventListeners) fn([rec]);
+  }
+  const OWNER = "learning-calendar-owner";
+  const ownerNow = () => { try { return localStorage.getItem(OWNER) || null; } catch (e) { return null; } };
+
+  // Plans the person stopped (deleted): the account deletes them only from this list,
+  // and a copy of each is kept here so it can be brought back.
+  const DELETED = "learning-calendar-deleted";
+  function deletedList() { try { return JSON.parse(localStorage.getItem(DELETED)) || []; } catch (e) { return []; } }
+  function putDeleted(list) { try { localStorage.setItem(DELETED, JSON.stringify(list.slice(-30))); } catch (e) { /* kept in memory until next save */ } }
+  function recordDeletion(record, sent = false) {
+    putDeleted(deletedList().filter((d) => d.id !== record.id).concat({ id: record.id, at: new Date().toISOString(), owner: ownerNow(), sent, record }));
   }
   const portionOn = (x, date) => x.plan.portions.find((q) => q.date === date && S.hasLearning(q));
 
@@ -239,7 +253,10 @@
       try { localStorage.setItem(EVENTS, JSON.stringify(pendingEvents().filter((e) => !sent.has(e.id)))); } catch (e) { /* kept */ }
     },
     async replace(records, { quiet = false } = {}) {
+      // a later replace (for example another account signing in) wins over one still loading
+      const gen = ++replaceGen;
       const { loaded, failed } = await loadPlans(records);
+      if (gen !== replaceGen) return false;
       plans = loaded;
       unloaded = failed;
       if (quiet) { try { localStorage.setItem(STORE, JSON.stringify({ version: 1, plans: allRecords() })); } catch (e) { /* shown on next save */ } }
@@ -247,9 +264,18 @@
       renderToday();
       if (!$("library").hidden) renderLibrary();
       else if (!$("plan").hidden && !findPlan(current)) show("library");
+      return true;
     },
+    // deletions the person made, for the account; copies of plans deleted on another phone
+    deletions: () => deletedList().filter((d) => !d.sent && (!d.owner || d.owner === ownerNow())).map((d) => d.id),
+    deletionSent(id) { putDeleted(deletedList().map((d) => (d.id === id ? { ...d, sent: true } : d))); },
+    keepCopies(records) { for (const r of records) recordDeletion(r, true); },
+    deletedList,
+    putDeleted,
+    setHistoryProvider(fn) { historyProvider = fn; },
     clearPhone() {
-      for (const k of [STORE, TODAY_STORE, EVENTS]) { try { localStorage.removeItem(k); } catch (e) { /* nothing kept */ } }
+      replaceGen++;
+      for (const k of [STORE, TODAY_STORE, EVENTS, DELETED]) { try { localStorage.removeItem(k); } catch (e) { /* nothing kept */ } }
     },
     ready: null,
     toast: (m) => toast(m),
@@ -273,18 +299,20 @@
     offerJoin: (saved, info) => offerJoin(saved, info),
   };
   let shareMaker = null;
+  let replaceGen = 0;
   const shareInfo = new Map();
   // Reads saved plans. Those whose sefer cannot be loaded are returned
   // untouched in `failed`, so they are never lost.
   const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
-  async function loadPlans(saved) {
+  async function loadPlans(saved, { fresh = false } = {}) {
+    const cache = fresh ? new Map() : seforim, joined = fresh ? new Map() : combined;
     const results = await Promise.all(saved.map(async (s) => {
       try {
         const ids = s.seferIds || [s.seferId];
-        const parts = await Promise.all(ids.map(loadSefer));
+        const parts = await Promise.all(ids.map((id) => loadSefer(id, cache)));
         // data rebuilt since the plan was saved: keep its places exactly
-        if (S.keepSavedPlaces(s, parts).length) combined.clear();
-        const sefer = await loadCombined(ids, s.name);
+        if (S.keepSavedPlaces(s, parts).length) joined.clear();
+        const sefer = await loadCombined(ids, s.name, cache, joined);
         const plan = S.fromSaved(s, sefer);
         if (!plan.createdAt) plan.createdAt = s.startDate;   // made before 10-08: the start date is the best guess
         return { ok: { id: SAFE_ID.test(s.id || "") ? s.id : uid(), sefer, plan } };
@@ -326,7 +354,33 @@
   else if (darkQuery.addListener) darkQuery.addListener(applyLook);   // older iPads
   applyLook();
 
+  // Plans the person stopped, or that another phone deleted: kept here to bring back.
+  function renderStopped() {
+    const live = new Set(plans.map((x) => x.id));
+    const list = deletedList().filter((d) => d.record && !live.has(d.id) && (!d.owner || d.owner === ownerNow())).reverse();
+    $("stoppedBox").hidden = !list.length;
+    $("stoppedCount").textContent = list.length ? String(list.length) : "";
+    $("stoppedList").innerHTML = list.map((d) => {
+      const r = d.record, e = entryOf(r.seferId || (r.seferIds || [])[0]) || {};
+      const name = nm(r.name || e), done = (r.portions || []).filter((p) => p.done).length;
+      return `<p><span>${esc(name)} · ${esc(tr("stopped.facts", { done, date: niceDate(d.at.slice(0, 10)) }))}</span>
+        <button type="button" class="text-btn" data-bring="${esc(d.id)}" data-at="${esc(d.at)}">${esc(tr("stopped.bringBack"))}</button></p>`;
+    }).join("");
+  }
+  on("stoppedList", "click", async (e) => {
+    const b = e.target.closest("[data-bring]");
+    if (!b) return;
+    const d = deletedList().find((x) => x.id === b.dataset.bring && x.at === b.dataset.at);
+    if (!d || findPlan(d.id)) return;
+    const { loaded, failed } = await loadPlans([d.record]);
+    if (failed.length) { unloaded = unloaded.concat(failed); } else plans.push(loaded[0]);
+    putDeleted(deletedList().filter((x) => x !== d && !(x.id === d.id && x.at === d.at)));
+    save(); renderStopped(); toast(tr("stopped.broughtBack", { name: nm(d.record.name || entryOf(d.record.seferId || d.record.seferIds[0]) || {}) }));
+  });
+
   function renderSettings() {
+    renderStopped();
+    renderBackupNote();
     document.querySelectorAll('input[name="theme"]').forEach((r) => { r.checked = r.value === look.theme; });
     document.querySelectorAll('input[name="style"]').forEach((r) => { r.checked = r.value === look.style; });
     document.querySelectorAll('input[name="names"]').forEach((r) => { r.checked = r.value === sectionNames; });
@@ -466,6 +520,41 @@
     const k = DEDICATION[d.kind];
     return `<p class="dedication">${k ? `${he(k[1])} ` : ""}${esc(d.name)}${k ? ` <span class="muted">· ${esc(tr(k[0]))}</span>` : ""}</p>`;
   }
+  // A plan changed differently on two phones: both copies are kept until the person picks one.
+  function conflictPair(x) {
+    const other = x.plan.conflictOf ? findPlan(x.plan.conflictOf) : plans.find((y) => y.plan.conflictOf === x.id);
+    return other || null;
+  }
+  function conflictHtml(x) {
+    const other = conflictPair(x);
+    if (!other) return "";
+    const done = learningOf(x.plan).filter((p) => p.done).length, last = (learningOf(x.plan).pop() || {}).date;
+    return `<div class="conflict"><p>${esc(tr(x.plan.conflictOf ? "sync.copyPhone" : "sync.copyAccount"))}
+      ${esc(tr("sync.copyFacts", { done, date: last ? niceDate(last, true) : "—" }))}</p>
+      <button class="btn small-btn" data-keep="${esc(x.id)}">${esc(tr("sync.keepThis"))}</button></div>`;
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-keep]");
+    if (!b) return;
+    const x = findPlan(b.dataset.keep), other = x && conflictPair(x);
+    if (!other) return;
+    const rec = (y) => ({ id: y.id, ...S.toSaved(y.plan, y.sefer) });
+    if (x.plan.conflictOf) {
+      // keeping this phone's copy: it takes the plan's own id again; the account's old
+      // version is kept on this phone (only as a copy), and the copy's id is deleted
+      recordDeletion(rec(other), true);
+      recordDeletion(rec(x), false);
+      x.id = other.id;
+      x.plan = { ...x.plan };
+      delete x.plan.conflictOf;
+    } else {
+      // keeping the account's version: the other copy is deleted there, and kept here
+      recordDeletion(rec(other), false);
+    }
+    plans = plans.filter((y) => y !== other);
+    save(); renderToday(); toast(tr("sync.kept"));
+  });
+
   // How the chavrusa is doing, on a shared plan's card.
   function chavrusaHtml(plan, today) {
     const info = plan.share && shareInfo.get(plan.share.id);
@@ -547,7 +636,7 @@
         <div><h2 class="he-title" lang="he" dir="rtl">${esc(name.he)}</h2>
           <div class="lesson-sub">${kind}${[sub(name), commNames.length ? tr("lesson.with", { names: commNames.join(" & ") }) : "", col ? nm(col) : ""].filter(Boolean).map(esc).join(" · ")}</div></div>
         ${p ? `<div class="count"><b>${learning.indexOf(p) + 1}<span class="muted">/${learning.length}</span></b>${esc(tr("lesson.day"))}</div>` : ""}
-      </div>${dedicationHtml(plan)}${chavrusaHtml(plan, today)}`;
+      </div>${conflictHtml(x)}${dedicationHtml(plan)}${chavrusaHtml(plan, today)}`;
     const foot = `<div class="lesson-foot">${status}<span>${esc(tr("lesson.finishing", { date: st.finishDate ? niceDate(st.finishDate, true) : "—" }))}</span></div>
       <div class="lesson-foot"><button class="text-btn" data-open="${esc(x.id)}">${esc(tr("lesson.wholeSchedule"))}</button>
         ${isToday && !st.finished && !cycle && !plan.paused ? (st.behind ? `<button class="text-btn" data-missed="${esc(x.id)}">${esc(tr("lesson.catchUp"))}</button>` : `<button class="text-btn" data-cant="${esc(x.id)}">${esc(tr("lesson.cantToday"))}</button>`) : ""}</div>`;
@@ -1032,6 +1121,7 @@
     const x = findPlan(current);
     if (!(await ask(tr("plan.stopAsk", { name: nm(planName(x)) }), tr("plan.stopYes")))) return;
     logDay(x, "stopped", null);
+    recordDeletion({ id: x.id, ...S.toSaved(x.plan, x.sefer) });
     plans = plans.filter((p) => p.id !== current);
     save(); show("library");
   });
@@ -1635,12 +1725,22 @@
 
   // ---- backup -------------------------------------------------------------------------------
 
-  function backupData() {
-    return { format: "learning-calendar-backup", version: 1, savedAt: new Date().toISOString(),
-      plans: plans.map((x) => ({ id: x.id, ...S.toSaved(x.plan, x.sefer) })) };
+  // A backup holds every saved plan (also those whose sefer did not load), the history of
+  // every day (from the account when signed in, and what is not yet sent), and the
+  // deletions not yet sent.
+  const LAST_BACKUP = "learning-calendar-last-backup", RECOVERY = "learning-calendar-recovery";
+  let historyProvider = null;   // accounts.js: the account's day records
+  async function backupData() {
+    let history = [];
+    if (historyProvider) { try { history = await historyProvider(); } catch (e) { /* the phone's records below */ } }
+    const byId = new Map(history.concat(pendingEvents()).map((e) => [e.id, e]));
+    return { format: "learning-calendar-backup", version: 2, savedAt: new Date().toISOString(),
+      plans: allRecords(), events: [...byId.values()], unsent: { deletions: window.LearnStore.deletions(), dayRecords: pendingEvents().length } };
   }
-  on("backup", "click", () => {
-    const text = JSON.stringify(backupData());
+  const daysDoneIn = (records) => records.reduce((n, r) => n + (r.portions || []).filter((p) => p.done).length, 0);
+  on("backup", "click", async () => {
+    const data = await backupData();
+    const text = JSON.stringify(data);
     try {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
@@ -1650,7 +1750,17 @@
     } catch (e) { /* some browsers block saving files; the text below still works */ }
     $("backupText").value = text;
     $("backupBox").hidden = false;
+    $("backupSummary").textContent = tr("backup.holds", { plans: data.plans.length, days: daysDoneIn(data.plans), records: data.events.length });
+    try { localStorage.setItem(LAST_BACKUP, data.savedAt); } catch (e) { /* only for the note */ }
+    renderBackupNote();
   });
+  function renderBackupNote() {
+    let at = null, rec = null;
+    try { at = localStorage.getItem(LAST_BACKUP); rec = JSON.parse(localStorage.getItem(RECOVERY)); } catch (e) { /* none */ }
+    $("lastBackup").textContent = at ? tr("backup.last", { date: niceDate(at.slice(0, 10), true) }) : tr("backup.never");
+    $("undoRestore").hidden = !rec;
+    if (rec) $("undoRestore").textContent = tr("backup.undo", { date: niceDate(rec.at.slice(0, 10)) });
+  }
   on("copyBackup", "click", async () => {
     try {
       await navigator.clipboard.writeText($("backupText").value);
@@ -1660,18 +1770,81 @@
       toast(tr("backup.selectAndCopy"));
     }
   });
+
+  // Loading a backup. One rule: the backup's plans are added to the phone's, and a plan
+  // that is in both keeps every finished day of both (engine/sync.js); nothing is removed.
+  // The whole file is checked first, with its own copy of the data files, so a backup
+  // that cannot be used changes nothing.
   async function restore(text) {
-    try {
-      const data = JSON.parse(text);
-      if (data.format !== "learning-calendar-backup" || !Array.isArray(data.plans)) throw new Error(tr("backup.notBackup"));
-      if (plans.length && !(await ask(tr("backup.replaceAsk", { n: plans.length, m: data.plans.length }), tr("backup.replace")))) return;
-      const { loaded, failed } = await loadPlans(data.plans);
-      if (failed.length) throw new Error(tr("backup.partFailed"));
-      plans = loaded;
-      save(); show("today"); toast(tr("backup.loaded"));
-    } catch (err) {
-      toast(err instanceof SyntaxError ? tr("backup.notBackup") : err.message);
+    let data;
+    try { data = JSON.parse(text); } catch (e) { return toast(tr("backup.notBackup")); }
+    const check = window.LearnSync.checkBackup(data);
+    if (!check.ok) {
+      console.warn("backup problems:", check.problems);
+      return toast(check.problems[0] === "not a backup" ? tr("backup.notBackup") : tr("backup.rejected", { n: check.problems.length }));
     }
+    const trial = await loadPlans(check.plans.map((r) => JSON.parse(JSON.stringify(r))), { fresh: true });
+    const broken = trial.failed.length + trial.loaded.filter((x) => !coversOnce(x.plan)).length;
+    if (broken) return toast(tr("backup.rejected", { n: broken }));
+    // what will happen, plan by plan
+    const mine = new Map(allRecords().map((r) => [r.id, r]));
+    const rows = check.plans.map((r) => {
+      const e = entryOf(r.seferId || r.seferIds[0]) || {};
+      const what = !mine.has(r.id) ? tr("backup.isNew") : window.LearnSync.mergePlan(mine.get(r.id), r) ? tr("backup.combined") : tr("backup.bothKept");
+      return `<li><b>${esc(nm(r.name || e))}</b> · ${esc(tr("backup.planFacts", { done: daysDoneIn([r]), total: r.portions.filter((p) => p.from !== p.until).length }))} · ${esc(what)}</li>`;
+    });
+    if (!(await askHtml(`<b>${esc(tr("backup.previewTitle", { n: check.plans.length }))}</b><ul class="preview-list">${rows.join("")}</ul><p class="note">${esc(tr("backup.previewNote"))}</p>`, tr("backup.add")))) return;
+    // a copy of everything as it is now, to go back to
+    try {
+      localStorage.setItem(RECOVERY, JSON.stringify({ at: new Date().toISOString(), plans: allRecords(), events: pendingEvents() }));
+    } catch (e) {
+      return toast(tr("backup.noRecovery"));
+    }
+    const result = allRecords().map((r) => r);
+    for (const r of check.plans) {
+      const i = result.findIndex((x) => x.id === r.id);
+      if (i < 0) { result.push(r); continue; }
+      const m = window.LearnSync.mergePlan(result[i], r);
+      if (m) result[i] = m;
+      else result.push({ ...r, id: `${r.id.slice(0, 54)}-b${Date.now().toString(36).slice(-4)}`, conflictOf: r.id });
+    }
+    const done = await window.LearnStore.replace(result);
+    renderBackupNote();
+    if (done && !saveFailed) { show("today"); toast(tr("backup.loaded")); }
+    else toast(tr("save.notOnPhone"));
+  }
+  // The days with learning cover the plan exactly once, in order.
+  function coversOnce(plan) {
+    let next = plan.from;
+    for (const p of plan.portions) {
+      if (p.to < p.from) continue;
+      if (p.from !== next) return false;
+      next = p.to + 1;
+    }
+    return next === plan.to + 1;
+  }
+  on("undoRestore", "click", async () => {
+    let rec = null;
+    try { rec = JSON.parse(localStorage.getItem(RECOVERY)); } catch (e) { /* none */ }
+    if (!rec || !(await ask(tr("backup.undoAsk", { date: niceDate(rec.at.slice(0, 10)) }), tr("backup.undoYes")))) return;
+    // the plans added from the backup are kept as copies under Stopped plans
+    const before = new Set(rec.plans.map((r) => r.id));
+    for (const r of allRecords()) if (!before.has(r.id)) recordDeletion(r);
+    const ok = await window.LearnStore.replace(rec.plans);
+    if (ok && !saveFailed) { try { localStorage.removeItem(RECOVERY); } catch (e) { /* fine */ } }
+    renderBackupNote(); show("today"); toast(tr(ok && !saveFailed ? "backup.undone" : "save.notOnPhone"));
+  });
+  // "Are you sure?" with a list in it.
+  function askHtml(html, yes) {
+    return new Promise((resolve) => {
+      const dlg = $("ask");
+      $("askText").innerHTML = html;
+      $("askYes").textContent = yes;
+      $("askYes").classList.remove("danger");
+      dlg.returnValue = "";
+      dlg.onclose = () => { $("askYes").classList.add("danger"); resolve(dlg.returnValue === "yes"); };
+      dlg.showModal();
+    });
   }
   on("restore", "change", async (e) => {
     const file = e.target.files[0];
@@ -1729,9 +1902,12 @@
       $("todayDate").textContent = tr("load.catalogFailed", { error: e.message });
       return;
     }
+    const gen = replaceGen;
     const { loaded, failed } = await loadPlans(readStore().plans || []);
-    plans = loaded;
-    unloaded = failed;
+    if (gen === replaceGen) {   // unless the account replaced them while they loaded
+      plans = loaded;
+      unloaded = failed;
+    }
     show("today");
     window.LearnStore.loaded = true;
     if (window.LearnStore.whenReady) window.LearnStore.whenReady();

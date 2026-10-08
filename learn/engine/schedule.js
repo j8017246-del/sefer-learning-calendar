@@ -292,8 +292,14 @@
   // A day with something to learn: stops, or (in a public cycle) a place the app has no text for.
   const hasLearning = (p) => p.to >= p.from || !!(p.places && p.places.length);
 
-  function markDone(plan, date, done = true) {
-    const portions = plan.portions.map((p) => (p.date === date ? { ...p, done } : p));
+  // Marking a day done or not done keeps the time of that action (doneAt or
+  // undoneAt), so when two phones' copies are combined, each day follows the
+  // later of the two actions (see engine/sync.js).
+  // An action is always later than the last one this copy knew for that day, even when
+  // this phone's clock is behind another's.
+  function markDone(plan, date, done = true, at = Date.now()) {
+    const later = (p) => Math.max(at, (p.doneAt || 0) + 1, (p.undoneAt || 0) + 1);
+    const portions = plan.portions.map((p) => (p.date === date ? { ...p, done, [done ? "doneAt" : "undoneAt"]: later(p) } : p));
     return { ...plan, portions };
   }
 
@@ -304,7 +310,7 @@
     const day = plan.portions.find((p) => p.date === date && hasLearning(p));
     if (!day || stopAt <= day.from || stopAt > day.to) throw new Error(say("insideDay"));
     const rest = { from: stopAt, to: day.to };
-    const portions = plan.portions.map((p) => (p === day ? { ...p, to: stopAt - 1, done: true } : p));
+    const portions = plan.portions.map((p) => (p === day ? { ...p, to: stopAt - 1, done: true, doneAt: Date.now() } : p));
     const next = portions.find((p) => p.date > date && hasLearning(p) && !p.done && p.from === day.to + 1);
     if (next) {
       const i = portions.indexOf(next);
@@ -477,7 +483,7 @@
   // ---- saving -----------------------------------------------------------
 
   const SETTINGS = ["seferId", "seferIds", "name", "createdAt", "commentaries", "startDate", "endDate", "dailyPieces",
-    "minutesPerDay", "pace", "group", "paused", "learningDays", "lighterDays", "lighterWeight", "daysOff", "skipYomTov", "israel", "share", "history",
+    "minutesPerDay", "pace", "group", "paused", "learningDays", "lighterDays", "lighterWeight", "daysOff", "skipYomTov", "israel", "share", "conflictOf", "history",
     // groundwork for later: who owns the plan and who learns it too, a dedication, the part
     // assigned to one person when a sefer is divided, and the kind of plan
     "owner", "members", "dedication", "assignment", "kind", "cycle"];
@@ -495,6 +501,7 @@
     saved.portions = plan.portions.map((p) => ({
       date: p.date, from: at(p.from), until: at(p.to >= p.from ? p.to + 1 : p.from), done: !!p.done,
       ...(p.minutes > 0 ? { minutes: p.minutes } : {}), ...(p.places ? { places: p.places } : {}),
+      ...(p.doneAt ? { doneAt: p.doneAt } : {}), ...(p.undoneAt ? { undoneAt: p.undoneAt } : {}),
     }));
     if (!KINDS.includes(saved.kind)) saved.kind = "personal";
     // the opening words at each place, so a place can be kept exactly after a rebuild
@@ -544,7 +551,8 @@
     plan.from = at(saved.from);
     plan.to = at(saved.until) - 1;
     plan.portions = saved.portions.map((p) => ({ date: p.date, from: at(p.from), to: at(p.until) - 1, done: !!p.done,
-      ...(p.minutes > 0 ? { minutes: p.minutes } : {}), ...(p.places ? { places: p.places } : {}) }));
+      ...(p.minutes > 0 ? { minutes: p.minutes } : {}), ...(p.places ? { places: p.places } : {}),
+      ...(p.doneAt ? { doneAt: p.doneAt } : {}), ...(p.undoneAt ? { undoneAt: p.undoneAt } : {}) }));
     if (!KINDS.includes(plan.kind)) plan.kind = "personal";
     return plan;
   }

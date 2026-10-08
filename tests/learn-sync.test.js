@@ -1,4 +1,4 @@
-// Moving a phone's plans into an account on first sign-in, and what is sent after.
+// Putting a phone's plans and the account's together without losing finished learning.
 const assert = require("assert");
 require("../learn/strings.js");   // the words the engine writes
 const Sync = require("../learn/engine/sync.js");
@@ -6,49 +6,153 @@ const Sync = require("../learn/engine/sync.js");
 let passed = 0;
 function test(name, fn) { fn(); passed++; console.log("ok -", name); }
 
-const plan = (id, done, total = 5) => ({
-  id, format: "learning-plan", seferId: "bavli/berakhot",
-  portions: Array.from({ length: total }, (_, i) => ({ date: `2026-10-${11 + i}`, from: `a${i}`, until: `a${i + 1}`, done: i < done })),
+// a plan of 5 days; `done` lists the days done (by index), with the time of each action
+const plan = (id, done = [], { times = {}, total = 5, shift = 0 } = {}) => ({
+  id, format: "learning-plan", seferId: "bavli/berakhot", from: "a0", until: `a${total}`,
+  portions: Array.from({ length: total }, (_, i) => ({
+    date: `2026-10-${11 + i + shift}`, from: `a${i}`, until: `a${i + 1}`, done: done.includes(i),
+    ...(times[i] ? { [done.includes(i) ? "doneAt" : "undoneAt"]: times[i] } : {}),
+  })),
 });
+const doneIdx = (r) => r.portions.map((p, i) => (p.done ? i : -1)).filter((i) => i >= 0);
+const ids = (rs) => rs.map((r) => r.id).sort();
+const F = Sync.fingerprint;
 
 test("a phone's plans join an empty account", () => {
-  const local = [plan("a", 2), plan("b", 0)];
-  const r = Sync.mergeOnFirstSignIn(local, []);
-  assert.deepStrictEqual(r.all, local);
-  assert.deepStrictEqual(r.upload.map((x) => x.id), ["a", "b"]);
+  const r = Sync.reconcile({ local: [plan("a", [0, 1]), plan("b")], remote: [] });
+  assert.deepStrictEqual(ids(r.show), ["a", "b"]);
+  assert.deepStrictEqual(ids(r.upload), ["a", "b"]);
+  assert.deepStrictEqual(r.remove, []);
 });
 
-test("a phone's plans join an account that already has others, and none is lost", () => {
-  const r = Sync.mergeOnFirstSignIn([plan("phone", 1)], [plan("acct1", 3), plan("acct2", 0)]);
-  assert.deepStrictEqual(r.all.map((x) => x.id), ["acct1", "acct2", "phone"]);
-  assert.deepStrictEqual(r.upload.map((x) => x.id), ["phone"]);
+test("a plan made on another phone is never deleted because this phone does not have it", () => {
+  // the audit's case: this phone had unsent changes; the account has a plan made on phone 2
+  const mine = plan("ruth", [0]);
+  const r = Sync.reconcile({ local: [mine], remote: [plan("ruth"), plan("jonah")], base: { ruth: F(plan("ruth")) } });
+  assert.deepStrictEqual(ids(r.show), ["jonah", "ruth"]);
+  assert.deepStrictEqual(r.remove, []);
+  assert.deepStrictEqual(doneIdx(r.show.find((x) => x.id === "ruth")), [0], "this phone's day is kept");
+  assert.deepStrictEqual(ids(r.upload), ["ruth"]);
+  assert.deepStrictEqual(Sync.changes(new Map([["gone", "{}"]]), [mine]).map((x) => x.id), ["ruth"], "changes() never deletes");
 });
 
-test("the same plan on both keeps the copy with more days done", () => {
-  let r = Sync.mergeOnFirstSignIn([plan("x", 4)], [plan("x", 2)]);
-  assert.strictEqual(Sync.doneDays(r.all[0]), 4);
-  assert.deepStrictEqual(r.upload.map((x) => x.id), ["x"]);
-  r = Sync.mergeOnFirstSignIn([plan("x", 1)], [plan("x", 2)]);
-  assert.strictEqual(Sync.doneDays(r.all[0]), 2);
+test("a plan is deleted from the account only when the person deleted it on this phone", () => {
+  const r = Sync.reconcile({ local: [plan("b")], remote: [plan("a"), plan("b")], base: { a: F(plan("a")), b: F(plan("b")) }, deleted: ["a"] });
+  assert.deepStrictEqual(r.remove, ["a"]);
+  assert.deepStrictEqual(ids(r.show), ["b"]);
+});
+
+test("a plan deleted on another phone leaves this phone only if it did not change here, and a copy is kept", () => {
+  const same = plan("a", [0]);
+  let r = Sync.reconcile({ local: [same], remote: [], base: { a: F(same) } });
+  assert.deepStrictEqual(ids(r.show), []);
+  assert.deepStrictEqual(ids(r.droppedByOther), ["a"]);
+  const changedHere = plan("a", [0, 1]);
+  r = Sync.reconcile({ local: [changedHere], remote: [], base: { a: F(same) } });
+  assert.deepStrictEqual(ids(r.show), ["a"], "learning done here since is kept, and sent back");
+  assert.deepStrictEqual(ids(r.upload), ["a"]);
+});
+
+test("first sign-in, equal counts but different days: all finished days are kept", () => {
+  const r = Sync.reconcile({ local: [plan("x", [1, 2])], remote: [plan("x", [0, 1])] });
+  assert.deepStrictEqual(doneIdx(r.show[0]), [0, 1, 2]);
+  assert.deepStrictEqual(doneIdx(r.upload[0]), [0, 1, 2]);
+});
+
+test("first sign-in, different days on each side and more on one: all finished days are kept", () => {
+  const r = Sync.reconcile({ local: [plan("x", [4])], remote: [plan("x", [0, 1, 2])] });
+  assert.deepStrictEqual(doneIdx(r.show[0]), [0, 1, 2, 4]);
+});
+
+test("an old backup (fewer days) never takes away days done since", () => {
+  const old = plan("x", [0]), now = plan("x", [0, 1, 2]);
+  const r = Sync.reconcile({ local: [old], remote: [now] });
+  assert.deepStrictEqual(doneIdx(r.show[0]), [0, 1, 2]);
+  assert.deepStrictEqual(r.upload, [], "the account already has it all");
+});
+
+test("two phones signing in for the first time together end with every finished day", () => {
+  // phone 1 and phone 2 both read the account before either has written
+  const acct0 = plan("x", [0]);
+  const p1 = Sync.reconcile({ local: [plan("x", [1])], remote: [acct0] });
+  const p2 = Sync.reconcile({ local: [plan("x", [2])], remote: [acct0] });
+  // phone 1 writes first, then phone 2 (overwriting); then phone 1 hears phone 2's copy
+  const acct2 = p2.upload[0];
+  const p1again = Sync.reconcile({ local: p1.show, remote: [acct2], base: { x: F(p1.upload[0]) } });
+  assert.deepStrictEqual(doneIdx(p1again.show[0]), [0, 1, 2]);
+  assert.deepStrictEqual(doneIdx(p1again.upload[0]), [0, 1, 2], "phone 1 sends the combined copy back");
+  const p2again = Sync.reconcile({ local: p2.show, remote: p1again.upload, base: { x: F(acct2) } });
+  assert.deepStrictEqual(doneIdx(p2again.show[0]), [0, 1, 2]);
+});
+
+test("Done on one phone and Undo on the other: the later action wins, and an untimed day done stays done", () => {
+  const doneEarly = plan("x", [0], { times: { 0: 1000 } }), undoneLater = plan("x", [], { times: { 0: 2000 } });
+  assert.deepStrictEqual(doneIdx(Sync.reconcile({ local: [doneEarly], remote: [undoneLater] }).show[0]), []);
+  assert.deepStrictEqual(doneIdx(Sync.reconcile({ local: [undoneLater], remote: [doneEarly] }).show[0]), [], "in either order");
+  const doneLater = plan("x", [0], { times: { 0: 3000 } });
+  assert.deepStrictEqual(doneIdx(Sync.reconcile({ local: [undoneLater], remote: [doneLater] }).show[0]), [0]);
+  assert.deepStrictEqual(doneIdx(Sync.reconcile({ local: [plan("x", [0])], remote: [plan("x")] }).show[0]), [0], "no times: done wins");
+});
+
+test("only one side changed: that side's copy is kept as it is (an Undo here is not undone)", () => {
+  const before = plan("x", [0, 1]);
+  const undoneHere = plan("x", [0], { times: { 1: 5000 } });
+  let r = Sync.reconcile({ local: [undoneHere], remote: [before], base: { x: F(before) } });
+  assert.deepStrictEqual(doneIdx(r.show[0]), [0]);
+  assert.deepStrictEqual(ids(r.upload), ["x"]);
+  const changedThere = plan("x", [0, 1, 2]);
+  r = Sync.reconcile({ local: [before], remote: [changedThere], base: { x: F(before) } });
+  assert.deepStrictEqual(doneIdx(r.show[0]), [0, 1, 2]);
   assert.deepStrictEqual(r.upload, []);
-  r = Sync.mergeOnFirstSignIn([plan("x", 2)], [plan("x", 2)]);
-  assert.deepStrictEqual(r.upload, [], "equal: the account's copy stays");
 });
 
-test("an empty phone changes nothing in the account", () => {
-  const remote = [plan("a", 1)];
-  const r = Sync.mergeOnFirstSignIn([], remote);
-  assert.deepStrictEqual(r.all, remote);
-  assert.deepStrictEqual(r.upload, []);
+test("schedules that really differ: both copies are kept, to ask which one", () => {
+  const here = plan("x", [0, 1]), there = plan("x", [0], { shift: 1 });
+  const r = Sync.reconcile({ local: [here], remote: [there] });
+  assert.strictEqual(r.show.length, 2);
+  assert.deepStrictEqual(r.conflicts, [["x", "x-v1"]]);
+  const copy = r.show.find((p) => p.id === "x-v1");
+  assert.strictEqual(copy.conflictOf, "x");
+  assert.deepStrictEqual(doneIdx(copy), [0, 1], "this phone's copy, with its days");
+  assert.deepStrictEqual(ids(r.upload), ["x-v1"], "the copy is saved too");
+  assert.deepStrictEqual(r.remove, []);
 });
 
-test("only changed plans are sent, and removed ones are deleted", () => {
-  const a = plan("a", 1), b = plan("b", 0);
-  const last = new Map([["a", JSON.stringify(a)], ["b", JSON.stringify(b)], ["gone", "{}"]]);
-  const a2 = { ...a, portions: a.portions.map((p, i) => (i === 1 ? { ...p, done: true } : p)) };
-  const c = Sync.changes(last, [a2, b]);
-  assert.deepStrictEqual(c.write.map((x) => x.id), ["a"]);
-  assert.deepStrictEqual(c.remove, ["gone"]);
+test("a new schedule from another phone is taken only if it keeps the days finished here", () => {
+  const here = plan("x", [0, 1]);
+  // another phone moved the days still to learn (days 0-1 done stay where they are)
+  const moved = { ...plan("x", [0, 1]), portions: plan("x", [0, 1]).portions.map((p, i) => (i > 1 ? { ...p, date: `2026-11-0${i}` } : p)) };
+  let r = Sync.reconcile({ local: [here], remote: [moved], base: { x: F(here) } });
+  assert.deepStrictEqual(r.conflicts, []);
+  assert.strictEqual(r.show[0].portions[2].date, "2026-11-02");
+  // a phone that had not seen day 1 finished moved the days: both copies are kept
+  const stale = { ...plan("x", [0]), portions: plan("x", [0]).portions.map((p, i) => (i > 0 ? { ...p, date: `2026-11-0${i}` } : p)) };
+  r = Sync.reconcile({ local: [here], remote: [stale], base: { x: F(here) } });
+  assert.strictEqual(r.conflicts.length, 1, "day 1 is not lost: the person is asked");
+});
+
+test("a backup is checked through before anything changes; every bad entry counts", () => {
+  const good = { format: "learning-calendar-backup", version: 2, plans: [plan("a", [0]), plan("b")], events: [{ id: "e1", type: "done" }] };
+  assert.strictEqual(Sync.checkBackup(good).ok, true);
+  assert.strictEqual(Sync.checkBackup({ ...good, version: 1, events: undefined }).ok, true, "an old backup (version 1) is fine");
+  const bad = (change, why) => {
+    const r = Sync.checkBackup(change(JSON.parse(JSON.stringify(good))));
+    assert.strictEqual(r.ok, false, why);
+    return r;
+  };
+  assert.strictEqual(bad((d) => { d.plans.push(null, false, 0, ""); return d; }, "empty entries").problems.length, 4, "each empty or false entry is a failure");
+  bad((d) => { d.version = 9; return d; }, "unknown version");
+  bad((d) => { d.plans[0].portions[1].date = "2026-02-30"; return d; }, "not a real date");
+  bad((d) => { d.plans[0].portions[1].date = "2026-13-01"; return d; }, "an impossible month");
+  bad((d) => { d.plans[0].portions[2].date = "2026-10-11"; return d; }, "dates out of order");
+  bad((d) => { d.plans[0].portions[2].from = "a9"; return d; }, "a gap");
+  bad((d) => { d.plans[0].portions.pop(); return d; }, "days do not cover the plan");
+  bad((d) => { d.plans[1].id = "a"; return d; }, "the same id twice");
+  bad((d) => { d.plans[0].id = "../x"; return d; }, "a bad id");
+  bad((d) => { d.plans[0].portions[0].done = "yes"; return d; }, "a wrong type");
+  bad((d) => { d.plans[0].seferId = 5; return d; }, "no sefer");
+  bad((d) => { d.events = [5]; return d; }, "broken history");
+  assert.strictEqual(Sync.checkBackup({ format: "x" }).ok, false);
 });
 
 console.log(`${passed} sync tests passed`);

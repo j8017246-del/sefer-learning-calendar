@@ -234,7 +234,7 @@ function serve() {
   ok("without an account the app works on the phone, and the privacy page says what is kept");
 
   // export as text (in Settings, under Export and import), then load it back over a cleared phone
-  await page.click("#settings details.inline-details > summary");
+  await page.click("#exportBox > summary");
   await page.click("#backup");
   const backup = await page.inputValue("#backupText");
   assert.strictEqual(JSON.parse(backup).plans.length, 1);
@@ -242,10 +242,13 @@ function serve() {
   await page.reload();
   await page.waitForSelector("#empty:not([hidden])");
   await page.click('.tabbar [data-go="settings"]');
-  await page.click("#settings details.inline-details > summary");
-  await page.click("#settings details.inline-details details.inline-details > summary");
+  await page.click("#exportBox > summary");
+  await page.click("#exportBox details.inline-details > summary");
   await page.fill("#pasteBackup", backup);
   await page.click("#loadPasted");
+  // first a preview of every plan in it
+  await page.waitForSelector("#ask[open] .preview-list");
+  await page.click("#askYes");
   await page.waitForSelector(".lesson");
   assert.match(await page.textContent(".lesson"), /Berachos/);
   ok("a backup copied as text loads back");
