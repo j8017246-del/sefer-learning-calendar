@@ -13,6 +13,29 @@
 
 <p id="saveWarn" class="save-warn" role="alert" hidden>Not saved on this phone. The phone's storage may be full or blocked; your latest changes will be lost when the app closes.</p>
 
+<p id="notSavedBar" class="save-warn soft" hidden>Not saved to an account yet. <button class="text-btn" id="notSavedSignIn">Sign in</button></p>
+
+<!-- ===== Sign in (required on the website) ===== -->
+<section id="gate" class="gate" hidden aria-labelledby="gateTitle">
+  <div class="gate-box">
+    <svg class="empty-art" viewBox="0 0 120 80" aria-hidden="true"><path d="M60 18c-12-8-30-9-46-6v54c16-3 34-2 46 6 12-8 30-9 46-6V12c-16-3-34-2-46 6Z"/><path d="M60 18v54"/></svg>
+    <h1 id="gateTitle">Learning Calendar</h1>
+    <p class="gate-sub">Sign in to start. Your plans and progress are saved to your account after every change, and are the same on every phone and computer.</p>
+    <button class="btn primary wide" id="googleSignIn" disabled>Continue with Google</button>
+    <form id="linkForm" class="link-form">
+      <label class="field" for="linkEmail">Or get a sign-in link by email</label>
+      <input type="email" id="linkEmail" autocomplete="email" placeholder="you@example.com" required>
+      <button class="btn wide" id="sendLink" disabled>Email me a sign-in link</button>
+    </form>
+    <p class="note" id="accountNote" role="status"></p>
+    <details class="gate-privacy">
+      <summary>What we keep</summary>
+      <p>Your email address and your learning plans, only to show them to you. Nothing is sold or shared. You can delete your account and everything in it from Settings.</p>
+    </details>
+    <button class="text-btn" id="gateClose" hidden>Not now</button>
+  </div>
+</section>
+
 <!-- ===== Today ===== -->
 <section id="today" class="view">
   <header class="topbar">
@@ -96,13 +119,8 @@
   <h3 class="group-title">Account</h3>
   <div class="panel form-rows" id="account">
     <div id="signedOut">
-      <p class="note">Sign in to keep your plans in your account: saved by itself after every change, and the same on every phone and computer. Without signing in, plans are kept on this phone only.</p>
-      <button class="btn primary wide" id="googleSignIn" disabled>Continue with Google</button>
-      <form id="linkForm" class="link-form">
-        <label class="field" for="linkEmail">Or get a sign-in link by email</label>
-        <div class="two"><input type="email" id="linkEmail" autocomplete="email" placeholder="you@example.com" required><button class="btn" id="sendLink" disabled>Email me a link</button></div>
-      </form>
-      <p class="note" id="accountNote"></p>
+      <p class="note" id="signedOutNote">Not signed in. Your plans are kept on this phone only until you sign in.</p>
+      <button class="btn primary wide" id="openGate">Sign in</button>
     </div>
     <div id="signedIn" hidden>
       <p class="account-who">Signed in as <b id="accountEmail"></b></p>

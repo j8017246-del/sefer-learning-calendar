@@ -57,7 +57,11 @@ function serve() {
 
   // phone 1: a plan made without an account
   const one = await phone();
-  await one.page.waitForSelector("#empty:not([hidden])");
+  // the website: nothing can be used before signing in
+  await one.page.waitForSelector("#gate:not([hidden])");
+  assert(await one.page.isHidden(".tabbar"), "the app is covered until signing in");
+  assert(await one.page.isHidden("#gateClose"), "the sign-in screen cannot be closed");
+  ok("the website asks to sign in before anything else");
   await one.page.evaluate(async () => {
     const P = window.SeferPieces, S = window.LearningSchedule;
     const ruth = await (await fetch("data/tanakh/ruth.json")).json();
@@ -70,6 +74,7 @@ function serve() {
   await one.page.waitForFunction(() => typeof window.__signInForTest === "function");
   await one.page.evaluate(() => window.__signInForTest("hudi@example.com"));
   await one.page.waitForFunction(() => !document.querySelector("#signedIn").hidden);
+  await one.page.waitForSelector("#gate", { state: "hidden" });
   await one.page.waitForFunction(async () => {
     const u = window.firebase.auth().currentUser;
     const s = await window.firebase.firestore().collection("users").doc(u.uid).collection("plans").get({ source: "server" });
@@ -91,7 +96,7 @@ function serve() {
 
   // phone 2: the same account shows the same plan, with the day done
   const two = await phone();
-  await two.page.waitForSelector("#empty:not([hidden])");
+  await two.page.waitForSelector("#gate:not([hidden])");
   await two.page.waitForFunction(() => typeof window.__signInForTest === "function");
   await two.page.evaluate(() => window.__signInForTest("hudi@example.com"));
   await two.page.waitForSelector(".lesson .done-mark", { timeout: 15000 });
@@ -106,17 +111,17 @@ function serve() {
   // signing out on phone 2 takes the plan off that phone
   await two.page.click('.tabbar [data-go="settings"]');
   await two.page.click("#signOut");
-  await two.page.waitForSelector("#signedOut:not([hidden])");
-  await two.page.click('.tabbar [data-go="today"]');
-  await two.page.waitForSelector("#empty:not([hidden])");
-  ok("signing out leaves the plans in the account, not on the phone");
+  await two.page.waitForSelector("#gate:not([hidden])");
+  await two.page.waitForFunction(() => !document.querySelector("#empty").hidden || !document.querySelector(".lesson"));
+  assert.strictEqual(await two.page.locator(".lesson").count(), 0);
+  ok("signing out leaves the plans in the account, not on the phone, and asks to sign in again");
 
   // deleting the account on phone 1 removes everything
   await one.page.click('.tabbar [data-go="settings"]');
   await one.page.click("#deleteAccount");
   await one.page.click("#askYes");
-  await one.page.waitForFunction(() => !document.querySelector("#signedOut").hidden, null, { timeout: 15000 });
-  await one.page.waitForSelector("#today:not([hidden]) #empty:not([hidden])");
+  await one.page.waitForSelector("#gate:not([hidden])", { timeout: 15000 });
+  assert.strictEqual(await one.page.locator(".lesson").count(), 0);
   assert.match(await one.page.textContent("#toast"), /deleted/);
   ok("deleting the account removes the account and its plans");
 

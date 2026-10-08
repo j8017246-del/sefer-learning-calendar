@@ -211,6 +211,10 @@ function serve() {
   // without signing in, the account says what it needs and the app keeps working
   await page.waitForFunction(() => /needs a connection/.test(document.querySelector("#accountNote").textContent));
   assert(await page.isDisabled("#googleSignIn"));
+  // signing in cannot work here (no connection), so the app is not locked, and says plans are not saved yet
+  assert(await page.isHidden("#gate"), "no sign-in screen when signing in cannot work");
+  assert(await page.isVisible("#notSavedBar"));
+  assert.match(await page.textContent("#signedOutNote"), /needs a connection/);
   await page.click('#settings [data-go="privacy"]');
   assert.match(await page.textContent("#privacy"), /email address and your learning plans/);
   assert.match(await page.textContent("#privacy"), /Nothing is sold/);

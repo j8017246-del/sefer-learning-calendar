@@ -92,7 +92,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 39 engine, 30 screen, 5 sync, 5 rules and 6 account tests, all passing.
+- **Tests**: 39 engine, 30 screen, 5 sync, 5 rules and 7 account tests, all passing.
 
 - **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
   fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
@@ -179,6 +179,17 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   calendar makes a calendar file with one event repeating on the learning
   days at the chosen time, with an alert and a link to the app. iPhone/iPad
   open it ("Add All"); other phones save it and open it with the calendar.
+
+- **Sign-in required** (Hudi, 10-08): on the website a sign-in screen covers
+  the app until the person signs in (and again after signing out). Only where
+  signing in cannot work (the Firebase library cannot load, as with no
+  connection the first time, or inside the claude.ai preview frame) the app
+  works without it, with a bar "Not saved to an account yet"; those plans
+  move into the account at the first sign-in.
+- **Calendar reminder fix** (Hudi, 10-08): the repeating event now ends on the
+  day the last sefer finishes (RRULE UNTIL), and keeps one id so adding it
+  again can replace the old one. Hudi has to delete the old never-ending
+  event by hand ("Delete all future events").
 
 ## Left out (told Hudi)
 

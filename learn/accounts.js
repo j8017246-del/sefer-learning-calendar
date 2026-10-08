@@ -4,7 +4,11 @@
  * Firestore after each change. Firestore keeps working offline and sends the
  * changes when the phone is back online.
  *
- * Without signing in, the app works as before and keeps plans on this phone.
+ * Signing in is required on the website: a sign-in screen covers the app until
+ * then. Only where signing in cannot work (no connection the first time, or
+ * inside the claude.ai preview) the app works without it, keeps plans on this
+ * phone, and says so in a bar at the top; they move into the account on the
+ * first sign-in.
  * The Firebase web library (Apache-2.0) is loaded only after the app has
  * opened, so Today never waits for it.
  *
@@ -42,6 +46,30 @@
 
   function note(text) { $("accountNote").textContent = text || ""; }
 
+  // Inside another page's frame (the claude.ai preview), where signing in cannot work.
+  const framed = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+  let canSignIn = false;     // the sign-in library loaded, and this is not the preview
+
+  // The sign-in screen: required when signing in can work; otherwise opened by
+  // choice, and the bar says plans are not saved to an account yet.
+  function gate(show, required = canSignIn) {
+    $("gate").hidden = !show;
+    $("gateClose").hidden = required;
+    document.body.classList.toggle("gated", show);
+    $("notSavedBar").hidden = !!user || show || canSignIn;
+  }
+  on("openGate", "click", () => gate(true, false));
+  on("notSavedSignIn", "click", () => gate(true, false));
+  on("gateClose", "click", () => gate(false, false));
+  function unavailable(why) {
+    canSignIn = false;
+    note(why);
+    $("googleSignIn").disabled = $("sendLink").disabled = true;
+    $("signedOutNote").textContent = `Not signed in. ${why}`;
+    gate(false, false);
+    $("notSavedBar").hidden = false;
+  }
+
   function loadScript(src) {
     return new Promise((ok, fail) => {
       const s = document.createElement("script");
@@ -53,13 +81,13 @@
   }
 
   async function start() {
+    if (framed) return unavailable("Signing in works on the website, sefer-calendar.web.app, not in this preview. Plans here are kept on this phone only.");
     try {
       for (const f of ["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-firestore-compat.js"]) await loadScript(SDK + f);
     } catch (e) {
-      note("Signing in needs a connection. Your plans are kept on this phone meanwhile.");
-      $("googleSignIn").disabled = $("sendLink").disabled = true;
-      return;
+      return unavailable("Signing in needs a connection. Your plans are kept on this phone meanwhile, and move into your account when you sign in.");
     }
+    canSignIn = true;
     const fb = window.firebase;
     fb.initializeApp(CONFIG);
     $("googleSignIn").disabled = $("sendLink").disabled = false;
@@ -113,7 +141,7 @@
     if (!auth.isSignInWithEmailLink(location.href)) return;
     const email = get(LINK_EMAIL) || $("linkEmail").value.trim();
     if (!email) {
-      Store.show("settings");
+      gate(true);
       note("To finish signing in, type the email address the link was sent to, then tap the link in the email again.");
       return;
     }
@@ -122,7 +150,7 @@
       put(LINK_EMAIL, null);
       history.replaceState(history.state, "", location.pathname);
     } catch (err) {
-      Store.show("settings");
+      gate(true);
       note(message(err));
     }
   }
@@ -145,6 +173,7 @@
     user = u;
     $("signedOut").hidden = !!u;
     $("signedIn").hidden = !u;
+    gate(!u);
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
     synced = false;
     last = new Map();
@@ -158,7 +187,7 @@
       put(OWNER, null);
       put(UNSYNCED, null);
       Store.clearPhone();
-      Store.replace([], { quiet: true });
+      Store.replace([], { quiet: true }).then(() => Store.show("today"));
     }
   }
 

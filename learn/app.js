@@ -194,8 +194,8 @@
       unloaded = failed;
       if (quiet) { try { localStorage.setItem(STORE, JSON.stringify({ version: 1, plans: allRecords() })); } catch (e) { /* shown on next save */ } }
       else save();
-      if (!$("today").hidden) renderToday();
-      else if (!$("library").hidden) renderLibrary();
+      renderToday();
+      if (!$("library").hidden) renderLibrary();
       else if (!$("plan").hidden && !findPlan(current)) show("library");
     },
     clearPhone() {

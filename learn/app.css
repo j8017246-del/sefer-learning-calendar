@@ -441,3 +441,17 @@ dialog.sheet .muted { text-align: center; margin: 0 0 6px; }
 .btn.small-btn { min-height: 44px; padding: 0 16px; border-radius: 99px; background: var(--surface); font-size: .9rem; }
 .part-btn { align-self: flex-start; padding-left: 0; }
 #settings > .panel.list-rows { margin-top: 16px; }
+
+/* sign-in screen, over everything until signed in */
+.gate { position: fixed; inset: 0; z-index: 20; overflow-y: auto; background: var(--bg);
+  display: flex; align-items: center; justify-content: center; padding: 24px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.gate-box { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+.gate-box .empty-art { align-self: center; }
+.gate-sub { color: var(--muted); margin: 0 0 6px; }
+.gate .link-form { text-align: start; margin-top: 6px; }
+.gate-privacy { text-align: start; color: var(--muted); font-size: .9rem; }
+.gate-privacy summary { cursor: pointer; }
+body.gated { overflow: hidden; }
+body.gated .tabbar { display: none; }
+.save-warn.soft { background: var(--raised); color: var(--ink); font-weight: 500; }
+.save-warn .text-btn { padding: 0 4px; font-weight: 600; }
