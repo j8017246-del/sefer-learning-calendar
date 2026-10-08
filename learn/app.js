@@ -139,7 +139,7 @@
   // A data file: packed into the page (window.LEARN_DATA, gzip + base64, used
   // where the page cannot fetch other files) or fetched next to the page.
   async function getJson(path) {
-    const packed = window.LEARN_DATA && window.LEARN_DATA[path];
+    const packed = window.LEARN_DATA && window.LEARN_DATA[path.split("?")[0]];
     if (packed) {
       const bytes = Uint8Array.from(atob(packed), (c) => c.charCodeAt(0));
       const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
@@ -152,7 +152,10 @@
   // `cache` holds the data files in use; a check of a backup uses a cache of its own, so
   // nothing it reads can change the plans already on the phone.
   async function loadSefer(id, cache = seforim) {
-    if (!cache.has(id)) cache.set(id, await getJson(`data/${id}.json`));
+    // the version named in the catalog: a newer data file has a new address, so the
+    // offline helper never serves an old copy once the data is rebuilt
+    const v = catalog && (catalog.seforim.find((e) => e.id === id) || {}).v;
+    if (!cache.has(id)) cache.set(id, await getJson(`data/${id}.json${v ? `?v=${v}` : ""}`));
     return cache.get(id);
   }
   // One sefer, or several joined into one (for example all of Rambam).
@@ -273,6 +276,16 @@
     deletedList,
     putDeleted,
     setHistoryProvider(fn) { historyProvider = fn; },
+    // not yet saved to the account: a bar with Retry and Save a backup (null hides it)
+    syncWarn(text, reload = false) {
+      $("syncWarn").hidden = !text;
+      if (text) $("syncWarnText").textContent = text;
+      syncReload = reload;
+      $("syncRetry").textContent = tr(reload ? "sync.reload" : "sync.retry");
+    },
+    onRetry(fn) { retryFn = fn; },
+    choose: (html, options) => choose(html, options),
+    saveBackupNow: () => saveBackupNow(),
     clearPhone() {
       replaceGen++;
       for (const k of [STORE, TODAY_STORE, EVENTS, DELETED]) { try { localStorage.removeItem(k); } catch (e) { /* nothing kept */ } }
@@ -300,6 +313,28 @@
   };
   let shareMaker = null;
   let replaceGen = 0;
+  let retryFn = null;
+  // A question with several answers (values), inside the page; "" when cancelled.
+  function choose(html, options) {
+    return new Promise((resolve) => {
+      const dlg = $("choose");
+      $("chooseText").innerHTML = html;
+      $("chooseButtons").innerHTML = options.map((o, i) => `<button value="${esc(o.value)}" class="btn ${i === 0 ? "primary" : o.danger ? "danger-soft" : ""}">${esc(o.label)}</button>`).join("");
+      dlg.returnValue = "";
+      dlg.onclose = () => resolve(dlg.returnValue);
+      dlg.showModal();
+    });
+  }
+  // Go to the backup and make one.
+  async function saveBackupNow() {
+    show("settings");
+    $("exportBox").open = true;
+    $("backup").click();
+    $("exportBox").scrollIntoView({ block: "start" });
+  }
+  let syncReload = false;
+  on("syncRetry", "click", () => { if (syncReload) location.reload(); else if (retryFn) retryFn(); });
+  on("syncBackup", "click", () => saveBackupNow());
   const shareInfo = new Map();
   // Reads saved plans. Those whose sefer cannot be loaded are returned
   // untouched in `failed`, so they are never lost.
@@ -1846,6 +1881,8 @@
       dlg.showModal();
     });
   }
+  // a real button (reachable with the keyboard) opens the file chooser
+  on("restoreBtn", "click", () => $("restore").click());
   on("restore", "change", async (e) => {
     const file = e.target.files[0];
     e.target.value = "";

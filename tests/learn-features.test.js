@@ -19,10 +19,13 @@ const ROOT = path.join(__dirname, "..", "learn");
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json",
   ".svg": "image/svg+xml", ".png": "image/png", ".webmanifest": "application/manifest+json" };
 
+const overrides = {};   // path -> content, to stand in for a rebuilt data file
 function serve() {
   return new Promise((resolve) => {
     const server = http.createServer((req, res) => {
-      const file = path.join(ROOT, decodeURIComponent(req.url.split("?")[0]).replace(/\/$/, "/index.html"));
+      const want = decodeURIComponent(req.url.split("?")[0]);
+      if (overrides[want]) { res.writeHead(200, { "Content-Type": "application/json" }); return res.end(overrides[want]); }
+      const file = path.join(ROOT, want.replace(/\/$/, "/index.html"));
       if (!file.startsWith(ROOT) || !fs.existsSync(file)) { res.writeHead(404); return res.end(); }
       res.writeHead(200, { "Content-Type": TYPES[path.extname(file)] || "application/octet-stream" });
       fs.createReadStream(file).pipe(res);
@@ -466,6 +469,63 @@ function serve() {
     assert(!(await stored(page)).some((p) => p.id === "from-backup"), "back to how it was");
     await context.close();
     ok("a backup holds every plan and the day history; a damaged one changes nothing; a good one shows a preview, keeps a copy and loses nothing");
+  }
+
+
+  // ---- 11. the offline helper never keeps old data once a sefer's data is rebuilt ----
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    await context.route(/fonts\.(googleapis|gstatic)\.com|cdn\.jsdelivr\.net\/npm\/firebase/, (r) => r.abort());
+    const page = await context.newPage();
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto(url);
+    await page.waitForSelector("#empty:not([hidden])");
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.reload();
+    await page.waitForSelector("#empty:not([hidden])");
+    const ruthV = await page.evaluate(async () => (await (await fetch("data/catalog.json")).json()).seforim.find((e) => e.id === "tanakh/ruth").v);
+    assert(ruthV, "the catalog names each data file's version");
+    await page.evaluate(async (v) => { await fetch(`data/tanakh/ruth.json?v=${v}`); }, ruthV);
+    const cached = () => page.evaluate(async () => {
+      const out = [];
+      for (const k of await caches.keys()) for (const r of await (await caches.open(k)).keys()) if (/ruth\.json/.test(r.url)) out.push(new URL(r.url).search);
+      return out;
+    });
+    assert.deepStrictEqual(await cached(), [`?v=${ruthV}`]);
+    // the data is rebuilt: a new version in the catalog, and a new file
+    const catalog = JSON.parse(fs.readFileSync(path.join(ROOT, "data/catalog.json"), "utf8"));
+    catalog.seforim.find((e) => e.id === "tanakh/ruth").v = "rebuilt1";
+    const ruth = JSON.parse(fs.readFileSync(path.join(ROOT, "data/tanakh/ruth.json"), "utf8"));
+    ruth.dataVersion = "rebuilt1";
+    overrides["/data/catalog.json"] = JSON.stringify(catalog);
+    overrides["/data/tanakh/ruth.json"] = JSON.stringify(ruth);
+    await page.reload();
+    await page.waitForSelector("#empty:not([hidden])");
+    const got = await page.evaluate(async () => {
+      const c = await (await fetch("data/catalog.json")).json();
+      const v = c.seforim.find((e) => e.id === "tanakh/ruth").v;
+      return [v, (await (await fetch(`data/tanakh/ruth.json?v=${v}`)).json()).dataVersion];
+    });
+    assert.deepStrictEqual(got, ["rebuilt1", "rebuilt1"], "the new list and the new data file are used");
+    assert.deepStrictEqual(await cached(), ["?v=rebuilt1"], "the old copy is gone from the phone");
+    delete overrides["/data/catalog.json"]; delete overrides["/data/tanakh/ruth.json"];
+    await context.close();
+    ok("when a sefer's data is rebuilt, the phone takes the new file and drops the old one");
+  }
+
+
+  // ---- 12. loading a backup file works from the keyboard ----
+  {
+    const { context, page } = await phone("2026-10-11");
+    await page.click('.tabbar [data-go="settings"]');
+    await page.click("#exportBox > summary");
+    await page.focus("#backup");
+    await page.keyboard.press("Tab");
+    assert.strictEqual(await page.evaluate(() => document.activeElement.id), "restoreBtn", "Tab reaches Import a file");
+    const [chooser] = await Promise.all([page.waitForEvent("filechooser"), page.keyboard.press("Enter")]);
+    assert(chooser, "Enter opens the file chooser");
+    await context.close();
+    ok("Import a file can be reached and opened with the keyboard");
   }
 
   assert.deepStrictEqual(errors, []);

@@ -293,7 +293,7 @@ function serve() {
     localStorage.setItem("learning-calendar-v1", JSON.stringify(store));
   });
   // one sefer's file cannot be downloaded
-  await page.route(/data\/mishnah\/peah\.json$/, (r) => r.fulfill({ status: 503, body: "" }));
+  await page.route(/data\/mishnah\/peah\.json(\?|$)/, (r) => r.fulfill({ status: 503, body: "" }));
   await page.reload();
   await page.waitForSelector(".lesson");
   await page.waitForSelector(".load-failed");
@@ -305,7 +305,7 @@ function serve() {
   const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("learning-calendar-v1")).plans);
   assert.strictEqual(kept.length, 2, "the plan that could not load is still saved");
   assert(kept.some((x) => (x.seferIds || []).includes("mishnah/peah")));
-  await page.unroute(/data\/mishnah\/peah\.json$/);
+  await page.unroute(/data\/mishnah\/peah\.json(\?|$)/);
   await page.click(".load-failed [data-retry]");
   await page.waitForFunction(() => document.querySelectorAll(".lesson").length === 2 && !document.querySelector(".load-failed"));
   ok("a sefer that fails to download keeps its plan, with Retry");
@@ -392,12 +392,12 @@ function serve() {
   ok("Back goes to the screen before, and each catch-up choice shows its finish date");
 
   // 15: Today shows at once from the phone, and the app opens without a connection
-  await page.route(/\/data\/.*\.json$/, async (r) => { await new Promise((ok) => setTimeout(ok, 4000)); r.continue().catch(() => {}); });
+  await page.route(/\/data\/.*\.json(\?|$)/, async (r) => { await new Promise((ok) => setTimeout(ok, 4000)); r.continue().catch(() => {}); });
   const t0 = Date.now();
   await page.reload();
   await page.waitForSelector(".lesson");
   assert(Date.now() - t0 < 2500, `Today took ${Date.now() - t0} ms with slow data`);
-  await page.unroute(/\/data\/.*\.json$/);
+  await page.unroute(/\/data\/.*\.json(\?|$)/);
   await page.waitForFunction(() => !document.querySelector(".lesson.from-cache"), null, { timeout: 15000 });
   // offline, in a browser of its own with the same plans on the phone
   const offline = await browser.newContext({ viewport: { width: 390, height: 844 }, storageState: await context.storageState() });

@@ -2,9 +2,13 @@ rules_version = '2';
 // Each person may read and write only their own data:
 //   users/{uid}               - email, optional display name, sharing switch (off unless turned on),
 //                               daily reminder time and time zone
-//   users/{uid}/plans/{plan}  - one learning plan: as text ("data") and in plain fields ("plan")
+//   users/{uid}/plans/{plan}  - one learning plan: as text ("data", packed) and in plain fields ("plan")
 //   users/{uid}/days/{day}    - one record per day done, missed or moved, or learning entered by hand
-//                               for before the app; never changed once written
+//                               for before the app; never changed once written (sending the very
+//                               same record again is accepted, so a retry never blocks)
+//   deleted/{uid}             - only while (and after) an account is deleted: from then on nothing
+//                               is written to that account from any phone
+//   shares/{id}               - a plan shared with a chavrusa (see below)
 service cloud.firestore {
   match /databases/{database}/documents {
     function isOwner(uid) {
@@ -13,31 +17,74 @@ service cloud.firestore {
     function okId(id) {
       return id.matches("^[A-Za-z0-9_-]{1,64}$");
     }
+    function notDeleted(uid) {
+      return !exists(/databases/$(database)/documents/deleted/$(uid));
+    }
+    function canWrite(uid) {
+      return isOwner(uid) && notDeleted(uid);
+    }
+    function optString(d, k, max) {
+      return !(k in d) || (d[k] is string && d[k].size() <= max);
+    }
+    function optStringOrNull(d, k, max) {
+      return !(k in d) || d[k] == null || (d[k] is string && d[k].size() <= max);
+    }
+    function optDate(d, k) {
+      return !(k in d) || d[k] == null || (d[k] is string && d[k].matches("^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"));
+    }
+    function validDay(d) {
+      return d.keys().hasOnly(["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate",
+                               "byHand", "node", "year", "note", "minutes"])
+        && d.type is string && d.type.matches("^(started|done|undone|partial|missed|moved|plan-changed|stopped|learned-before|time)$")
+        && optStringOrNull(d, "planId", 64)
+        && (!("seferIds" in d) || (d.seferIds is list && d.seferIds.size() <= 100))
+        && optDate(d, "date") && optDate(d, "doneOn") && optDate(d, "toDate") && optDate(d, "finishDate")
+        && optStringOrNull(d, "at", 40)
+        && optStringOrNull(d, "from", 300) && optStringOrNull(d, "until", 300) && optStringOrNull(d, "stoppedAt", 300)
+        && optStringOrNull(d, "choice", 20) && optStringOrNull(d, "node", 200) && optStringOrNull(d, "note", 200)
+        && (!("byHand" in d) || d.byHand is bool)
+        && (!("year" in d) || d.year == null || (d.year is int && d.year >= 1900 && d.year <= 2200))
+        && (!("minutes" in d) || (d.minutes is int && d.minutes >= 1 && d.minutes <= 600));
+    }
     match /users/{uid} {
       allow read, delete: if isOwner(uid);
-      allow create, update: if isOwner(uid)
+      allow create, update: if canWrite(uid)
         && request.resource.data.keys().hasOnly(["email", "updatedAt", "displayName", "shareLearning", "reminderTime", "timeZone"])
-        && (!("displayName" in request.resource.data) || (request.resource.data.displayName is string && request.resource.data.displayName.size() <= 60))
+        && optString(request.resource.data, "email", 254)
+        && (!("updatedAt" in request.resource.data) || request.resource.data.updatedAt is number)
+        && optString(request.resource.data, "displayName", 60)
         && (!("shareLearning" in request.resource.data) || request.resource.data.shareLearning is bool)
-        && (!("reminderTime" in request.resource.data) || (request.resource.data.reminderTime is string && request.resource.data.reminderTime.matches("^[0-2][0-9]:[0-5][0-9]$")))
-        && (!("timeZone" in request.resource.data) || (request.resource.data.timeZone is string && request.resource.data.timeZone.size() <= 64));
+        && (!("reminderTime" in request.resource.data) || (request.resource.data.reminderTime is string && request.resource.data.reminderTime.matches("^([01][0-9]|2[0-3]):[0-5][0-9]$")))
+        && optString(request.resource.data, "timeZone", 64);
+      // Only this version of the app (v 2 and later) can write a plan: an older version still
+      // open on some phone is refused, so it can neither overwrite nor delete. A plan the
+      // person stops is marked stopped (written, not deleted); plans are deleted only while
+      // the whole account is being deleted.
       match /plans/{planId} {
-        allow read, delete: if isOwner(uid);
-        allow create, update: if isOwner(uid) && okId(planId)
-          && request.resource.data.keys().hasOnly(["data", "plan", "updatedAt"])
+        allow read: if isOwner(uid);
+        allow delete: if isOwner(uid) && !notDeleted(uid);
+        allow create, update: if canWrite(uid) && okId(planId)
+          && request.resource.data.keys().hasOnly(["data", "plan", "updatedAt", "v", "stopped"])
+          && request.resource.data.v is int && request.resource.data.v >= 2
           && request.resource.data.data is string
           && request.resource.data.data.size() < 900000
+          && (!("stopped" in request.resource.data) || request.resource.data.stopped is bool)
+          && (!("updatedAt" in request.resource.data) || request.resource.data.updatedAt is number)
           && (!("plan" in request.resource.data) || request.resource.data.plan is map);
       }
       match /days/{dayId} {
         allow read, delete: if isOwner(uid);
-        allow create: if isOwner(uid) && okId(dayId)
-          && request.resource.data.keys().hasOnly(["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate",
-                                                    "byHand", "node", "year", "note", "minutes"])
-          && request.resource.data.type is string;
-        // a day's record is kept as it was written
-        allow update: if false;
+        allow create: if canWrite(uid) && okId(dayId) && validDay(request.resource.data);
+        // a day's record is kept as it was written; the same record sent again changes nothing
+        allow update: if canWrite(uid) && request.resource.data == resource.data;
       }
+    }
+    match /deleted/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && request.resource.data.keys().hasOnly(["at"]) && request.resource.data.at is number;
+      // taken away only if the deletion stopped halfway (the account is then used again)
+      allow delete: if isOwner(uid);
+      allow update: if false;
     }
     // A plan shared with a chavrusa (only when its owner shares it): anyone signed in
     // with the link (an id no one can guess) can open it; nobody can list them.
@@ -45,14 +92,15 @@ service cloud.firestore {
     match /shares/{shareId} {
       allow get: if request.auth != null;
       allow list: if false;
-      allow create: if request.auth != null && okId(shareId)
+      allow create: if request.auth != null && okId(shareId) && notDeleted(request.auth.uid)
         && request.resource.data.keys().hasOnly(["owner", "ownerName", "plan", "createdAt", "members", "progress"])
         && request.resource.data.owner == request.auth.uid
         && request.resource.data.members == [request.auth.uid]
         && request.resource.data.plan is string && request.resource.data.plan.size() < 900000
         && request.resource.data.ownerName is string && request.resource.data.ownerName.size() <= 60
+        && request.resource.data.createdAt is number
         && request.resource.data.progress is map && request.resource.data.progress.keys().hasOnly([request.auth.uid]);
-      allow update: if request.auth != null
+      allow update: if request.auth != null && notDeleted(request.auth.uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["members", "progress"])
         && request.resource.data.members.hasAll(resource.data.members)
         && request.resource.data.members.size() <= resource.data.members.size() + 1

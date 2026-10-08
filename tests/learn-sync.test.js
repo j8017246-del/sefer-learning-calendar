@@ -155,4 +155,23 @@ test("a backup is checked through before anything changes; every bad entry count
   assert.strictEqual(Sync.checkBackup({ format: "x" }).ok, false);
 });
 
+test("a plan is packed for the account and read back exactly; a ten-year Rambam plan fits", () => {
+  const P = require("../learn/engine/sefer.js"), S = require("../learn/engine/schedule.js");
+  const fs = require("fs"), path = require("path");
+  const DATA = path.join(__dirname, "..", "learn", "data");
+  const catalog = JSON.parse(fs.readFileSync(path.join(DATA, "catalog.json"), "utf8"));
+  const ids = catalog.seforim.filter((e) => e.collection === "rambam").map((e) => e.id);
+  const sefer = P.combine(ids.map((id) => JSON.parse(fs.readFileSync(path.join(DATA, id + ".json"), "utf8"))), { id: "r", en: "Rambam", he: "רמב״ם" });
+  let p = S.buildPlan({ seferIds: ids, from: 0, to: P.stopCount(sefer) - 1, commentaries: [], startDate: "2026-10-11", endDate: "2036-10-30",
+    learningDays: [0, 1, 2, 3, 4, 5], lighterDays: [], daysOff: [] }, sefer);
+  p = S.markDone(p, p.portions[0].date);
+  const r = { id: "rambam10", ...S.toSaved(p, sefer) };
+  const full = JSON.stringify(r);
+  assert(full.length > Sync.ACCOUNT_LIMIT, `written out in full it is ${full.length} characters, over the limit`);
+  const text = Sync.accountText(r);
+  assert(text && text.length < Sync.ACCOUNT_LIMIT / 2, `packed: ${text && text.length}`);
+  assert.strictEqual(JSON.stringify(Sync.unpack(JSON.parse(text))), full, "read back exactly, in the same order");
+  assert.strictEqual(Sync.unpack(r), r, "an unpacked record stays as it is");
+});
+
 console.log(`${passed} sync tests passed`);

@@ -36,6 +36,7 @@
   const OWNER = "learning-calendar-owner";        // the account this phone's plans belong to
   const UNSYNCED = "learning-calendar-unsynced";  // changes made on this phone not yet in the account
   const LINK_EMAIL = "learning-calendar-link-email";
+  const APP_V = 2;            // the account's rules refuse plans written by older versions of the app
   const BASE = "learning-calendar-synced";        // { owner, base: { id: fingerprint } }: what the account last had
   const HELD = "learning-calendar-held-";         // + uid: an account's unsent learning, kept aside while another account is open
   const Store = window.LearnStore, Sync = window.LearnSync;
@@ -52,7 +53,9 @@
   let last = new Map();      // id -> JSON of each plan as the account has it
   let synced = false;        // the account's plans have been read this session
   let session = 0;
-  let lastKey = null;        // what the last snapshot held, to skip repeats           // which sign-in a load or write belongs to; results of an earlier one are dropped
+  let lastKey = null;        // what the last snapshot held, to skip repeats
+  let deleting = false;      // the account is being deleted: nothing more is written
+  let deletedUid = null;     // the account deleted on this phone           // which sign-in a load or write belongs to; results of an earlier one are dropped
 
   function note(text) { $("accountNote").textContent = text || ""; }
 
@@ -132,35 +135,61 @@
     }
   });
 
+  // A sign-in link opened on a phone that did not ask for it (no email kept here): typing
+  // the email finishes signing in with that link; "Send another link" is its own button.
+  let openedLink = null;
+  function linkMode(link) {
+    openedLink = link;
+    $("sendLink").textContent = tr(link ? "gate.finishLink" : "gate.emailMeASign");
+    $("sendAnother").hidden = !link;
+  }
+  async function sendLink(email) {
+    try {
+      await auth.sendSignInLinkToEmail(email, { url: location.origin + location.pathname, handleCodeInApp: true });
+      put(LINK_EMAIL, email);
+      linkMode(null);
+      note(tr("account.linkSent", { email }));
+    } catch (err) {
+      note(message(err));
+    }
+  }
   on("linkForm", "submit", async (e) => {
     e.preventDefault();
     if (!auth) return;
     const email = $("linkEmail").value.trim();
     if (!email) return;
-    try {
-      await auth.sendSignInLinkToEmail(email, { url: location.origin + location.pathname, handleCodeInApp: true });
-      put(LINK_EMAIL, email);
-      note(tr("account.linkSent", { email }));
-    } catch (err) {
-      note(message(err));
-    }
+    if (openedLink) return finishLink(email, openedLink);
+    sendLink(email);
+  });
+  on("sendAnother", "click", () => {
+    const email = $("linkEmail").value.trim();
+    if (!email) return note(tr("gate.typeEmailFirst"));
+    sendLink(email);
   });
 
   // Opened from the emailed link: finish signing in.
   async function finishEmailLink() {
     if (!auth.isSignInWithEmailLink(location.href)) return;
-    const email = get(LINK_EMAIL) || $("linkEmail").value.trim();
+    const link = location.href;
+    history.replaceState(history.state, "", location.pathname);
+    const email = get(LINK_EMAIL);
     if (!email) {
       gate(true);
+      linkMode(link);
       note(tr("account.typeEmail"));
       return;
     }
+    finishLink(email, link);
+  }
+  async function finishLink(email, link) {
     try {
-      await auth.signInWithEmailLink(email, location.href);
+      await auth.signInWithEmailLink(email, link);
       put(LINK_EMAIL, null);
-      history.replaceState(history.state, "", location.pathname);
+      linkMode(null);
     } catch (err) {
       gate(true);
+      // an old or used link cannot be finished: say so, and offer a new one
+      if (/expired|invalid-action-code/.test(err.code || "")) linkMode(null);
       note(message(err));
     }
   }
@@ -188,7 +217,8 @@
     last = new Map();
     // the phone holds another account's learning (or the account signed out): keep what
     // was not yet sent aside for that account, and take everything of it off the screen
-    const leaving = before && (!u || before !== u.uid) ? holdAside(before) : Promise.resolve();
+    // (an account just deleted keeps nothing aside)
+    const leaving = before && (!u || before !== u.uid) ? holdAside(before, before === deletedUid) : Promise.resolve();
     if (u) {
       $("accountEmail").textContent = u.email || tr("account.yours");
       note("");
@@ -207,11 +237,11 @@
 
   // An account's learning not yet in the account (plans changed since, day records,
   // deletions) is kept on this phone under that account, and the phone is cleared.
-  async function holdAside(owner) {
-    const base = baseOf(owner);
-    const plans = Store.records().filter((r) => base[r.id] !== Sync.fingerprint(r));
-    const events = Store.pendingEvents().filter((e) => !e.owner || e.owner === owner);
-    const deleted = Store.deletedList().filter((d) => !d.owner || d.owner === owner);
+  async function holdAside(owner, nothing = false) {
+    const base = nothing ? null : baseOf(owner);
+    const plans = nothing ? [] : Store.records().filter((r) => base[r.id] !== Sync.fingerprint(r));
+    const events = nothing ? [] : Store.pendingEvents().filter((e) => !e.owner || e.owner === owner);
+    const deleted = nothing ? [] : Store.deletedList().filter((d) => !d.owner || d.owner === owner);
     if (plans.length || events.length || deleted.some((d) => !d.sent)) {
       put(HELD + owner, JSON.stringify({ at: Date.now(), plans, events, deleted, base }));
     }
@@ -250,8 +280,8 @@
     const key = Sync.fingerprint(snap.docs.map((d) => [d.id, d.data().data]));
     if (synced && key === lastKey) return;
     lastKey = key;
-    const remote = snap.docs.map((d) => {
-      try { return JSON.parse(d.data().data); } catch (e) { return null; }
+    const remote = snap.docs.filter((d) => !d.data().stopped).map((d) => {   // a stopped plan is as if deleted
+      try { return Sync.unpack(JSON.parse(d.data().data)); } catch (e) { return null; }
     }).filter((r) => r && r.id);
     last = new Map(remote.map((r) => [r.id, JSON.stringify(r)]));
     if (!synced) {
@@ -298,30 +328,69 @@
   // Every save on this phone: send what changed, and the deletions the person made.
   // A plan missing here is never deleted from the account because of that.
   Store.onSave((records) => {
-    if (!user || get(OWNER) !== user.uid) return;
+    if (!user || get(OWNER) !== user.uid || deleting) return;
     put(UNSYNCED, "1");
     if (!synced) return;                                  // sent once the account is read
     write(Sync.changes(last, records), Store.deletions(), session);
     shared(records);
   });
 
-  // The account confirms each write before the phone counts it as sent.
+  // The account confirms each write before the phone counts it as sent; until then the
+  // change stays marked unsent here, with a bar offering Retry and Save a backup.
+  // Each plan is sent packed (engine/sync.js); one too big even packed is not sent, and said.
   function write(records, removeIds, my) {
-    if (!records.length && !removeIds.length) { if (!Store.deletions().length) put(UNSYNCED, null); return; }
+    if (deleting) return Promise.resolve(false);
+    const tooBig = [];
+    const texts = records.map((r) => {
+      const t = Sync.accountText(r);
+      if (!t) tooBig.push(r);
+      return t;
+    });
+    const send = records.filter((r, i) => texts[i]);
+    if (tooBig.length) Store.syncWarn(tr("sync.tooBig", { n: tooBig.length }));
+    if (!send.length && !removeIds.length) {
+      if (!tooBig.length && !Store.deletions().length) { put(UNSYNCED, null); Store.syncWarn(null); }
+      return Promise.resolve(!tooBig.length);
+    }
     const ref = db.collection("users").doc(user.uid).collection("plans");
     const batch = db.batch(), now = Date.now();
-    for (const r of records) batch.set(ref.doc(r.id), { data: JSON.stringify(r), plan: plainPlan(r), updatedAt: now });
-    for (const id of removeIds) batch.delete(ref.doc(id));
-    batch.commit().then(() => {
-      if (my !== session) return;
+    records.forEach((r, i) => { if (texts[i]) batch.set(ref.doc(r.id), { data: texts[i], plan: plainPlan(r), updatedAt: now, v: APP_V }); });
+    // stopping a plan writes "stopped" (the account never deletes a plan except with the account)
+    for (const id of removeIds) batch.set(ref.doc(id), { data: "", stopped: true, updatedAt: now, v: APP_V });
+    return batch.commit().then(() => {
+      if (my !== session) return false;
       const base = baseOf(user.uid);
-      for (const r of records) base[r.id] = Sync.fingerprint(r);
+      for (const r of send) base[r.id] = Sync.fingerprint(r);
       for (const id of removeIds) { delete base[id]; Store.deletionSent(id); }
       setBase(base);
-      if (!Store.deletions().length) put(UNSYNCED, null);
-    }).catch(() => {
-      if (my === session) $("syncState").textContent = tr("account.saveFailed");
+      if (!tooBig.length) {
+        if (!Store.deletions().length) put(UNSYNCED, null);
+        Store.syncWarn(null);
+      }
+      return !tooBig.length;
+    }).catch((e) => {
+      if (my === session) {
+        $("syncState").textContent = tr("account.saveFailed");
+        // refused by the account's rules: most often an older version of the app; reloading updates it
+        const refused = e && e.code === "permission-denied";
+        Store.syncWarn(tr(refused ? "sync.updateApp" : "sync.notSaved"), refused);
+      }
+      return false;
     });
+  }
+  // Everything not yet in the account, sent now (Retry, and before signing out).
+  function sendAllNow() {
+    if (!user || !synced) return Promise.resolve(false);
+    sendDays(Store.pendingEvents());
+    return write(Sync.changes(last, Store.records()), Store.deletions(), session);
+  }
+  Store.onRetry(() => sendAllNow());
+  // What this account has on this phone that the account does not have yet.
+  function unsent() {
+    const base = user ? baseOf(user.uid) : {};
+    const plans = Store.records().filter((r) => base[r.id] !== Sync.fingerprint(r)).length;
+    const days = Store.pendingEvents().filter((e) => !e.owner || (user && e.owner === user.uid)).length;
+    return { plans, days, deletions: Store.deletions().length, any: plans + days + Store.deletions().length > 0 };
   }
 
   // A plan in plain fields, the same shape for everyone.
@@ -352,7 +421,7 @@
   const DAY_FIELDS = ["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate",
     "byHand", "node", "year", "note", "minutes"];
   function sendDays(records) {
-    if (!user || get(OWNER) !== user.uid || !synced) return;
+    if (!user || get(OWNER) !== user.uid || !synced || deleting) return;
     records = records.filter((r) => !r.owner || r.owner === user.uid);   // never another account's
     if (!records.length) return;
     const my = session, days = daysRef();
@@ -432,7 +501,7 @@
     if (!user || !synced) throw new Error(tr("share.signInFirst"));
     if (record.share) return { id: record.share.id, link: `${location.origin}${location.pathname}#join=${record.share.id}` };
     const id = Array.from(crypto.getRandomValues(new Uint8Array(15)), (b) => "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 56]).join("");
-    await sharesRef().doc(id).set({ owner: user.uid, ownerName: nameOf(), plan: JSON.stringify(scheduleOnly(record)), createdAt: Date.now(),
+    await sharesRef().doc(id).set({ owner: user.uid, ownerName: nameOf(), plan: JSON.stringify(Sync.pack(scheduleOnly(record))), createdAt: Date.now(),
       members: [user.uid], progress: { [user.uid]: progressOf(record) } });
     return { id, link: `${location.origin}${location.pathname}#join=${id}` };
   });
@@ -484,7 +553,7 @@
       put(JOIN, null);
       if (!snap.exists) return Store.toast(tr("share.notFound"));
       const d = snap.data();
-      const joined = await Store.offerJoin(JSON.parse(d.plan), { id, ownerName: d.ownerName, mine: d.owner === user.uid });
+      const joined = await Store.offerJoin(Sync.unpack(JSON.parse(d.plan)), { id, ownerName: d.ownerName, mine: d.owner === user.uid });
       if (joined) shared(Store.records());
     } catch (e) {
       Store.toast(tr("share.notFound"));
@@ -495,15 +564,40 @@
 
   // ---- signing out and deleting ---------------------------------------------------------------
 
+  // Signing out: what is not yet in the account is sent first, or a backup offered; what
+  // still is not sent stays on this phone for this account (never shown to another).
   on("signOut", "click", async () => {
+    if (!user) return;
+    let u = unsent();
+    if (u.any) {
+      const pick = await Store.choose(`<p>${tr("signout.unsent", { plans: u.plans, days: u.days + u.deletions })}</p>`, [
+        { value: "send", label: tr("signout.sendFirst") },
+        { value: "backup", label: tr("sync.saveBackup") },
+        { value: "anyway", label: tr("signout.anyway"), danger: true },
+      ]);
+      if (!pick) return;
+      if (pick === "backup") return Store.saveBackupNow();
+      if (pick === "send") {
+        await Promise.race([sendAllNow(), new Promise((r) => setTimeout(r, 10000))]);
+        u = unsent();
+        if (u.any && !(await Store.ask(tr("signout.stillUnsent"), tr("signout.anyway")))) return;
+      }
+    }
     await auth.signOut();
-    Store.toast(tr("account.signedOut"));
+    Store.toast(tr(u.any ? "signout.keptHere" : "account.signedOut"));
   });
 
+  // Deleting the account: a backup is offered first; nothing more is written from any phone
+  // once it starts (a mark the account's rules check); and if it stops halfway, the person
+  // is told exactly what was and was not removed, and the phone keeps everything.
   on("deleteAccount", "click", async () => {
     if (!user) return;
-    const ok = await Store.ask(tr("account.deleteAsk"), tr("account.deleteYes"));
-    if (!ok) return;
+    const pick = await Store.choose(`<p>${tr("account.deleteAsk")}</p><p class="note">${tr("delete.backupFirst")}</p>`, [
+      { value: "backup", label: tr("sync.saveBackup") },
+      { value: "delete", label: tr("account.deleteYes"), danger: true },
+    ]);
+    if (pick === "backup") return Store.saveBackupNow();
+    if (pick !== "delete") return;
     // deleting an account needs a recent sign-in (measured by Firebase's own clock, not the phone's)
     let since = Infinity;
     try {
@@ -511,10 +605,17 @@
       since = Date.parse(t.issuedAtTime) - Date.parse(t.authTime);
     } catch (e) { /* offline: asked to try again below */ }
     if (since > 4 * 60 * 1000) {
-      Store.toast(tr("account.signInAgain"));
+      // signing out keeps anything unsent on this phone for this account
+      const u = unsent();
       await auth.signOut();
+      Store.toast(tr(u.any ? "delete.signInAgainKept" : "account.signInAgain"));
       return;
     }
+    const me = user, my = session, uidNow = me.uid;
+    deleting = true;
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    const mark = db.collection("deleted").doc(uidNow);
+    let removed = 0, total = 0;
     try {
       // shared plans: the ones this person shared are removed; in others, their progress is
       for (const r of Store.records()) {
@@ -522,31 +623,47 @@
         const ref = sharesRef().doc(r.share.id);
         try {
           const snap = await ref.get();
-          if (snap.exists && snap.data().owner === user.uid) await ref.delete();
-          else if (snap.exists) await ref.update({ [`progress.${user.uid}`]: window.firebase.firestore.FieldValue.delete() });
+          if (snap.exists && snap.data().owner === uidNow) await ref.delete();
+          else if (snap.exists) await ref.update({ [`progress.${uidNow}`]: window.firebase.firestore.FieldValue.delete() });
         } catch (e) { /* already gone */ }
       }
+      await mark.set({ at: Date.now() });                 // from now on the rules refuse every write to this account
       // everything: plans, the history of days, and the profile (in batches)
       const refs = [];
-      (await plansRef().get()).forEach((d) => refs.push(d.ref));
-      (await daysRef().get()).forEach((d) => refs.push(d.ref));
-      refs.push(db.collection("users").doc(user.uid));
+      (await db.collection("users").doc(uidNow).collection("plans").get()).forEach((d) => refs.push(d.ref));
+      (await db.collection("users").doc(uidNow).collection("days").get()).forEach((d) => refs.push(d.ref));
+      refs.push(db.collection("users").doc(uidNow));
+      total = refs.length;
       for (let i = 0; i < refs.length; i += 400) {
         const batch = db.batch();
         refs.slice(i, i + 400).forEach((r) => batch.delete(r));
         await batch.commit();
+        removed += Math.min(400, refs.length - i);
       }
-      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
-      await user.delete();
-      put(OWNER, null);
-      put(UNSYNCED, null);
-      Store.clearPhone();
-      await Store.replace([], { quiet: true });
-      Store.toast(tr("account.deleted"));
-      Store.show("today");
+      deletedUid = uidNow;
+      await me.delete();
     } catch (e) {
-      Store.toast(tr(e.code === "auth/requires-recent-login" ? "account.signInAgain" : "account.deleteFailed"));
+      deletedUid = null;
+      deleting = false;
+      if (removed < total || !total) {
+        // stopped before everything was removed: writing is allowed again, and the phone still has it all
+        try { await mark.delete(); } catch (x) { /* the account can still be used once the connection is back */ }
+        Store.toast(tr("delete.partly", { removed, total: total || "?" }));
+        if (my === session && user) changed(user);
+      } else {
+        Store.toast(tr("delete.signInRemains"));
+      }
+      return;
     }
+    deleting = false;
+    put(OWNER, null);
+    put(UNSYNCED, null);
+    put(BASE, null);
+    put(HELD + uidNow, null);
+    Store.clearPhone();
+    await Store.replace([], { quiet: true });
+    Store.toast(tr("account.deleted"));
+    Store.show("today");
   });
 
   // Start once the app has opened its plans (so Today never waits).

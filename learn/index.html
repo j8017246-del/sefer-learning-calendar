@@ -19,6 +19,9 @@
 <body>
 
 <p id="saveWarn" class="save-warn" role="alert" hidden data-t="app.notSavedOnThis"></p>
+<p id="syncWarn" class="save-warn" role="alert" hidden><span id="syncWarnText"></span>
+  <button class="text-btn" id="syncRetry" data-t="sync.retry"></button>
+  <button class="text-btn" id="syncBackup" data-t="sync.saveBackup"></button></p>
 
 <p id="notSavedBar" class="save-warn soft" hidden><span data-t="app.notSavedToAn"></span> <button class="text-btn" id="notSavedSignIn" data-t="app.signIn"></button></p>
 
@@ -33,6 +36,7 @@
       <label class="field" for="linkEmail" data-t="gate.orGetASign"></label>
       <input type="email" id="linkEmail" autocomplete="email" required data-t-placeholder="gate.youExampleCom">
       <button class="btn wide" id="sendLink" disabled data-t="gate.emailMeASign"></button>
+      <button type="button" class="text-btn" id="sendAnother" hidden data-t="gate.sendAnother"></button>
     </form>
     <p class="note" id="accountNote" role="status"></p>
     <details class="gate-privacy">
@@ -221,7 +225,8 @@
     <p class="note" id="lastBackup"></p>
     <div class="two">
       <button class="btn" id="backup" data-t="settings.export"></button>
-      <label class="btn"><span data-t="settings.importAFile"></span> <input type="file" id="restore" accept=".json,application/json" hidden></label>
+      <button type="button" class="btn" id="restoreBtn" data-t="settings.importAFile"></button>
+      <input type="file" id="restore" accept=".json,application/json" hidden>
     </div>
     <button class="btn" id="undoRestore" hidden></button>
     <div id="backupBox" class="form-rows" hidden>
@@ -446,6 +451,14 @@
     <h2 id="pickerTitle"></h2>
     <div id="pickerList" class="pick-rows" role="listbox"></div>
     <button value="cancel" class="text-btn center" data-t="add.cancel"></button>
+  </form>
+</dialog>
+
+<dialog id="choose" class="sheet">
+  <form method="dialog">
+    <div id="chooseText"></div>
+    <div id="chooseButtons" class="form-rows"></div>
+    <button value="" class="text-btn center" data-t="add.cancel"></button>
   </form>
 </dialog>
 

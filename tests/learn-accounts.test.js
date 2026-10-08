@@ -52,7 +52,7 @@ function serve() {
   const accountPlans = (page) => page.evaluate(async () => {
     const u = window.firebase.auth().currentUser;
     const snap = await window.firebase.firestore().collection("users").doc(u.uid).collection("plans").get({ source: "server" });
-    return snap.docs.map((d) => JSON.parse(d.data().data));
+    return snap.docs.filter((d) => !d.data().stopped).map((d) => window.LearnSync.unpack(JSON.parse(d.data().data)));
   });
 
   // phone 1: a plan made without an account
@@ -191,7 +191,9 @@ function serve() {
   // deleting the account on phone 1 removes everything
   await one.page.click('.tabbar [data-go="settings"]');
   await one.page.click("#deleteAccount");
-  await one.page.click("#askYes");
+  // a backup is offered first; then delete
+  await one.page.waitForSelector("#choose[open]");
+  await one.page.click('#chooseButtons button[value="delete"]');
   await one.page.waitForSelector("#gate:not([hidden])", { timeout: 15000 });
   assert.strictEqual(await one.page.locator(".lesson").count(), 0);
   assert.match(await one.page.textContent("#toast"), /deleted/);

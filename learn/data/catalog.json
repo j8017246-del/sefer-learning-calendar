@@ -99,7 +99,8 @@
      "he": "אור החיים",
      "default": false
     }
-   ]
+   ],
+   "v": "fa535ed25723"
   },
   {
    "id": "tanakh/exodus",
@@ -141,7 +142,8 @@
      "he": "אור החיים",
      "default": false
     }
-   ]
+   ],
+   "v": "46ae9227b736"
   },
   {
    "id": "tanakh/leviticus",
@@ -189,7 +191,8 @@
      "he": "אור החיים",
      "default": false
     }
-   ]
+   ],
+   "v": "2c18178337e8"
   },
   {
    "id": "tanakh/numbers",
@@ -237,7 +240,8 @@
      "he": "אור החיים",
      "default": false
     }
-   ]
+   ],
+   "v": "155d1585b332"
   },
   {
    "id": "tanakh/deuteronomy",
@@ -285,7 +289,8 @@
      "he": "אור החיים",
      "default": false
     }
-   ]
+   ],
+   "v": "59ca36c1c623"
   },
   {
    "id": "tanakh/joshua",
@@ -315,7 +320,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "e04b5d7c41a9"
   },
   {
    "id": "tanakh/judges",
@@ -345,7 +351,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "4ca90d1a8659"
   },
   {
    "id": "tanakh/i-samuel",
@@ -375,7 +382,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "24bfa79631b3"
   },
   {
    "id": "tanakh/ii-samuel",
@@ -405,7 +413,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "3ac684271b14"
   },
   {
    "id": "tanakh/i-kings",
@@ -435,7 +444,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "82c686d904f1"
   },
   {
    "id": "tanakh/ii-kings",
@@ -465,7 +475,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "7623a360c8be"
   },
   {
    "id": "tanakh/isaiah",
@@ -495,7 +506,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "f941641e1ae1"
   },
   {
    "id": "tanakh/jeremiah",
@@ -525,7 +537,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "0ec426c0e76c"
   },
   {
    "id": "tanakh/ezekiel",
@@ -555,7 +568,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "d77f50875e3a"
   },
   {
    "id": "tanakh/hosea",
@@ -585,7 +599,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "479490e3f69e"
   },
   {
    "id": "tanakh/joel",
@@ -615,7 +630,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "137cfeffe8ba"
   },
   {
    "id": "tanakh/amos",
@@ -645,7 +661,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "25800ca89777"
   },
   {
    "id": "tanakh/obadiah",
@@ -675,7 +692,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "5daf2c67e755"
   },
   {
    "id": "tanakh/jonah",
@@ -705,7 +723,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "ad9d780764c7"
   },
   {
    "id": "tanakh/micah",
@@ -735,7 +754,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "fabdc80fab9a"
   },
   {
    "id": "tanakh/nahum",
@@ -765,7 +785,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "7a5c8cab4d9a"
   },
   {
    "id": "tanakh/habakkuk",
@@ -795,7 +816,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "201580db347d"
   },
   {
    "id": "tanakh/zephaniah",
@@ -825,7 +847,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "8650e6c3cb5f"
   },
   {
    "id": "tanakh/haggai",
@@ -855,7 +878,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "3620d3d41ed1"
   },
   {
    "id": "tanakh/zechariah",
@@ -885,7 +909,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "88986b52bbeb"
   },
   {
    "id": "tanakh/malachi",
@@ -915,7 +940,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "9b65eaf04859"
   },
   {
    "id": "tanakh/psalms",
@@ -945,7 +971,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "cd855ff5c729"
   },
   {
    "id": "tanakh/proverbs",
@@ -975,7 +1002,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "1627573448fb"
   },
   {
    "id": "tanakh/job",
@@ -1005,7 +1033,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "07cbbd97aaca"
   },
   {
    "id": "tanakh/song-of-songs",
@@ -1035,7 +1064,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "7a5b702e3872"
   },
   {
    "id": "tanakh/ruth",
@@ -1053,7 +1083,8 @@
      "he": "רש״י",
      "default": false
     }
-   ]
+   ],
+   "v": "c2a1f7b9a3da"
   },
   {
    "id": "tanakh/lamentations",
@@ -1071,7 +1102,8 @@
      "he": "רש״י",
      "default": false
     }
-   ]
+   ],
+   "v": "366645182f4c"
   },
   {
    "id": "tanakh/ecclesiastes",
@@ -1101,7 +1133,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "fd7fa17ab554"
   },
   {
    "id": "tanakh/esther",
@@ -1119,7 +1152,8 @@
      "he": "רש״י",
      "default": false
     }
-   ]
+   ],
+   "v": "74f304ad5d03"
   },
   {
    "id": "tanakh/daniel",
@@ -1149,7 +1183,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "115d8718aec1"
   },
   {
    "id": "tanakh/ezra",
@@ -1179,7 +1214,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "45dec65314e2"
   },
   {
    "id": "tanakh/nehemiah",
@@ -1209,7 +1245,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "1245a8dbb59c"
   },
   {
    "id": "tanakh/i-chronicles",
@@ -1239,7 +1276,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "decc8605f0de"
   },
   {
    "id": "tanakh/ii-chronicles",
@@ -1269,7 +1307,8 @@
      "he": "מצודת ציון",
      "default": false
     }
-   ]
+   ],
+   "v": "1eacf5fad4e5"
   },
   {
    "id": "mishnah/berakhot",
@@ -1293,7 +1332,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "12e5c8231cf2"
   },
   {
    "id": "mishnah/peah",
@@ -1311,7 +1351,8 @@
      "he": "ברטנורא",
      "default": true
     }
-   ]
+   ],
+   "v": "d448253f39ed"
   },
   {
    "id": "mishnah/demai",
@@ -1335,7 +1376,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "c127bb299d59"
   },
   {
    "id": "mishnah/kilayim",
@@ -1359,7 +1401,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "9dc8e1c4c4d0"
   },
   {
    "id": "mishnah/sheviit",
@@ -1383,7 +1426,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "b0c5097dd336"
   },
   {
    "id": "mishnah/terumot",
@@ -1407,7 +1451,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "4ba9b18aab39"
   },
   {
    "id": "mishnah/maasrot",
@@ -1431,7 +1476,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "5e47091427b4"
   },
   {
    "id": "mishnah/maaser-sheni",
@@ -1455,7 +1501,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "9c3214d830f5"
   },
   {
    "id": "mishnah/challah",
@@ -1479,7 +1526,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "a73451842394"
   },
   {
    "id": "mishnah/orlah",
@@ -1503,7 +1551,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "cd023bf7d645"
   },
   {
    "id": "mishnah/bikkurim",
@@ -1527,7 +1576,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "db0a4d212f8c"
   },
   {
    "id": "mishnah/shabbat",
@@ -1551,7 +1601,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "1ac508d0df08"
   },
   {
    "id": "mishnah/eruvin",
@@ -1575,7 +1626,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "b87bb1994ae3"
   },
   {
    "id": "mishnah/pesachim",
@@ -1599,7 +1651,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "27c5249b46ef"
   },
   {
    "id": "mishnah/shekalim",
@@ -1623,7 +1676,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "a7022ad01387"
   },
   {
    "id": "mishnah/yoma",
@@ -1647,7 +1701,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "e036f1bee381"
   },
   {
    "id": "mishnah/sukkah",
@@ -1671,7 +1726,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "66d35d1664ee"
   },
   {
    "id": "mishnah/beitzah",
@@ -1695,7 +1751,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "d9fb448b3e00"
   },
   {
    "id": "mishnah/rosh-hashanah",
@@ -1719,7 +1776,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "c4707e88724a"
   },
   {
    "id": "mishnah/taanit",
@@ -1743,7 +1801,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "3f6b7e644005"
   },
   {
    "id": "mishnah/megillah",
@@ -1767,7 +1826,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "cd1dc5d5dc9d"
   },
   {
    "id": "mishnah/moed-katan",
@@ -1791,7 +1851,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "a5d3c0fb5488"
   },
   {
    "id": "mishnah/chagigah",
@@ -1815,7 +1876,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "8b48f32e30ba"
   },
   {
    "id": "mishnah/yevamot",
@@ -1839,7 +1901,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "c47ba3f25478"
   },
   {
    "id": "mishnah/ketubot",
@@ -1863,7 +1926,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "9a4484afa5b4"
   },
   {
    "id": "mishnah/nedarim",
@@ -1887,7 +1951,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "3177263fa6b1"
   },
   {
    "id": "mishnah/nazir",
@@ -1911,7 +1976,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "e6f26ca16ac9"
   },
   {
    "id": "mishnah/sotah",
@@ -1935,7 +2001,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "24fbc005431a"
   },
   {
    "id": "mishnah/gittin",
@@ -1959,7 +2026,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "b27da95de8b7"
   },
   {
    "id": "mishnah/kiddushin",
@@ -1983,7 +2051,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "d332af848ed7"
   },
   {
    "id": "mishnah/bava-kamma",
@@ -2007,7 +2076,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "7be0a0e3ec25"
   },
   {
    "id": "mishnah/bava-metzia",
@@ -2031,7 +2101,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "61bdb984df6b"
   },
   {
    "id": "mishnah/bava-batra",
@@ -2055,7 +2126,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "327731e042ac"
   },
   {
    "id": "mishnah/sanhedrin",
@@ -2079,7 +2151,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "e457b478f359"
   },
   {
    "id": "mishnah/makkot",
@@ -2103,7 +2176,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "249cf270c5c6"
   },
   {
    "id": "mishnah/shevuot",
@@ -2127,7 +2201,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "0fee220aee91"
   },
   {
    "id": "mishnah/eduyot",
@@ -2151,7 +2226,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "8e947c403393"
   },
   {
    "id": "mishnah/avodah-zarah",
@@ -2175,7 +2251,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "dc94d22b64b4"
   },
   {
    "id": "mishnah/pirkei-avot",
@@ -2199,7 +2276,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "a5f83045d0e5"
   },
   {
    "id": "mishnah/horayot",
@@ -2223,7 +2301,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "1b9a3994862d"
   },
   {
    "id": "mishnah/zevachim",
@@ -2247,7 +2326,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "ad88af7f99e3"
   },
   {
    "id": "mishnah/menachot",
@@ -2271,7 +2351,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "e1d3a0ff0419"
   },
   {
    "id": "mishnah/chullin",
@@ -2295,7 +2376,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "ce61d9763d28"
   },
   {
    "id": "mishnah/bekhorot",
@@ -2319,7 +2401,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "db3d5dabbcaf"
   },
   {
    "id": "mishnah/arakhin",
@@ -2343,7 +2426,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "c2b5b5532d10"
   },
   {
    "id": "mishnah/temurah",
@@ -2367,7 +2451,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "566db1617e86"
   },
   {
    "id": "mishnah/keritot",
@@ -2391,7 +2476,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "7bb3f176a861"
   },
   {
    "id": "mishnah/meilah",
@@ -2415,7 +2501,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "2279db6cb9a0"
   },
   {
    "id": "mishnah/tamid",
@@ -2439,7 +2526,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "5b253cdc8a2e"
   },
   {
    "id": "mishnah/middot",
@@ -2463,7 +2551,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "98c4139291fa"
   },
   {
    "id": "mishnah/kinnim",
@@ -2487,7 +2576,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "a89a52cb306e"
   },
   {
    "id": "mishnah/kelim",
@@ -2511,7 +2601,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "bdcd0d26712f"
   },
   {
    "id": "mishnah/oholot",
@@ -2535,7 +2626,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "a17c56baab97"
   },
   {
    "id": "mishnah/negaim",
@@ -2559,7 +2651,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "eac643259729"
   },
   {
    "id": "mishnah/parah",
@@ -2583,7 +2676,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "8da2ff9c7e07"
   },
   {
    "id": "mishnah/tahorot",
@@ -2607,7 +2701,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "9213c80112eb"
   },
   {
    "id": "mishnah/mikvaot",
@@ -2631,7 +2726,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "8eae4f40a392"
   },
   {
    "id": "mishnah/niddah",
@@ -2655,7 +2751,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "958a2ebcbc4e"
   },
   {
    "id": "mishnah/makhshirin",
@@ -2679,7 +2776,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "d04b579d1dbc"
   },
   {
    "id": "mishnah/zavim",
@@ -2703,7 +2801,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "01a471b7dc33"
   },
   {
    "id": "mishnah/tevul-yom",
@@ -2727,7 +2826,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "4e24c105dc7b"
   },
   {
    "id": "mishnah/yadayim",
@@ -2751,7 +2851,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "74a687b9b421"
   },
   {
    "id": "mishnah/oktzin",
@@ -2775,7 +2876,8 @@
      "he": "תוספות יום טוב",
      "default": false
     }
-   ]
+   ],
+   "v": "108174f7322c"
   },
   {
    "id": "bavli/berakhot",
@@ -2799,7 +2901,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "fc3a7d954503"
   },
   {
    "id": "bavli/shabbat",
@@ -2823,7 +2926,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "bfbc6fa1f983"
   },
   {
    "id": "bavli/eruvin",
@@ -2847,7 +2951,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "277941e6ffb1"
   },
   {
    "id": "bavli/pesachim",
@@ -2871,7 +2976,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "c2bd7159d56c"
   },
   {
    "id": "bavli/yoma",
@@ -2895,7 +3001,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "91a91998d8ba"
   },
   {
    "id": "bavli/sukkah",
@@ -2919,7 +3026,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "7a893dd30a73"
   },
   {
    "id": "bavli/beitzah",
@@ -2943,7 +3051,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "da292f778db3"
   },
   {
    "id": "bavli/rosh-hashanah",
@@ -2967,7 +3076,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "f8487ac399cb"
   },
   {
    "id": "bavli/taanit",
@@ -2991,7 +3101,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "b170071bfc6e"
   },
   {
    "id": "bavli/megillah",
@@ -3015,7 +3126,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "8e475489d8ce"
   },
   {
    "id": "bavli/moed-katan",
@@ -3039,7 +3151,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "fdcdc9beca62"
   },
   {
    "id": "bavli/chagigah",
@@ -3063,7 +3176,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "b8eec9aa41fe"
   },
   {
    "id": "bavli/yevamot",
@@ -3087,7 +3201,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "b7848dc3ecb3"
   },
   {
    "id": "bavli/ketubot",
@@ -3111,7 +3226,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "2a9cce35e09e"
   },
   {
    "id": "bavli/nedarim",
@@ -3135,7 +3251,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "2d0c43d62609"
   },
   {
    "id": "bavli/nazir",
@@ -3159,7 +3276,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "24ae705389d7"
   },
   {
    "id": "bavli/sotah",
@@ -3183,7 +3301,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "ccc82c65811a"
   },
   {
    "id": "bavli/gittin",
@@ -3207,7 +3326,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "0e910e5703ca"
   },
   {
    "id": "bavli/kiddushin",
@@ -3231,7 +3351,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "ff3542c437bc"
   },
   {
    "id": "bavli/bava-kamma",
@@ -3255,7 +3376,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "7426875aa22b"
   },
   {
    "id": "bavli/bava-metzia",
@@ -3279,7 +3401,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "01f5eb9f2636"
   },
   {
    "id": "bavli/bava-batra",
@@ -3303,7 +3426,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "bbbe92b6fe6c"
   },
   {
    "id": "bavli/sanhedrin",
@@ -3314,7 +3438,8 @@
    "pieces": 224,
    "stops": 4203,
    "letters": 407535,
-   "commentaries": []
+   "commentaries": [],
+   "v": "eb5357477685"
   },
   {
    "id": "bavli/makkot",
@@ -3338,7 +3463,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "d11d152cef7a"
   },
   {
    "id": "bavli/shevuot",
@@ -3362,7 +3488,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "008ae33061fb"
   },
   {
    "id": "bavli/avodah-zarah",
@@ -3386,7 +3513,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "0c4dd2c69130"
   },
   {
    "id": "bavli/horayot",
@@ -3410,7 +3538,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "79fddc3ead1d"
   },
   {
    "id": "bavli/zevachim",
@@ -3434,7 +3563,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "7c08d8c1dbd7"
   },
   {
    "id": "bavli/menachot",
@@ -3458,7 +3588,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "4e32ca50e244"
   },
   {
    "id": "bavli/chullin",
@@ -3482,7 +3613,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "166de8c6b2e2"
   },
   {
    "id": "bavli/bekhorot",
@@ -3506,7 +3638,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "df2f6e50aae1"
   },
   {
    "id": "bavli/arakhin",
@@ -3530,7 +3663,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "1c179cee5939"
   },
   {
    "id": "bavli/temurah",
@@ -3554,7 +3688,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "49dd3c76ebea"
   },
   {
    "id": "bavli/keritot",
@@ -3578,7 +3713,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "04c2829928ac"
   },
   {
    "id": "bavli/meilah",
@@ -3602,7 +3738,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "05781b60b4fa"
   },
   {
    "id": "bavli/tamid",
@@ -3613,7 +3750,8 @@
    "pieces": 17,
    "stops": 216,
    "letters": 20212,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2fcda193846a"
   },
   {
    "id": "bavli/niddah",
@@ -3637,7 +3775,8 @@
      "he": "תוספות",
      "default": true
     }
-   ]
+   ],
+   "v": "46a322c26954"
   },
   {
    "id": "yerushalmi/berakhot",
@@ -3648,7 +3787,8 @@
    "pieces": 58,
    "stops": 3935,
    "letters": 158224,
-   "commentaries": []
+   "commentaries": [],
+   "v": "1fd6cfd72588"
   },
   {
    "id": "yerushalmi/peah",
@@ -3659,7 +3799,8 @@
    "pieces": 55,
    "stops": 1844,
    "letters": 80749,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2a0855294687"
   },
   {
    "id": "yerushalmi/demai",
@@ -3670,7 +3811,8 @@
    "pieces": 44,
    "stops": 1487,
    "letters": 65161,
-   "commentaries": []
+   "commentaries": [],
+   "v": "893fa909d616"
   },
   {
    "id": "yerushalmi/kilayim",
@@ -3681,7 +3823,8 @@
    "pieces": 56,
    "stops": 1837,
    "letters": 74543,
-   "commentaries": []
+   "commentaries": [],
+   "v": "ff1bb21aa10b"
   },
   {
    "id": "yerushalmi/sheviit",
@@ -3692,7 +3835,8 @@
    "pieces": 56,
    "stops": 1965,
    "letters": 85265,
-   "commentaries": []
+   "commentaries": [],
+   "v": "70d2a2bde45d"
   },
   {
    "id": "yerushalmi/terumot",
@@ -3703,7 +3847,8 @@
    "pieces": 48,
    "stops": 2437,
    "letters": 102503,
-   "commentaries": []
+   "commentaries": [],
+   "v": "b33835fb5267"
   },
   {
    "id": "yerushalmi/maasrot",
@@ -3714,7 +3859,8 @@
    "pieces": 20,
    "stops": 1138,
    "letters": 44872,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2af9bf682a46"
   },
   {
    "id": "yerushalmi/maaser-sheni",
@@ -3725,7 +3871,8 @@
    "pieces": 24,
    "stops": 1390,
    "letters": 58510,
-   "commentaries": []
+   "commentaries": [],
+   "v": "37a55e2dc16a"
   },
   {
    "id": "yerushalmi/challah",
@@ -3736,7 +3883,8 @@
    "pieces": 19,
    "stops": 1045,
    "letters": 44017,
-   "commentaries": []
+   "commentaries": [],
+   "v": "996925c59af7"
   },
   {
    "id": "yerushalmi/orlah",
@@ -3747,7 +3895,8 @@
    "pieces": 21,
    "stops": 1016,
    "letters": 37381,
-   "commentaries": []
+   "commentaries": [],
+   "v": "79b617d9b12b"
   },
   {
    "id": "yerushalmi/bikkurim",
@@ -3758,7 +3907,8 @@
    "pieces": 21,
    "stops": 917,
    "letters": 30731,
-   "commentaries": []
+   "commentaries": [],
+   "v": "618b71d931a3"
   },
   {
    "id": "yerushalmi/shabbat",
@@ -3769,7 +3919,8 @@
    "pieces": 141,
    "stops": 6780,
    "letters": 194466,
-   "commentaries": []
+   "commentaries": [],
+   "v": "c65ad7677a07"
   },
   {
    "id": "yerushalmi/eruvin",
@@ -3780,7 +3931,8 @@
    "pieces": 94,
    "stops": 3599,
    "letters": 105779,
-   "commentaries": []
+   "commentaries": [],
+   "v": "469ee36cad71"
   },
   {
    "id": "yerushalmi/pesachim",
@@ -3791,7 +3943,8 @@
    "pieces": 86,
    "stops": 4818,
    "letters": 137316,
-   "commentaries": []
+   "commentaries": [],
+   "v": "d2b99408e188"
   },
   {
    "id": "yerushalmi/shekalim",
@@ -3802,7 +3955,8 @@
    "pieces": 32,
    "stops": 2262,
    "letters": 70268,
-   "commentaries": []
+   "commentaries": [],
+   "v": "41e0125874a4"
   },
   {
    "id": "yerushalmi/yoma",
@@ -3813,7 +3967,8 @@
    "pieces": 51,
    "stops": 3293,
    "letters": 96511,
-   "commentaries": []
+   "commentaries": [],
+   "v": "ad0ed72db4ac"
   },
   {
    "id": "yerushalmi/sukkah",
@@ -3824,7 +3979,8 @@
    "pieces": 49,
    "stops": 1742,
    "letters": 52496,
-   "commentaries": []
+   "commentaries": [],
+   "v": "e85bc18650d1"
   },
   {
    "id": "yerushalmi/beitzah",
@@ -3835,7 +3991,8 @@
    "pieces": 46,
    "stops": 1647,
    "letters": 45916,
-   "commentaries": []
+   "commentaries": [],
+   "v": "d92e79d3d4c3"
   },
   {
    "id": "yerushalmi/rosh-hashanah",
@@ -3846,7 +4003,8 @@
    "pieces": 36,
    "stops": 1569,
    "letters": 48175,
-   "commentaries": []
+   "commentaries": [],
+   "v": "eae152f32a4c"
   },
   {
    "id": "yerushalmi/taanit",
@@ -3857,7 +4015,8 @@
    "pieces": 40,
    "stops": 2605,
    "letters": 79727,
-   "commentaries": []
+   "commentaries": [],
+   "v": "b1b51fe6d09c"
   },
   {
    "id": "yerushalmi/megillah",
@@ -3868,7 +4027,8 @@
    "pieces": 38,
    "stops": 2699,
    "letters": 77928,
-   "commentaries": []
+   "commentaries": [],
+   "v": "7f4466755be6"
   },
   {
    "id": "yerushalmi/moed-katan",
@@ -3879,7 +4039,8 @@
    "pieces": 24,
    "stops": 1672,
    "letters": 49466,
-   "commentaries": []
+   "commentaries": [],
+   "v": "e69cc0513207"
   },
   {
    "id": "yerushalmi/chagigah",
@@ -3890,7 +4051,8 @@
    "pieces": 23,
    "stops": 1902,
    "letters": 53889,
-   "commentaries": []
+   "commentaries": [],
+   "v": "bcfed59c0854"
   },
   {
    "id": "yerushalmi/yevamot",
@@ -3901,7 +4063,8 @@
    "pieces": 143,
    "stops": 5734,
    "letters": 174923,
-   "commentaries": []
+   "commentaries": [],
+   "v": "44e916ddec90"
   },
   {
    "id": "yerushalmi/ketubot",
@@ -3912,7 +4075,8 @@
    "pieces": 120,
    "stops": 4865,
    "letters": 147320,
-   "commentaries": []
+   "commentaries": [],
+   "v": "ff346d856963"
   },
   {
    "id": "yerushalmi/nedarim",
@@ -3923,7 +4087,8 @@
    "pieces": 94,
    "stops": 2703,
    "letters": 80939,
-   "commentaries": []
+   "commentaries": [],
+   "v": "0470e5ef629c"
   },
   {
    "id": "yerushalmi/nazir",
@@ -3934,7 +4099,8 @@
    "pieces": 55,
    "stops": 3081,
    "letters": 89833,
-   "commentaries": []
+   "commentaries": [],
+   "v": "c0dfb979abd8"
   },
   {
    "id": "yerushalmi/sotah",
@@ -3945,7 +4111,8 @@
    "pieces": 73,
    "stops": 3528,
    "letters": 106247,
-   "commentaries": []
+   "commentaries": [],
+   "v": "0177c0c8654f"
   },
   {
    "id": "yerushalmi/gittin",
@@ -3956,7 +4123,8 @@
    "pieces": 75,
    "stops": 3349,
    "letters": 98486,
-   "commentaries": []
+   "commentaries": [],
+   "v": "c4d7911d0ece"
   },
   {
    "id": "yerushalmi/kiddushin",
@@ -3967,7 +4135,8 @@
    "pieces": 43,
    "stops": 3728,
    "letters": 110151,
-   "commentaries": []
+   "commentaries": [],
+   "v": "536478d60e66"
   },
   {
    "id": "yerushalmi/bava-kamma",
@@ -3978,7 +4147,8 @@
    "pieces": 85,
    "stops": 2029,
    "letters": 65932,
-   "commentaries": []
+   "commentaries": [],
+   "v": "6a1d87410810"
   },
   {
    "id": "yerushalmi/bava-metzia",
@@ -3989,7 +4159,8 @@
    "pieces": 84,
    "stops": 1872,
    "letters": 60694,
-   "commentaries": []
+   "commentaries": [],
+   "v": "1fca1606ba4f"
   },
   {
    "id": "yerushalmi/bava-batra",
@@ -4000,7 +4171,8 @@
    "pieces": 76,
    "stops": 1924,
    "letters": 61704,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2c1d4e0d5e65"
   },
   {
    "id": "yerushalmi/sanhedrin",
@@ -4011,7 +4183,8 @@
    "pieces": 89,
    "stops": 5155,
    "letters": 160794,
-   "commentaries": []
+   "commentaries": [],
+   "v": "5716c468f94b"
   },
   {
    "id": "yerushalmi/makkot",
@@ -4022,7 +4195,8 @@
    "pieces": 28,
    "stops": 553,
    "letters": 20091,
-   "commentaries": []
+   "commentaries": [],
+   "v": "0a3b3b594d42"
   },
   {
    "id": "yerushalmi/shevuot",
@@ -4033,7 +4207,8 @@
    "pieces": 58,
    "stops": 2696,
    "letters": 80802,
-   "commentaries": []
+   "commentaries": [],
+   "v": "542c5858da05"
   },
   {
    "id": "yerushalmi/avodah-zarah",
@@ -4044,7 +4219,8 @@
    "pieces": 60,
    "stops": 2843,
    "letters": 83322,
-   "commentaries": []
+   "commentaries": [],
+   "v": "e5a62331feab"
   },
   {
    "id": "yerushalmi/horayot",
@@ -4055,7 +4231,8 @@
    "pieces": 20,
    "stops": 1359,
    "letters": 40361,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2197b597c660"
   },
   {
    "id": "yerushalmi/niddah",
@@ -4066,7 +4243,8 @@
    "pieces": 19,
    "stops": 1008,
    "letters": 29501,
-   "commentaries": []
+   "commentaries": [],
+   "v": "11257d6df924"
   },
   {
    "id": "rambam/foundations-of-the-torah",
@@ -4077,7 +4255,8 @@
    "pieces": 88,
    "stops": 574,
    "letters": 30321,
-   "commentaries": []
+   "commentaries": [],
+   "v": "5c205904a99a"
   },
   {
    "id": "rambam/human-dispositions",
@@ -4088,7 +4267,8 @@
    "pieces": 71,
    "stops": 538,
    "letters": 24668,
-   "commentaries": []
+   "commentaries": [],
+   "v": "f8efb4769255"
   },
   {
    "id": "rambam/torah-study",
@@ -4099,7 +4279,8 @@
    "pieces": 82,
    "stops": 397,
    "letters": 19913,
-   "commentaries": []
+   "commentaries": [],
+   "v": "62cc12bf3cd3"
   },
   {
    "id": "rambam/foreign-worship-and-customs-of-the-nations",
@@ -4110,7 +4291,8 @@
    "pieces": 148,
    "stops": 664,
    "letters": 40949,
-   "commentaries": []
+   "commentaries": [],
+   "v": "39b8b569e952"
   },
   {
    "id": "rambam/repentance",
@@ -4121,7 +4303,8 @@
    "pieces": 69,
    "stops": 461,
    "letters": 28774,
-   "commentaries": []
+   "commentaries": [],
+   "v": "d98045bcd7ba"
   },
   {
    "id": "rambam/reading-the-shema",
@@ -4132,7 +4315,8 @@
    "pieces": 57,
    "stops": 201,
    "letters": 11072,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2a720e42808c"
   },
   {
    "id": "rambam/prayer-and-the-priestly-blessing",
@@ -4143,7 +4327,8 @@
    "pieces": 240,
    "stops": 987,
    "letters": 52924,
-   "commentaries": []
+   "commentaries": [],
+   "v": "7e7aac689020"
   },
   {
    "id": "rambam/sabbath",
@@ -4154,7 +4339,8 @@
    "pieces": 659,
    "stops": 2689,
    "letters": 138078,
-   "commentaries": []
+   "commentaries": [],
+   "v": "7a375063fbbe"
   },
   {
    "id": "rambam/eruvin",
@@ -4165,7 +4351,8 @@
    "pieces": 163,
    "stops": 627,
    "letters": 36845,
-   "commentaries": []
+   "commentaries": [],
+   "v": "6f5502d175c0"
   },
   {
    "id": "rambam/rest-on-the-tenth-of-tishrei",
@@ -4176,7 +4363,8 @@
    "pieces": 28,
    "stops": 117,
    "letters": 5880,
-   "commentaries": []
+   "commentaries": [],
+   "v": "b49500471512"
   },
   {
    "id": "rambam/rest-on-a-holiday",
@@ -4187,7 +4375,8 @@
    "pieces": 175,
    "stops": 698,
    "letters": 36231,
-   "commentaries": []
+   "commentaries": [],
+   "v": "3bc4cd2e0f46"
   },
   {
    "id": "rambam/leavened-and-unleavened-bread",
@@ -4198,7 +4387,8 @@
    "pieces": 117,
    "stops": 438,
    "letters": 24015,
-   "commentaries": []
+   "commentaries": [],
+   "v": "fbaa7fd36bce"
   },
   {
    "id": "rambam/shofar-sukkah-and-lulav",
@@ -4209,7 +4399,8 @@
    "pieces": 130,
    "stops": 555,
    "letters": 26777,
-   "commentaries": []
+   "commentaries": [],
+   "v": "58b97975e031"
   },
   {
    "id": "rambam/sheqel-dues",
@@ -4220,7 +4411,8 @@
    "pieces": 47,
    "stops": 214,
    "letters": 10388,
-   "commentaries": []
+   "commentaries": [],
+   "v": "a40ff34fdcde"
   },
   {
    "id": "rambam/sanctification-of-the-new-month",
@@ -4231,7 +4423,8 @@
    "pieces": 235,
    "stops": 1311,
    "letters": 61317,
-   "commentaries": []
+   "commentaries": [],
+   "v": "d7396796abf8"
   },
   {
    "id": "rambam/fasts",
@@ -4242,7 +4435,8 @@
    "pieces": 84,
    "stops": 356,
    "letters": 16463,
-   "commentaries": []
+   "commentaries": [],
+   "v": "38efd596c2d6"
   },
   {
    "id": "rambam/scroll-of-esther-and-hanukkah",
@@ -4253,7 +4447,8 @@
    "pieces": 60,
    "stops": 230,
    "letters": 12325,
-   "commentaries": []
+   "commentaries": [],
+   "v": "3e134ab274ca"
   },
   {
    "id": "rambam/marriage",
@@ -4264,7 +4459,8 @@
    "pieces": 535,
    "stops": 1939,
    "letters": 109040,
-   "commentaries": []
+   "commentaries": [],
+   "v": "71750a553226"
   },
   {
    "id": "rambam/divorce",
@@ -4275,7 +4471,8 @@
    "pieces": 333,
    "stops": 1203,
    "letters": 64050,
-   "commentaries": []
+   "commentaries": [],
+   "v": "1695d274a00e"
   },
   {
    "id": "rambam/levirate-marriage-and-release",
@@ -4286,7 +4483,8 @@
    "pieces": 194,
    "stops": 731,
    "letters": 38341,
-   "commentaries": []
+   "commentaries": [],
+   "v": "1f3b3fa8de26"
   },
   {
    "id": "rambam/virgin-maiden",
@@ -4297,7 +4495,8 @@
    "pieces": 44,
    "stops": 138,
    "letters": 7819,
-   "commentaries": []
+   "commentaries": [],
+   "v": "84dcd407c82e"
   },
   {
    "id": "rambam/woman-suspected-of-infidelity",
@@ -4308,7 +4507,8 @@
    "pieces": 79,
    "stops": 294,
    "letters": 13871,
-   "commentaries": []
+   "commentaries": [],
+   "v": "0262a61a306a"
   },
   {
    "id": "rambam/forbidden-intercourse",
@@ -4319,7 +4519,8 @@
    "pieces": 504,
    "stops": 1849,
    "letters": 92583,
-   "commentaries": []
+   "commentaries": [],
+   "v": "5ec3ae475dc2"
   },
   {
    "id": "rambam/forbidden-foods",
@@ -4330,7 +4531,8 @@
    "pieces": 424,
    "stops": 1536,
    "letters": 73436,
-   "commentaries": []
+   "commentaries": [],
+   "v": "b98052b377c6"
   },
   {
    "id": "rambam/ritual-slaughter",
@@ -4341,7 +4543,8 @@
    "pieces": 278,
    "stops": 958,
    "letters": 42563,
-   "commentaries": []
+   "commentaries": [],
+   "v": "5e6dfabd518b"
   },
   {
    "id": "rambam/oaths",
@@ -4352,7 +4555,8 @@
    "pieces": 205,
    "stops": 676,
    "letters": 35969,
-   "commentaries": []
+   "commentaries": [],
+   "v": "3a911b9ba9cb"
   },
   {
    "id": "rambam/vows",
@@ -4363,7 +4567,8 @@
    "pieces": 250,
    "stops": 854,
    "letters": 41697,
-   "commentaries": []
+   "commentaries": [],
+   "v": "c395171f7342"
   },
   {
    "id": "rambam/nazariteship",
@@ -4374,7 +4579,8 @@
    "pieces": 184,
    "stops": 689,
    "letters": 33609,
-   "commentaries": []
+   "commentaries": [],
+   "v": "de160518182d"
   },
   {
    "id": "rambam/appraisals-and-devoted-property",
@@ -4385,7 +4591,8 @@
    "pieces": 170,
    "stops": 558,
    "letters": 28742,
-   "commentaries": []
+   "commentaries": [],
+   "v": "9c42773280d9"
   },
   {
    "id": "rambam/diverse-species",
@@ -4396,7 +4603,8 @@
    "pieces": 182,
    "stops": 545,
    "letters": 30354,
-   "commentaries": []
+   "commentaries": [],
+   "v": "3a265f08c851"
   },
   {
    "id": "rambam/gifts-to-the-poor",
@@ -4407,7 +4615,8 @@
    "pieces": 200,
    "stops": 700,
    "letters": 33152,
-   "commentaries": []
+   "commentaries": [],
+   "v": "fec295705a5f"
   },
   {
    "id": "rambam/heave-offerings",
@@ -4418,7 +4627,8 @@
    "pieces": 317,
    "stops": 1137,
    "letters": 56187,
-   "commentaries": []
+   "commentaries": [],
+   "v": "957f2076d205"
   },
   {
    "id": "rambam/tithes",
@@ -4429,7 +4639,8 @@
    "pieces": 224,
    "stops": 713,
    "letters": 37223,
-   "commentaries": []
+   "commentaries": [],
+   "v": "d7bfe6d36901"
   },
   {
    "id": "rambam/second-tithes-and-fourth-years-fruit",
@@ -4440,7 +4651,8 @@
    "pieces": 194,
    "stops": 667,
    "letters": 29545,
-   "commentaries": []
+   "commentaries": [],
+   "v": "e6114ff9c3e7"
   },
   {
    "id": "rambam/first-fruits-and-other-gifts-to-priests-outside-the-sanctuary",
@@ -4451,7 +4663,8 @@
    "pieces": 224,
    "stops": 775,
    "letters": 35091,
-   "commentaries": []
+   "commentaries": [],
+   "v": "930c3649cb7d"
   },
   {
    "id": "rambam/sabbatical-year-and-the-jubilee",
@@ -4462,7 +4675,8 @@
    "pieces": 253,
    "stops": 840,
    "letters": 38589,
-   "commentaries": []
+   "commentaries": [],
+   "v": "48816d7ed753"
   },
   {
    "id": "rambam/the-chosen-temple",
@@ -4473,7 +4687,8 @@
    "pieces": 137,
    "stops": 531,
    "letters": 24393,
-   "commentaries": []
+   "commentaries": [],
+   "v": "cf6e34fdf9e6"
   },
   {
    "id": "rambam/vessels-of-the-sanctuary-and-those-who-serve-therein",
@@ -4484,7 +4699,8 @@
    "pieces": 156,
    "stops": 618,
    "letters": 27876,
-   "commentaries": []
+   "commentaries": [],
+   "v": "31fda2f59abd"
   },
   {
    "id": "rambam/admission-into-the-sanctuary",
@@ -4495,7 +4711,8 @@
    "pieces": 147,
    "stops": 556,
    "letters": 25608,
-   "commentaries": []
+   "commentaries": [],
+   "v": "c7ae0b687df3"
   },
   {
    "id": "rambam/things-forbidden-on-the-altar",
@@ -4506,7 +4723,8 @@
    "pieces": 100,
    "stops": 391,
    "letters": 18669,
-   "commentaries": []
+   "commentaries": [],
+   "v": "d59b2a301d4b"
   },
   {
    "id": "rambam/sacrificial-procedure",
@@ -4517,7 +4735,8 @@
    "pieces": 322,
    "stops": 1229,
    "letters": 54969,
-   "commentaries": []
+   "commentaries": [],
+   "v": "9aa7ef346822"
   },
   {
    "id": "rambam/daily-offerings-and-additional-offerings",
@@ -4528,7 +4747,8 @@
    "pieces": 168,
    "stops": 707,
    "letters": 30133,
-   "commentaries": []
+   "commentaries": [],
+   "v": "fcc991f52130"
   },
   {
    "id": "rambam/sacrifices-rendered-unfit",
@@ -4539,7 +4759,8 @@
    "pieces": 345,
    "stops": 1398,
    "letters": 53039,
-   "commentaries": []
+   "commentaries": [],
+   "v": "cc3b6afcd691"
   },
   {
    "id": "rambam/service-on-the-day-of-atonement",
@@ -4550,7 +4771,8 @@
    "pieces": 56,
    "stops": 367,
    "letters": 16195,
-   "commentaries": []
+   "commentaries": [],
+   "v": "a32f8e50657e"
   },
   {
    "id": "rambam/trespass",
@@ -4561,7 +4783,8 @@
    "pieces": 101,
    "stops": 413,
    "letters": 20346,
-   "commentaries": []
+   "commentaries": [],
+   "v": "1eb81c272b47"
   },
   {
    "id": "rambam/paschal-offering",
@@ -4572,7 +4795,8 @@
    "pieces": 125,
    "stops": 553,
    "letters": 26120,
-   "commentaries": []
+   "commentaries": [],
+   "v": "7601b69ac49b"
   },
   {
    "id": "rambam/festival-offering",
@@ -4583,7 +4807,8 @@
    "pieces": 32,
    "stops": 148,
    "letters": 7545,
-   "commentaries": []
+   "commentaries": [],
+   "v": "3cc84e291bb2"
   },
   {
    "id": "rambam/firstlings",
@@ -4594,7 +4819,8 @@
    "pieces": 123,
    "stops": 401,
    "letters": 21581,
-   "commentaries": []
+   "commentaries": [],
+   "v": "48ac61303bfe"
   },
   {
    "id": "rambam/offerings-for-unintentional-transgressions",
@@ -4605,7 +4831,8 @@
    "pieces": 137,
    "stops": 736,
    "letters": 38964,
-   "commentaries": []
+   "commentaries": [],
+   "v": "4af7500ac241"
   },
   {
    "id": "rambam/offerings-for-those-with-incomplete-atonement",
@@ -4616,7 +4843,8 @@
    "pieces": 48,
    "stops": 200,
    "letters": 11477,
-   "commentaries": []
+   "commentaries": [],
+   "v": "c699fa11a405"
   },
   {
    "id": "rambam/substitution",
@@ -4627,7 +4855,8 @@
    "pieces": 45,
    "stops": 168,
    "letters": 9218,
-   "commentaries": []
+   "commentaries": [],
+   "v": "b62195a323d3"
   },
   {
    "id": "rambam/defilement-by-a-corpse",
@@ -4638,7 +4867,8 @@
    "pieces": 246,
    "stops": 1198,
    "letters": 64410,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2565b2d72bff"
   },
   {
    "id": "rambam/red-heifer",
@@ -4649,7 +4879,8 @@
    "pieces": 166,
    "stops": 675,
    "letters": 36650,
-   "commentaries": []
+   "commentaries": [],
+   "v": "184b8752adcf"
   },
   {
    "id": "rambam/defilement-by-leprosy",
@@ -4660,7 +4891,8 @@
    "pieces": 174,
    "stops": 764,
    "letters": 40750,
-   "commentaries": []
+   "commentaries": [],
+   "v": "49fb66900d0d"
   },
   {
    "id": "rambam/those-who-defile-bed-or-seat",
@@ -4671,7 +4903,8 @@
    "pieces": 143,
    "stops": 547,
    "letters": 32201,
-   "commentaries": []
+   "commentaries": [],
+   "v": "1e311a6270e3"
   },
   {
    "id": "rambam/other-sources-of-defilement",
@@ -4682,7 +4915,8 @@
    "pieces": 254,
    "stops": 939,
    "letters": 51857,
-   "commentaries": []
+   "commentaries": [],
+   "v": "ad67cd547a6b"
   },
   {
    "id": "rambam/defilement-of-foods",
@@ -4693,7 +4927,8 @@
    "pieces": 259,
    "stops": 820,
    "letters": 43176,
-   "commentaries": []
+   "commentaries": [],
+   "v": "f471a2874efe"
   },
   {
    "id": "rambam/vessels",
@@ -4704,7 +4939,8 @@
    "pieces": 409,
    "stops": 1296,
    "letters": 68986,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2571a08038a3"
   },
   {
    "id": "rambam/immersion-pools",
@@ -4715,7 +4951,8 @@
    "pieces": 157,
    "stops": 509,
    "letters": 29291,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2997fc460335"
   },
   {
    "id": "rambam/damages-to-property",
@@ -4726,7 +4963,8 @@
    "pieces": 216,
    "stops": 728,
    "letters": 38194,
-   "commentaries": []
+   "commentaries": [],
+   "v": "aae16b7896fc"
   },
   {
    "id": "rambam/theft",
@@ -4737,7 +4975,8 @@
    "pieces": 131,
    "stops": 358,
    "letters": 21437,
-   "commentaries": []
+   "commentaries": [],
+   "v": "02b42a8c6209"
   },
   {
    "id": "rambam/robbery-and-lost-property",
@@ -4748,7 +4987,8 @@
    "pieces": 275,
    "stops": 866,
    "letters": 48865,
-   "commentaries": []
+   "commentaries": [],
+   "v": "bd3e0a0ab03f"
   },
   {
    "id": "rambam/one-who-injures-a-person-or-property",
@@ -4759,7 +4999,8 @@
    "pieces": 135,
    "stops": 484,
    "letters": 22696,
-   "commentaries": []
+   "commentaries": [],
+   "v": "9564eba45a32"
   },
   {
    "id": "rambam/murderer-and-the-preservation-of-life",
@@ -4770,7 +5011,8 @@
    "pieces": 184,
    "stops": 621,
    "letters": 30761,
-   "commentaries": []
+   "commentaries": [],
+   "v": "da09fac8605e"
   },
   {
    "id": "rambam/sales",
@@ -4781,7 +5023,8 @@
    "pieces": 414,
    "stops": 1677,
    "letters": 71229,
-   "commentaries": []
+   "commentaries": [],
+   "v": "145c5fddc87a"
   },
   {
    "id": "rambam/ownerless-property-and-gifts",
@@ -4792,7 +5035,8 @@
    "pieces": 219,
    "stops": 840,
    "letters": 32761,
-   "commentaries": []
+   "commentaries": [],
+   "v": "d9c7d55771bd"
   },
   {
    "id": "rambam/neighbors",
@@ -4803,7 +5047,8 @@
    "pieces": 157,
    "stops": 589,
    "letters": 34400,
-   "commentaries": []
+   "commentaries": [],
+   "v": "0569111e9a33"
   },
   {
    "id": "rambam/agents-and-partners",
@@ -4814,7 +5059,8 @@
    "pieces": 79,
    "stops": 344,
    "letters": 26176,
-   "commentaries": []
+   "commentaries": [],
+   "v": "9cdf9d0d125d"
   },
   {
    "id": "rambam/slaves",
@@ -4825,7 +5071,8 @@
    "pieces": 116,
    "stops": 397,
    "letters": 24737,
-   "commentaries": []
+   "commentaries": [],
+   "v": "76a592fa580c"
   },
   {
    "id": "rambam/hiring",
@@ -4836,7 +5083,8 @@
    "pieces": 125,
    "stops": 497,
    "letters": 34172,
-   "commentaries": []
+   "commentaries": [],
+   "v": "31356cd38ebe"
   },
   {
    "id": "rambam/borrowing-and-deposit",
@@ -4847,7 +5095,8 @@
    "pieces": 64,
    "stops": 283,
    "letters": 18772,
-   "commentaries": []
+   "commentaries": [],
+   "v": "1410f7eb9874"
   },
   {
    "id": "rambam/creditor-and-debtor",
@@ -4858,7 +5107,8 @@
    "pieces": 298,
    "stops": 1093,
    "letters": 75497,
-   "commentaries": []
+   "commentaries": [],
+   "v": "800efc84b6a7"
   },
   {
    "id": "rambam/plaintiff-and-defendant",
@@ -4869,7 +5119,8 @@
    "pieces": 187,
    "stops": 779,
    "letters": 46845,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2c761cef1a08"
   },
   {
    "id": "rambam/inheritances",
@@ -4880,7 +5131,8 @@
    "pieces": 116,
    "stops": 444,
    "letters": 24585,
-   "commentaries": []
+   "commentaries": [],
+   "v": "c559dedc2a03"
   },
   {
    "id": "rambam/the-sanhedrin-and-the-penalties-within-their-jurisdiction",
@@ -4891,7 +5143,8 @@
    "pieces": 254,
    "stops": 1116,
    "letters": 58157,
-   "commentaries": []
+   "commentaries": [],
+   "v": "320ec310d98e"
   },
   {
    "id": "rambam/testimony",
@@ -4902,7 +5155,8 @@
    "pieces": 173,
    "stops": 768,
    "letters": 40845,
-   "commentaries": []
+   "commentaries": [],
+   "v": "381d7be7bddf"
   },
   {
    "id": "rambam/rebels",
@@ -4913,7 +5167,8 @@
    "pieces": 69,
    "stops": 331,
    "letters": 17298,
-   "commentaries": []
+   "commentaries": [],
+   "v": "7945e3b26e33"
   },
   {
    "id": "rambam/mourning",
@@ -4924,7 +5179,8 @@
    "pieces": 183,
    "stops": 810,
    "letters": 30466,
-   "commentaries": []
+   "commentaries": [],
+   "v": "5d5251f0e776"
   },
   {
    "id": "rambam/kings-and-wars",
@@ -4935,7 +5191,8 @@
    "pieces": 131,
    "stops": 773,
    "letters": 29429,
-   "commentaries": []
+   "commentaries": [],
+   "v": "b49ac2feb7a7"
   },
   {
    "id": "shulchan-aruch/orach-chayim",
@@ -4971,7 +5228,8 @@
      "he": "ט״ז",
      "default": false
     }
-   ]
+   ],
+   "v": "f7c7ca91be84"
   },
   {
    "id": "shulchan-aruch/yoreh-deah",
@@ -4982,7 +5240,8 @@
    "pieces": 3700,
    "stops": 11394,
    "letters": 775080,
-   "commentaries": []
+   "commentaries": [],
+   "v": "08b792b02981"
   },
   {
    "id": "shulchan-aruch/even-haezer",
@@ -4993,7 +5252,8 @@
    "pieces": 1830,
    "stops": 6463,
    "letters": 398459,
-   "commentaries": []
+   "commentaries": [],
+   "v": "000ae6dc387a"
   },
   {
    "id": "shulchan-aruch/choshen-mishpat",
@@ -5004,7 +5264,8 @@
    "pieces": 3692,
    "stops": 5309,
    "letters": 925048,
-   "commentaries": []
+   "commentaries": [],
+   "v": "60b45b7ad419"
   },
   {
    "id": "tur/orach-chayim",
@@ -5015,7 +5276,8 @@
    "pieces": 697,
    "stops": 4723,
    "letters": 721258,
-   "commentaries": []
+   "commentaries": [],
+   "v": "3e505c70b7af"
   },
   {
    "id": "tur/yoreh-deah",
@@ -5026,7 +5288,8 @@
    "pieces": 403,
    "stops": 6843,
    "letters": 630813,
-   "commentaries": []
+   "commentaries": [],
+   "v": "252dc8a26382"
   },
   {
    "id": "tur/even-haezer",
@@ -5037,7 +5300,8 @@
    "pieces": 178,
    "stops": 4900,
    "letters": 419656,
-   "commentaries": []
+   "commentaries": [],
+   "v": "0eaa0611fe64"
   },
   {
    "id": "tur/choshen-mishpat",
@@ -5048,7 +5312,8 @@
    "pieces": 426,
    "stops": 5395,
    "letters": 1043136,
-   "commentaries": []
+   "commentaries": [],
+   "v": "bf8b05d27c25"
   },
   {
    "id": "halacha/kitzur-shulchan-aruch",
@@ -5059,7 +5324,8 @@
    "pieces": 2765,
    "stops": 9833,
    "letters": 650315,
-   "commentaries": []
+   "commentaries": [],
+   "v": "c43501cb7fbb"
   },
   {
    "id": "halacha/chayei-adam",
@@ -5070,7 +5336,8 @@
    "pieces": 220,
    "stops": 5597,
    "letters": 1023641,
-   "commentaries": []
+   "commentaries": [],
+   "v": "98087ab2a0d2"
   },
   {
    "id": "halacha/aruch-hashulchan",
@@ -5081,7 +5348,8 @@
    "pieces": 706,
    "stops": 21364,
    "letters": 8273937,
-   "commentaries": []
+   "commentaries": [],
+   "v": "006996fa8640"
   },
   {
    "id": "halacha/ben-ish-chai",
@@ -5092,7 +5360,8 @@
    "pieces": 2155,
    "stops": 6945,
    "letters": 1644384,
-   "commentaries": []
+   "commentaries": [],
+   "v": "de7dbcfd677d"
   },
   {
    "id": "halacha/sefer-hamitzvos",
@@ -5103,7 +5372,8 @@
    "pieces": 631,
    "stops": 3209,
    "letters": 269932,
-   "commentaries": []
+   "commentaries": [],
+   "v": "baabbf8b64d1"
   },
   {
    "id": "mussar/mesillas-yesharim",
@@ -5114,7 +5384,8 @@
    "pieces": 27,
    "stops": 1825,
    "letters": 127623,
-   "commentaries": []
+   "commentaries": [],
+   "v": "6116c96b8cfb"
   },
   {
    "id": "mussar/shaarei-teshuvah",
@@ -5125,7 +5396,8 @@
    "pieces": 339,
    "stops": 3597,
    "letters": 153926,
-   "commentaries": []
+   "commentaries": [],
+   "v": "ee851ab9a39c"
   },
   {
    "id": "mussar/chovos-halevavos",
@@ -5136,7 +5408,8 @@
    "pieces": 93,
    "stops": 3169,
    "letters": 372843,
-   "commentaries": []
+   "commentaries": [],
+   "v": "66297bbb34dd"
   },
   {
    "id": "mussar/nefesh-hachaim",
@@ -5147,7 +5420,8 @@
    "pieces": 98,
    "stops": 5011,
    "letters": 255414,
-   "commentaries": []
+   "commentaries": [],
+   "v": "789445fa9e55"
   },
   {
    "id": "mussar/derech-hashem",
@@ -5158,7 +5432,8 @@
    "pieces": 28,
    "stops": 826,
    "letters": 120810,
-   "commentaries": []
+   "commentaries": [],
+   "v": "030c3b15005c"
   },
   {
    "id": "mussar/tomer-devorah",
@@ -5169,7 +5444,8 @@
    "pieces": 133,
    "stops": 341,
    "letters": 37670,
-   "commentaries": []
+   "commentaries": [],
+   "v": "a5af9dd1810e"
   },
   {
    "id": "mussar/pele-yoetz",
@@ -5180,7 +5456,8 @@
    "pieces": 393,
    "stops": 8254,
    "letters": 916882,
-   "commentaries": []
+   "commentaries": [],
+   "v": "0e051ab04985"
   },
   {
    "id": "mussar/shelah",
@@ -5191,7 +5468,8 @@
    "pieces": 379,
    "stops": 50020,
    "letters": 4841595,
-   "commentaries": []
+   "commentaries": [],
+   "v": "709db12ef390"
   },
   {
    "id": "mussar/likutei-moharan",
@@ -5202,7 +5480,8 @@
    "pieces": 1275,
    "stops": 17800,
    "letters": 1120787,
-   "commentaries": []
+   "commentaries": [],
+   "v": "98abb01c34d9"
   },
   {
    "id": "midrash/ein-yaakov",
@@ -5213,7 +5492,8 @@
    "pieces": 350,
    "stops": 39393,
    "letters": 1604182,
-   "commentaries": []
+   "commentaries": [],
+   "v": "4f1f1f93dc73"
   },
   {
    "id": "midrash/bereishis-rabbah",
@@ -5224,7 +5504,8 @@
    "pieces": 843,
    "stops": 11592,
    "letters": 453726,
-   "commentaries": []
+   "commentaries": [],
+   "v": "2493bea392e1"
   },
   {
    "id": "midrash/midrash-tanchuma",
@@ -5235,7 +5516,8 @@
    "pieces": 767,
    "stops": 24778,
    "letters": 1016774,
-   "commentaries": []
+   "commentaries": [],
+   "v": "5f5e08b07b27"
   },
   {
    "id": "midrash/pirkei-derabbi-eliezer",
@@ -5246,7 +5528,8 @@
    "pieces": 656,
    "stops": 3746,
    "letters": 172888,
-   "commentaries": []
+   "commentaries": [],
+   "v": "45bff85bf103"
   }
  ]
 }

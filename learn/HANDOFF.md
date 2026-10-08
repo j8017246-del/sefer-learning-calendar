@@ -317,7 +317,35 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   5. *Backup*: version 2 holds every saved plan (also those whose sefer did not load), the
      day history (from the account when signed in, plus unsent), and unsent deletions; it
      says how many plans and days it holds, and Settings shows the last backup's date.
-  Part B (items 6-15) and Part C are next; not yet done.
+- **Safety audit, Part B (10-08)**, tests in `tests/learn-safety.test.js` (cases 5-9),
+  the rules test, the sync test and feature tests 11-12:
+  6. Done on one phone and Undo on another (one offline, both orders): the later action wins
+     everywhere (per-day times from Part A).
+  7. A save not confirmed stays unsent; a bar says "Not saved to your account yet" with Retry
+     and Save a backup. Plans are sent packed (`Sync.pack`: names written once, a day's start
+     left out when it is the day before's end; ten years of Rambam 905,247 → 277,406
+     characters); one still too big is not sent, and said.
+  8. Signing out with unsent changes asks first (send now / save a backup / sign out anyway);
+     what is unsent stays on the phone for that account. A failed "sign in again" while
+     deleting does the same.
+  9. Delete account: a backup is offered first; the phone stops writing; a mark
+     `deleted/{uid}` makes the rules refuse every write to the account from any phone; if it
+     stops halfway, the mark is taken away and the person is told how much was removed.
+  10. A day record sent again is accepted by the rules (the same record), so retries never block.
+  11. A sign-in link opened on another phone: typing the email finishes with that link;
+      "Send another link instead" is its own button; old/used links say so.
+  12. Data files are asked for by version (`data/<id>.json?v=<dataVersion>`, the version is in
+      the catalog); the offline helper keeps one version of each file and drops older ones.
+  13. Rules check types and ranges (reminder time 00:00-23:59, dates, day types, minutes 1-600...).
+  14. "Import a file" is a real button (keyboard).
+  15. All the account and rules tests pass with the emulators; the live rules were checked
+      equal to the released file before publishing the new ones.
+  Also (Hudi): an older version of the app cannot harm the account: plans are written only with
+  `v: 2` (the rules refuse older versions), plans are never deleted (stopping a plan writes
+  `stopped: true`), and deleting is allowed only with the account's deletion mark. Tested with the
+  real 21d1ca0 version of the app (`OLD_APP=<folder> ... learn-safety.test.js`). When a later
+  change needs older phones to stop writing, raise `APP_V` in accounts.js and the `v >= 2` in the rules.
+  Part C is next.
 
 ## Left out (told Hudi)
 

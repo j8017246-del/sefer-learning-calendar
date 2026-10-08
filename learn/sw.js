@@ -1,10 +1,13 @@
 /*
  * Lets the app open without a connection. The screens and the list of
  * sefarim are kept when the app is first opened; each sefer's data file is
- * kept the first time it is used. Screens are taken fresh from the network
- * when there is one; data files from the phone first.
+ * kept the first time it is used. Screens and the list of sefarim are taken
+ * fresh from the network when there is one; data files from the phone first,
+ * by their version (data/<id>.json?v=<version>, the version named in the
+ * list): a rebuilt file has a new address, is fetched, and the older copy of
+ * the same file is removed, so old data is never mixed with newer places.
  */
-const CACHE = "learning-calendar-v3";
+const CACHE = "learning-calendar-v4";
 const SHELL = ["./", "index.html", "app.css", "app.js", "accounts.js", "strings.js", "engine/sefer.js", "engine/schedule.js", "engine/sync.js", "engine/cycles.js", "suggestions.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "apple-touch-icon.png", "data/catalog.json"];
 
 self.addEventListener("install", (e) => {
@@ -29,7 +32,15 @@ async function fromCacheFirst(request) {
   const hit = await cache.match(request);
   if (hit) return hit;
   const res = await fetch(request);
-  if (res.ok) cache.put(request, res.clone());
+  if (res.ok) {
+    await cache.put(request, res.clone());
+    // other versions of the same file are old now
+    const path = new URL(request.url).pathname;
+    for (const k of await cache.keys()) {
+      const u = new URL(k.url);
+      if (u.pathname === path && k.url !== request.url) await cache.delete(k);
+    }
+  }
   return res;
 }
 

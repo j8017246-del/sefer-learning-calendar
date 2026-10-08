@@ -1064,6 +1064,8 @@ BUILDERS = {"tanakh": build_tanakh, "mishnah": build_mishnah, "bavli": build_bav
 
 def catalog_entry(record):
     entry = {k: record[k] for k in ("id", "collection", "en", "he", "unit")}
+    if record.get("dataVersion"):
+        entry["v"] = record["dataVersion"]   # the phone asks for data/<id>.json?v=<this>, so it never keeps an old copy
     entry["pieces"] = len(record["stops"])
     entry["stops"] = len(record["weights"])
     entry["letters"] = sum(record["weights"])

@@ -128,6 +128,62 @@
     return records.filter((r) => last.get(r.id) !== JSON.stringify(r));
   }
 
+  // ---- a compact copy for the account ---------------------------------------------------------
+  //
+  // The account keeps each plan as text of at most 900,000 characters. A long plan (ten
+  // years of Rambam) is bigger than that written out in full, so the account's copy is
+  // packed: each place's long name is written once ("heads"), and a day's start is left
+  // out when it is the day before's end. unpack() gives back exactly the same record.
+  const ADDR = /^(.*) (\S+)$/;
+  function pack(r) {
+    const heads = [], at = new Map();
+    const enc = (a) => {
+      if (typeof a !== "string" || a === "end") return a;
+      const m = ADDR.exec(a);
+      if (!m) return a;
+      if (!at.has(m[1])) { at.set(m[1], heads.length); heads.push(m[1]); }
+      return `${at.get(m[1])}~${m[2]}`;
+    };
+    let prev = null;
+    const portions = (r.portions || []).map((p) => {
+      const q = { ...p, until: enc(p.until) };
+      if (p.from === prev) delete q.from; else q.from = enc(p.from);
+      prev = p.until;
+      return q;
+    });
+    const words = r.words ? Object.fromEntries(Object.entries(r.words).map(([k, v]) => [enc(k), v])) : undefined;
+    return { ...r, packed: 1, from: enc(r.from), until: enc(r.until), portions, ...(words ? { words } : {}), heads };
+  }
+  function unpack(r) {
+    if (!r || r.packed !== 1) return r;
+    const dec = (a) => {
+      if (typeof a !== "string") return a;
+      const m = /^(\d+)~(\S+)$/.exec(a);
+      return m && r.heads[+m[1]] !== undefined ? `${r.heads[+m[1]]} ${m[2]}` : a;
+    };
+    let prev = null;
+    const portions = r.portions.map((p) => {
+      // the same fields in the same order as before packing (date, from, until, ...)
+      const q = {};
+      for (const k of Object.keys(p)) {
+        if (k === "until" && !("from" in p)) q.from = prev;
+        q[k] = k === "from" || k === "until" ? dec(p[k]) : p[k];
+      }
+      prev = q.until;
+      return q;
+    });
+    const out = { ...r, from: dec(r.from), until: dec(r.until), portions };
+    if (r.words) out.words = Object.fromEntries(Object.entries(r.words).map(([k, v]) => [dec(k), v]));
+    delete out.packed; delete out.heads;
+    return out;
+  }
+  const ACCOUNT_LIMIT = 900000;
+  // The text the account keeps for a plan, or null when even packed it is too big.
+  function accountText(r) {
+    const t = JSON.stringify(pack(r));
+    return t.length < ACCOUNT_LIMIT - 1000 ? t : null;
+  }
+
   // ---- backups ------------------------------------------------------------------------------
 
   const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
@@ -180,7 +236,7 @@
     return { ok: !problems.length, plans: data.plans, events: Array.isArray(events) ? events : [], problems };
   }
 
-  const api = { checkBackup, planProblems, reconcile, mergePlan, mergeDay, keepsFinished, changes, fingerprint, scheduleOf, doneDays };
+  const api = { pack, unpack, accountText, ACCOUNT_LIMIT, checkBackup, planProblems, reconcile, mergePlan, mergeDay, keepsFinished, changes, fingerprint, scheduleOf, doneDays };
   global.LearnSync = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : globalThis);
