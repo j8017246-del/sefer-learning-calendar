@@ -29,6 +29,8 @@
   "use strict";
 
   const SEFARIA = "https://www.sefaria.org/";
+  // Words of the sentences below come from strings.js (loaded first), like every word on screen.
+  const say = (key, vars) => global.tr(`engine.${key}`, vars);
 
   function hidden(obj, key, make) {
     if (!Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -107,7 +109,7 @@
 
   // How a piece is named in a sentence: "9b", "2:3", "siman 128".
   function pieceName(sefer, p) {
-    return sefer.shape === "list" ? `siman ${pieceLabel(sefer, p)}` : pieceLabel(sefer, p);
+    return sefer.shape === "list" ? say("siman", { n: pieceLabel(sefer, p) }) : pieceLabel(sefer, p);
   }
 
   // Piece index from its label ("10a", "3:4", "128").
@@ -118,7 +120,7 @@
       if (pieceLabel(sefer, p).toLowerCase() === want) return p;
       if (sefer.shape === "named" && [sefer.labels[p], sefer.heLabels?.[p]].some((x) => x && x.toLowerCase() === want)) return p;
     }
-    throw new RangeError(`${sefer.en} has no ${label}`);
+    throw new RangeError(say("hasNo", { name: sefer.en, place: label }));
   }
 
   // ---- commentaries -------------------------------------------------------
@@ -173,8 +175,7 @@
   // When a stop's opening words also appear earlier in the same piece: which
   // time they appear (2 = the second time), so the place is found at once.
   const nthOf = (sefer, s) => (sefer.nth && sefer.nth[s]) || 1;
-  const ORDINALS = ["", "", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
-  const timeText = (n) => (n > 1 ? ` (the ${ORDINALS[n] || `${n}th`} time)` : "");
+  const timeText = (n) => (n > 1 ? say(n <= 10 ? `time.${n}` : "time.n", { n }) : "");
 
   function rangeParts(sefer, from, to, commentaryIds = []) {
     if (to < from) return null;
@@ -202,10 +203,10 @@
   function commentaryText(sefer, parts) {
     return parts.commentaries.map((c) => {
       if (c.seifKatan != null) {
-        const siman = positions(sefer)[parts.end.piece].chapter === c.siman ? "" : `siman ${c.siman}, `;
-        return `${c.en} through ${siman}se'if katan ${c.seifKatan}`;
+        const siman = positions(sefer)[parts.end.piece].chapter === c.siman ? "" : say("simanComma", { n: c.siman });
+        return say("seifKatan", { name: c.en, siman, n: c.seifKatan });
       }
-      return c.words ? `${c.en} through “${c.words}”` : `${c.en} on ${pieceLabel(sefer, c.piece)}`;
+      return c.words ? say("commThrough", { name: c.en, words: c.words }) : say("commOn", { name: c.en, place: pieceLabel(sefer, c.piece) });
     }).join("; ");
   }
 
@@ -220,25 +221,25 @@
     const pos = positions(sefer);
     const head = sefer.shape === "list" || sefer.shape === "named" ? `${sefer.en}, ` : `${sefer.en} `;
     const a = pieceName(sefer, r.start.piece), b = pieceName(sefer, r.end.piece);
-    const fromWords = r.start.words ? `, from the words “${r.start.words}”${timeText(r.start.nth)}` : "";
-    const untilWords = r.end.until ? `, until the words “${r.end.until}”${timeText(r.end.nth)}` : "";
+    const fromWords = r.start.words ? say("fromWords", { words: r.start.words, time: timeText(r.start.nth) }) : "";
+    const untilWords = r.end.until ? say("untilWords", { words: r.end.until, time: timeText(r.end.nth) }) : "";
     let text;
     if (r.start.piece === r.end.piece) {
       text = !fromWords && !untilWords
         ? `${head}${a}`
-        : `${head}${a}${fromWords}${untilWords || `, to the end of ${b}`}`;
+        : `${head}${a}${fromWords}${untilWords || say("toTheEndComma", { place: b })}`;
     } else if (!fromWords && !untilWords && sefer.shape === "chapters") {
       const pa = pos[r.start.piece], pb = pos[r.end.piece];
       if (pa.verse === 1 && pb.last) text = pa.chapter === pb.chapter ? `${head}${pa.chapter}` : `${head}${pa.chapter}–${pb.chapter}`;
       else if (pa.chapter === pb.chapter) text = `${head}${pa.chapter}:${pa.verse}–${pb.verse}`;
-      else text = `${head}${a} to ${b}`;
+      else text = `${head}${say("aToB", { a, b })}`;
     } else if (!fromWords && !untilWords && sefer.shape === "list") {
-      text = `${head}simanim ${pos[r.start.piece].number}–${pos[r.end.piece].number}`;
+      text = `${head}${say("simanim", { a: pos[r.start.piece].number, b: pos[r.end.piece].number })}`;
     } else {
       // a pasuk, mishnah, halacha or se'if number names a whole piece;
       // an amud or siman reads "to the end of"
-      const end = untilWords ? `${b}${untilWords}` : sefer.shape === "chapters" ? b : `the end of ${b}`;
-      text = `${head}${a}${fromWords}${fromWords ? "," : ""} to ${end}`;
+      const end = untilWords ? `${b}${untilWords}` : sefer.shape === "chapters" ? b : say("theEndOf", { place: b });
+      text = `${head}${say("aToB", { a: `${a}${fromWords}${fromWords ? "," : ""}`, b: end })}`;
     }
     const comm = commentaryText(sefer, r);
     return comm ? `${text}; ${comm}` : text;
@@ -250,7 +251,8 @@
   function segmentRef(sefer, s) {
     const pos = positions(sefer)[pieceOf(sefer, s)];
     const seg = sefer.segments ? sefer.segments[s] : 1;
-    if (sefer.shape === "chapters") return `${sefer.sefaria} ${pos.chapter}:${pos.verse}`;
+    // the Yerushalmi's halachos have many Sefaria segments: "Jerusalem Talmud Shekalim 1:1:3"
+    if (sefer.shape === "chapters") return `${sefer.sefaria} ${pos.chapter}:${pos.verse}${sefer.segmentRefs ? `:${seg}` : ""}`;
     if (sefer.shape === "daf") return `${sefer.sefaria} ${pos.daf}${pos.side}:${seg}`;
     if (sefer.shape === "named") return `${sefer.refs[pieceOf(sefer, s)]}:${seg}`;
     return `${sefer.sefaria} ${pos.number}:${seg}`;
@@ -278,7 +280,7 @@
     const rest = ref.slice(prefix.length);
     let piece, seg = 1;
     try {
-      if (sefer.shape === "chapters") piece = findPiece(sefer, rest);
+      if (sefer.shape === "chapters" && !sefer.segmentRefs) piece = findPiece(sefer, rest);
       else {
         const colon = rest.lastIndexOf(":");
         piece = findPiece(sefer, rest.slice(0, colon));
@@ -426,7 +428,7 @@
       const want = String(label).trim();
       const x = c.parts.slice().sort((a, b) => b.sefer.en.length - a.sefer.en.length)
         .find((y) => want.toLowerCase().startsWith(y.sefer.en.toLowerCase() + " "));
-      if (!x) throw new RangeError(`Write which sefer, for example ${c.parts[0].sefer.en} ${pieceLabel(c.parts[0].sefer, 0)}`);
+      if (!x) throw new RangeError(say("whichSefer", { example: `${c.parts[0].sefer.en} ${pieceLabel(c.parts[0].sefer, 0)}` }));
       return x.firstPiece + findPiece(x.sefer, want.slice(x.sefer.en.length + 1).replace(/^,\s*/, ""));
     },
     stopWeights(c, comms = []) {
@@ -460,10 +462,10 @@
       if (a === b) return describeRange(a.sefer, from - a.firstStop, to - a.firstStop, has(a, comms));
       const r = multi.rangeParts(c, from, to, comms);
       const nameA = multi.pieceName(c, r.start.piece), nameB = multi.pieceName(c, r.end.piece);
-      const fromWords = r.start.words ? `, from the words “${r.start.words}”${timeText(r.start.nth)},` : "";
-      const end = r.end.until ? `${nameB}, until the words “${r.end.until}”${timeText(r.end.nth)}`
-        : b.sefer.shape === "chapters" ? nameB : `the end of ${nameB}`;
-      const text = `${nameA}${fromWords} to ${end}`;
+      const fromWords = r.start.words ? `${say("fromWords", { words: r.start.words, time: timeText(r.start.nth) })},` : "";
+      const end = r.end.until ? `${nameB}${say("untilWords", { words: r.end.until, time: timeText(r.end.nth) })}`
+        : b.sefer.shape === "chapters" ? nameB : say("theEndOf", { place: nameB });
+      const text = say("aToB", { a: `${nameA}${fromWords}`, b: end });
       const comm = commentaryText(b.sefer, { ...r, end: { ...r.end, piece: r.end.piece - b.firstPiece },
         commentaries: r.commentaries.map((k) => ({ ...k, piece: k.piece - b.firstPiece })) });
       return comm ? `${text}; ${comm}` : text;

@@ -2,6 +2,7 @@ const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
 
+require("../learn/strings.js");   // the words the engine writes
 const Pieces = require("../learn/engine/sefer.js");
 const S = require("../learn/engine/schedule.js");
 
@@ -716,16 +717,19 @@ test("names are Hebrew with English alongside", () => {
   assert.strictEqual(byId["shulchan-aruch/orach-chayim"].he, "שולחן ערוך אורח חיים");
 });
 
-test("only Public Domain or CC0 editions, except the Wikisource Gemara", () => {
+test("only Public Domain or CC0 editions, except the Wikisource Gemara and Guggenheimer's Yerushalmi", () => {
   const counts = {};
   for (const e of catalog.seforim) counts[e.collection] = (counts[e.collection] || 0) + 1;
-  assert.deepStrictEqual(counts, { tanakh: 39, mishnah: 63, bavli: 37, rambam: 79, "shulchan-aruch": 4, tur: 4, halacha: 5, mussar: 9, midrash: 4 });
+  assert.deepStrictEqual(counts, { tanakh: 39, mishnah: 63, bavli: 37, yerushalmi: 39, rambam: 79, "shulchan-aruch": 4, tur: 4, halacha: 5, mussar: 9, midrash: 4 });
   for (const e of catalog.seforim) {
     const sefer = load(e.id);
     for (const s of sefer.sources) {
       const lic = String(s.license).toLowerCase();
       const ok = ["public domain", "pd", "cc0"].includes(lic) ||
-        (e.collection === "bavli" && s.title === sefer.sefaria && s.version === "Wikisource Talmud Bavli" && lic === "cc-by-sa");
+        (e.collection === "bavli" && s.title === sefer.sefaria && s.version === "Wikisource Talmud Bavli" && lic === "cc-by-sa") ||
+        // approved by Hudi on 10-08 for this one text; never Venice or Mechon-Mamre
+        (e.collection === "yerushalmi" && s.title === sefer.sefaria && lic === "cc-by"
+          && s.version === "The Jerusalem Talmud, edition by Heinrich W. Guggenheimer. Berlin, De Gruyter, 1999-2015");
       assert(ok, `${e.id}: ${s.title} (${s.version}) is ${s.license}`);
     }
   }
@@ -736,6 +740,58 @@ test("only Public Domain or CC0 editions, except the Wikisource Gemara", () => {
   const total = ["genesis", "exodus", "leviticus", "numbers", "deuteronomy"]
     .reduce((a, b) => a + load("tanakh/" + b).weights.reduce((x, y) => x + y, 0), 0);
   assert(Math.abs(total - 304805) < 1000, `Torah has ${total} letters`);
+});
+
+test("Yerushalmi: days stop inside a halacha, sized by the settings, named by perek and halacha with the right words", () => {
+  const yer = load("yerushalmi/berakhot");
+  assert.strictEqual(yer.collection, "yerushalmi");
+  const settings = { seferId: "yerushalmi/berakhot", from: 0, to: Pieces.stopCount(yer) - 1, commentaries: [], startDate: "2026-10-11",
+    learningDays: [0, 1, 2, 3, 4, 5], lighterDays: [], daysOff: [] };
+  const short = S.buildPlan({ ...settings, endDate: "2026-11-30" }, yer);
+  const long = S.buildPlan({ ...settings, endDate: "2027-10-01" }, yer);
+  assertCovers(short); assertCovers(long);
+  // the person's settings set the size: a later finish date makes many more, smaller days
+  assert(long.portions.filter((p) => p.to >= p.from).length > 5 * short.portions.filter((p) => p.to >= p.from).length);
+  const inside = long.portions.find((p) => p.to >= p.from && Pieces.rangeParts(yer, p.from, p.to).end.until);
+  assert(inside, "some day stops inside a halacha");
+  const text = Pieces.describeRange(yer, inside.from, inside.to);
+  assert(/^Yerushalmi Berachos \d+:\d+/.test(text), text);
+  assert(!/\b\d+[ab]\b/.test(text), "never a daf number: " + text);
+  // the words that name the stop are at that place in Guggenheimer's text: its address's segment, so many letters in
+  const next = inside.to + 1, addr = Pieces.address(yer, next);
+  assert(/^Jerusalem Talmud Berakhot \d+:\d+:\d+@\d+$/.test(addr), addr);
+  assert.strictEqual(Pieces.stopAt(yer, addr), next);
+  assert(text.includes(yer.markers[next]), "the stop is named by the next stop's opening words");
+  assert(!yer.markers.some((m) => /^(משנה|הלכה)\b/.test(m)), "the משנה: / הלכה: headings are not taken as words");
+});
+
+test("reminders skip Shabbos and Yom Tov (Israel or outside), and Friday and Erev Yom Tov in the evening", () => {
+  // Rosh Hashanah 5787: Sat-Sun 2026-09-12/13; Yom Kippur Mon 09-21; Sukkos 09-26/27; Shemini Atzeres 10-03/04
+  const out = S.noReminderDates("2026-09-10", "2026-10-06", { evening: true });
+  for (const d of ["2026-09-12", "2026-09-13", "2026-09-21", "2026-09-26", "2026-09-27", "2026-10-03", "2026-10-04"]) assert(out.includes(d), d);
+  for (const d of ["2026-09-11", "2026-09-20", "2026-09-25", "2026-10-02"]) assert(out.includes(d), `evening before ${d}`);
+  assert(!out.includes("2026-09-14") && !out.includes("2026-09-28"), "weekdays and Chol HaMoed have reminders");
+  const morning = S.noReminderDates("2026-09-10", "2026-10-06");
+  assert(!morning.includes("2026-09-11"), "a morning reminder on Friday is fine");
+  // Pesach 5787: Israel keeps one day, outside Israel two
+  assert(S.isYomTov("2027-04-22", false) && S.isYomTov("2027-04-23", false) && !S.isYomTov("2027-04-23", true));
+  assert(S.inIsrael("Asia/Jerusalem") && !S.inIsrael("America/New_York"));
+});
+
+test("a plan keeps its kind, owner and members, dedication, assigned part and each day's minutes", () => {
+  const plan = S.buildPlan(sample, berakhot);
+  plan.portions[0].done = true;
+  plan.portions[0].minutes = 35;
+  Object.assign(plan, { owner: "uid-1", members: [], dedication: { kind: "ilui-nishmas", name: "Ploni ben Ploni" },
+    assignment: { name: "Reuven", from: "Berakhot 2a:1@0", until: "Berakhot 10a:1@0" } });
+  const saved = JSON.parse(JSON.stringify(S.toSaved(plan, berakhot)));
+  assert.strictEqual(saved.kind, "personal", "personal unless it is a cycle or a review");
+  assert.strictEqual(saved.portions[0].minutes, 35);
+  assert(!("minutes" in saved.portions[1]), "never required");
+  const back = S.fromSaved(saved, berakhot);
+  assert.deepStrictEqual([back.owner, back.dedication.name, back.assignment.name, back.portions[0].minutes], ["uid-1", "Ploni ben Ploni", "Reuven", 35]);
+  assert.strictEqual(S.fromSaved({ ...saved, kind: "review" }, berakhot).kind, "review");
+  assert.strictEqual(S.fromSaved({ ...saved, kind: "nonsense" }, berakhot).kind, "personal");
 });
 
 console.log(`${passed} tests passed`);

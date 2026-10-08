@@ -17,6 +17,11 @@
    "he": "ש״ס בבלי"
   },
   {
+   "id": "yerushalmi",
+   "en": "Talmud Yerushalmi",
+   "he": "תלמוד ירושלמי"
+  },
+  {
    "id": "rambam",
    "en": "Rambam (Mishneh Torah)",
    "he": "רמב״ם"
@@ -3633,6 +3638,435 @@
      "default": true
     }
    ]
+  },
+  {
+   "id": "yerushalmi/berakhot",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Berachos",
+   "he": "תלמוד ירושלמי ברכות",
+   "unit": "halacha",
+   "pieces": 58,
+   "stops": 3935,
+   "letters": 158224,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/peah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Pe'ah",
+   "he": "תלמוד ירושלמי פאה",
+   "unit": "halacha",
+   "pieces": 55,
+   "stops": 1844,
+   "letters": 80749,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/demai",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Demai",
+   "he": "תלמוד ירושלמי דמאי",
+   "unit": "halacha",
+   "pieces": 44,
+   "stops": 1487,
+   "letters": 65161,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/kilayim",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Kilayim",
+   "he": "תלמוד ירושלמי כלאים",
+   "unit": "halacha",
+   "pieces": 56,
+   "stops": 1837,
+   "letters": 74543,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/sheviit",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Shevi'is",
+   "he": "תלמוד ירושלמי שביעית",
+   "unit": "halacha",
+   "pieces": 56,
+   "stops": 1965,
+   "letters": 85265,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/terumot",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Terumos",
+   "he": "תלמוד ירושלמי תרומות",
+   "unit": "halacha",
+   "pieces": 48,
+   "stops": 2437,
+   "letters": 102503,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/maasrot",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Ma'asros",
+   "he": "תלמוד ירושלמי מעשרות",
+   "unit": "halacha",
+   "pieces": 20,
+   "stops": 1138,
+   "letters": 44872,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/maaser-sheni",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Ma'aser Sheni",
+   "he": "תלמוד ירושלמי מעשר שני",
+   "unit": "halacha",
+   "pieces": 24,
+   "stops": 1390,
+   "letters": 58510,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/challah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Challah",
+   "he": "תלמוד ירושלמי חלה",
+   "unit": "halacha",
+   "pieces": 19,
+   "stops": 1045,
+   "letters": 44017,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/orlah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Orlah",
+   "he": "תלמוד ירושלמי ערלה",
+   "unit": "halacha",
+   "pieces": 21,
+   "stops": 1016,
+   "letters": 37381,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/bikkurim",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Bikkurim",
+   "he": "תלמוד ירושלמי בכורים",
+   "unit": "halacha",
+   "pieces": 21,
+   "stops": 917,
+   "letters": 30731,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/shabbat",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Shabbos",
+   "he": "תלמוד ירושלמי שבת",
+   "unit": "halacha",
+   "pieces": 141,
+   "stops": 6780,
+   "letters": 194466,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/eruvin",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Eruvin",
+   "he": "תלמוד ירושלמי עירובין",
+   "unit": "halacha",
+   "pieces": 94,
+   "stops": 3599,
+   "letters": 105779,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/pesachim",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Pesachim",
+   "he": "תלמוד ירושלמי פסחים",
+   "unit": "halacha",
+   "pieces": 86,
+   "stops": 4818,
+   "letters": 137316,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/shekalim",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Shekalim",
+   "he": "תלמוד ירושלמי שקלים",
+   "unit": "halacha",
+   "pieces": 32,
+   "stops": 2262,
+   "letters": 70268,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/yoma",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Yoma",
+   "he": "תלמוד ירושלמי יומא",
+   "unit": "halacha",
+   "pieces": 51,
+   "stops": 3293,
+   "letters": 96511,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/sukkah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Sukkah",
+   "he": "תלמוד ירושלמי סוכה",
+   "unit": "halacha",
+   "pieces": 49,
+   "stops": 1742,
+   "letters": 52496,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/beitzah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Beitzah",
+   "he": "תלמוד ירושלמי ביצה",
+   "unit": "halacha",
+   "pieces": 46,
+   "stops": 1647,
+   "letters": 45916,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/rosh-hashanah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Rosh Hashanah",
+   "he": "תלמוד ירושלמי ראש השנה",
+   "unit": "halacha",
+   "pieces": 36,
+   "stops": 1569,
+   "letters": 48175,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/taanit",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Taanis",
+   "he": "תלמוד ירושלמי תענית",
+   "unit": "halacha",
+   "pieces": 40,
+   "stops": 2605,
+   "letters": 79727,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/megillah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Megillah",
+   "he": "תלמוד ירושלמי מגילה",
+   "unit": "halacha",
+   "pieces": 38,
+   "stops": 2699,
+   "letters": 77928,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/moed-katan",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Moed Katan",
+   "he": "תלמוד ירושלמי מועד קטן",
+   "unit": "halacha",
+   "pieces": 24,
+   "stops": 1672,
+   "letters": 49466,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/chagigah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Chagigah",
+   "he": "תלמוד ירושלמי חגיגה",
+   "unit": "halacha",
+   "pieces": 23,
+   "stops": 1902,
+   "letters": 53889,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/yevamot",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Yevamos",
+   "he": "תלמוד ירושלמי יבמות",
+   "unit": "halacha",
+   "pieces": 143,
+   "stops": 5734,
+   "letters": 174923,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/ketubot",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Kesubos",
+   "he": "תלמוד ירושלמי כתובות",
+   "unit": "halacha",
+   "pieces": 120,
+   "stops": 4865,
+   "letters": 147320,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/nedarim",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Nedarim",
+   "he": "תלמוד ירושלמי נדרים",
+   "unit": "halacha",
+   "pieces": 94,
+   "stops": 2703,
+   "letters": 80939,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/nazir",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Nazir",
+   "he": "תלמוד ירושלמי נזיר",
+   "unit": "halacha",
+   "pieces": 55,
+   "stops": 3081,
+   "letters": 89833,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/sotah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Sotah",
+   "he": "תלמוד ירושלמי סוטה",
+   "unit": "halacha",
+   "pieces": 73,
+   "stops": 3528,
+   "letters": 106247,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/gittin",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Gittin",
+   "he": "תלמוד ירושלמי גיטין",
+   "unit": "halacha",
+   "pieces": 75,
+   "stops": 3349,
+   "letters": 98486,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/kiddushin",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Kiddushin",
+   "he": "תלמוד ירושלמי קידושין",
+   "unit": "halacha",
+   "pieces": 43,
+   "stops": 3728,
+   "letters": 110151,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/bava-kamma",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Bava Kamma",
+   "he": "תלמוד ירושלמי בבא קמא",
+   "unit": "halacha",
+   "pieces": 85,
+   "stops": 2029,
+   "letters": 65932,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/bava-metzia",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Bava Metzia",
+   "he": "תלמוד ירושלמי בבא מציעא",
+   "unit": "halacha",
+   "pieces": 84,
+   "stops": 1872,
+   "letters": 60694,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/bava-batra",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Bava Basra",
+   "he": "תלמוד ירושלמי בבא בתרא",
+   "unit": "halacha",
+   "pieces": 76,
+   "stops": 1924,
+   "letters": 61704,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/sanhedrin",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Sanhedrin",
+   "he": "תלמוד ירושלמי סנהדרין",
+   "unit": "halacha",
+   "pieces": 89,
+   "stops": 5155,
+   "letters": 160794,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/makkot",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Makkos",
+   "he": "תלמוד ירושלמי מכות",
+   "unit": "halacha",
+   "pieces": 28,
+   "stops": 553,
+   "letters": 20091,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/shevuot",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Shevuos",
+   "he": "תלמוד ירושלמי שבועות",
+   "unit": "halacha",
+   "pieces": 58,
+   "stops": 2696,
+   "letters": 80802,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/avodah-zarah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Avodah Zarah",
+   "he": "תלמוד ירושלמי עבודה זרה",
+   "unit": "halacha",
+   "pieces": 60,
+   "stops": 2843,
+   "letters": 83322,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/horayot",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Horayos",
+   "he": "תלמוד ירושלמי הוריות",
+   "unit": "halacha",
+   "pieces": 20,
+   "stops": 1359,
+   "letters": 40361,
+   "commentaries": []
+  },
+  {
+   "id": "yerushalmi/niddah",
+   "collection": "yerushalmi",
+   "en": "Yerushalmi Niddah",
+   "he": "תלמוד ירושלמי נדה",
+   "unit": "halacha",
+   "pieces": 19,
+   "stops": 1008,
+   "letters": 29501,
+   "commentaries": []
   },
   {
    "id": "rambam/foundations-of-the-torah",

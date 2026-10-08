@@ -114,6 +114,11 @@ function serve() {
   assert.strictEqual(ground.day.doneOn, "2026-10-14");
   assert.match(ground.day.from, /^Ruth 1:1@0$/);
   assert.strictEqual(ground.me.shareLearning, false, "sharing is off unless turned on");
+  // groundwork: the plan's owner and kind, and the reminder time with the phone's time zone
+  assert.strictEqual(ground.plan.owner, await one.page.evaluate(() => window.firebase.auth().currentUser.uid));
+  assert.deepStrictEqual([ground.plan.kind, ground.plan.members, ground.plan.dedication], ["personal", [], null]);
+  assert.strictEqual(ground.me.reminderTime, "20:00");
+  assert(typeof ground.me.timeZone === "string" && ground.me.timeZone.length, "the time zone is saved");
   await one.page.click('.tabbar [data-go="settings"]');
   await one.page.fill("#displayName", "Hudi");
   await one.page.press("#displayName", "Tab");
@@ -122,6 +127,12 @@ function serve() {
     const u = window.firebase.auth().currentUser;
     const me = (await window.firebase.firestore().collection("users").doc(u.uid).get({ source: "server" })).data();
     return me.displayName === "Hudi" && me.shareLearning === true;
+  }, null, { timeout: 15000, polling: 500 });
+  await one.page.fill("#reminderTime", "21:30");
+  await one.page.dispatchEvent("#reminderTime", "change");
+  await one.page.waitForFunction(async () => {
+    const u = window.firebase.auth().currentUser;
+    return (await window.firebase.firestore().collection("users").doc(u.uid).get({ source: "server" })).data().reminderTime === "21:30";
   }, null, { timeout: 15000, polling: 500 });
   await one.page.uncheck("#shareLearning");
   await one.page.click('.tabbar [data-go="today"]');

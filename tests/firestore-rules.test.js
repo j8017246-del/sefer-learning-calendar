@@ -58,6 +58,14 @@ const { doc, setDoc, getDoc, deleteDoc, collection, getDocs } = require("firebas
   await assertFails(setDoc(doc(alice, "users/alice"), { email: "a@example.com", updatedAt: 2, displayName: "x".repeat(61) }));
   await assertFails(getDoc(doc(bob, "users/alice")));
   ok("plans in plain fields, a record per day that is never changed, and the profile stay private to their owner");
+
+  // the groundwork of 10-08 (second batch): reminder time and zone, minutes after Done, plan kind and owner
+  await assertSucceeds(setDoc(doc(alice, "users/alice"), { email: "a@example.com", updatedAt: 3, reminderTime: "20:30", timeZone: "Asia/Jerusalem" }, { merge: true }));
+  await assertFails(setDoc(doc(alice, "users/alice"), { email: "a@example.com", updatedAt: 3, reminderTime: "late" }));
+  await assertSucceeds(setDoc(doc(alice, "users/alice/days/d5"), { ...day, type: "time", minutes: 25 }));
+  await assertSucceeds(setDoc(doc(alice, "users/alice/plans/p1"), { ...plan, plan: { owner: "alice", members: [], kind: "personal", dedication: { kind: "ilui-nishmas", name: "Ploni ben Ploni" } } }));
+  await assertFails(getDoc(doc(bob, "users/alice/plans/p1")));
+  ok("the reminder time, minutes a day took and the plan's kind and dedication are kept, still private");
   await assertSucceeds(deleteDoc(doc(alice, "users/alice/days/d1")));
 
   await assertSucceeds(deleteDoc(doc(alice, "users/alice/plans/p1")));

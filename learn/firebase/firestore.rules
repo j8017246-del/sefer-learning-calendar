@@ -1,6 +1,7 @@
 rules_version = '2';
 // Each person may read and write only their own data:
-//   users/{uid}               - email, optional display name, sharing switch (off unless turned on)
+//   users/{uid}               - email, optional display name, sharing switch (off unless turned on),
+//                               daily reminder time and time zone
 //   users/{uid}/plans/{plan}  - one learning plan: as text ("data") and in plain fields ("plan")
 //   users/{uid}/days/{day}    - one record per day done, missed or moved, or learning entered by hand
 //                               for before the app; never changed once written
@@ -15,9 +16,11 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(["email", "updatedAt", "displayName", "shareLearning"])
+        && request.resource.data.keys().hasOnly(["email", "updatedAt", "displayName", "shareLearning", "reminderTime", "timeZone"])
         && (!("displayName" in request.resource.data) || (request.resource.data.displayName is string && request.resource.data.displayName.size() <= 60))
-        && (!("shareLearning" in request.resource.data) || request.resource.data.shareLearning is bool);
+        && (!("shareLearning" in request.resource.data) || request.resource.data.shareLearning is bool)
+        && (!("reminderTime" in request.resource.data) || (request.resource.data.reminderTime is string && request.resource.data.reminderTime.matches("^[0-2][0-9]:[0-5][0-9]$")))
+        && (!("timeZone" in request.resource.data) || (request.resource.data.timeZone is string && request.resource.data.timeZone.size() <= 64));
       match /plans/{planId} {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid) && okId(planId)
@@ -30,7 +33,7 @@ service cloud.firestore {
         allow read, delete: if isOwner(uid);
         allow create: if isOwner(uid) && okId(dayId)
           && request.resource.data.keys().hasOnly(["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate",
-                                                    "byHand", "node", "year", "note"])
+                                                    "byHand", "node", "year", "note", "minutes"])
           && request.resource.data.type is string;
         // a day's record is kept as it was written
         allow update: if false;

@@ -180,7 +180,7 @@ function serve() {
   assert.match(await page.textContent(".plan-row"), /1 of 78 days/);
   await page.click(".plan-row");
   await page.waitForSelector("#plan:not([hidden]) #calGrid button.done");
-  assert.strictEqual(await page.textContent("#calMonth"), "October 2026");
+  assert.match(await page.textContent("#calMonth"), /^October 2026תשרי – חשוון תשפ״ז$/, "the month with its Hebrew months");
   await page.click('[data-cal="2026-10-15"]');
   assert.match(await page.textContent("#calDetail"), /Berachos/);
   // the days are listed a month at a time, with the calendar's month
@@ -441,9 +441,11 @@ function serve() {
   // the days are the days the plans learn (here one plan learns every day, Shabbos too)
   const learnDays = await page.evaluate(() => [...new Set(JSON.parse(localStorage.getItem("learning-calendar-v1")).plans
     .flatMap((p) => p.learningDays))].sort());
-  const byday = learnDays.map((d) => ["SU", "MO", "TU", "WE", "TH", "FR", "SA"][d]).join(",");
+  // never on Shabbos, and with an evening time (20:15) not on Friday either
+  const byday = learnDays.filter((d) => d < 5).map((d) => ["SU", "MO", "TU", "WE", "TH", "FR", "SA"][d]).join(",");
   assert.match(ics, new RegExp(`RRULE:FREQ=WEEKLY;BYDAY=${byday};UNTIL=`));
-  assert.match(await page.textContent("#reminderDays"), learnDays.includes(6) ? /Shabbos/ : /Fri\./);
+  assert(!/BYDAY=[^;]*SA/.test(ics), "no reminder on Shabbos");
+  assert.match(await page.textContent("#reminderDays"), /Never on Shabbos or Yom Tov/);
   assert.match(ics, /DTSTART:\d{8}T201500\r\n/);
   assert.match(ics, /BEGIN:VALARM\r\nACTION:DISPLAY/);
   // it stops when the last sefer is finished, not forever

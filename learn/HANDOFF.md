@@ -4,7 +4,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
 
 ## Done
 
-- **Data for the six collections** (Tanach 39, Mishnah 63, Shas 37, Rambam 79,
+- **Data for the seven collections** (Tanach 39, Mishnah 63, Shas 37, Yerushalmi 39, Rambam 79,
   Shulchan Aruch 4, Tur 4), built from Public Domain editions plus the
   Wikisource Gemara. Every piece is cut into stopping points at each sentence
   or line, each with its letter count, its first few words and a lasting
@@ -217,6 +217,53 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   Privacy (Hudi asked): plain fields are for the app to count; nobody else can
   read anyone's plans; a statistics chart would publish only totals.
 
+- **First-release features (Hudi, 10-08)**, all with tests:
+  1. *Kol HaTorah in a year* (`#kol`, from "Choose a sefer"): Shas, Mishnah,
+     Rambam, Tanach, Shulchan Aruch with Mishnah Berurah on; Yerushalmi optional,
+     off; any other sefer can be added by search. One plan each, same start and
+     finish (one Hebrew year by default), all with one `group`. Today shows them
+     under one header with combined progress (by letters), Pause all / Resume all
+     (the finish date moves later by the days paused) and Move the finish date.
+  2. *Public cycles* (`engine/cycles.js`, `#cycles`): Daf Yomi (start
+     2020-01-05, 2711 days), Mishnah Yomit (2021-12-25, 2096), Rambam 3 perakim
+     (2020-07-10, 339) and 1 perek (2020-07-10, 1017), worked out from the start
+     date and the fixed order, never from settings. Checked against hebcal.com's
+     published calendar for every day 2020-2028 (dates in
+     `tests/learn-cycles.test.js`). Places the app has no allowed text for are
+     shown by name with a Sefaria link (`portion.places`): Kinnim and Middos in
+     the Daf Yomi, Bikkurim perek 4, the Rambam's introduction and the five
+     missing hilchos. A cycle plan runs from the join date to the cycle's end;
+     no rescheduling.
+  3. *Review (chazara)*: "Review what I learned" on a plan's screen fills the
+     wizard with what was done; or the switch on step 3 for a part chosen by
+     hand. `kind: "review"`, shown with a Review pill.
+  4. *Dedications*: on step 3 and on the plan's screen; shown on the day card.
+  5. *Hebrew dates* beside every date (Hebrew numerals, the browser's own Hebrew
+     calendar), also small in the week strip and the plan calendar.
+  6. *Minutes*: an optional box after Done; saved on the day (`minutes`) and as a
+     `time` record.
+  7. *Suggestions before Yom Tov*: `learn/suggestions.js`, a hand-written list
+     Hudi can change (Rosh Hashanah/Yom Kippur, Sukkos, Purim, Pesach, Shavuos);
+     the nearest one shows on Today in the weeks before, with Start buttons for
+     plans that finish on Erev Yom Tov, and "Not this year".
+- **Talmud Yerushalmi** (Hudi approved CC-BY for this one text, 10-08): 39
+  masechtos from Guggenheimer's edition only (never Venice or Mechon-Mamre),
+  pieces are halachos (perek:halacha), addresses
+  `Jerusalem Talmud X c:h:segment@letters` (`segmentRefs`), never daf numbers.
+  Credited on About and in SOURCES.md; rule added to CLAUDE.md. Daf Yomi's
+  Shekalim uses it (where each daf starts: `SHEKALIM_DAF`).
+- **Groundwork (10-08)**: every word on screen is in `learn/strings.js`
+  (`STRINGS.en`, `tr(key, vars)`; `data-t`, `data-t-html`, `data-t-placeholder`,
+  `data-t-aria-label` in the page; the engine's sentences too). A Hebrew list
+  would be `STRINGS.he` with the same keys; `dir` follows the language and the
+  CSS uses start/end, so every screen runs right-to-left (tested). Plans carry
+  `owner` (uid, in the account), `members`, `dedication`, `assignment`
+  ({name, from, until}), `kind` (personal | cycle | review), `cycle`.
+  Installable: `manifest.webmanifest`, `icon.svg`, PNG icons. The reminder time
+  and time zone are saved in the profile; the calendar reminder skips Shabbos
+  and Yom Tov (EXDATE; Israel by time zone), and Friday and Erev Yom Tov when
+  the time is from noon on.
+
 ## Left out (told Hudi)
 
 - Rambam: Tefillin/Mezuzah/Sefer Torah, Tzitzis, Berachos, Milah and Seder
@@ -224,7 +271,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   Wikisource (CC-BY-SA).
 - Rashi and Tosafot on Sanhedrin (only CC-BY-SA). Tamid has none on Sefaria.
 - Not added (license): Tanya, Shulchan Aruch HaRav, Mechilta (non-commercial);
-  Zohar, Shemiras HaLashon, Sefer HaChinuch, Yerushalmi (unknown); Chofetz Chaim,
+  Zohar, Shemiras HaLashon, Sefer HaChinuch (unknown); Chofetz Chaim,
   Kuzari, Orchos Tzaddikim (CC-BY-SA); Aruch HaShulchan Orach Chaim (CC-BY-SA).
 - Mishnah Berurah simanim 1-186 are missing from the Public Domain edition.
   Their size is estimated and they are named by se'if katan number (known
@@ -243,30 +290,16 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
 
 ## Next
 
-1. Hudi tries the screens as a website served straight from this branch by
-   githack (no GitHub Pages change, nothing to deploy; every push shows up):
-   https://raw.githack.com/j8017246-del/sefer-learning-calendar/learning-calendar-part-1/learn/index.html
-   Anyone with the link can open it (the repository is public); it is not
-   listed anywhere. Hudi mainly uses the private claude.ai preview, because
-   the Claude browser is not available in cloud chats:
-   https://claude.ai/artifact/QmhMUd7ZMiyjaemZkYSNsh
-   Build the page with `python3 tools/build_preview.py OUT.html` (styles and
-   scripts inlined) and publish it to that artifact URL with `learn/data/*`
-   as files next to it (root `learn`); `--pack` instead packs all data into
-   the page (was used while the iPad could not load previews). (The older
-   preview https://claude.ai/artifact/HAjsBZdTcMqpvPdcnXcXa6 is superseded.)
-   iPad fix (solved): previews load from a separate address; Hudi's iPad Screen
-   Time "Allowed Websites" needed claudeusercontent.com (also added:
-   claudemcpcontent.com, claude.site, fonts.googleapis.com, fonts.gstatic.com).
-2. Part C of the audit, on Hudi's word: Yom Tov suggestions for days off (ask
-   Israel or outside Israel), printable weekly sheet and calendar-file export,
-   one-tap Daf Yomi, reminders (Hudi asked 10-07; a phone notification at a set
-   time needs Firebase Cloud Messaging plus a scheduled sender, which needs
-   Firebase's paid plan), sharing with a chavrusa, a full Hebrew screen,
-   accounts and sync (these last two only on Hudi's word). Accounts replace
-   the manual backup.
-3. Make the data files smaller before release (29 MB in total; one sefer
-   loads at a time).
+1. Hudi tries the website: https://sefer-calendar.web.app (Firebase Hosting;
+   deploy with `cd learn && firebase deploy --only hosting,firestore:rules
+   --project sefer-calendar`, token in the session scratchpad only). The private
+   preview is https://claude.ai/artifact/QmhMUd7ZMiyjaemZkYSNsh (build with
+   `python3 tools/build_preview.py OUT.html`, publish with `learn/data/*` as files).
+2. Later, only on Hudi's word: the Hebrew screen itself (`STRINGS.he`),
+   reminders sent by the app (needs a paid Firebase plan), learning together
+   with members, dividing a sefer among people, study partners, the statistics
+   and life-learning charts, printable weekly sheet.
+3. Make the data files smaller before release (Kol HaTorah loads all of them).
 
 ## Accounts: tests with the Firebase emulators
 
@@ -284,6 +317,10 @@ the app at the emulators.
 ```bash
 cd learn && python3 -m http.server 8765        # then open http://127.0.0.1:8765
 node tests/learn-schedule.test.js              # engine tests
-NODE_PATH=$(npm root -g) node tests/learn-screens.test.js   # screen tests (needs Playwright; skips without it)
+node tests/learn-cycles.test.js                # public cycles against published dates
+node tests/learn-sync.test.js                  # account merge rules
+NODE_PATH=$(npm root -g) node tests/learn-screens.test.js    # screen tests (needs Playwright)
+NODE_PATH=$(npm root -g) node tests/learn-features.test.js   # the 10-08 features on screen
+python3 tools/build_sefer_data.py --only yerushalmi   # rebuild one collection (SEFARIA_CACHE=dir for the download cache)
 python3 tools/build_sefer_data.py              # rebuild learn/data from Sefaria's export
 ```

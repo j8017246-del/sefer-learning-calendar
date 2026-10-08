@@ -12,7 +12,8 @@
  * The Firebase web library (Apache-2.0) is loaded only after the app has
  * opened, so Today never waits for it.
  *
- * Firestore:  users/{uid}               { email, updatedAt, displayName, shareLearning (off unless turned on) }
+ * Firestore:  users/{uid}               { email, updatedAt, displayName, shareLearning (off unless turned on),
+ *                                         reminderTime ("20:00"), timeZone ("America/New_York") }
  *             users/{uid}/plans/{id}    { data: the saved plan as text, plan: the same in plain fields, updatedAt }
  *             users/{uid}/days/{id}     one record per day done, partly done, undone, missed or moved
  *                                       (never changed after it is written), and when plans start, change or stop
@@ -38,6 +39,7 @@
   const Store = window.LearnStore, Sync = window.LearnSync;
   if (!document.getElementById("account") || !Store || !Sync) return;   // an older page, swapped in while open
   const $ = (id) => document.getElementById(id);
+  const tr = window.tr;   // every word shown is in strings.js
   // listen on an element if the page has it (a page swapped in while open may not yet)
   const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
   const get = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -85,11 +87,11 @@
   }
 
   async function start() {
-    if (framed) return unavailable("Signing in works on the website, sefer-calendar.web.app, not in this preview. Plans here are kept on this phone only.");
+    if (framed) return unavailable(tr("account.framed"));
     try {
       for (const f of ["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-firestore-compat.js"]) await loadScript(SDK + f);
     } catch (e) {
-      return unavailable("Signing in needs a connection. Your plans are kept on this phone meanwhile, and move into your account when you sign in.");
+      return unavailable(tr("account.offline"));
     }
     canSignIn = true;
     const fb = window.firebase;
@@ -134,7 +136,7 @@
     try {
       await auth.sendSignInLinkToEmail(email, { url: location.origin + location.pathname, handleCodeInApp: true });
       put(LINK_EMAIL, email);
-      note(`We sent a sign-in link to ${email}. Open it on this phone to sign in.`);
+      note(tr("account.linkSent", { email }));
     } catch (err) {
       note(message(err));
     }
@@ -146,7 +148,7 @@
     const email = get(LINK_EMAIL) || $("linkEmail").value.trim();
     if (!email) {
       gate(true);
-      note("To finish signing in, type the email address the link was sent to, then tap the link in the email again.");
+      note(tr("account.typeEmail"));
       return;
     }
     try {
@@ -160,15 +162,9 @@
   }
 
   function message(e) {
-    const known = {
-      "auth/invalid-email": "That email address does not look right.",
-      "auth/network-request-failed": "No connection. Try again when the phone is online.",
-      "auth/invalid-action-code": "This sign-in link was already used or is too old. Ask for a new one.",
-      "auth/expired-action-code": "This sign-in link is too old. Ask for a new one.",
-      "auth/unauthorized-domain": "Signing in is not set up for this web address yet.",
-      "auth/operation-not-allowed": "This way of signing in is not turned on yet.",
-    };
-    return known[e.code] || `Could not sign in (${e.code || e.message}).`;
+    const known = ["auth/invalid-email", "auth/network-request-failed", "auth/invalid-action-code", "auth/expired-action-code",
+      "auth/unauthorized-domain", "auth/operation-not-allowed"];
+    return known.includes(e.code) ? tr(`account.error.${e.code.slice(5)}`) : tr("account.error.other", { code: e.code || e.message });
   }
 
   // ---- signed in or out -------------------------------------------------------------------
@@ -182,10 +178,10 @@
     synced = false;
     last = new Map();
     if (u) {
-      $("accountEmail").textContent = u.email || "your account";
+      $("accountEmail").textContent = u.email || tr("account.yours");
       note("");
       loadProfile(u);
-      unsubscribe = plansRef().onSnapshot(received, () => { $("syncState").textContent = "Could not reach your account. Changes are kept on this phone and sent later."; });
+      unsubscribe = plansRef().onSnapshot(received, () => { $("syncState").textContent = tr("account.unreachable"); });
     } else if (get(OWNER)) {
       // signed out: the account's plans leave this phone (they stay in the account)
       put(OWNER, null);
@@ -213,7 +209,7 @@
         const merged = Sync.mergeOnFirstSignIn(local, remote);
         put(OWNER, user.uid);
         write(merged.upload, []);
-        if (merged.upload.length) Store.toast(`${merged.upload.length} plan${merged.upload.length > 1 ? "s" : ""} from this phone saved to your account`);
+        if (merged.upload.length) Store.toast(tr(merged.upload.length > 1 ? "account.uploadedMany" : "account.uploadedOne", { n: merged.upload.length }));
         return show(merged.all);
       }
       if (get(UNSYNCED)) {
@@ -234,7 +230,7 @@
   function show(records) {
     const now = JSON.stringify(Store.records());
     if (JSON.stringify(records) !== now) Store.replace(records, { quiet: true });
-    $("syncState").textContent = "Your plans are saved to your account after every change.";
+    $("syncState").textContent = tr("settings.yourPlansAreSaved");
   }
 
   // Every save on this phone: send what changed.
@@ -258,7 +254,7 @@
       last.delete(id);
     }
     batch.commit().then(() => put(UNSYNCED, null)).catch(() => {
-      $("syncState").textContent = "Could not save to your account. Changes are kept on this phone and sent later.";
+      $("syncState").textContent = tr("account.saveFailed");
     });
   }
 
@@ -273,13 +269,21 @@
       learningDays: r.learningDays || [], lighterDays: r.lighterDays || [], commentaries: r.commentaries || [],
       group: r.group || null,                    // { id, name } when created together with other plans
       paused: !!r.paused,
+      // groundwork, not used yet: learning together, dividing a sefer, kinds of plans
+      owner: user.uid,                           // the person who made the plan
+      members: Array.isArray(r.members) ? r.members : [],   // others who learn it too (later)
+      kind: ["personal", "cycle", "review"].includes(r.kind) ? r.kind : "personal",
+      cycle: r.cycle || null,                    // a public cycle's id, e.g. "daf-yomi" (later)
+      dedication: r.dedication || null,          // { kind: "ilui-nishmas" | "refuah-shleimah" | other, name }
+      assignment: r.assignment || null,          // { name, from, until }: one person's part of a shared siyum
+      minutesLearned: (r.portions || []).reduce((sum, p) => sum + (p.minutes > 0 ? p.minutes : 0), 0),
     };
   }
 
   // ---- the history of every day ----------------------------------------------------------
   const daysRef = () => db.collection("users").doc(user.uid).collection("days");
   const DAY_FIELDS = ["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate",
-    "byHand", "node", "year", "note"];
+    "byHand", "node", "year", "note", "minutes"];
   function sendDays(records) {
     if (!user || get(OWNER) !== user.uid || !synced || !records.length) return;
     const batch = db.batch();
@@ -302,6 +306,9 @@
       const fresh = { email: u.email || "", updatedAt: Date.now() };
       if (typeof d.shareLearning !== "boolean") fresh.shareLearning = false;   // off unless the person turns it on
       if (typeof d.displayName !== "string") fresh.displayName = "";
+      // the reminder time from the account (another phone may have set it); the time zone of this phone
+      if (typeof d.reminderTime === "string") Store.setReminderTime(d.reminderTime);
+      Object.assign(fresh, Store.reminder());
       await userRef().set(fresh, { merge: true });
       $("displayName").value = d.displayName || "";
       $("shareLearning").checked = d.shareLearning === true;
@@ -310,23 +317,28 @@
   on("displayName", "change", () => {
     if (!user) return;
     userRef().set({ displayName: $("displayName").value.trim().slice(0, 60), updatedAt: Date.now() }, { merge: true }).catch(() => {});
-    Store.toast("Name saved");
+    Store.toast(tr("account.nameSaved"));
   });
   on("shareLearning", "change", () => {
     if (!user) return;
     userRef().set({ shareLearning: $("shareLearning").checked, updatedAt: Date.now() }, { merge: true }).catch(() => {});
   });
 
+  Store.onReminder((r) => {
+    if (!user) return;
+    userRef().set({ ...r, updatedAt: Date.now() }, { merge: true }).catch(() => {});
+  });
+
   // ---- signing out and deleting ---------------------------------------------------------------
 
   on("signOut", "click", async () => {
     await auth.signOut();
-    Store.toast("Signed out. Your plans stay in your account.");
+    Store.toast(tr("account.signedOut"));
   });
 
   on("deleteAccount", "click", async () => {
     if (!user) return;
-    const ok = await Store.ask("Delete your account and all your plans? This cannot be undone.", "Delete everything");
+    const ok = await Store.ask(tr("account.deleteAsk"), tr("account.deleteYes"));
     if (!ok) return;
     // deleting an account needs a recent sign-in (measured by Firebase's own clock, not the phone's)
     let since = Infinity;
@@ -335,7 +347,7 @@
       since = Date.parse(t.issuedAtTime) - Date.parse(t.authTime);
     } catch (e) { /* offline: asked to try again below */ }
     if (since > 4 * 60 * 1000) {
-      Store.toast("For your safety, please sign in again, then delete.");
+      Store.toast(tr("account.signInAgain"));
       await auth.signOut();
       return;
     }
@@ -356,10 +368,10 @@
       put(UNSYNCED, null);
       Store.clearPhone();
       await Store.replace([], { quiet: true });
-      Store.toast("Your account and plans were deleted.");
+      Store.toast(tr("account.deleted"));
       Store.show("today");
     } catch (e) {
-      Store.toast(e.code === "auth/requires-recent-login" ? "For your safety, please sign in again, then delete." : "Could not delete the account. Try again when online.");
+      Store.toast(tr(e.code === "auth/requires-recent-login" ? "account.signInAgain" : "account.deleteFailed"));
     }
   });
 

@@ -22,7 +22,9 @@ Count each sefer's text in its finest pieces (Sefaria segments), with the commen
 
 TEXTS AND LICENSES (Hudi's rules)
 - Only versions marked Public Domain or CC0.
-- The one exception is the Gemara's own text. Its only usable copy is Wikisource Talmud Bavli (CC-BY-SA). Use it for counting and for the few words that name a stop, and credit it on an "About and sources" screen.
+- Two exceptions, both credited on the "About and sources" screen and in SOURCES.md, and used only for counting and for the few words that name a stop:
+  - The Gemara's own text. Its only usable copy is Wikisource Talmud Bavli (CC-BY-SA).
+  - The Talmud Yerushalmi: Sefaria's Hebrew "The Jerusalem Talmud, edition by Heinrich W. Guggenheimer" (CC-BY), approved by Hudi on 10-08 for this one text. Never the Venice or Mechon-Mamre copies (license unknown). Name its stops by masechet, perek and halacha (plus the first few words inside a halacha), never by daf, because daf numbers differ between printings.
 - Nothing else that is CC-BY or CC-BY-SA, and never anything non-commercial or of unknown license. That rules out the William Davidson Talmud, Steinsaltz and the Torat Emet Bartenura. If the only copy of something needed is not Public Domain or CC0, leave it out and tell Hudi in one line rather than using it.
 - Record each sefer's version and license in the data (learn/data/SOURCES.md and in each file).
 

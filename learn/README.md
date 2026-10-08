@@ -13,8 +13,9 @@ work stands.
   the folder with any static server: `cd learn && python3 -m http.server 8765`.
 - `sw.js`: lets the app open without a connection (keeps the screens and each
   sefer's data once used).
-- `data/catalog.json`: every sefer offered (244), with Hebrew and English
-  names, in nine collections. All data together is about 29 MB; one sefer
+- `data/catalog.json`: every sefer offered (283), with Hebrew and English
+  names, in 10 collections (the Yerushalmi from Guggenheimer's CC-BY edition,
+  approved by Hudi). All data together is about 29 MB; one sefer
   loads at a time.
 - `data/<collection>/<sefer>.json`: one sefer (format below).
 - `data/tree.json`: one tree of everything (Kol HaTorah → collections →
@@ -29,8 +30,14 @@ work stands.
 - `engine/schedule.js`: builds a plan from the person's settings, marks days
   done, handles missed days, re-splits after a settings change, and saves and
   reads plans by address.
+- `engine/cycles.js`: public cycles (Daf Yomi, Mishnah Yomit, Rambam Yomi
+  3 and 1), each day worked out from the cycle's start date and order.
+- `strings.js`: every word shown on screen (`tr("key")`), ready for a Hebrew
+  list; the screens also run right-to-left.
+- `suggestions.js`: the hand-written list of suggestions before each Yom Tov.
+- `manifest.webmanifest`, `icon.svg`, `*.png`: putting the site on the home screen.
 - `../tools/build_sefer_data.py`: rebuilds `data/` from Sefaria's export.
-- `../tests/learn-schedule.test.js`: the tests.
+- `../tests/`: the tests (engine, cycles, sync, screens, features, accounts, rules).
 
 ## Stopping points
 

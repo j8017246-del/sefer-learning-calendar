@@ -38,6 +38,8 @@
   "use strict";
 
   const Pieces = global.SeferPieces || (typeof require !== "undefined" ? require("./sefer.js") : null);
+  // Messages shown on screen come from strings.js, like every word on screen.
+  const say = (key, vars) => global.tr(`engine.${key}`, vars);
   const DAY_MS = 86400000;
   const LIGHTER_WEIGHT = 0.65;
   // How far from its exact share a day may move to end at a better place:
@@ -62,6 +64,31 @@
   }
   function weekday(iso) {
     return new Date(toDay(iso) * DAY_MS).getUTCDay();
+  }
+
+  // ---- Shabbos and Yom Tov (for reminders) ----------------------------------
+  // Yom Tov by the Hebrew calendar; outside Israel with the second days.
+  const YOM_TOV = { Tishri: [1, 2, 10, 15, 16, 22, 23], Nisan: [15, 16, 21, 22], Sivan: [6, 7] };
+  const YOM_TOV_ISRAEL = { Tishri: [1, 2, 10, 15, 22], Nisan: [15, 21], Sivan: [6] };
+  const inIsrael = (timeZone) => timeZone === "Asia/Jerusalem" || timeZone === "Asia/Tel_Aviv";
+  let hebrewFormat = null;
+  function isYomTov(iso, israel) {
+    try {
+      hebrewFormat = hebrewFormat || new Intl.DateTimeFormat("en-u-ca-hebrew", { day: "numeric", month: "long", timeZone: "UTC" });
+      const [d, m] = hebrewFormat.format(new Date(toDay(iso) * DAY_MS + DAY_MS / 2)).split(" ");
+      return ((israel ? YOM_TOV_ISRAEL : YOM_TOV)[m] || []).includes(+d);
+    } catch (e) { return false; }   // no Hebrew calendar in this browser
+  }
+  // Dates from..to with no reminder: Shabbos and Yom Tov, and with an evening
+  // reminder (from noon on) also Friday and the day before Yom Tov, which may
+  // already be Shabbos or Yom Tov by then.
+  function noReminderDates(from, to, { israel = false, evening = false } = {}) {
+    const out = [];
+    for (let iso = from; iso <= to; iso = addDays(iso, 1)) {
+      const wd = weekday(iso);
+      if (wd === 6 || isYomTov(iso, israel) || (evening && (wd === 5 || isYomTov(addDays(iso, 1), israel)))) out.push(iso);
+    }
+    return out;
   }
 
   function dayOff(plan, iso) {
@@ -91,7 +118,7 @@
     for (let i = 0; i < MAX_DAYS; i++, iso = addDays(iso, 1)) {
       if (dayWeight(plan, iso, skip) > 0) return iso;
     }
-    throw new Error("No learning days are set");
+    throw new Error(say("noDaysSet"));
   }
 
   // ---- splitting --------------------------------------------------------
@@ -127,7 +154,7 @@
   // Split stops [from, to] over the given dates, in proportion to each
   // date's weight. Every stop is placed.
   function splitOverDates(weights, levels, from, to, dates) {
-    if (!dates.length) throw new Error("There are no learning days before the finish date");
+    if (!dates.length) throw new Error(say("noDaysBefore"));
     const sums = prefixSums(weights);
     const out = [];
     let cur = from;
@@ -156,7 +183,7 @@
     const out = [];
     let cur = from, iso = start;
     for (let i = 0; cur <= to; i++) {
-      if (i > MAX_DAYS) throw new Error("The daily amount is too small");
+      if (i > MAX_DAYS) throw new Error(say("tooSmall"));
       const w = dayWeight(plan, iso, skip);
       if (w > 0) {
         const target = perDay * w;
@@ -228,12 +255,12 @@
 
   function validate(plan, sefer) {
     const n = Pieces.stopCount(sefer);
-    if (!(plan.from >= 0 && plan.to < n && plan.from <= plan.to)) throw new RangeError("The start and end are outside the sefer");
-    if (!plan.learningDays?.length) throw new Error("Choose at least one learning day");
+    if (!(plan.from >= 0 && plan.to < n && plan.from <= plan.to)) throw new RangeError(say("outside"));
+    if (!plan.learningDays?.length) throw new Error(say("oneDay"));
     toDay(plan.startDate);
-    if (plan.endDate != null && plan.endDate < plan.startDate) throw new Error("The finish date is before the start");
+    if (plan.endDate != null && plan.endDate < plan.startDate) throw new Error(say("endBeforeStart"));
     if (plan.endDate == null && !(plan.dailyPieces > 0) && !(plan.minutesPerDay > 0)) {
-      throw new Error("Choose a finish date, a daily amount or the minutes you have each day");
+      throw new Error(say("chooseHow"));
     }
   }
 
@@ -258,7 +285,8 @@
 
   // ---- progress ---------------------------------------------------------
 
-  const hasLearning = (p) => p.to >= p.from;
+  // A day with something to learn: stops, or (in a public cycle) a place the app has no text for.
+  const hasLearning = (p) => p.to >= p.from || !!(p.places && p.places.length);
 
   function markDone(plan, date, done = true) {
     const portions = plan.portions.map((p) => (p.date === date ? { ...p, done } : p));
@@ -270,7 +298,7 @@
   // next day not yet done (or gets a day of its own after the last one).
   function markPartial(plan, date, stopAt) {
     const day = plan.portions.find((p) => p.date === date && hasLearning(p));
-    if (!day || stopAt <= day.from || stopAt > day.to) throw new Error("Choose a place inside that day");
+    if (!day || stopAt <= day.from || stopAt > day.to) throw new Error(say("insideDay"));
     const rest = { from: stopAt, to: day.to };
     const portions = plan.portions.map((p) => (p === day ? { ...p, to: stopAt - 1, done: true } : p));
     const next = portions.find((p) => p.date > date && hasLearning(p) && !p.done && p.from === day.to + 1);
@@ -445,7 +473,11 @@
   // ---- saving -----------------------------------------------------------
 
   const SETTINGS = ["seferId", "seferIds", "name", "createdAt", "commentaries", "startDate", "endDate", "dailyPieces",
-    "minutesPerDay", "pace", "group", "paused", "learningDays", "lighterDays", "lighterWeight", "daysOff", "history"];
+    "minutesPerDay", "pace", "group", "paused", "learningDays", "lighterDays", "lighterWeight", "daysOff", "history",
+    // groundwork for later: who owns the plan and who learns it too, a dedication, the part
+    // assigned to one person when a sefer is divided, and the kind of plan
+    "owner", "members", "dedication", "assignment", "kind", "cycle"];
+  const KINDS = ["personal", "cycle", "review"];
 
   // A plan as it is kept on the phone and in the backup file: every stop by
   // its lasting address. A day is saved as where it starts and where the next
@@ -458,7 +490,9 @@
     saved.until = at(plan.to + 1);
     saved.portions = plan.portions.map((p) => ({
       date: p.date, from: at(p.from), until: at(p.to >= p.from ? p.to + 1 : p.from), done: !!p.done,
+      ...(p.minutes > 0 ? { minutes: p.minutes } : {}), ...(p.places ? { places: p.places } : {}),
     }));
+    if (!KINDS.includes(saved.kind)) saved.kind = "personal";
     // the opening words at each place, so a place can be kept exactly after a rebuild
     saved.words = {};
     for (const p of plan.portions) {
@@ -505,14 +539,16 @@
     for (const k of SETTINGS) if (saved[k] !== undefined) plan[k] = saved[k];
     plan.from = at(saved.from);
     plan.to = at(saved.until) - 1;
-    plan.portions = saved.portions.map((p) => ({ date: p.date, from: at(p.from), to: at(p.until) - 1, done: !!p.done }));
+    plan.portions = saved.portions.map((p) => ({ date: p.date, from: at(p.from), to: at(p.until) - 1, done: !!p.done,
+      ...(p.minutes > 0 ? { minutes: p.minutes } : {}), ...(p.places ? { places: p.places } : {}) }));
+    if (!KINDS.includes(plan.kind)) plan.kind = "personal";
     return plan;
   }
 
   const api = {
     LIGHTER_WEIGHT, addDays, weekday, dayOff, dayWeight, learningDates, nextLearningDate,
     splitOverDates, buildPlan, markDone, markPartial, status, reschedule, rebuildRemaining, firstOpenPiece,
-    toSaved, fromSaved, keepSavedPlaces, SPEED, lettersPerMinute, totalMinutes,
+    toSaved, fromSaved, keepSavedPlaces, KINDS, hasLearning, isYomTov, inIsrael, noReminderDates, SPEED, lettersPerMinute, totalMinutes,
   };
   global.LearningSchedule = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

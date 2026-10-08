@@ -14,12 +14,9 @@
   const LOOK_STORE = "learning-calendar-appearance";
   const NAMES_STORE = "learning-calendar-names";
   const TODAY_STORE = "learning-calendar-today";
-  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Shabbos"];
-  const UNITS = {
-    pasuk: ["pasuk", "pesukim"], mishnah: ["mishnah", "mishnayos"], amud: ["amud", "amudim"],
-    halacha: ["halacha", "halachos"], seif: ["se'if", "se'ifim"], siman: ["siman", "simanim"],
-    section: ["section", "sections"],
-  };
+  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Shabbos"].map((d, i) => tr(`day.${i}`));
+  const UNITS = Object.fromEntries(["pasuk", "mishnah", "amud", "halacha", "seif", "siman", "section"]
+    .map((u) => [u, [tr(`unit.${u}`), tr(`unit.${u}.many`)]]));
   const $ = (id) => document.getElementById(id);
   // listen on an element if the page has it (a page swapped in while open may not yet)
   const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
@@ -41,8 +38,11 @@
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
   const dateOf = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d, 12); };
+  // Every date with its Hebrew date beside it: "Thu, Oct 8 · כ״ו תשרי".
   function niceDate(iso, withYear = false) {
-    return dateOf(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", ...(withYear ? { year: "numeric" } : {}) });
+    const en = dateOf(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", ...(withYear ? { year: "numeric" } : {}) });
+    const hd = hebrewDate(iso, withYear);
+    return hd ? `${en} · ${hd}` : en;
   }
   function esc(s) {
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -60,13 +60,12 @@
   const unitName = (sefer, n) => (UNITS[sefer.unit] || [sefer.unit, sefer.unit + "s"])[n === 1 ? 0 : 1];
   const entryOf = (id) => catalog.seforim.find((e) => e.id === id);
   const collectionOf = (id) => catalog.collections.find((c) => c.id === id);
-  const learningOf = (plan) => plan.portions.filter((p) => p.to >= p.from);
+  const learningOf = (plan) => plan.portions.filter(S.hasLearning);
   const pct = (plan) => { const l = learningOf(plan); return l.length ? Math.round(l.filter((p) => p.done).length / l.length * 100) : 0; };
 
   // Hebrew date, e.g. "כ״ה תשרי", from the browser's Hebrew calendar.
   function gematria(n) {
-    const ones = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"], tens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
-    const s = n === 15 ? "טו" : n === 16 ? "טז" : tens[Math.floor(n / 10)] + ones[n % 10];
+    const s = window.LearningCycles.hebrewNumber(n);
     return s.length > 1 ? s.slice(0, -1) + "״" + s.slice(-1) : s + "׳";
   }
   // The day before the same Hebrew date next year (a whole Hebrew year of learning).
@@ -93,14 +92,22 @@
     return S.addDays(iso, 354);
   }
 
-  function hebrewDate(iso) {
+  // From the browser's own Hebrew calendar, with Hebrew numerals: "כ״ו תשרי", "כ״ו תשרי תשפ״ז".
+  let hebrewParts = null;
+  function hebrewDate(iso, withYear = false) {
     try {
-      const parts = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long" }).formatToParts(dateOf(iso));
-      return `${gematria(+parts.find((x) => x.type === "day").value)} ${parts.find((x) => x.type === "month").value}`;
+      hebrewParts = hebrewParts || new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric", month: "long", year: "numeric" });
+      const parts = hebrewParts.formatToParts(dateOf(iso)), get = (t) => (parts.find((x) => x.type === t) || {}).value;
+      return `${gematria(+get("day"))} ${get("month")}${withYear ? ` ${hebrewYear(+get("year"))}` : ""}`;
     } catch (e) {
       return "";
     }
   }
+  function hebrewYear(y) {
+    const s = window.LearningCycles.hebrewNumber(y % 1000);
+    return s.length > 1 ? `${s.slice(0, -1)}״${s.slice(-1)}` : `${s}׳`;
+  }
+  const hebrewDay = (iso) => { try { return gematria(+new Intl.DateTimeFormat("en-u-ca-hebrew", { day: "numeric" }).format(dateOf(iso))); } catch (e) { return ""; } };
 
   // Icons, drawn once into every <svg data-icon>.
   const ICONS = {
@@ -158,7 +165,7 @@
     const total = catalog.seforim.filter((e) => e.collection === col.id).length;
     if (ids.length === total) return { en: col.en, he: col.he };
     if (ids.length <= 3) return { en: ids.map((id) => entryOf(id).en).join(", "), he: ids.map((id) => entryOf(id).he).join(", ") };
-    return { en: `${col.en}: ${ids.length} of ${total}`, he: col.he };
+    return { en: tr("name.someOf", { col: col.en, n: ids.length, total }), he: col.he };
   }
 
   // ---- storage --------------------------------------------------------------------
@@ -198,12 +205,12 @@
     const rec = {
       id: uid(), planId: x.id, seferIds: x.plan.seferIds || [x.plan.seferId], type,
       date: p ? p.date : null, doneOn: type === "done" || type === "partial" ? todayIso() : null, at: new Date().toISOString(),
-      from: p ? P.address(x.sefer, p.from) : null, until: p ? P.address(x.sefer, p.to + 1) : null, ...extra,
+      from: p ? P.address(x.sefer, p.from) : null, until: p ? P.address(x.sefer, Math.max(p.from, p.to + 1)) : null, ...extra,
     };
     try { localStorage.setItem(EVENTS, JSON.stringify(pendingEvents().concat(rec))); } catch (e) { /* sent directly below if signed in */ }
     for (const fn of eventListeners) fn([rec]);
   }
-  const portionOn = (x, date) => x.plan.portions.find((q) => q.date === date && q.to >= q.from);
+  const portionOn = (x, date) => x.plan.portions.find((q) => q.date === date && S.hasLearning(q));
 
   // For accounts.js: read the plans, put in the account's plans, hear of saves.
   window.LearnStore = {
@@ -242,6 +249,15 @@
     toast: (m) => toast(m),
     ask: (t, y) => ask(t, y),
     show: (v) => show(v),
+    // the daily reminder's time and the phone's time zone, saved to the account by accounts.js
+    reminder: () => ({ reminderTime: $("reminderTime").value || "20:00", timeZone: timeZone() }),
+    onReminder(fn) { reminderListeners.push(fn); },
+    setReminderTime(v) {
+      if (!/^\d\d:\d\d$/.test(v || "")) return;
+      $("reminderTime").value = v;
+      try { localStorage.setItem(REMINDER_TIME, v); } catch (e) { /* fine */ }
+    },
+    tr: (k, v) => tr(k, v),
   };
   // Reads saved plans. Those whose sefer cannot be loaded are returned
   // untouched in `failed`, so they are never lost.
@@ -300,8 +316,8 @@
     document.querySelectorAll('input[name="style"]').forEach((r) => { r.checked = r.value === look.style; });
     document.querySelectorAll('input[name="names"]').forEach((r) => { r.checked = r.value === sectionNames; });
     const custom = !SWATCHES.includes(look.accent);
-    $("swatches").innerHTML = SWATCHES.map((h) => `<button type="button" role="radio" data-swatch="${h}" style="background:${h}" aria-label="Color ${h}" aria-checked="${h === look.accent}"></button>`).join("")
-      + `<label title="Any color"><input type="color" role="radio" id="accentCustom" value="${look.accent}" aria-label="Any color" aria-checked="${custom}"></label>`;
+    $("swatches").innerHTML = SWATCHES.map((h) => `<button type="button" role="radio" data-swatch="${h}" style="background:${h}" aria-label="${esc(tr("settings.colorN", { color: h }))}" aria-checked="${h === look.accent}"></button>`).join("")
+      + `<label title="${esc(tr("settings.anyColor"))}"><input type="color" role="radio" id="accentCustom" value="${look.accent}" aria-label="${esc(tr("settings.anyColor"))}" aria-checked="${custom}"></label>`;
   }
   document.addEventListener("change", (e) => {
     const t = e.target;
@@ -326,12 +342,12 @@
     sectionNames = r.value;
     P.setSectionNames(sectionNames);
     try { localStorage.setItem(NAMES_STORE, sectionNames); } catch (e) { /* still applied */ }
-    toast(sectionNames === "he" ? "Section names in Hebrew" : "Section names in English");
+    toast(tr(sectionNames === "he" ? "settings.namesHe" : "settings.namesEn"));
   }));
 
   // ---- screens ------------------------------------------------------------------------
 
-  const TAB_OF = { today: "today", library: "library", plan: "library", settings: "settings", about: "settings", privacy: "settings" };
+  const TAB_OF = { today: "today", library: "library", plan: "library", settings: "settings", about: "settings", privacy: "settings", kol: "today", cycles: "today" };
   // Each screen is a step in the browser's history, so the phone's Back button
   // returns to the screen before.
   function remember(state) {
@@ -352,10 +368,13 @@
       if (b.dataset.go === TAB_OF[view]) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     document.body.classList.toggle("in-wizard", view === "add");
+    if (view !== "add" && view !== "kol" && view !== "cycles") reviewOf = null;
     if (view === "today") renderToday();
     if (view === "library") renderLibrary();
     if (view === "settings") { renderSettings(); renderReminder(); }
     if (view === "add") openWizard();
+    if (view === "kol") openKol();
+    if (view === "cycles") renderCycles();
     window.scrollTo(0, 0);
   }
 
@@ -364,14 +383,14 @@
     const r = P.rangeParts(sefer, p.from, p.to, comms);
     if (!r) return "";
     const start = P.pieceName(sefer, r.start.piece), end = P.pieceName(sefer, r.end.piece);
-    const startText = r.start.words ? `${esc(start)}, from the words ${words(r.start.words)}${esc(P.timeText(r.start.nth))}` : `the beginning of ${esc(start)}`;
-    const endText = r.end.until ? `${esc(end)}, until the words ${words(r.end.until)}${esc(P.timeText(r.end.nth))}` : `the end of ${esc(end)}`;
+    const startText = r.start.words ? `${esc(tr("route.fromWords", { place: start }))} ${words(r.start.words)}${esc(P.timeText(r.start.nth))}` : esc(tr("route.beginningOf", { place: start }));
+    const endText = r.end.until ? `${esc(tr("route.untilWords", { place: end }))} ${words(r.end.until)}${esc(P.timeText(r.end.nth))}` : esc(tr("route.endOf", { place: end }));
     const comm = r.commentaries.map((c) => c.seifKatan != null
-      ? `${esc(c.en)} through ${c.siman !== P.positions(sefer)[r.end.piece].chapter ? `siman ${c.siman}, ` : ""}se'if katan ${c.seifKatan}`
-      : c.words ? `${esc(c.en)} through ${words(c.words)}` : "").filter(Boolean);
+      ? esc(tr("route.commSeifKatan", { name: c.en, siman: c.siman !== P.positions(sefer)[r.end.piece].chapter ? tr("route.simanN", { n: c.siman }) : "", n: c.seifKatan }))
+      : c.words ? `${esc(tr("route.commThrough", { name: c.en }))} ${words(c.words)}` : "").filter(Boolean);
     return `<div class="route">
-        <div class="stop"><small>Start</small><span class="place">${startText}</span></div>
-        <div class="stop end"><small>Stop</small><span class="place">${endText}</span></div>
+        <div class="stop"><small>${esc(tr("route.start"))}</small><span class="place">${startText}</span></div>
+        <div class="stop end"><small>${esc(tr("route.stop"))}</small><span class="place">${endText}</span></div>
       </div>
       ${comm.length ? `<p class="comm">${comm.join(" · ")}</p>` : ""}`;
   }
@@ -386,8 +405,8 @@
     const today = todayIso();
     if (!selectedDate) selectedDate = today;
     const d = dateOf(selectedDate), hd = hebrewDate(selectedDate);
-    $("todayTitle").textContent = selectedDate === today ? "Today" : d.toLocaleDateString("en-US", { weekday: "long" });
-    $("todayDate").innerHTML = `${esc(d.toLocaleDateString("en-US", { weekday: selectedDate === today ? "long" : undefined, month: "long", day: "numeric" }))}${hd ? ` · ${he(hd)}` : ""}`;
+    $("todayTitle").textContent = selectedDate === today ? tr("today.today") : d.toLocaleDateString(LearnText.locale(), { weekday: "long" });
+    $("todayDate").innerHTML = `${esc(d.toLocaleDateString(LearnText.locale(), { weekday: selectedDate === today ? "long" : undefined, month: "long", day: "numeric" }))}${hd ? ` · ${he(hebrewDate(selectedDate, true))}` : ""}`;
     $("empty").hidden = plans.length + unloaded.length > 0;
     $("week").hidden = !plans.length;
 
@@ -395,17 +414,17 @@
     const first = S.addDays(today, -dateOf(today).getDay());
     $("week").innerHTML = DAYS.map((name, i) => {
       const iso = S.addDays(first, i);
-      const due = plans.map((x) => x.plan.portions.find((p) => p.date === iso && p.to >= p.from)).filter(Boolean);
+      const due = plans.filter((x) => !x.plan.paused).map((x) => x.plan.portions.find((p) => p.date === iso && S.hasLearning(p))).filter(Boolean);
       const cls = [iso === today ? "is-today" : "", due.length ? "has" : "", due.length && due.every((p) => p.done) ? "all-done" : ""].join(" ");
-      return `<button class="${cls}" data-day="${iso}" aria-pressed="${iso === selectedDate}" aria-label="${niceDate(iso)}">${name}<b>${dateOf(iso).getDate()}</b><i></i></button>`;
+      return `<button class="${cls}" data-day="${iso}" aria-pressed="${iso === selectedDate}" aria-label="${niceDate(iso)}">${name}<b>${dateOf(iso).getDate()}</b><small class="hd" lang="he">${hebrewDay(iso)}</small><i></i></button>`;
     }).join("");
 
-    const due = plans.filter((x) => x.plan.portions.some((p) => p.date === selectedDate && p.to >= p.from));
-    const doneCount = due.filter((x) => x.plan.portions.find((p) => p.date === selectedDate && p.to >= p.from).done).length;
-    $("dayStatus").textContent = !plans.length ? "" : !due.length ? "Nothing new to learn on this day."
-      : doneCount === due.length ? `All done${selectedDate === today ? " for today" : ""}. Yasher koach!`
-      : `${due.length - doneCount} of ${due.length} still to learn`;
-    $("cards").innerHTML = plans.map((x) => lessonHtml(x, today)).join("") + unloadedHtml();
+    const due = plans.filter((x) => !x.plan.paused && x.plan.portions.some((p) => p.date === selectedDate && S.hasLearning(p)));
+    const doneCount = due.filter((x) => x.plan.portions.find((p) => p.date === selectedDate && S.hasLearning(p)).done).length;
+    $("dayStatus").textContent = !plans.length ? "" : !due.length ? tr("today.nothingNew")
+      : doneCount === due.length ? tr(selectedDate === today ? "today.allDoneToday" : "today.allDone")
+      : tr("today.stillToLearn", { n: due.length - doneCount, all: due.length });
+    $("cards").innerHTML = (selectedDate === today ? suggestionHtml(today) : "") + cardsHtml(today) + unloadedHtml();
     // keep today's screen on the phone, so it shows at once next time
     try {
       localStorage.setItem(TODAY_STORE, JSON.stringify({ date: today, selected: selectedDate, title: $("todayTitle").textContent,
@@ -413,50 +432,256 @@
     } catch (e) { /* only a convenience */ }
   }
 
+  // The name a plan is shown by: a cycle's or a group's own name, else the sefer's.
+  const planName = (x) => (x.plan.kind === "cycle" && window.LearningCycles.CYCLES[x.plan.cycle]) || (x.plan.name && x.plan.name.he ? x.plan.name : x.sefer);
+  const DEDICATION = { "ilui-nishmas": ["dedication.lineIlui", "לעילוי נשמת"], "refuah-shleimah": ["dedication.lineRefuah", "לרפואה שלמה"] };
+  function dedicationHtml(plan) {
+    const d = plan.dedication;
+    if (!d || !d.name) return "";
+    const k = DEDICATION[d.kind];
+    return `<p class="dedication">${k ? `${he(k[1])} ` : ""}${esc(d.name)}${k ? ` <span class="muted">· ${esc(tr(k[0]))}</span>` : ""}</p>`;
+  }
+  // Places the app has no text for (in a public cycle): named, with a Sefaria link.
+  function placesHtml(p) {
+    if (!p.places || !p.places.length) return "";
+    return `<div class="places">${p.places.map((x) => `<p><b>${esc(x.en)}</b> ${he(x.he)}
+      <a class="text-btn" href="https://www.sefaria.org/${esc(x.ref)}" target="_blank" rel="noopener">${esc(tr("cycle.openPlace"))} ${icon("ext")}</a></p>`).join("")}
+      <p class="note">${esc(tr("cycle.placeOnly"))}</p></div>`;
+  }
+
   function lessonHtml(x, today) {
     const { sefer, plan } = x, comms = plan.commentaries || [];
     const st = S.status(plan, sefer, today);
     const learning = learningOf(plan);
     const commNames = comms.map((id) => (sefer.commentaries.find((c) => c.id === id) || {}).en).filter(Boolean);
-    const col = collectionOf(sefer.collection);
-    const isToday = selectedDate === today;
-    // the portion to show: today, the oldest one not done up to today; another day, that day's
-    const p = isToday ? learning.find((q) => !q.done && q.date <= today) : learning.find((q) => q.date === selectedDate);
-    const status = st.finished ? `<span class="pill ok">Finished</span>`
-      : st.behind ? `<span class="pill behind">${st.behind} day${st.behind > 1 ? "s" : ""} behind</span>`
-      : `<span class="pill ok">${st.ahead ? `Ahead by ${st.ahead}` : "On schedule"}</span>`;
+    const col = plan.kind === "cycle" ? null : collectionOf(sefer.collection);
+    const isToday = selectedDate === today, cycle = plan.kind === "cycle";
+    const name = planName(x);
+    // the portion to show: today, the oldest one not done up to today (in a cycle, today's own);
+    // another day, that day's
+    const p = isToday && !cycle ? learning.find((q) => !q.done && q.date <= today) : learning.find((q) => q.date === selectedDate);
+    const status = plan.paused ? `<span class="pill">${esc(tr("plan.paused"))}</span>`
+      : st.finished ? `<span class="pill ok">${esc(tr("status.finished"))}</span>`
+      : st.behind ? `<span class="pill behind">${esc(tr(st.behind > 1 ? "status.behindMany" : "status.behindOne", { n: st.behind }))}</span>`
+      : `<span class="pill ok">${esc(st.ahead ? tr("status.ahead", { n: st.ahead }) : tr("status.onSchedule"))}</span>`;
+    const kind = plan.kind === "review" ? `<span class="pill review">${esc(tr("review.pill"))}</span>` : cycle ? `<span class="pill">${esc(tr("cycle.pill"))}</span>` : "";
     const head = `<div class="lesson-head">
-        <div><h2 class="he-title" lang="he" dir="rtl">${esc(sefer.he)}</h2>
-          <div class="lesson-sub">${esc(sefer.en)}${commNames.length ? ` · with ${esc(commNames.join(" & "))}` : ""}${col ? ` · ${esc(col.en)}` : ""}</div></div>
-        ${p ? `<div class="count"><b>${learning.indexOf(p) + 1}<span class="muted">/${learning.length}</span></b>day</div>` : ""}
-      </div>`;
-    const foot = `<div class="lesson-foot">${status}<span>Finishing ${st.finishDate ? niceDate(st.finishDate, true) : "—"}</span></div>
-      <div class="lesson-foot"><button class="text-btn" data-open="${esc(x.id)}">Whole schedule</button>
-        ${isToday && !st.finished ? (st.behind ? `<button class="text-btn" data-missed="${esc(x.id)}">Catch up</button>` : `<button class="text-btn" data-cant="${esc(x.id)}">I can't learn today</button>`) : ""}</div>`;
-
+        <div><h2 class="he-title" lang="he" dir="rtl">${esc(name.he)}</h2>
+          <div class="lesson-sub">${kind}${esc(name.en)}${commNames.length ? ` · ${esc(tr("lesson.with", { names: commNames.join(" & ") }))}` : ""}${col ? ` · ${esc(col.en)}` : ""}</div></div>
+        ${p ? `<div class="count"><b>${learning.indexOf(p) + 1}<span class="muted">/${learning.length}</span></b>${esc(tr("lesson.day"))}</div>` : ""}
+      </div>${dedicationHtml(plan)}`;
+    const foot = `<div class="lesson-foot">${status}<span>${esc(tr("lesson.finishing", { date: st.finishDate ? niceDate(st.finishDate, true) : "—" }))}</span></div>
+      <div class="lesson-foot"><button class="text-btn" data-open="${esc(x.id)}">${esc(tr("lesson.wholeSchedule"))}</button>
+        ${isToday && !st.finished && !cycle && !plan.paused ? (st.behind ? `<button class="text-btn" data-missed="${esc(x.id)}">${esc(tr("lesson.catchUp"))}</button>` : `<button class="text-btn" data-cant="${esc(x.id)}">${esc(tr("lesson.cantToday"))}</button>`) : ""}</div>`;
+    if (plan.paused) {
+      return `<article class="panel lesson is-done">${head}<p class="next-line">${esc(tr("plan.pausedSince", { date: niceDate(plan.paused) }))}</p>
+        ${plan.group ? "" : `<button class="btn" data-resume="${esc(x.id)}">${esc(tr("plan.resume"))}</button>`}${foot}</article>`;
+    }
     if (st.finished && isToday) {
       const lastDone = learning.filter((q) => q.done).sort((a, b) => a.date.localeCompare(b.date)).pop();
-      return `<article class="panel lesson is-done">${head}<p class="done-mark">${icon("check")} Finished the whole sefer. Mazal tov!</p>
-        ${lastDone ? `<button class="text-btn" data-undo="${esc(x.id)}" data-date="${esc(lastDone.date)}">Undo the last day</button>` : ""}${foot}</article>`;
+      return `<article class="panel lesson is-done">${head}<p class="done-mark">${icon("check")} ${esc(tr("lesson.siyum"))}</p>
+        ${lastDone ? `<button class="text-btn" data-undo="${esc(x.id)}" data-date="${esc(lastDone.date)}">${esc(tr("lesson.undoLast"))}</button>` : ""}${foot}</article>`;
     }
     if (p && !p.done) {
+      const hasText = p.to >= p.from;
       return `<article class="panel lesson">${head}
-        ${p.date !== selectedDate ? `<p class="next-line">From ${niceDate(p.date)}</p>` : ""}
-        ${routeHtml(sefer, comms, p)}
+        ${p.date !== selectedDate ? `<p class="next-line">${esc(tr("lesson.fromDate", { date: niceDate(p.date) }))}</p>` : ""}
+        ${hasText ? routeHtml(sefer, comms, p) : ""}${placesHtml(p)}
         <div class="lesson-actions">
-          <button class="btn primary" data-done="${esc(x.id)}" data-date="${esc(p.date)}">Mark as done</button>
-          <a class="btn ext" href="${esc(P.sefariaUrl(sefer, p.from, p.to))}" target="_blank" rel="noopener" aria-label="Open on Sefaria">Sefaria ${icon("ext")}</a>
+          <button class="btn primary" data-done="${esc(x.id)}" data-date="${esc(p.date)}">${esc(tr("lesson.markDone"))}</button>
+          ${hasText ? `<a class="btn ext" href="${esc(P.sefariaUrl(sefer, p.from, p.to))}" target="_blank" rel="noopener" aria-label="${esc(tr("lesson.openSefaria"))}">Sefaria ${icon("ext")}</a>` : ""}
         </div>
-        ${p.to > p.from ? `<button class="text-btn part-btn" data-part="${esc(x.id)}" data-date="${esc(p.date)}">I only did part of it</button>` : ""}${foot}</article>`;
+        ${hasText && p.to > p.from && !cycle ? `<button class="text-btn part-btn" data-part="${esc(x.id)}" data-date="${esc(p.date)}">${esc(tr("lesson.onlyPart"))}</button>` : ""}${foot}</article>`;
     }
     const day = learning.find((q) => q.date === selectedDate);
     const next = isToday ? st.next : null;
     return `<article class="panel lesson is-done">${head}
-      ${day && day.done ? `<div class="done-row"><span class="done-mark">${icon("check")} Done${isToday ? " for today" : ""}</span>
-        <button class="btn small-btn" data-undo="${esc(x.id)}" data-date="${esc(day.date)}">Undo</button></div>` : `<p class="next-line">No learning on this day.</p>`}
-      ${next ? `<p class="next-line">Next, ${niceDate(next.date)}: ${portionLine(sefer, comms, next)}</p>
-        <button class="btn" data-done="${esc(x.id)}" data-date="${esc(next.date)}">Learn ahead: mark ${niceDate(next.date)} done</button>` : ""}
+      ${day && day.done ? `<div class="done-row"><span class="done-mark">${icon("check")} ${esc(tr(isToday ? "lesson.doneToday" : "lesson.done"))}</span>
+        <button class="btn small-btn" data-undo="${esc(x.id)}" data-date="${esc(day.date)}">${esc(tr("lesson.undo"))}</button></div>
+        <label class="minutes-box"><span>${esc(tr("today.addTime"))}</span>
+          <input type="number" inputmode="numeric" min="1" max="600" step="1" data-minutes="${esc(x.id)}" data-date="${esc(day.date)}" value="${day.minutes || ""}" placeholder="—"></label>` : `<p class="next-line">${esc(tr("lesson.noLearning"))}</p>`}
+      ${next && !cycle ? `<p class="next-line">${esc(tr("lesson.next", { date: niceDate(next.date) }))} ${next.to >= next.from ? portionLine(sefer, comms, next) : ""}</p>
+        <button class="btn" data-done="${esc(x.id)}" data-date="${esc(next.date)}">${esc(tr("lesson.learnAhead", { date: niceDate(next.date) }))}</button>` : ""}
       ${foot}</article>`;
+  }
+
+  // Plans made together (Kol HaTorah in a year) are shown together, under one
+  // header with their combined progress, and are paused or moved as one.
+  function cardsHtml(today) {
+    const out = [], seen = new Set();
+    for (const x of plans) {
+      const g = x.plan.group;
+      if (!g) { out.push(lessonHtml(x, today)); continue; }
+      if (seen.has(g.id)) continue;
+      seen.add(g.id);
+      const members = plans.filter((y) => y.plan.group && y.plan.group.id === g.id);
+      out.push(`<section class="group">${groupHeadHtml(g, members)}${members.map((y) => lessonHtml(y, today)).join("")}</section>`);
+    }
+    return out.join("");
+  }
+  // Progress by real size: the letters learned (with the chosen commentaries) out of all of them.
+  function lettersDone(x) {
+    const w = P.stopWeights(x.sefer, x.plan.commentaries || []);
+    let done = 0, all = 0;
+    for (const p of x.plan.portions) {
+      if (p.to < p.from) continue;
+      let n = 0;
+      for (let k = p.from; k <= p.to; k++) n += w[k];
+      all += n;
+      if (p.done) done += n;
+    }
+    return { done, all };
+  }
+  function groupProgress(members) {
+    let done = 0, all = 0;
+    for (const x of members) { const r = lettersDone(x); done += r.done; all += r.all; }
+    return all ? Math.round(done / all * 100) : 0;
+  }
+  function groupHeadHtml(g, members) {
+    const percent = groupProgress(members), paused = members.every((y) => y.plan.paused);
+    const end = members.map((y) => (learningOf(y.plan).pop() || {}).date).filter(Boolean).sort().pop();
+    return `<div class="panel group-head">
+        <div class="plan-row-top"><span><b class="he-title" lang="he" dir="rtl">${esc(g.he || g.name)}</b> <span class="muted">${esc(g.name)}</span></span><span class="muted">${percent}%</span></div>
+        <span class="progress"><i style="width:${percent}%"></i></span>
+        <p class="note">${esc(tr("group.summary", { n: members.length, date: end ? niceDate(end, true) : "—" }))}</p>
+        <div class="two"><button class="btn" data-group-pause="${esc(g.id)}">${esc(tr(paused ? "group.resume" : "group.pause"))}</button>
+          <button class="btn" data-group-move="${esc(g.id)}"${paused ? " disabled" : ""}>${esc(tr("group.move"))}</button></div>
+      </div>`;
+  }
+
+  // Pausing keeps the finish date's distance: on resuming, the finish date moves
+  // later by the days paused, and what is left is shared out again from today.
+  function pausePlan(x, today) {
+    x.plan = { ...x.plan, paused: today };
+    logDay(x, "plan-changed", null, { note: "paused" });
+  }
+  function resumePlan(x, today) {
+    const since = x.plan.paused, changes = {};
+    const away = Math.max(0, Math.round((dateOf(today) - dateOf(since)) / 86400000));
+    if (x.plan.endDate) changes.endDate = S.addDays(x.plan.endDate, away);
+    x.plan = S.rebuildRemaining({ ...x.plan, paused: null }, x.sefer, today, changes);
+    delete x.plan.paused;
+    logDay(x, "plan-changed", null, { note: "resumed", finishDate: (learningOf(x.plan).pop() || {}).date || null });
+  }
+  const groupMembers = (id) => plans.filter((y) => y.plan.group && y.plan.group.id === id);
+  document.addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-group-pause], [data-group-move], [data-resume], [data-suggest], [data-suggest-hide], [data-join]");
+    if (!b) return;
+    const today = todayIso();
+    try {
+      if (b.dataset.resume) {
+        resumePlan(findPlan(b.dataset.resume), today);
+        save(); renderToday(); toast(tr("plan.resumed"));
+      } else if (b.dataset.groupPause) {
+        const members = groupMembers(b.dataset.groupPause), paused = members.every((y) => y.plan.paused);
+        for (const y of members) { if (paused) resumePlan(y, today); else if (!y.plan.paused) pausePlan(y, today); }
+        save(); renderToday(); toast(tr(paused ? "plan.resumed" : "group.pausedToast"));
+      } else if (b.dataset.groupMove) {
+        const members = groupMembers(b.dataset.groupMove);
+        const end = members.map((y) => (learningOf(y.plan).pop() || {}).date).sort().pop();
+        const value = await askDate(tr("group.moveTitle"), end);
+        if (!value) return;
+        for (const y of members) {
+          y.plan = S.rebuildRemaining(y.plan, y.sefer, today, { endDate: value, dailyPieces: null, minutesPerDay: null });
+          logDay(y, "plan-changed", null, { finishDate: value });
+        }
+        save(); renderToday(); toast(tr("group.moved", { date: niceDate(value, true) }));
+      } else if (b.dataset.suggest) {
+        await startSuggestion(b.dataset.suggest, +b.dataset.item, today);
+      } else if (b.dataset.suggestHide) {
+        try { localStorage.setItem(`learning-calendar-hide-${b.dataset.suggestHide}`, today.slice(0, 4)); } catch (err) { /* shown again */ }
+        renderToday();
+      } else if (b.dataset.join) {
+        await joinCycle(b.dataset.join, b);
+      }
+    } catch (err) {
+      toast(err.message);
+    }
+  });
+  // A date, asked inside the page.
+  function askDate(title, value) {
+    return new Promise((resolve) => {
+      const dlg = $("ask");
+      $("askText").innerHTML = `${esc(title)}<input type="date" id="askDateInput" class="ask-date" value="${esc(value || "")}">`;
+      $("askYes").textContent = tr("ask.save");
+      $("askYes").classList.remove("danger");
+      dlg.returnValue = "";
+      dlg.onclose = () => {
+        $("askYes").classList.add("danger");
+        resolve(dlg.returnValue === "yes" ? $("askDateInput").value : null);
+      };
+      dlg.showModal();
+    });
+  }
+
+  // ---- before a Yom Tov: a suggestion card (the list is in suggestions.js) -----------------
+
+  // The next date (from today, within `days`) with this Hebrew month and day.
+  function nextHebrewDate(today, month, day, days) {
+    let f;
+    try { f = new Intl.DateTimeFormat("en-u-ca-hebrew", { day: "numeric", month: "long" }); } catch (e) { return null; }
+    for (let i = 0; i <= days; i++) {
+      const iso = S.addDays(today, i), [d, ...m] = f.format(dateOf(iso)).split(" "), name = m.join(" ");
+      // Adar means Adar II in a leap year (Purim is in Adar II)
+      if (+d === day && (name === month || (month === "Adar" && name === "Adar II"))) return iso;
+    }
+    return null;
+  }
+  function activeSuggestion(today) {
+    for (const sg of window.HOLIDAY_SUGGESTIONS || []) {
+      const date = nextHebrewDate(today, sg.yomTov.month, sg.yomTov.day, sg.weeks * 7);
+      if (!date || date <= S.addDays(today, 2)) continue;
+      let hidden = null;
+      try { hidden = localStorage.getItem(`learning-calendar-hide-${sg.id}`); } catch (e) { /* show */ }
+      if (hidden === today.slice(0, 4)) continue;
+      const items = sg.learn.map((it, i) => ({ ...it, i, entry: entryOf(it.seferId) })).filter((it) => it.entry);
+      if (items.length) return { sg, date, items };
+    }
+    return null;
+  }
+  function suggestionHtml(today) {
+    const a = activeSuggestion(today);
+    if (!a) return "";
+    const erev = S.addDays(a.date, -1);
+    return `<article class="panel suggestion">
+        <div class="lesson-head"><div><h2>${esc(tr("suggest.title", { name: a.sg.en }))} ${he(a.sg.he)}</h2>
+          <div class="lesson-sub">${esc(tr("suggest.sub", { date: niceDate(erev, true) }))}</div></div></div>
+        ${a.items.map((it) => `<div class="suggest-row"><span>${esc(it.en || it.entry.en)} ${he(it.he || it.entry.he)}</span>
+          <button class="btn small-btn" data-suggest="${esc(a.sg.id)}" data-item="${it.i}">${esc(tr("suggest.start"))}</button></div>`).join("")}
+        <button class="text-btn" data-suggest-hide="${esc(a.sg.id)}">${esc(tr("suggest.hide"))}</button>
+      </article>`;
+  }
+  // Pieces of chapters (simanim, perakim) first..last.
+  function chapterRange(sefer, first, last) {
+    const pos = P.positions(sefer);
+    const a = pos.findIndex((x) => x.chapter >= first);
+    let b = -1;
+    pos.forEach((x, i) => { if (x.chapter <= last) b = i; });
+    if (a < 0 || b < a) throw new Error(tr("suggest.noRange"));
+    return P.stopRange(sefer, a, b);
+  }
+  async function startSuggestion(id, i, today) {
+    const a = activeSuggestion(today);
+    if (!a || a.sg.id !== id) return;
+    const it = a.sg.learn[i], sefer = await loadSefer(it.seferId);
+    const range = it.simanim || it.perakim ? chapterRange(sefer, ...(it.simanim || it.perakim)) : { from: 0, to: P.stopCount(sefer) - 1 };
+    const comms = (it.commentaries || []).filter((c) => sefer.commentaries.some((k) => k.id === c));
+    const plan = S.buildPlan({ seferId: it.seferId, ...range, commentaries: comms, startDate: today, endDate: S.addDays(a.date, -1),
+      learningDays: [0, 1, 2, 3, 4, 5], lighterDays: [], daysOff: [] }, sefer);
+    if (it.en) plan.name = { en: it.en, he: it.he || sefer.he };
+    addPlan({ sefer, plan });
+    toast(tr("added", { name: it.en || sefer.en }));
+  }
+  function addPlan({ sefer, plan }) {
+    plan.createdAt = new Date().toISOString();
+    if (!plan.kind) plan.kind = "personal";
+    const x = { id: uid(), sefer, plan };
+    plans.push(x);
+    logDay(x, "started", null, { from: P.address(sefer, plan.from), until: P.address(sefer, plan.to + 1), finishDate: (learningOf(plan).pop() || {}).date || null });
+    save();
+    selectedDate = todayIso();
+    show("today");
+    return x;
   }
 
   // "Are you sure?" inside the page (some phones' browsers block confirm()).
@@ -480,28 +705,41 @@
       const r = P.rangeParts(x.sefer, k, k, comms);
       options.push({ value: String(k), label: `${P.pieceName(x.sefer, r.start.piece)}${r.start.words ? `, “${r.start.words}”${P.timeText(r.start.nth)}` : ""}` });
     }
-    openPicker("Where did you stop?", options, "", (v) => {
+    openPicker(tr("part.title"), options, "", (v) => {
       x.plan = S.markPartial(x.plan, date, +v);
       logDay(x, "partial", portionOn(x, date), { stoppedAt: P.address(x.sefer, +v) });
       const saved = save();
       renderToday();
-      toast(saved ? "Saved. Next time starts where you stopped." : "Marked, but not saved on this phone");
+      toast(tr(saved ? "part.saved" : "save.notOnPhone"));
     });
   }
+
+  // Optional, after Done: how many minutes the day took (kept with that day, for plans by time later).
+  document.addEventListener("change", (e) => {
+    const box = e.target.closest && e.target.closest("[data-minutes]");
+    if (!box) return;
+    const x = findPlan(box.dataset.minutes), n = Math.round(+box.value);
+    if (!x) return;
+    const ok = n >= 1 && n <= 600;
+    for (const q of x.plan.portions) if (q.date === box.dataset.date && S.hasLearning(q)) { if (ok) q.minutes = n; else delete q.minutes; }
+    if (ok) logDay(x, "time", portionOn(x, box.dataset.date), { minutes: n });
+    save();
+    if (ok) toast(tr("today.timeSaved"));
+  });
 
   function askMissed(x, includeToday) {
     const today = todayIso();
     const st = S.status(x.plan, x.sefer, today);
-    $("missedTitle").textContent = includeToday ? "Can't learn today" : `You missed ${st.behind} day${st.behind > 1 ? "s" : ""}`;
-    $("missedText").textContent = includeToday ? "What should happen to today's portion?" : "What should happen to the portions you missed?";
+    $("missedTitle").textContent = includeToday ? tr("missed.cantToday") : tr(st.behind > 1 ? "missed.missedMany" : "missed.missedOne", { n: st.behind });
+    $("missedText").textContent = tr(includeToday ? "missed.whatToday" : "missed.whatMissed");
     // each choice shows the finish date it would give
-    const LABELS = { push: "Push the finish date later", spread: "Spread it over the coming days", double: "Double up on the next day" };
+    const LABELS = { push: tr("missed.pushTheFinishDate"), spread: tr("missed.spreadItOverThe"), double: tr("missed.doubleUpOnThe") };
     for (const choice of Object.keys(LABELS)) {
       let when = "";
       try {
         const r = S.reschedule(x.plan, x.sefer, { today, choice, includeToday });
-        const last = r.portions.filter((p) => p.to >= p.from).pop();
-        when = last ? `Finishing ${niceDate(last.date, true)}` : "";
+        const last = r.portions.filter(S.hasLearning).pop();
+        when = last ? tr("lesson.finishing", { date: niceDate(last.date, true) }) : "";
       } catch (e) { /* leave the date out */ }
       document.querySelector(`#missed button[value="${choice}"]`).innerHTML = `${LABELS[choice]}${when ? `<small>${esc(when)}</small>` : ""}`;
     }
@@ -520,7 +758,7 @@
         if (now && now.date !== q.date) logDay(x, "moved", q, { choice, toDate: now.date });
       }
       save(); renderToday();
-      toast({ push: "The finish date moved later", spread: "Spread over the coming days", double: "Added to the next day" }[choice]);
+      toast(tr(`missed.done.${choice}`));
     };
     dlg.showModal();
   }
@@ -535,12 +773,13 @@
       x.plan = S.markDone(x.plan, t.dataset.date);
       logDay(x, "done", portionOn(x, t.dataset.date));
       t.classList.add("ticked");
-      t.innerHTML = `<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Done`;
+      t.innerHTML = `<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(tr("lesson.done"))}`;
       const saved = save();
-      setTimeout(() => { renderToday(); toast(saved ? "Yasher koach!" : "Marked, but not saved on this phone"); }, 600);
+      setTimeout(() => { renderToday(); toast(tr(saved ? "today.yasherKoach" : "save.notOnPhone")); }, 600);
     } else if (t.dataset.undo) {
       const x = findPlan(t.dataset.undo);
       x.plan = S.markDone(x.plan, t.dataset.date, false);
+      for (const q of x.plan.portions) if (q.date === t.dataset.date) delete q.minutes;
       logDay(x, "undone", portionOn(x, t.dataset.date));
       save(); renderToday();
     } else if (t.dataset.missed) {
@@ -560,17 +799,17 @@
   function unloadedHtml() {
     return unloaded.map((s) => {
       const id = (s.seferIds || [s.seferId])[0], e = catalog.seforim.find((x) => x.id === id);
-      const name = s.name ? s.name.en : e ? e.en : "A sefer";
+      const name = s.name ? s.name.en : e ? e.en : tr("load.aSefer");
       return `<article class="panel lesson load-failed"><h2>${esc(name)}</h2>
-        <p class="note">Could not load this sefer. Your progress in it is kept. Check the connection and try again.</p>
-        <button class="btn" data-retry="1">Retry</button></article>`;
+        <p class="note">${esc(tr("load.failed"))}</p>
+        <button class="btn" data-retry="1">${esc(tr("load.retry"))}</button></article>`;
     }).join("");
   }
   async function retryUnloaded() {
     const { loaded, failed } = await loadPlans(unloaded);
     plans = plans.concat(loaded);
     unloaded = failed;
-    if (failed.length) toast("Still could not load it");
+    if (failed.length) toast(tr("load.still"));
     if (!$("library").hidden) renderLibrary(); else renderToday();
   }
 
@@ -583,10 +822,10 @@
       const st = S.status(x.plan, x.sefer, today), learning = learningOf(x.plan);
       const done = learning.filter((p) => p.done).length, percent = pct(x.plan);
       return `<button class="panel plan-row" data-open="${esc(x.id)}">
-        <span class="plan-row-top"><span class="he-title" lang="he" dir="rtl">${esc(x.sefer.he)}</span><span class="muted">${percent}%</span></span>
-        <span class="muted">${esc(x.sefer.en)}</span>
+        <span class="plan-row-top"><span class="he-title" lang="he" dir="rtl">${esc(planName(x).he)}</span><span class="muted">${percent}%</span></span>
+        <span class="muted">${x.plan.kind === "review" ? `${esc(tr("review.pill"))} · ` : ""}${esc(planName(x).en)}${x.plan.group ? ` · ${esc(x.plan.group.name)}` : ""}</span>
         <span class="progress"><i style="width:${percent}%"></i></span>
-        <span class="plan-row-meta"><span>${done} of ${learning.length} days${st.behind ? ` · ${st.behind} behind` : ""}</span><span>Finishing ${st.finishDate ? niceDate(st.finishDate, true) : "—"}</span></span>
+        <span class="plan-row-meta"><span>${esc(tr("library.daysDone", { n: done, all: learning.length }))}${st.behind ? ` · ${esc(tr("library.behind", { n: st.behind }))}` : ""}</span><span>${esc(tr("lesson.finishing", { date: st.finishDate ? niceDate(st.finishDate, true) : "—" }))}</span></span>
       </button>`;
     }).join("") + unloadedHtml();
   }
@@ -610,14 +849,23 @@
     const today = todayIso(), st = S.status(plan, sefer, today), learning = learningOf(plan);
     const done = learning.filter((p) => p.done).length, percent = pct(plan);
     const commNames = comms.map((c) => sefer.commentaries.find((k) => k.id === c).en);
-    $("planTitle").textContent = sefer.he;
-    $("planSub").textContent = `${sefer.en}${commNames.length ? `, with ${commNames.join(" and ")}` : ""}`
-      + (plan.minutesPerDay && !plan.endDate ? ` · about ${plan.minutesPerDay} minutes a day` : "");
+    $("planTitle").textContent = planName(x).he;
+    $("planSub").textContent = `${planName(x).en}${commNames.length ? `, ${tr("lesson.with", { names: commNames.join(" & ") })}` : ""}`
+      + (plan.minutesPerDay && !plan.endDate ? ` · ${tr("plan.aboutMinutes", { n: plan.minutesPerDay })}` : "");
     $("planBar").style.width = percent + "%";
-    $("planStats").innerHTML = `<div><b>${done}/${learning.length}</b><span>days done</span></div>
-      <div><b>${st.finished ? "Done" : st.behind ? `${st.behind} behind` : "On track"}</b><span>${st.ahead ? `ahead by ${st.ahead}` : "status"}</span></div>
-      <div><b>${st.finishDate ? dateOf(st.finishDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}</b><span>finishing${st.finishDate ? ` ${dateOf(st.finishDate).getFullYear()}` : ""}</span></div>`;
+    $("planStats").innerHTML = `<div><b>${done}/${learning.length}</b><span>${esc(tr("plan.daysDone"))}</span></div>
+      <div><b>${esc(st.finished ? tr("lesson.done") : st.behind ? tr("library.behind", { n: st.behind }) : tr("plan.onTrack"))}</b><span>${esc(st.ahead ? tr("plan.aheadBy", { n: st.ahead }) : tr("plan.status"))}</span></div>
+      <div><b>${st.finishDate ? esc(dateOf(st.finishDate).toLocaleDateString(LearnText.locale(), { month: "short", day: "numeric" })) : "—"}</b><span>${esc(st.finishDate ? tr("plan.finishingYear", { year: dateOf(st.finishDate).getFullYear() }) : tr("plan.finishing"))}${st.finishDate ? ` · ${he(hebrewDate(st.finishDate, true))}` : ""}</span></div>`;
     $("editEnd").value = plan.endDate || learning.at(-1).date;
+    // a public cycle follows the cycle's dates, not settings
+    const cycle = plan.kind === "cycle";
+    $("planEdit").hidden = cycle || !!plan.group;
+    $("cycleNote").hidden = !cycle && !plan.group;
+    $("cycleNote").textContent = cycle ? tr("cycle.noChanges") : plan.group ? tr("group.changeOnToday") : "";
+    $("reviewPlan").hidden = !learning.some((p) => p.done && p.to >= p.from);
+    const ded = plan.dedication || {};
+    document.querySelectorAll('input[name="editDedKind"]').forEach((r) => { r.checked = r.value === (ded.kind || ""); });
+    $("editDedName").value = ded.name || "";
     renderCalendar(x, today);
   }
 
@@ -626,13 +874,13 @@
   function renderMonthDays(x, today) {
     const { sefer, plan } = x, comms = plan.commentaries || [];
     const [y, m] = calMonth.split("-").map(Number);
-    $("planDaysTitle").textContent = `Days in ${new Date(y, m - 1, 1, 12).toLocaleDateString("en-US", { month: "long", year: "numeric" })}`;
+    $("planDaysTitle").textContent = tr("plan.daysIn", { month: new Date(y, m - 1, 1, 12).toLocaleDateString(LearnText.locale(), { month: "long", year: "numeric" }) });
     const days = plan.portions.filter((p) => p.date.startsWith(calMonth));
-    $("planDays").innerHTML = days.map((p) => `<li class="${p.date === today ? "today" : ""} ${p.to < p.from ? "off" : ""}">
+    $("planDays").innerHTML = days.map((p) => `<li class="${p.date === today ? "today" : ""} ${S.hasLearning(p) ? "" : "off"}">
         <span class="d">${niceDate(p.date)}</span>
-        <span class="t">${p.to < p.from ? "No new learning" : portionLine(sefer, comms, p)}</span>
-        ${p.to < p.from ? "<span></span>" : `<button class="mark" data-toggle="${esc(p.date)}" aria-pressed="${!!p.done}" aria-label="${p.done ? "Done; tap to unmark" : "Mark done"}">${p.done ? icon("check") : ""}</button>`}</li>`).join("")
-      || `<li class="off"><span class="t">No days of this plan in this month.</span></li>`;
+        <span class="t">${!S.hasLearning(p) ? esc(tr("plan.noNewLearning")) : `${p.to >= p.from ? portionLine(sefer, comms, p) : ""}${(p.places || []).map((x) => esc(x.en)).join(", ")}`}</span>
+        ${!S.hasLearning(p) ? "<span></span>" : `<button class="mark" data-toggle="${esc(p.date)}" aria-pressed="${!!p.done}" aria-label="${esc(tr(p.done ? "plan.unmark" : "lesson.markDone"))}">${p.done ? icon("check") : ""}</button>`}</li>`).join("")
+      || `<li class="off"><span class="t">${esc(tr("plan.noDaysThisMonth"))}</span></li>`;
   }
 
   function renderCalendar(x, today) {
@@ -640,17 +888,23 @@
     const byDate = new Map(plan.portions.map((p) => [p.date, p]));
     const [y, m] = calMonth.split("-").map(Number);
     const firstDay = new Date(y, m - 1, 1, 12), days = new Date(y, m, 0).getDate();
-    $("calMonth").textContent = firstDay.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    // the month, with the Hebrew months it falls in
+    const lastDay = S.addDays(`${calMonth}-01`, days - 1), hm = (iso) => hebrewDate(iso, true).split(" ").slice(1).join(" ");
+    const hFirst = hm(`${calMonth}-01`), hLast = hm(lastDay);
+    const yearOf = (h) => h.split(" ").pop(), monthOf = (h) => h.split(" ").slice(0, -1).join(" ");
+    const hebrewMonths = !hFirst ? "" : hFirst === hLast ? hFirst
+      : yearOf(hFirst) === yearOf(hLast) ? `${monthOf(hFirst)} – ${hLast}` : `${hFirst} – ${hLast}`;
+    $("calMonth").innerHTML = `${esc(firstDay.toLocaleDateString(LearnText.locale(), { month: "long", year: "numeric" }))}${hebrewMonths ? `<small>${he(hebrewMonths)}</small>` : ""}`;
     let html = DAYS.map((d) => `<span class="dow">${d[0]}</span>`).join("") + "<span></span>".repeat(firstDay.getDay());
     for (let d = 1; d <= days; d++) {
       const iso = `${calMonth}-${String(d).padStart(2, "0")}`, p = byDate.get(iso);
-      const cls = !p ? "none" : p.to < p.from ? "off" : p.done ? "done" : "plan";
-      html += `<button class="${cls} ${iso === today ? "today" : ""}" data-cal="${iso}" aria-pressed="${iso === calPick}">${d}</button>`;
+      const cls = !p ? "none" : !S.hasLearning(p) ? "off" : p.done ? "done" : "plan";
+      html += `<button class="${cls} ${iso === today ? "today" : ""}" data-cal="${iso}" aria-pressed="${iso === calPick}" aria-label="${esc(niceDate(iso))}">${d}<small class="hd" lang="he">${hebrewDay(iso)}</small></button>`;
     }
     $("calGrid").innerHTML = html;
     const p = calPick && byDate.get(calPick);
     renderMonthDays(x, today);
-    $("calDetail").innerHTML = !calPick ? "" : `<b>${niceDate(calPick, true)}${p && p.done ? " · done" : ""}</b>${!p ? "Not part of the plan." : p.to < p.from ? "No new learning." : portionLine(sefer, comms, p)}`;
+    $("calDetail").innerHTML = !calPick ? "" : `<b>${esc(niceDate(calPick, true))}${p && p.done ? ` · ${esc(tr("cal.done"))}` : ""}</b>${!p ? esc(tr("cal.notInPlan")) : !S.hasLearning(p) ? esc(tr("cal.noNew")) : `${p.to >= p.from ? portionLine(sefer, comms, p) : ""}${(p.places || []).map((x) => esc(x.en)).join(", ")}`}`;
   }
 
   on("calGrid", "click", (e) => {
@@ -671,7 +925,7 @@
     const nowDone = b.getAttribute("aria-pressed") !== "true";
     x.plan = S.markDone(x.plan, b.dataset.toggle, nowDone);
     logDay(x, nowDone ? "done" : "undone", portionOn(x, b.dataset.toggle));
-    if (!save()) toast("Marked, but not saved on this phone");
+    if (!save()) toast(tr("save.notOnPhone"));
     renderPlan();
   });
   on("calPrev", "click", () => moveMonth(-1));
@@ -688,7 +942,7 @@
       x.plan = S.rebuildRemaining(x.plan, x.sefer, todayIso(), changes);
       logDay(x, "plan-changed", null, { finishDate: (learningOf(x.plan).pop() || {}).date || null });
       $("editOffStart").value = $("editOffEnd").value = "";
-      save(); renderPlan(); toast("Plan updated");
+      save(); renderPlan(); toast(tr("plan.updated"));
     } catch (err) {
       toast(err.message);
     }
@@ -696,7 +950,7 @@
 
   on("deletePlan", "click", async () => {
     const x = findPlan(current);
-    if (!(await ask(`Stop learning ${x.sefer.en}? Its progress will be removed from this phone.`, "Stop learning it"))) return;
+    if (!(await ask(tr("plan.stopAsk", { name: planName(x).en }), tr("plan.stopYes")))) return;
     logDay(x, "stopped", null);
     plans = plans.filter((p) => p.id !== current);
     save(); show("library");
@@ -731,19 +985,21 @@
     if (!$("startDate").value) $("startDate").value = today;
     if (!$("endDate").value) $("endDate").value = oneHebrewYear(today);
     if (!$("days").children.length) {
-      $("days").innerHTML = DAYS.map((d, i) => `<label title="${d}"><input type="checkbox" name="day" value="${i}" ${i < 6 ? "checked" : ""} aria-label="${d}">${i === 6 ? "Sh" : d.slice(0, 2)}</label>`).join("");
+      $("days").innerHTML = DAYS.map((d, i) => `<label title="${d}"><input type="checkbox" name="day" value="${i}" ${i < 6 ? "checked" : ""} aria-label="${d}">${esc(tr(`day.short.${i}`))}</label>`).join("");
     }
     setStep(1);
     renderCols();
     renderList();
+    $("isReview").checked = false;
+    if (reviewOf) fillReview();
   }
 
   function setStep(n) {
     wiz.step = n;
     [1, 2, 3].forEach((i) => { $("step" + i).hidden = i !== n; });
     document.querySelectorAll(".wiz-steps i").forEach((el, i) => el.classList.toggle("on", i < n));
-    $("wizCount").textContent = `${n} of 3`;
-    $("wizBack").textContent = n === 1 ? "Cancel" : "Back";
+    $("wizCount").textContent = tr("add.stepOf", { n });
+    $("wizBack").textContent = tr(n === 1 ? "add.cancel" : "add.back");
     $("wizNext").hidden = n === 3;
     $("create").hidden = n !== 3;
     window.scrollTo(0, 0);
@@ -756,25 +1012,18 @@
   }
 
   // What each collection leaves out (no Public Domain edition) or estimates.
-  const COLLECTION_NOTES = {
-    bavli: "Rashi and Tosafot on Sanhedrin are not included: there is no free edition. Tamid has no Rashi or Tosafot on Sefaria. The Yerushalmi is not included.",
-    rambam: "Not included, because there is no free edition: Hilchos Tefillin, Mezuzah and Sefer Torah; Tzitzis; Berachos; Milah; and the Order of Prayers.",
-    "shulchan-aruch": "Mishnah Berurah on Orach Chaim simanim 1 to 186 is estimated: the free edition does not have them, so their length is estimated from the number of se'ifim katanim.",
-    halacha: "Not included, because there is no free edition: Aruch HaShulchan Orach Chaim, Shulchan Aruch HaRav.",
-    mussar: "Not included, because there is no free edition: Tanya, Chofetz Chaim, Shemiras HaLashon, Orchos Tzaddikim, Kuzari, Sefer HaChinuch.",
-    midrash: "Not included, because there is no free edition: Zohar, Mechilta.",
-  };
+  const COLLECTION_NOTES = Object.fromEntries(["bavli", "yerushalmi", "rambam", "shulchan-aruch", "halacha", "mussar", "midrash"].map((c) => [c, `collection.note.${c}`]));
   // Search ignores nikud and cantillation, and treats ״ and ׳ like " and '.
   const plain = (t) => String(t).replace(/[\u0591-\u05C7]/g, "").replace(/[״“”]/g, '"').replace(/[׳‘’]/g, "'").toLowerCase();
 
   function renderList() {
     const q = plain($("wizSearch").value.trim());
     const list = q ? catalog.seforim.filter((e) => plain(`${e.en} ${e.he}`).includes(q)) : inCollection(wiz.col);
-    $("colNote").textContent = q ? "" : COLLECTION_NOTES[wiz.col] || "";
+    $("colNote").textContent = q || !COLLECTION_NOTES[wiz.col] ? "" : tr(COLLECTION_NOTES[wiz.col]);
     $("wizList").innerHTML = list.map((e) => `<label class="pick-row">
         <input type="checkbox" value="${e.id}" ${wiz.chosen.includes(e.id) ? "checked" : ""}>
         <span class="names"><span class="en">${esc(e.en)}${q ? ` · ${esc(collectionOf(e.collection).en)}` : ""}</span><span class="he" lang="he" dir="rtl">${esc(e.he)}</span></span>
-        <span class="check">${icon("check")}</span></label>`).join("") || `<p class="note" style="padding:16px">Nothing matches.</p>`;
+        <span class="check">${icon("check")}</span></label>`).join("") || `<p class="note" style="padding:16px">${esc(tr("add.nothingMatches"))}</p>`;
     $("wizAll").hidden = !!q;
   }
 
@@ -803,8 +1052,8 @@
   async function chosenChanged() {
     const entries = wiz.chosen.map(entryOf);
     const all = inCollection(wiz.col).length;
-    $("wizChosen").textContent = !entries.length ? "" : entries.length === 1 ? `${entries[0].en} chosen`
-      : entries.length === all ? `All ${all} available chosen` : `${entries.length} chosen`;
+    $("wizChosen").textContent = !entries.length ? "" : entries.length === 1 ? tr("add.oneChosen", { name: entries[0].en })
+      : entries.length === all ? tr("add.allChosen", { n: all }) : tr("add.nChosen", { n: entries.length });
     const comms = [];
     for (const e of entries) for (const c of e.commentaries) if (!comms.some((k) => k.id === c.id)) comms.push(c);
     $("commentaryBox").hidden = !comms.length;
@@ -818,19 +1067,19 @@
     const sefer = await loadCombined(wiz.chosen, name);
     $("fromPiece").placeholder = P.pieceName(sefer, 0);
     $("toPiece").placeholder = P.pieceName(sefer, P.pieceCount(sefer) - 1);
-    $("rangeHint").textContent = `Write it as in the sefer, for example ${P.pieceName(sefer, Math.min(5, P.pieceCount(sefer) - 1))}.`;
+    $("rangeHint").textContent = tr("add.rangeHint", { example: P.pieceName(sefer, Math.min(5, P.pieceCount(sefer) - 1)) });
     $("amountUnit").textContent = unitName(sefer, +$("amount").value);
     update();
   }
 
   // The plan the screens describe.
   async function draft() {
-    if (!wiz.chosen.length) throw new Error("Choose a sefer");
+    if (!wiz.chosen.length) throw new Error(tr("today.chooseASefer"));
     const name = nameFor(wiz.chosen);
     const sefer = await loadCombined(wiz.chosen, name);
     const fromP = $("fromPiece").value.trim() ? P.findPiece(sefer, $("fromPiece").value) : 0;
     const toP = $("toPiece").value.trim() ? P.findPiece(sefer, $("toPiece").value) : P.pieceCount(sefer) - 1;
-    if (toP < fromP) throw new Error("The end comes before the start.");
+    if (toP < fromP) throw new Error(tr("add.endBeforeStart"));
     const learningDays = checkedDays();
     const settings = {
       ...(wiz.chosen.length === 1 ? { seferId: wiz.chosen[0] } : { seferIds: wiz.chosen.slice(), name }),
@@ -855,10 +1104,10 @@
   async function update() {
     const ticket = ++updating;
     const box = $("preview");
-    $("lighterValue").textContent = wiz.lighter === "" || !checkedDays().includes(+wiz.lighter) ? "None" : DAYS[+wiz.lighter];
+    $("lighterValue").textContent = wiz.lighter === "" || !checkedDays().includes(+wiz.lighter) ? tr("add.none") : DAYS[+wiz.lighter];
     if (wiz.step === 1) {
       box.classList.remove("error");
-      box.textContent = wiz.chosen.length ? "" : "Choose one or more seforim";
+      box.textContent = wiz.chosen.length ? "" : tr("add.chooseSome");
       $("wizNext").disabled = !wiz.chosen.length;
       return;
     }
@@ -869,9 +1118,9 @@
       const first = learning[0].date, last = learning.at(-1).date, hd = hebrewDate(last);
       const hours = S.totalMinutes(sefer, comms, plan.from, plan.to, plan.pace || 1) / 60;
       const perDay = plan.minutesPerDay && !plan.endDate ? plan.minutesPerDay : Math.max(1, Math.round(hours * 60 / learning.length));
-      $("timeHint").textContent = `At this pace the whole of it takes about ${hours < 10 ? hours.toFixed(1) : Math.round(hours)} hours of learning.`;
+      $("timeHint").textContent = tr("add.timeHint", { n: hours < 10 ? hours.toFixed(1) : Math.round(hours) });
       box.classList.remove("error");
-      box.innerHTML = wiz.step === 2 ? `<b>${learning.length}</b> days · finishing ${niceDate(last, true)}` : "";
+      box.innerHTML = wiz.step === 2 ? esc(tr("add.summary", { n: learning.length, date: niceDate(last, true) })).replace(/^\d+/, "<b>$&</b>") : "";
       $("wizNext").disabled = false;
       $("create").disabled = false;
       if (wiz.step === 3) {
@@ -880,17 +1129,17 @@
         $("review").innerHTML = `<div class="panel review-hero">
             <h2 class="he-title" lang="he" dir="rtl">${esc(sefer.he)}</h2>
             <p>${esc(sefer.en)}</p>
-            <div class="big">${learning.length}<small>days</small></div>
-            <p>Finishing ${niceDate(last, true)}${hd ? ` · ${he(hd)}` : ""}</p>
-            <p>About ${perDay} minutes a day</p>
+            <div class="big">${learning.length}<small>${esc(tr("add.days"))}</small></div>
+            <p>${esc(tr("lesson.finishing", { date: niceDate(last, true) }))}</p>
+            <p>${esc(tr("add.aboutMinutes", { n: perDay }))}</p>
           </div>
           <div class="panel review-rows">
-            <div><span>Learn with</span><b>${commNames.length ? esc(commNames.join(", ")) : "The text alone"}</b></div>
-            <div><span>Days</span><b>${days}${plan.lighterDays.length ? ` · lighter ${DAYS[plan.lighterDays[0]]}` : ""}</b></div>
-            <div><span>Starting</span><b>${niceDate(first, true)}</b></div>
-            ${plan.daysOff.length ? `<div><span>Days off</span><b>${plan.daysOff.length}</b></div>` : ""}
+            <div><span>${esc(tr("add.learnWith"))}</span><b>${esc(commNames.length ? commNames.join(", ") : tr("add.textAlone"))}</b></div>
+            <div><span>${esc(tr("add.reviewDays"))}</span><b>${esc(days)}${plan.lighterDays.length ? ` · ${esc(tr("add.lighterX", { day: DAYS[plan.lighterDays[0]] }))}` : ""}</b></div>
+            <div><span>${esc(tr("add.starting"))}</span><b>${esc(niceDate(first, true))}</b></div>
+            ${plan.daysOff.length ? `<div><span>${esc(tr("add.daysOff"))}</span><b>${plan.daysOff.length}</b></div>` : ""}
           </div>
-          <div class="panel review-first"><small>First day, ${niceDate(first)}</small>${portionLine(sefer, comms, learning[0])}</div>`;
+          <div class="panel review-first"><small>${esc(tr("add.firstDay", { date: niceDate(first) }))}</small>${portionLine(sefer, comms, learning[0])}</div>`;
       }
     } catch (err) {
       if (ticket !== updating) return;
@@ -931,12 +1180,12 @@
 
   on("lighterRow", "click", () => {
     const days = checkedDays();
-    openPicker("Lighter day", [{ value: "", label: "None" }, ...days.map((d) => ({ value: String(d), label: DAYS[d] }))], wiz.lighter, (v) => { wiz.lighter = v; update(); });
+    openPicker(tr("add.lighterDay"), [{ value: "", label: tr("add.none") }, ...days.map((d) => ({ value: String(d), label: DAYS[d] }))], wiz.lighter, (v) => { wiz.lighter = v; update(); });
   });
 
   on("addOff", "click", () => {
     const start = $("offStart").value;
-    if (!start) return toast("Choose the first day off");
+    if (!start) return toast(tr("add.chooseFirstOff"));
     const end = $("offEnd").value && $("offEnd").value >= start ? $("offEnd").value : start;
     wiz.daysOff.push({ start, end, label: $("offLabel").value.trim() });
     $("offStart").value = $("offEnd").value = $("offLabel").value = "";
@@ -944,7 +1193,7 @@
   });
   function renderDaysOff() {
     $("daysOffList").innerHTML = wiz.daysOff.map((d, i) => `<p><span>${niceDate(d.start)}${d.end !== d.start ? ` – ${niceDate(d.end)}` : ""}${d.label ? ` · ${esc(d.label)}` : ""}</span>
-      <button type="button" class="text-btn" data-off="${i}">Remove</button></p>`).join("");
+      <button type="button" class="text-btn" data-off="${i}">${esc(tr("add.remove"))}</button></p>`).join("");
     $("daysOffCount").textContent = wiz.daysOff.length ? String(wiz.daysOff.length) : "";
   }
   on("daysOffList", "click", (e) => {
@@ -957,20 +1206,190 @@
   on("create", "click", async () => {
     try {
       const { sefer, plan } = await draft();
-      plan.createdAt = new Date().toISOString();
-      const x = { id: uid(), sefer, plan };
-      plans.push(x);
-      logDay(x, "started", null, { from: P.address(sefer, plan.from), until: P.address(sefer, plan.to + 1), finishDate: (learningOf(plan).pop() || {}).date || null });
-      save();
+      plan.kind = $("isReview").checked ? "review" : "personal";
+      const ded = dedicationFrom("dedKind", "dedName");
+      if (ded) plan.dedication = ded;
       wiz.chosen = []; wiz.daysOff = [];
+      $("dedName").value = "";
+      document.querySelector('input[name="dedKind"][value=""]').checked = true;
       renderDaysOff();
       chosenChanged();
-      selectedDate = todayIso();
-      show("today");
-      toast(`${sefer.en} added`);
+      addPlan({ sefer, plan });
+      toast(tr("added", { name: sefer.en }));
     } catch (err) {
       toast(err.message);
     }
+  });
+
+  // ---- Kol HaTorah in a year: one group of plans with the same dates ------------------------
+
+  // Each choice is a whole collection (or part of one), with the commentaries it is learned with.
+  const KOL = [
+    { key: "bavli", collection: "bavli", on: true },
+    { key: "mishnah", collection: "mishnah", on: true },
+    { key: "rambam", collection: "rambam", on: true },
+    { key: "tanakh", collection: "tanakh", on: true },
+    { key: "shulchan-aruch", collection: "shulchan-aruch", on: true, commentaries: ["mishnah-berurah"] },
+    { key: "yerushalmi", collection: "yerushalmi", on: false },
+  ];
+  const kol = { picked: new Set(), extra: [] };
+  function kolChoices() {
+    return KOL.filter((k) => inCollection(k.collection).length).map((k) => {
+      const c = collectionOf(k.collection);
+      const comms = k.commentaries || [...new Set(inCollection(k.collection).flatMap((e) => e.commentaries.filter((x) => x.default).map((x) => x.id)))];
+      return { ...k, ids: inCollection(k.collection).map((e) => e.id), en: c.en, he: c.he, comms };
+    });
+  }
+  function openKol() {
+    if (!$("kolStart").value) $("kolStart").value = todayIso();
+    if (!$("kolEnd").value) $("kolEnd").value = oneHebrewYear(todayIso());
+    if (!kol.picked.size && !kol.extra.length) for (const k of KOL) if (k.on) kol.picked.add(k.key);
+    renderKol();
+  }
+  function renderKol() {
+    const commName = (k) => k.comms.map((id) => (catalog.seforim.flatMap((e) => e.commentaries).find((c) => c.id === id) || {}).en).filter(Boolean);
+    $("kolList").innerHTML = kolChoices().map((k) => `<label class="pick-row">
+        <input type="checkbox" data-kol="${esc(k.key)}" ${kol.picked.has(k.key) ? "checked" : ""}>
+        <span class="names"><span class="en">${esc(k.en)}${commName(k).length ? ` · ${esc(tr("lesson.with", { names: commName(k).join(" & ") }))}` : ""}${k.on ? "" : ` · ${esc(tr("kol.optional"))}`}</span><span class="he" lang="he" dir="rtl">${esc(k.he)}</span></span>
+        <span class="check">${icon("check")}</span></label>`).join("")
+      + kol.extra.map((id) => `<label class="pick-row"><input type="checkbox" data-kol-extra="${esc(id)}" checked>
+        <span class="names"><span class="en">${esc(entryOf(id).en)}</span><span class="he" lang="he" dir="rtl">${esc(entryOf(id).he)}</span></span>
+        <span class="check">${icon("check")}</span></label>`).join("");
+    const q = plain($("kolSearch").value.trim());
+    $("kolFound").innerHTML = !q ? "" : catalog.seforim.filter((e) => plain(`${e.en} ${e.he}`).includes(q) && !kol.extra.includes(e.id)).slice(0, 12)
+      .map((e) => `<button type="button" class="pick-row" data-kol-add="${esc(e.id)}"><span class="names"><span class="en">${esc(e.en)} · ${esc(collectionOf(e.collection).en)}</span><span class="he" lang="he" dir="rtl">${esc(e.he)}</span></span><span class="check">+</span></button>`).join("");
+    const n = kol.picked.size + kol.extra.length, start = $("kolStart").value, end = $("kolEnd").value;
+    $("kolCreate").disabled = !n || !start || !end || end <= start;
+    $("kolSummary").textContent = !n ? tr("kol.chooseOne") : end <= start ? tr("kol.endAfterStart")
+      : tr("kol.summary", { n, start: niceDate(start, true), end: niceDate(end, true) });
+  }
+  on("kolList", "change", (e) => {
+    const t = e.target;
+    if (t.dataset.kol) { if (t.checked) kol.picked.add(t.dataset.kol); else kol.picked.delete(t.dataset.kol); }
+    if (t.dataset.kolExtra && !t.checked) kol.extra = kol.extra.filter((x) => x !== t.dataset.kolExtra);
+    renderKol();
+  });
+  on("kolSearch", "input", renderKol);
+  on("kolFound", "click", (e) => {
+    const b = e.target.closest("[data-kol-add]");
+    if (!b) return;
+    kol.extra.push(b.dataset.kolAdd);
+    $("kolSearch").value = "";
+    renderKol();
+  });
+  ["kolStart", "kolEnd"].forEach((id) => on(id, "input", renderKol));
+  on("kolCreate", "click", async () => {
+    const btn = $("kolCreate");
+    btn.disabled = true;
+    btn.textContent = tr("kol.making");
+    try {
+      const start = $("kolStart").value, end = $("kolEnd").value;
+      const group = { id: uid().replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24), name: "Kol HaTorah", he: "כל התורה" };
+      const items = kolChoices().filter((k) => kol.picked.has(k.key)).map((k) => ({ ids: k.ids, comms: k.comms }))
+        .concat(kol.extra.map((id) => ({ ids: [id], comms: entryOf(id).commentaries.filter((c) => c.default).map((c) => c.id) })));
+      const made = [];
+      for (const it of items) {
+        const name = nameFor(it.ids), sefer = await loadCombined(it.ids, name);
+        const comms = it.comms.filter((c) => sefer.commentaries.some((k) => k.id === c));
+        const plan = S.buildPlan({ ...(it.ids.length === 1 ? { seferId: it.ids[0] } : { seferIds: it.ids, name }),
+          from: 0, to: P.stopCount(sefer) - 1, commentaries: comms, startDate: start, endDate: end,
+          learningDays: [0, 1, 2, 3, 4, 5], lighterDays: [], daysOff: [] }, sefer);
+        plan.group = group;
+        made.push({ sefer, plan });
+      }
+      for (const m of made) {
+        m.plan.createdAt = new Date().toISOString();
+        m.plan.kind = "personal";
+        const x = { id: uid(), sefer: m.sefer, plan: m.plan };
+        plans.push(x);
+        logDay(x, "started", null, { from: P.address(m.sefer, m.plan.from), until: P.address(m.sefer, m.plan.to + 1), finishDate: end });
+      }
+      save();
+      kol.picked.clear(); kol.extra = [];
+      selectedDate = todayIso();
+      show("today");
+      toast(tr("kol.made", { n: made.length }));
+    } catch (err) {
+      toast(err.message);
+    } finally {
+      btn.textContent = tr("kol.create");
+      btn.disabled = false;
+    }
+  });
+
+  // ---- public cycles --------------------------------------------------------------------------
+
+  const C = window.LearningCycles;
+  function renderCycles() {
+    const today = todayIso(), names = (id) => entryOf(id) || { en: id, he: id };
+    $("cycleList").innerHTML = Object.entries(C.CYCLES).map(([id, c]) => {
+      const joined = plans.some((x) => x.plan.kind === "cycle" && x.plan.cycle === id && !S.status(x.plan, x.sefer, today).finished);
+      const { cycleEnd } = C.cycleDay(id, today);
+      return `<article class="panel lesson">
+          <div class="lesson-head"><div><h2 class="he-title" lang="he" dir="rtl">${esc(c.he)}</h2><div class="lesson-sub">${esc(c.en)} · ${esc(tr(`cycles.note.${id}`))}</div></div></div>
+          <p class="next-line">${esc(tr("cycles.today", { name: C.dayName(id, today, names) }))}</p>
+          <p class="note">${esc(tr("cycles.ends", { date: niceDate(cycleEnd, true) }))}</p>
+          <button class="btn ${joined ? "" : "primary"}" data-join="${esc(id)}" ${joined ? "disabled" : ""}>${esc(tr(joined ? "cycles.joined" : "cycles.join"))}</button>
+        </article>`;
+    }).join("");
+  }
+  async function joinCycle(id, btn) {
+    const today = todayIso(), c = C.CYCLES[id];
+    btn.disabled = true;
+    btn.textContent = tr("kol.making");
+    const ids = C.seferIdsFrom(id, today), name = { en: c.en, he: c.he };
+    const sefer = await loadCombined(ids, name);
+    const plan = C.buildCyclePlan(P, id, today, sefer);
+    plan.seferIds = ids;
+    plan.name = name;
+    // the commentaries usually learned with it (Rashi and Tosafot; Bartenura)
+    plan.commentaries = [...new Set(ids.flatMap((i) => entryOf(i).commentaries.filter((k) => k.default).map((k) => k.id)))]
+      .filter((k) => sefer.commentaries.some((x) => x.id === k));
+    addPlan({ sefer, plan });
+    toast(tr("cycles.welcome", { name: c.en }));
+  }
+
+  // ---- review (chazara) of something already learned -------------------------------------------
+
+  let reviewOf = null;   // the plan a review was started from, to fill in the wizard
+  on("reviewPlan", "click", () => {
+    const x = findPlan(current), done = learningOf(x.plan).filter((p) => p.done && p.to >= p.from);
+    if (!done.length) return toast(tr("review.nothingYet"));
+    reviewOf = x;
+    show("add");
+  });
+  // In the wizard: the same sefarim, from the start of what was learned to its end, marked as a review.
+  async function fillReview() {
+    const x = reviewOf;
+    if (!x) return;
+    const ids = x.plan.seferIds || [x.plan.seferId], done = learningOf(x.plan).filter((p) => p.done && p.to >= p.from);
+    wiz.col = entryOf(ids[0]).collection;
+    wiz.chosen = ids.slice();
+    renderCols(); renderList();
+    await chosenChanged();
+    const sefer = x.sefer, first = Math.min(...done.map((p) => p.from)), last = Math.max(...done.map((p) => p.to));
+    $("fromPiece").value = P.pieceName(sefer, P.pieceOf(sefer, first));
+    $("toPiece").value = P.pieceName(sefer, P.pieceOf(sefer, last));
+    document.querySelectorAll('input[name="comm"]').forEach((c) => { c.checked = (x.plan.commentaries || []).includes(c.value); });
+    $("isReview").checked = true;
+    $("rangeBox").open = true;
+    reviewOf = null;
+    update();
+  }
+
+  // ---- dedications --------------------------------------------------------------------------------
+
+  const dedicationFrom = (kindName, nameId) => {
+    const kind = (document.querySelector(`input[name="${kindName}"]:checked`) || {}).value || "";
+    const name = $(nameId).value.trim().slice(0, 80);
+    return kind && name ? { kind, name } : null;
+  };
+  on("dedEdit", "submit", (e) => {
+    e.preventDefault();
+    const x = findPlan(current);
+    x.plan = { ...x.plan, dedication: dedicationFrom("editDedKind", "editDedName") };
+    if (!x.plan.dedication) delete x.plan.dedication;
+    save(); renderPlan(); toast(tr("dedication.saved"));
   });
 
   // ---- a daily reminder in the phone's calendar ---------------------------------------------
@@ -999,32 +1418,53 @@
   function renderReminder() {
     const end = reminderEnd();
     $("addReminder").disabled = !end;
-    $("reminderDays").textContent = !end ? "Add a sefer first; the reminder follows your plans."
-      : `On ${reminderDays().map((d) => DAYS[d]).join(", ")}, the days you learn, until ${niceDate(end, true)}, when your last sefer is finished. If a plan changes, add it again.`;
+    $("reminderDays").textContent = !end ? tr("reminder.addFirst")
+      : tr("reminder.days", { days: reminderDays().filter((d) => d !== 6).map((d) => DAYS[d]).join(", "), date: niceDate(end, true) });
   }
-  function reminderIcs(time, days, end) {
+  const timeZone = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) { return ""; } };
+  // No reminder on Shabbos or Yom Tov; with an evening time, none on Friday or
+  // the day before Yom Tov either (it may already have begun).
+  function reminderIcs(time, learnDays, end, zone = timeZone()) {
     const [h, m] = time.split(":").map(Number);
+    const evening = h >= 12;
+    const days = learnDays.filter((d) => d !== 6 && !(evening && d === 5));
+    if (!days.length) return null;
+    const skip = new Set(S.noReminderDates(todayIso(), end, { israel: S.inIsrael(zone), evening }));
     // the first learning day from today at that time (today if it has not passed)
     const now = new Date();
-    let first = todayIso();
+    let first = null;
     const passed = now.getHours() * 60 + now.getMinutes() >= h * 60 + m;
-    for (let i = passed ? 1 : 0; i < 8; i++) {
+    for (let i = passed ? 1 : 0; i < 60; i++) {
       const iso = S.addDays(todayIso(), i);
-      if (days.includes(dateOf(iso).getDay())) { first = iso; break; }
+      if (iso > end) break;
+      if (days.includes(dateOf(iso).getDay()) && !skip.has(iso)) { first = iso; break; }
     }
+    if (!first) return null;
+    const hm = `T${String(h).padStart(2, "0")}${String(m).padStart(2, "0")}00`;
     const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
-    const at = `${first.replace(/-/g, "")}T${String(h).padStart(2, "0")}${String(m).padStart(2, "0")}00`;
+    const except = [...skip].filter((iso) => iso > first && days.includes(dateOf(iso).getDay())).map((iso) => `EXDATE:${iso.replace(/-/g, "")}${hm}`);
     return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Learning Calendar//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
       "BEGIN:VEVENT", `UID:daily-learning-${reminderId()}@sefer-calendar.web.app`, `SEQUENCE:${Math.floor(Date.now() / 1000)}`, `DTSTAMP:${stamp}`,
-      `DTSTART:${at}`, "DURATION:PT15M", `RRULE:FREQ=WEEKLY;BYDAY=${days.map((d) => ICS_DAYS[d]).join(",")};UNTIL=${end.replace(/-/g, "")}T235959`,
-      "SUMMARY:Time to learn", `DESCRIPTION:Open the Learning Calendar to see today's place: ${APP_URL}`, `URL:${APP_URL}`,
-      "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:Time to learn", "TRIGGER:PT0M", "END:VALARM",
+      `DTSTART:${first.replace(/-/g, "")}${hm}`, "DURATION:PT15M", `RRULE:FREQ=WEEKLY;BYDAY=${days.map((d) => ICS_DAYS[d]).join(",")};UNTIL=${end.replace(/-/g, "")}T235959`,
+      ...except,
+      `SUMMARY:${tr("reminder.title")}`, `DESCRIPTION:${tr("reminder.description", { url: APP_URL })}`, `URL:${APP_URL}`,
+      "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${tr("reminder.title")}`, "TRIGGER:PT0M", "END:VALARM",
       "END:VEVENT", "END:VCALENDAR", ""].join("\r\n");
   }
+  // The reminder time is kept on the phone and, when signed in, in the account with
+  // the time zone (for reminders sent by the app later).
+  const REMINDER_TIME = "learning-calendar-reminder-time";
+  try { if (localStorage.getItem(REMINDER_TIME)) $("reminderTime").value = localStorage.getItem(REMINDER_TIME); } catch (e) { /* default 20:00 */ }
+  const reminderListeners = [];
+  on("reminderTime", "change", () => {
+    try { localStorage.setItem(REMINDER_TIME, $("reminderTime").value); } catch (e) { /* fine */ }
+    for (const fn of reminderListeners) fn({ reminderTime: $("reminderTime").value, timeZone: timeZone() });
+  });
   on("addReminder", "click", () => {
     const end = reminderEnd();
-    if (!end) return toast("Add a sefer first");
+    if (!end) return toast(tr("reminder.addSeferFirst"));
     const ics = reminderIcs($("reminderTime").value || "20:00", reminderDays(), end);
+    if (!ics) return toast(tr("reminder.noDays"));
     const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
     const a = document.createElement("a");
     a.href = url;
@@ -1058,23 +1498,23 @@
   on("copyBackup", "click", async () => {
     try {
       await navigator.clipboard.writeText($("backupText").value);
-      toast("Backup copied");
+      toast(tr("backup.copied"));
     } catch (e) {
       $("backupText").select();
-      toast("Select the text and copy it");
+      toast(tr("backup.selectAndCopy"));
     }
   });
   async function restore(text) {
     try {
       const data = JSON.parse(text);
-      if (data.format !== "learning-calendar-backup" || !Array.isArray(data.plans)) throw new Error("This is not a learning calendar backup.");
-      if (plans.length && !(await ask(`Replace the ${plans.length} sefer${plans.length > 1 ? "im" : ""} on this phone with the ${data.plans.length} in the backup?`, "Replace"))) return;
+      if (data.format !== "learning-calendar-backup" || !Array.isArray(data.plans)) throw new Error(tr("backup.notBackup"));
+      if (plans.length && !(await ask(tr("backup.replaceAsk", { n: plans.length, m: data.plans.length }), tr("backup.replace")))) return;
       const { loaded, failed } = await loadPlans(data.plans);
-      if (failed.length) throw new Error("Part of this backup could not be read. Nothing was changed.");
+      if (failed.length) throw new Error(tr("backup.partFailed"));
       plans = loaded;
-      save(); show("today"); toast("Backup loaded");
+      save(); show("today"); toast(tr("backup.loaded"));
     } catch (err) {
-      toast(err instanceof SyntaxError ? "This is not a learning calendar backup." : err.message);
+      toast(err instanceof SyntaxError ? tr("backup.notBackup") : err.message);
     }
   }
   on("restore", "change", async (e) => {
@@ -1130,7 +1570,7 @@
     try {
       catalog = await getJson("data/catalog.json");
     } catch (e) {
-      $("todayDate").textContent = `Could not load the list of sefarim (${e.message}). Check the connection and try again.`;
+      $("todayDate").textContent = tr("load.catalogFailed", { error: e.message });
       return;
     }
     const { loaded, failed } = await loadPlans(readStore().plans || []);

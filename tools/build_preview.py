@@ -25,7 +25,7 @@ def main(out, pack=False):
         rel = "data/" + f.relative_to(LEARN / "data").as_posix()
         packed[rel] = base64.b64encode(gzip.compress(f.read_bytes(), 9, mtime=0)).decode()
     data_js = "window.LEARN_DATA = " + json.dumps(packed, separators=(",", ":")) + ";" if pack else ""
-    for name in ["engine/sefer.js", "engine/schedule.js", "engine/sync.js", "app.js", "accounts.js"]:
+    for name in ["strings.js", "engine/sefer.js", "engine/schedule.js", "engine/sync.js", "engine/cycles.js", "suggestions.js", "app.js", "accounts.js"]:
         tag = f'<script src="{name}"></script>'
         assert tag in body, name
         code = (LEARN / name).read_text(encoding="utf-8")

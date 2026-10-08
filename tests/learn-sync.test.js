@@ -1,5 +1,6 @@
 // Moving a phone's plans into an account on first sign-in, and what is sent after.
 const assert = require("assert");
+require("../learn/strings.js");   // the words the engine writes
 const Sync = require("../learn/engine/sync.js");
 
 let passed = 0;

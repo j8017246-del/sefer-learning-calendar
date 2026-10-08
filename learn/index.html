@@ -4,35 +4,42 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f4f5f7">
-<title>Learning Calendar</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Learning">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title data-t="app.learningCalendar"></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
 
-<p id="saveWarn" class="save-warn" role="alert" hidden>Not saved on this phone. The phone's storage may be full or blocked; your latest changes will be lost when the app closes.</p>
+<p id="saveWarn" class="save-warn" role="alert" hidden data-t="app.notSavedOnThis"></p>
 
-<p id="notSavedBar" class="save-warn soft" hidden>Not saved to an account yet. <button class="text-btn" id="notSavedSignIn">Sign in</button></p>
+<p id="notSavedBar" class="save-warn soft" hidden><span data-t="app.notSavedToAn"></span> <button class="text-btn" id="notSavedSignIn" data-t="app.signIn"></button></p>
 
 <!-- ===== Sign in (required on the website) ===== -->
 <section id="gate" class="gate" hidden aria-labelledby="gateTitle">
   <div class="gate-box">
     <svg class="empty-art" viewBox="0 0 120 80" aria-hidden="true"><path d="M60 18c-12-8-30-9-46-6v54c16-3 34-2 46 6 12-8 30-9 46-6V12c-16-3-34-2-46 6Z"/><path d="M60 18v54"/></svg>
-    <h1 id="gateTitle">Learning Calendar</h1>
-    <p class="gate-sub">Sign in to start. Your plans and progress are saved to your account after every change, and are the same on every phone and computer.</p>
-    <button class="btn primary wide" id="googleSignIn" disabled>Continue with Google</button>
+    <h1 id="gateTitle" data-t="app.learningCalendar"></h1>
+    <p class="gate-sub" data-t="gate.signInToStart"></p>
+    <button class="btn primary wide" id="googleSignIn" disabled data-t="gate.continueWithGoogle"></button>
     <form id="linkForm" class="link-form">
-      <label class="field" for="linkEmail">Or get a sign-in link by email</label>
-      <input type="email" id="linkEmail" autocomplete="email" placeholder="you@example.com" required>
-      <button class="btn wide" id="sendLink" disabled>Email me a sign-in link</button>
+      <label class="field" for="linkEmail" data-t="gate.orGetASign"></label>
+      <input type="email" id="linkEmail" autocomplete="email" required data-t-placeholder="gate.youExampleCom">
+      <button class="btn wide" id="sendLink" disabled data-t="gate.emailMeASign"></button>
     </form>
     <p class="note" id="accountNote" role="status"></p>
     <details class="gate-privacy">
-      <summary>What we keep</summary>
-      <p>Your email address and your learning plans, only to show them to you. Nothing is sold or shared. We may show counts of how many people learn each sefer, never who they are. Your name or learning is shown to others only if you turn that on in Settings. You can delete your account and everything in it from Settings.</p>
+      <summary data-t="gate.whatWeKeep"></summary>
+      <p data-t="gate.yourEmailAddressAnd"></p>
     </details>
-    <button class="text-btn" id="gateClose" hidden>Not now</button>
+    <button class="text-btn" id="gateClose" hidden data-t="gate.notNow"></button>
   </div>
 </section>
 
@@ -40,40 +47,40 @@
 <section id="today" class="view">
   <header class="topbar">
     <div>
-      <p class="eyebrow" id="todayDate">Loading…</p>
-      <h1 id="todayTitle">Today</h1>
+      <p class="eyebrow" id="todayDate" data-t="today.loading"></p>
+      <h1 id="todayTitle" data-t="today.today"></h1>
     </div>
-    <button class="icon-btn" data-go="add" aria-label="Add a sefer"><svg data-icon="plus"></svg></button>
+    <button class="icon-btn" data-go="add" data-t-aria-label="today.addASefer"><svg data-icon="plus"></svg></button>
   </header>
-  <nav class="week" id="week" aria-label="This week"></nav>
+  <nav class="week" id="week" data-t-aria-label="today.thisWeek"></nav>
   <p class="day-status" id="dayStatus"></p>
   <div id="cards" class="stack"></div>
   <div id="empty" class="empty" hidden>
     <svg class="empty-art" viewBox="0 0 120 80" aria-hidden="true"><path d="M60 18c-12-8-30-9-46-6v54c16-3 34-2 46 6 12-8 30-9 46-6V12c-16-3-34-2-46 6Z"/><path d="M60 18v54"/></svg>
-    <h2>Start your first sefer</h2>
-    <p>Choose a sefer and how you want to learn it. Each day you get where to start and where to stop in your own sefer.</p>
-    <button class="btn primary" data-go="add">Choose a sefer</button>
+    <h2 data-t="today.startYourFirstSefer"></h2>
+    <p data-t="today.chooseASeferAnd"></p>
+    <button class="btn primary" data-go="add" data-t="today.chooseASefer"></button>
   </div>
 </section>
 
 <!-- ===== My seforim ===== -->
 <section id="library" class="view" hidden>
   <header class="topbar">
-    <div><p class="eyebrow">Learning now</p><h1>Seforim</h1></div>
-    <button class="icon-btn" data-go="add" aria-label="Add a sefer"><svg data-icon="plus"></svg></button>
+    <div><p class="eyebrow" data-t="library.learningNow"></p><h1 data-t="library.seforim"></h1></div>
+    <button class="icon-btn" data-go="add" data-t-aria-label="today.addASefer"><svg data-icon="plus"></svg></button>
   </header>
   <div id="libraryList" class="list"></div>
   <div id="libraryEmpty" class="empty" hidden>
-    <h2>Nothing yet</h2>
-    <p>Seforim you learn will be listed here with their progress.</p>
-    <button class="btn primary" data-go="add">Choose a sefer</button>
+    <h2 data-t="library.nothingYet"></h2>
+    <p data-t="library.seforimYouLearnWill"></p>
+    <button class="btn primary" data-go="add" data-t="today.chooseASefer"></button>
   </div>
 </section>
 
 <!-- ===== One sefer ===== -->
 <section id="plan" class="view" hidden>
   <header class="navbar">
-    <button class="back" data-go="library"><svg data-icon="back"></svg>Seforim</button>
+    <button class="back" data-go="library"><svg data-icon="back"></svg><span data-t="library.seforim"></span></button>
   </header>
   <div class="plan-head">
     <h1 class="he-title" id="planTitle" lang="he" dir="rtl"></h1>
@@ -84,173 +91,219 @@
 
   <div class="panel calendar">
     <div class="cal-head">
-      <button class="icon-btn small" id="calPrev" aria-label="Previous month"><svg data-icon="back"></svg></button>
+      <button class="icon-btn small" id="calPrev" data-t-aria-label="plan.previousMonth"><svg data-icon="back"></svg></button>
       <h2 id="calMonth"></h2>
-      <button class="icon-btn small" id="calNext" aria-label="Next month"><svg data-icon="next"></svg></button>
+      <button class="icon-btn small" id="calNext" data-t-aria-label="plan.nextMonth"><svg data-icon="next"></svg></button>
     </div>
     <div class="cal-grid" id="calGrid"></div>
-    <div class="cal-key"><span><i class="k-done"></i>Done</span><span><i class="k-plan"></i>To learn</span><span><i class="k-off"></i>Off</span></div>
+    <div class="cal-key"><span><i class="k-done"></i><span data-t="plan.done"></span></span><span><i class="k-plan"></i><span data-t="plan.toLearn"></span></span><span><i class="k-off"></i><span data-t="plan.off"></span></span></div>
     <div class="cal-detail" id="calDetail"></div>
   </div>
 
-  <h3 class="group-title">Change the plan</h3>
+  <h3 class="group-title" data-t="plan.changeThePlan"></h3>
   <form class="panel form-rows" id="planEdit">
-    <label class="field">Finish by <input type="date" id="editEnd"></label>
+    <label class="field"><span data-t="plan.finishBy"></span> <input type="date" id="editEnd"></label>
     <div class="two">
-      <label class="field">Days off from <input type="date" id="editOffStart"></label>
-      <label class="field">until <input type="date" id="editOffEnd"></label>
+      <label class="field"><span data-t="plan.daysOffFrom"></span> <input type="date" id="editOffStart"></label>
+      <label class="field"><span data-t="plan.until"></span> <input type="date" id="editOffEnd"></label>
     </div>
-    <button type="submit" class="btn">Save changes</button>
-    <p class="note">Days already done stay as they are. What is left is shared out again.</p>
+    <button type="submit" class="btn" data-t="plan.saveChanges"></button>
+    <p class="note" data-t="plan.daysAlreadyDoneStay"></p>
+  </form>
+  <p class="note panel" id="cycleNote" hidden></p>
+
+  <h3 class="group-title" data-t="dedication.title"></h3>
+  <form class="panel form-rows" id="dedEdit">
+    <div class="seg" role="radiogroup" data-t-aria-label="dedication.title">
+      <label><input type="radio" name="editDedKind" value=""><span data-t="dedication.none"></span></label>
+      <label><input type="radio" name="editDedKind" value="ilui-nishmas"><span data-t="dedication.iluiNishmas"></span></label>
+      <label><input type="radio" name="editDedKind" value="refuah-shleimah"><span data-t="dedication.refuah"></span></label>
+    </div>
+    <input id="editDedName" maxlength="80" autocomplete="off" data-t-placeholder="dedication.namePlaceholder">
+    <button type="submit" class="btn" data-t="dedication.save"></button>
   </form>
 
+  <button class="btn" id="reviewPlan" data-t="review.start"></button>
+
   <details class="panel all-days">
-    <summary><span id="planDaysTitle">Days of the plan</span> <svg data-icon="down"></svg></summary>
+    <summary><span id="planDaysTitle" data-t="plan.daysOfThePlan"></span> <svg data-icon="down"></svg></summary>
     <ol id="planDays" class="day-list"></ol>
   </details>
 
-  <button class="btn danger-text" id="deletePlan">Stop learning this sefer</button>
+  <button class="btn danger-text" id="deletePlan" data-t="plan.stopLearningThisSefer"></button>
 </section>
 
 <!-- ===== Settings ===== -->
 <section id="settings" class="view" hidden>
-  <header class="topbar"><div><p class="eyebrow">Learning Calendar</p><h1>Settings</h1></div></header>
+  <header class="topbar"><div><p class="eyebrow" data-t="app.learningCalendar"></p><h1 data-t="settings.settings"></h1></div></header>
 
-  <h3 class="group-title">Account</h3>
+  <h3 class="group-title" data-t="settings.account"></h3>
   <div class="panel form-rows" id="account">
     <div id="signedOut">
-      <p class="note" id="signedOutNote">Not signed in. Your plans are kept on this phone only until you sign in.</p>
-      <button class="btn primary wide" id="openGate">Sign in</button>
+      <p class="note" id="signedOutNote" data-t="settings.notSignedInYour"></p>
+      <button class="btn primary wide" id="openGate" data-t="app.signIn"></button>
     </div>
     <div id="signedIn" hidden>
-      <p class="account-who">Signed in as <b id="accountEmail"></b></p>
-      <p class="note" id="syncState">Your plans are saved to your account after every change.</p>
-      <label class="field" for="displayName">Display name (optional)</label>
-      <input id="displayName" maxlength="60" autocomplete="name" placeholder="How other learners would see you">
-      <label class="switch-row"><input type="checkbox" id="shareLearning"> <span>Let other learners see what I'm learning</span></label>
-      <p class="note">Off unless you turn it on. Nothing is shown to anyone yet; this is for features coming later.</p>
-      <div class="two"><button class="btn" id="signOut">Sign out</button><button class="btn danger-soft" id="deleteAccount">Delete account</button></div>
+      <p class="account-who"><span data-t="settings.signedInAs"></span> <b id="accountEmail"></b></p>
+      <p class="note" id="syncState" data-t="settings.yourPlansAreSaved"></p>
+      <label class="field" for="displayName" data-t="settings.displayNameOptional"></label>
+      <input id="displayName" maxlength="60" autocomplete="name" data-t-placeholder="settings.howOtherLearnersWould">
+      <label class="switch-row"><input type="checkbox" id="shareLearning"> <span data-t="settings.letOtherLearnersSee"></span></label>
+      <p class="note" data-t="settings.offUnlessYouTurn"></p>
+      <div class="two"><button class="btn" id="signOut" data-t="settings.signOut"></button><button class="btn danger-soft" id="deleteAccount" data-t="settings.deleteAccount"></button></div>
     </div>
-    <button class="row-link" data-go="privacy">Privacy <svg data-icon="next"></svg></button>
+    <button class="row-link" data-go="privacy"><span data-t="settings.privacy"></span> <svg data-icon="next"></svg></button>
   </div>
 
-  <h3 class="group-title">Appearance</h3>
+  <h3 class="group-title" data-t="settings.appearance"></h3>
   <div class="panel form-rows">
-    <div class="field">Theme
-      <div class="seg" role="radiogroup" aria-label="Theme">
-        <label><input type="radio" name="theme" value="auto"><span>Automatic</span></label>
-        <label><input type="radio" name="theme" value="light"><span>Light</span></label>
-        <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
+    <div class="field"><span data-t="settings.theme"></span>
+      <div class="seg" role="radiogroup" data-t-aria-label="settings.theme">
+        <label><input type="radio" name="theme" value="auto"><span data-t="settings.automatic"></span></label>
+        <label><input type="radio" name="theme" value="light"><span data-t="settings.light"></span></label>
+        <label><input type="radio" name="theme" value="dark"><span data-t="settings.dark"></span></label>
       </div>
     </div>
-    <div class="field">Style
-      <div class="seg" role="radiogroup" aria-label="Style">
-        <label><input type="radio" name="style" value="solid"><span>Solid</span></label>
-        <label><input type="radio" name="style" value="glass"><span>Glass</span></label>
+    <div class="field"><span data-t="settings.style"></span>
+      <div class="seg" role="radiogroup" data-t-aria-label="settings.style">
+        <label><input type="radio" name="style" value="solid"><span data-t="settings.solid"></span></label>
+        <label><input type="radio" name="style" value="glass"><span data-t="settings.glass"></span></label>
       </div>
     </div>
-    <div class="field">Color
-      <div class="swatches" id="swatches" role="radiogroup" aria-label="Color"></div>
+    <div class="field"><span data-t="settings.color"></span>
+      <div class="swatches" id="swatches" role="radiogroup" data-t-aria-label="settings.color"></div>
     </div>
   </div>
 
-  <h3 class="group-title">Daily reminder</h3>
+  <h3 class="group-title" data-t="settings.dailyReminder"></h3>
   <div class="panel form-rows">
-    <p class="note">A reminder from your phone's own calendar on your learning days. It opens the app, which shows the day's place.</p>
-    <label class="row-link">Time <input type="time" id="reminderTime" value="20:00" class="row-date"></label>
+    <p class="note" data-t="settings.aReminderFromYour"></p>
+    <label class="row-link"><span data-t="settings.time"></span> <input type="time" id="reminderTime" value="20:00" class="row-date"></label>
     <p class="note" id="reminderDays"></p>
-    <button class="btn primary wide" id="addReminder">Add to my calendar</button>
-    <p class="note" id="reminderHelp">On iPhone and iPad, tap “Add All” on the next screen. On Android, open the file with your calendar app and tap Add or Import.</p>
+    <button class="btn primary wide" id="addReminder" data-t="settings.addToMyCalendar"></button>
+    <p class="note" id="reminderHelp" data-t="settings.onIphoneAndIpad"></p>
   </div>
 
-  <h3 class="group-title">Section names</h3>
+  <h3 class="group-title" data-t="settings.sectionNames"></h3>
   <div class="panel form-rows">
-    <div class="seg" role="radiogroup" aria-label="Section names">
-      <label><input type="radio" name="names" value="he"><span>Hebrew</span></label>
-      <label><input type="radio" name="names" value="en"><span>English</span></label>
+    <div class="seg" role="radiogroup" data-t-aria-label="settings.sectionNames">
+      <label><input type="radio" name="names" value="he"><span data-t="settings.hebrew"></span></label>
+      <label><input type="radio" name="names" value="en"><span data-t="settings.english"></span></label>
     </div>
-    <p class="note">For seforim divided into named sections, like Chovos HaLevavos: <bdi lang="he" dir="rtl">שער ראשון - שער ייחוד ג</bdi> or First Treatise on Unity 3.</p>
+    <p class="note" data-t-html="settings.forSeforimDividedInto"></p>
   </div>
 
   <details class="panel inline-details">
-    <summary>Export and import <svg data-icon="down"></svg></summary>
-    <p class="note">A copy of your plans as a file, to keep or to move by hand. Not needed when you are signed in.</p>
+    <summary><span data-t="settings.exportAndImport"></span> <svg data-icon="down"></svg></summary>
+    <p class="note" data-t="settings.aCopyOfYour"></p>
     <div class="two">
-      <button class="btn" id="backup">Export</button>
-      <label class="btn">Import a file <input type="file" id="restore" accept=".json,application/json" hidden></label>
+      <button class="btn" id="backup" data-t="settings.export"></button>
+      <label class="btn"><span data-t="settings.importAFile"></span> <input type="file" id="restore" accept=".json,application/json" hidden></label>
     </div>
     <div id="backupBox" class="form-rows" hidden>
-      <p class="note">If no file was saved, copy this text and keep it somewhere safe, for example in an email to yourself.</p>
+      <p class="note" data-t="settings.ifNoFileWas"></p>
       <textarea id="backupText" readonly></textarea>
-      <button class="btn" id="copyBackup">Copy backup text</button>
+      <button class="btn" id="copyBackup" data-t="settings.copyBackupText"></button>
     </div>
     <details class="inline-details">
-      <summary>Load a backup from copied text</summary>
-      <textarea id="pasteBackup" placeholder="Paste the backup text here"></textarea>
-      <button class="btn" id="loadPasted">Load this backup</button>
+      <summary data-t="settings.loadABackupFrom"></summary>
+      <textarea id="pasteBackup" data-t-placeholder="settings.pasteTheBackupText"></textarea>
+      <button class="btn" id="loadPasted" data-t="settings.loadThisBackup"></button>
     </details>
   </details>
 
   <div class="panel list-rows">
-    <button class="row-link" data-go="about">About and sources <svg data-icon="next"></svg></button>
+    <button class="row-link" data-go="about"><span data-t="settings.aboutAndSources"></span> <svg data-icon="next"></svg></button>
   </div>
 </section>
 
 <!-- ===== Privacy ===== -->
 <section id="privacy" class="view" hidden>
-  <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg>Settings</button></header>
-  <h1>Privacy</h1>
+  <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg><span data-t="settings.settings"></span></button></header>
+  <h1 data-t="settings.privacy"></h1>
   <div class="prose">
-    <p>If you sign in, we store your email address, a display name if you choose one, and your learning plans: which seforim, your settings, and a record of each day you learned, missed or moved.</p>
-    <p>We keep them only to show them back to you, on any phone or computer where you sign in. Nothing is sold, and nothing is shared with anyone.</p>
-    <p>They are kept with Google Firebase, the service that runs the sign-in and the saving. Each account can reach only its own plans.</p>
-    <p>If you do not sign in, nothing leaves your phone: your plans are kept in this browser only.</p>
-    <p>We may show counts of how many people learn each sefer, never who they are.</p>
-    <p>We only show your name or what you are learning to other learners if you turn on "Let other learners see what I'm learning" in Settings. It is off unless you turn it on.</p>
-    <p>You can delete your account and all your plans at any time: Settings, then Delete account.</p>
+    <p data-t="privacy.ifYouSignIn"></p>
+    <p data-t="privacy.weKeepThemOnly"></p>
+    <p data-t="privacy.theyAreKeptWith"></p>
+    <p data-t="privacy.ifYouDoNot"></p>
+    <p data-t="privacy.weMayShowCounts"></p>
+    <p data-t="privacy.weOnlyShowYour"></p>
+    <p data-t="privacy.youCanDeleteYour"></p>
   </div>
 </section>
 
 <!-- ===== About ===== -->
 <section id="about" class="view" hidden>
-  <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg>Settings</button></header>
-  <h1>About</h1>
+  <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg><span data-t="settings.settings"></span></button></header>
+  <h1 data-t="about.about"></h1>
   <div class="prose">
-    <p>Each day the app shows where to start and where to stop in your own printed sefer, named the way printed learning calendars name it: the amud, mishnah, pasuk, halacha, se'if or siman, and the first few words where the day stops. Days are sized by your settings, counting the commentaries you learn together with the text.</p>
-    <h2>Sources</h2>
-    <p>The sizes of the days and the few words that name each place come from texts published by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>, using only Public Domain editions, except:</p>
-    <p class="credit">The Gemara's text: <b>Wikisource Talmud Bavli</b> (<bdi lang="he" dir="rtl">תלמוד בבלי, ויקיטקסט</bdi>), licensed <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA</a>, from <a href="https://he.wikisource.org/wiki/%D7%AA%D7%9C%D7%9E%D7%95%D7%93_%D7%91%D7%91%D7%9C%D7%99" target="_blank" rel="noopener">he.wikisource.org</a>. The app keeps only the first few words of each place in it.</p>
-    <p><a href="data/SOURCES.md" target="_blank">Every edition and its license</a></p>
+    <p data-t="about.eachDayTheApp"></p>
+    <h2 data-t="about.sources"></h2>
+    <p data-t-html="about.theSizesOfThe"></p>
+    <p class="credit" data-t-html="about.theGemaraSText"></p>
+    <p class="credit" data-t-html="about.yerushalmi"></p>
+    <p><a href="data/SOURCES.md" target="_blank" data-t="about.everyEditionAndIts"></a></p>
   </div>
+</section>
+
+<!-- ===== Kol HaTorah in a year ===== -->
+<section id="kol" class="view" hidden>
+  <header class="navbar"><button class="back" data-go="add"><svg data-icon="back"></svg><span data-t="add.back"></span></button></header>
+  <h1 data-t="kol.title"></h1>
+  <p class="muted" data-t="kol.intro"></p>
+  <div class="panel pick-rows" id="kolList"></div>
+  <details class="panel inline-details">
+    <summary><span data-t="kol.addOther"></span> <svg data-icon="down"></svg></summary>
+    <div class="search"><svg data-icon="search"></svg><input type="search" id="kolSearch" autocomplete="off" data-t-placeholder="add.searchInEnglishOr"></div>
+    <div class="pick-rows" id="kolFound"></div>
+  </details>
+  <div class="panel form-rows">
+    <label class="row-link"><span data-t="add.startOn"></span> <input type="date" id="kolStart" class="row-date"></label>
+    <label class="row-link"><span data-t="add.finishOn"></span> <input type="date" id="kolEnd" class="row-date"></label>
+    <p class="note" id="kolSummary" aria-live="polite"></p>
+  </div>
+  <button class="btn primary wide" id="kolCreate" data-t="kol.create"></button>
+</section>
+
+<!-- ===== Public cycles ===== -->
+<section id="cycles" class="view" hidden>
+  <header class="navbar"><button class="back" data-go="add"><svg data-icon="back"></svg><span data-t="add.back"></span></button></header>
+  <h1 data-t="cycles.title"></h1>
+  <p class="muted" data-t="cycles.intro"></p>
+  <div id="cycleList" class="stack"></div>
 </section>
 
 <!-- ===== Add a sefer: three steps ===== -->
 <section id="add" class="view wizard" hidden>
   <header class="wiz-bar">
-    <button class="text-btn" id="wizBack">Cancel</button>
+    <button class="text-btn" id="wizBack" data-t="add.cancel"></button>
     <div class="wiz-steps" aria-hidden="true"><i></i><i></i><i></i></div>
-    <span class="wiz-count" id="wizCount">1 of 3</span>
+    <span class="wiz-count" id="wizCount" data-t="add.1Of3"></span>
   </header>
 
   <!-- step 1: which sefer -->
   <div class="wiz-step" id="step1">
-    <h1>Choose a sefer</h1>
-    <div class="search"><svg data-icon="search"></svg><input type="search" id="wizSearch" placeholder="Search in English or Hebrew" autocomplete="off"></div>
-    <div class="chips-scroll" id="wizCols" role="tablist" aria-label="Collections"></div>
-    <div class="list-tools"><span id="wizChosen" class="muted"></span><span><button class="text-btn" id="wizAll">Select all available</button><button class="text-btn" id="wizNone">Clear</button></span></div>
+    <h1 data-t="today.chooseASefer"></h1>
+    <div class="quick-starts">
+      <button type="button" class="panel quick" data-go="kol"><b data-t="kol.title"></b><span data-t="kol.short"></span></button>
+      <button type="button" class="panel quick" data-go="cycles"><b data-t="cycles.title"></b><span data-t="cycles.short"></span></button>
+    </div>
+    <div class="search"><svg data-icon="search"></svg><input type="search" id="wizSearch" autocomplete="off" data-t-placeholder="add.searchInEnglishOr"></div>
+    <div class="chips-scroll" id="wizCols" role="tablist" data-t-aria-label="add.collections"></div>
+    <div class="list-tools"><span id="wizChosen" class="muted"></span><span><button class="text-btn" id="wizAll" data-t="add.selectAllAvailable"></button><button class="text-btn" id="wizNone" data-t="add.clear"></button></span></div>
     <div class="panel pick-rows" id="wizList"></div>
     <p class="note col-note" id="colNote"></p>
 
     <div id="commentaryBox" hidden>
-      <h3 class="group-title">Learn together with</h3>
+      <h3 class="group-title" data-t="add.learnTogetherWith"></h3>
       <div class="panel"><div id="commentaries" class="toggles"></div></div>
     </div>
 
     <details class="panel inline-details" id="rangeBox">
-      <summary>Only part of the sefer <svg data-icon="down"></svg></summary>
+      <summary><span data-t="add.onlyPartOfThe"></span> <svg data-icon="down"></svg></summary>
       <div class="two">
-        <label class="field">From <input id="fromPiece" autocomplete="off"></label>
-        <label class="field">To <input id="toPiece" autocomplete="off"></label>
+        <label class="field"><span data-t="add.from"></span> <input id="fromPiece" autocomplete="off"></label>
+        <label class="field"><span data-t="add.to"></span> <input id="toPiece" autocomplete="off"></label>
       </div>
       <p class="note" id="rangeHint"></p>
     </details>
@@ -258,92 +311,105 @@
 
   <!-- step 2: how to learn it -->
   <div class="wiz-step" id="step2" hidden>
-    <h1>Set your pace</h1>
+    <h1 data-t="add.setYourPace"></h1>
     <p class="he-sub" id="wizSeferName" lang="he" dir="rtl"></p>
 
-    <div class="seg big" role="radiogroup" aria-label="How much">
-      <label><input type="radio" name="mode" value="finish" checked><span>Finish by</span></label>
-      <label><input type="radio" name="mode" value="amount"><span>Daily amount</span></label>
-      <label><input type="radio" name="mode" value="time"><span>Time a day</span></label>
+    <div class="seg big" role="radiogroup" data-t-aria-label="add.howMuch">
+      <label><input type="radio" name="mode" value="finish" checked><span data-t="plan.finishBy"></span></label>
+      <label><input type="radio" name="mode" value="amount"><span data-t="add.dailyAmount"></span></label>
+      <label><input type="radio" name="mode" value="time"><span data-t="add.timeADay"></span></label>
     </div>
 
     <div class="panel dial" id="finishBox">
-      <label class="dial-label" for="endDate">Finish on</label>
+      <label class="dial-label" for="endDate" data-t="add.finishOn"></label>
       <input type="date" id="endDate" class="dial-date">
-      <p class="note">The sefer is shared out evenly until then.</p>
+      <p class="note" data-t="add.theSeferIsShared"></p>
     </div>
     <div class="panel dial" id="amountBox" hidden>
-      <span class="dial-label">Each day</span>
+      <span class="dial-label" data-t="add.eachDay"></span>
       <div class="stepper">
-        <button type="button" class="step-btn" data-step="amount" data-by="-1" aria-label="Less">−</button>
-        <div class="step-val"><input type="number" id="amount" min="0.05" step="0.05" value="1" inputmode="decimal"><span id="amountUnit">amud</span></div>
-        <button type="button" class="step-btn" data-step="amount" data-by="1" aria-label="More">+</button>
+        <button type="button" class="step-btn" data-step="amount" data-by="-1" data-t-aria-label="add.less">−</button>
+        <div class="step-val"><input type="number" id="amount" min="0.05" step="0.05" value="1" inputmode="decimal"><span id="amountUnit" data-t="add.amud"></span></div>
+        <button type="button" class="step-btn" data-step="amount" data-by="1" data-t-aria-label="add.more">+</button>
       </div>
     </div>
     <div class="panel dial" id="timeBox" hidden>
-      <span class="dial-label">Each day</span>
+      <span class="dial-label" data-t="add.eachDay"></span>
       <div class="stepper">
-        <button type="button" class="step-btn" data-step="minutes" data-by="-1" aria-label="Less">−</button>
-        <div class="step-val"><input type="number" id="minutes" min="1" step="1" value="10" inputmode="numeric"><span>minutes</span></div>
-        <button type="button" class="step-btn" data-step="minutes" data-by="1" aria-label="More">+</button>
+        <button type="button" class="step-btn" data-step="minutes" data-by="-1" data-t-aria-label="add.less">−</button>
+        <div class="step-val"><input type="number" id="minutes" min="1" step="1" value="10" inputmode="numeric"><span data-t="add.minutes"></span></div>
+        <button type="button" class="step-btn" data-step="minutes" data-by="1" data-t-aria-label="add.more">+</button>
       </div>
-      <div class="seg" role="radiogroup" aria-label="My pace">
-        <label><input type="radio" name="pace" value="0.7"><span>Slower</span></label>
-        <label><input type="radio" name="pace" value="1" checked><span>Average</span></label>
-        <label><input type="radio" name="pace" value="1.4"><span>Faster</span></label>
+      <div class="seg" role="radiogroup" data-t-aria-label="add.myPace">
+        <label><input type="radio" name="pace" value="0.7"><span data-t="add.slower"></span></label>
+        <label><input type="radio" name="pace" value="1" checked><span data-t="add.average"></span></label>
+        <label><input type="radio" name="pace" value="1.4"><span data-t="add.faster"></span></label>
       </div>
       <p class="note" id="timeHint"></p>
     </div>
 
-    <h3 class="group-title">Days I learn</h3>
+    <h3 class="group-title" data-t="add.daysILearn"></h3>
     <div class="panel form-rows">
       <div class="day-toggles" id="days"></div>
-      <button type="button" class="row-link" id="lighterRow" aria-describedby="lighterHint">Lighter day <span class="row-value" id="lighterValue">Fri</span><svg data-icon="next"></svg></button>
-      <p class="note" id="lighterHint">A shorter day, about two-thirds of a usual day, for example before Shabbos.</p>
-      <label class="row-link">Start on <input type="date" id="startDate" class="row-date"></label>
+      <button type="button" class="row-link" id="lighterRow" aria-describedby="lighterHint"><span data-t="add.lighterDay"></span> <span class="row-value" id="lighterValue" data-t="add.fri"></span><svg data-icon="next"></svg></button>
+      <p class="note" id="lighterHint" data-t="add.aShorterDayAbout"></p>
+      <label class="row-link"><span data-t="add.startOn"></span> <input type="date" id="startDate" class="row-date"></label>
     </div>
 
     <details class="panel inline-details" id="daysOffBox">
-      <summary>Days off <span class="row-value" id="daysOffCount"></span><svg data-icon="down"></svg></summary>
+      <summary><span data-t="add.daysOff"></span> <span class="row-value" id="daysOffCount"></span><svg data-icon="down"></svg></summary>
       <div id="daysOffList" class="off-list"></div>
       <div class="two">
-        <label class="field">From <input type="date" id="offStart"></label>
-        <label class="field">To <input type="date" id="offEnd"></label>
+        <label class="field"><span data-t="add.from"></span> <input type="date" id="offStart"></label>
+        <label class="field"><span data-t="add.to"></span> <input type="date" id="offEnd"></label>
       </div>
-      <label class="field">Reason (optional) <input id="offLabel" placeholder="Vacation, Yom Tov…"></label>
-      <button type="button" class="btn" id="addOff">Add days off</button>
+      <label class="field"><span data-t="add.reasonOptional"></span> <input id="offLabel" data-t-placeholder="add.vacationYomTov"></label>
+      <button type="button" class="btn" id="addOff" data-t="add.addDaysOff"></button>
     </details>
   </div>
 
   <!-- step 3: review -->
   <div class="wiz-step" id="step3" hidden>
-    <h1>Your plan</h1>
+    <h1 data-t="add.yourPlan"></h1>
     <div id="review"></div>
+    <div class="panel form-rows">
+      <label class="switch-row"><input type="checkbox" id="isReview"> <span data-t="review.switch"></span></label>
+      <p class="note" data-t="review.note"></p>
+    </div>
+    <h3 class="group-title" data-t="dedication.title"></h3>
+    <div class="panel form-rows" id="dedicationBox">
+      <div class="seg" role="radiogroup" data-t-aria-label="dedication.title">
+        <label><input type="radio" name="dedKind" value="" checked><span data-t="dedication.none"></span></label>
+        <label><input type="radio" name="dedKind" value="ilui-nishmas"><span data-t="dedication.iluiNishmas"></span></label>
+        <label><input type="radio" name="dedKind" value="refuah-shleimah"><span data-t="dedication.refuah"></span></label>
+      </div>
+      <input id="dedName" maxlength="80" autocomplete="off" data-t-placeholder="dedication.namePlaceholder">
+    </div>
   </div>
 
   <footer class="wiz-foot">
     <div class="wiz-sum" id="preview" aria-live="polite"></div>
-    <button class="btn primary" id="wizNext">Next</button>
-    <button class="btn primary" id="create" hidden>Start learning</button>
+    <button class="btn primary" id="wizNext" data-t="add.next"></button>
+    <button class="btn primary" id="create" hidden data-t="add.startLearning"></button>
   </footer>
 </section>
 
 <!-- bottom bar -->
-<nav class="tabbar" aria-label="Screens">
-  <button data-go="today"><svg data-icon="today"></svg>Today</button>
-  <button data-go="library"><svg data-icon="books"></svg>Seforim</button>
-  <button data-go="settings"><svg data-icon="gear"></svg>Settings</button>
+<nav class="tabbar" data-t-aria-label="app.screens">
+  <button data-go="today"><svg data-icon="today"></svg><span data-t="today.today"></span></button>
+  <button data-go="library"><svg data-icon="books"></svg><span data-t="library.seforim"></span></button>
+  <button data-go="settings"><svg data-icon="gear"></svg><span data-t="settings.settings"></span></button>
 </nav>
 
 <!-- sheets -->
 <dialog id="missed" class="sheet">
   <form method="dialog">
-    <h2 id="missedTitle">You missed a day</h2>
+    <h2 id="missedTitle" data-t="missed.youMissedADay"></h2>
     <p id="missedText" class="muted"></p>
-    <button value="push" class="btn primary">Push the finish date later</button>
-    <button value="spread" class="btn">Spread it over the coming days</button>
-    <button value="double" class="btn">Double up on the next day</button>
-    <button value="cancel" class="text-btn center">Not now</button>
+    <button value="push" class="btn primary" data-t="missed.pushTheFinishDate"></button>
+    <button value="spread" class="btn" data-t="missed.spreadItOverThe"></button>
+    <button value="double" class="btn" data-t="missed.doubleUpOnThe"></button>
+    <button value="cancel" class="text-btn center" data-t="gate.notNow"></button>
   </form>
 </dialog>
 
@@ -351,15 +417,15 @@
   <form method="dialog">
     <h2 id="pickerTitle"></h2>
     <div id="pickerList" class="pick-rows" role="listbox"></div>
-    <button value="cancel" class="text-btn center">Cancel</button>
+    <button value="cancel" class="text-btn center" data-t="add.cancel"></button>
   </form>
 </dialog>
 
 <dialog id="ask" class="sheet">
   <form method="dialog">
     <p id="askText"></p>
-    <button value="yes" class="btn danger" id="askYes">Yes</button>
-    <button value="no" class="btn">Cancel</button>
+    <button value="yes" class="btn danger" id="askYes" data-t="ask.yes"></button>
+    <button value="no" class="btn" data-t="add.cancel"></button>
   </form>
 </dialog>
 
@@ -376,9 +442,12 @@
     window.dispatchEvent(new ErrorEvent("error", { message: String(e.reason && e.reason.message || e.reason) }));
   });
 </script>
+<script src="strings.js"></script>
 <script src="engine/sefer.js"></script>
 <script src="engine/schedule.js"></script>
 <script src="engine/sync.js"></script>
+<script src="engine/cycles.js"></script>
+<script src="suggestions.js"></script>
 <script src="app.js"></script>
 <script src="accounts.js"></script>
 </body>
