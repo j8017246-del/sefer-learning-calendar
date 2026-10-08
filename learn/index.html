@@ -58,6 +58,11 @@
   </header>
   <nav class="week" id="week" data-t-aria-label="today.thisWeek"></nav>
   <p class="day-status" id="dayStatus"></p>
+  <button type="button" class="save-state" id="saveState" hidden></button>
+  <div class="panel welcome" id="welcome" hidden>
+    <p id="welcomeText"></p>
+    <div class="two"><button class="btn" id="welcomeOk" data-t="welcome.ok"></button><button class="btn" id="welcomeMissing" data-t="welcome.missing"></button></div>
+  </div>
   <div id="cards" class="stack"></div>
   <button class="text-btn print-btn" id="printWeek" hidden data-t="print.button"></button>
   <div id="empty" class="empty" hidden>
@@ -158,12 +163,13 @@
     </div>
     <div id="signedIn" hidden>
       <p class="account-who"><span data-t="settings.signedInAs"></span> <b id="accountEmail"></b></p>
+      <button class="btn" id="signOut" data-t="settings.signOutThisPhone"></button>
       <p class="note" id="syncState" data-t="settings.yourPlansAreSaved"></p>
       <label class="field" for="displayName" data-t="settings.displayNameOptional"></label>
       <input id="displayName" maxlength="60" autocomplete="name" data-t-placeholder="settings.howOtherLearnersWould">
-      <label class="switch-row"><input type="checkbox" id="shareLearning"> <span data-t="settings.letOtherLearnersSee"></span></label>
+      <label class="switch-row"><input type="checkbox" id="shareLearning"> <span data-t="settings.letOtherLearnersSee"></span> <span class="pill" data-t="settings.comingLater"></span></label>
       <p class="note" data-t="settings.offUnlessYouTurn"></p>
-      <div class="two"><button class="btn" id="signOut" data-t="settings.signOut"></button><button class="btn danger-soft" id="deleteAccount" data-t="settings.deleteAccount"></button></div>
+      <button class="btn danger-soft" id="deleteAccount" data-t="settings.deleteAccount"></button>
     </div>
     <button class="row-link" data-go="privacy"><span data-t="settings.privacy"></span> <svg data-icon="next"></svg></button>
   </div>
@@ -193,6 +199,15 @@
     <div class="field"><span data-t="settings.color"></span>
       <div class="swatches" id="swatches" role="radiogroup" data-t-aria-label="settings.color"></div>
     </div>
+  </div>
+
+  <h3 class="group-title" data-t="place.title"></h3>
+  <div class="panel form-rows">
+    <div class="seg" role="radiogroup" data-t-aria-label="place.title">
+      <label><input type="radio" name="yomTovPlace" value="out"><span data-t="place.outside"></span></label>
+      <label><input type="radio" name="yomTovPlace" value="il"><span data-t="place.israel"></span></label>
+    </div>
+    <p class="note" data-t="place.note"></p>
   </div>
 
   <h3 class="group-title" data-t="settings.dailyReminder"></h3>
@@ -225,8 +240,7 @@
     <p class="note" id="lastBackup"></p>
     <div class="two">
       <button class="btn" id="backup" data-t="settings.export"></button>
-      <button type="button" class="btn" id="restoreBtn" data-t="settings.importAFile"></button>
-      <input type="file" id="restore" accept=".json,application/json" hidden>
+      <label class="btn file-btn" id="restoreBtn"><span data-t="settings.importAFile"></span><input type="file" id="restore" class="file-input" accept=".json,application/json"></label>
     </div>
     <button class="btn" id="undoRestore" hidden></button>
     <div id="backupBox" class="form-rows" hidden>
@@ -252,13 +266,19 @@
   <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg><span data-t="settings.settings"></span></button></header>
   <h1 data-t="settings.privacy"></h1>
   <div class="prose">
+    <h2 data-t="privacy.savedTitle"></h2>
     <p data-t="privacy.ifYouSignIn"></p>
-    <p data-t="privacy.weKeepThemOnly"></p>
-    <p data-t="privacy.theyAreKeptWith"></p>
+    <p data-t="privacy.alsoSaved"></p>
     <p data-t="privacy.ifYouDoNot"></p>
-    <p data-t="privacy.weMayShowCounts"></p>
-    <p data-t="privacy.weOnlyShowYour"></p>
+    <h2 data-t="privacy.whoTitle"></h2>
+    <p data-t="privacy.weKeepThemOnly"></p>
     <p data-t="privacy.sharing"></p>
+    <p data-t="privacy.weOnlyShowYour"></p>
+    <p data-t="privacy.weMayShowCounts"></p>
+    <h2 data-t="privacy.servicesTitle"></h2>
+    <p data-t="privacy.theyAreKeptWith"></p>
+    <p data-t="privacy.otherServices"></p>
+    <h2 data-t="privacy.deleteTitle"></h2>
     <p data-t="privacy.youCanDeleteYour"></p>
   </div>
 </section>

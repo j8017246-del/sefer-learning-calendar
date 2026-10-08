@@ -384,6 +384,46 @@ function serve() {
     ok("deleting the account offers a backup first, and another open phone cannot write the plans back");
   });
 
+  // ---- 10. Part C: one line says where today's learning is saved; a new phone says what arrived ----
+  await run("10. the save line and a new phone", async () => {
+    const one = await phone();
+    await signIn(one.page, "ten@example.com");
+    await one.page.waitForSelector("#gate", { state: "hidden" });
+    await putInAccount(one.page, [await ruthPlan(one.page, "ruth10", ["2026-10-14"])]);
+    await until(one.page, () => /Saved to your account \(ten@example.com\)/.test(document.querySelector("#saveState").textContent));
+    // offline: saved on this phone, waiting
+    await one.ctx.setOffline(true);
+    await one.page.click(".lesson [data-undo]");
+    await until(one.page, () => /Saved on this phone, waiting for a connection/.test(document.querySelector("#saveState").textContent));
+    await one.ctx.setOffline(false);
+    await until(one.page, () => /Saved to your account/.test(document.querySelector("#saveState").textContent));
+    // refused: needs attention
+    await one.page.evaluate(async () => {
+      const u = window.firebase.auth().currentUser;
+      await window.firebase.firestore().collection("deleted").doc(u.uid).set({ at: 1 });
+    });
+    await one.page.click(".lesson [data-done]");
+    await until(one.page, () => /Needs attention/.test(document.querySelector("#saveState").textContent));
+    await one.page.evaluate(async () => {
+      const u = window.firebase.auth().currentUser;
+      await window.firebase.firestore().collection("deleted").doc(u.uid).delete();
+    });
+    // the account shown in Settings, with "Sign out of this phone" beside it
+    await one.page.click('.tabbar [data-go="settings"]');
+    assert.match(await one.page.textContent(".account-who"), /ten@example.com/);
+    assert.strictEqual((await one.page.textContent("#signOut")).trim(), "Sign out of this phone");
+    // a new phone for this account: what arrived, and "Something is missing?"
+    const fresh = await phone();
+    await signIn(fresh.page, "ten@example.com");
+    await fresh.page.waitForSelector("#welcome:not([hidden])", { timeout: 20000 });
+    assert.match(await fresh.page.textContent("#welcomeText"), /Your 1 plans and your learning up to .+ are here/);
+    await fresh.page.click("#welcomeMissing");
+    await fresh.page.waitForSelector("#choose[open]");
+    assert.match(await fresh.page.textContent("#chooseText"), /right account: ten@example.com/);
+    await one.ctx.close(); await fresh.ctx.close();
+    ok("one line says where today's learning is saved; a new phone says what arrived, with Something is missing?");
+  });
+
   await browser.close();
   server.close();
   if (errors.length) { failed++; console.log("not ok - errors in the page:", errors); }

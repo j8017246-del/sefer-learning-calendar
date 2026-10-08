@@ -199,6 +199,7 @@
     }
     for (const fn of saveListeners) fn(records);
     $("saveWarn").hidden = !saveFailed;
+    renderSaveState();
     return !saveFailed;
   }
 
@@ -276,6 +277,12 @@
     deletedList,
     putDeleted,
     setHistoryProvider(fn) { historyProvider = fn; },
+    // "account" | "waiting" | "attention" | "phone": where today's learning is saved
+    setSaveState(kind, who) { saveKind = kind; saveWho = who || ""; renderSaveState(); },
+    welcome(n, last) {
+      $("welcomeText").textContent = n ? tr("welcome.text", { n, date: last ? niceDate(last, true) : "—" }) : tr("welcome.none");
+      $("welcome").hidden = false;
+    },
     // not yet saved to the account: a bar with Retry and Save a backup (null hides it)
     syncWarn(text, reload = false) {
       $("syncWarn").hidden = !text;
@@ -313,6 +320,28 @@
   };
   let shareMaker = null;
   let replaceGen = 0;
+  let saveKind = null, saveWho = "";
+  function renderSaveState() {
+    const kind = saveFailed ? "attention" : saveKind;
+    $("saveState").hidden = !kind;
+    if (!kind) return;
+    $("saveState").className = `save-state ${kind}`;
+    $("saveState").textContent = tr(`save.${kind}`, { who: saveWho });
+  }
+  on("saveState", "click", () => {
+    const kind = saveFailed ? "attention" : saveKind;
+    if (kind === "attention") {
+      if (!$("syncWarn").hidden || !$("saveWarn").hidden) window.scrollTo(0, 0);
+      else saveBackupNow();
+    } else toast(tr(`save.${kind}.more`));
+  });
+  on("welcomeOk", "click", () => { $("welcome").hidden = true; });
+  on("welcomeMissing", "click", async () => {
+    const v = await choose(`<p><b>${esc(tr("welcome.missingTitle"))}</b></p><ul class="preview-list"><li>${esc(tr("welcome.tip1", { who: saveWho }))}</li><li>${esc(tr("welcome.tip2"))}</li><li>${esc(tr("welcome.tip3"))}</li><li>${esc(tr("welcome.tip4"))}</li></ul>`,
+      [{ value: "stopped", label: tr("stopped.title") }, { value: "backup", label: tr("welcome.loadBackup") }]);
+    if (v === "stopped") { show("settings"); $("stoppedBox").open = true; $("stoppedBox").scrollIntoView(); }
+    if (v === "backup") { show("settings"); $("exportBox").open = true; $("exportBox").scrollIntoView(); }
+  });
   let retryFn = null;
   // A question with several answers (values), inside the page; "" when cancelled.
   function choose(html, options) {
@@ -414,6 +443,7 @@
   });
 
   function renderSettings() {
+    markPlace();
     renderStopped();
     renderBackupNote();
     document.querySelectorAll('input[name="theme"]').forEach((r) => { r.checked = r.value === look.theme; });
@@ -700,6 +730,7 @@
     return `<article class="panel lesson is-done">${head}
       ${day && day.done ? `<div class="done-row"><span class="done-mark">${icon("check")} ${esc(tr(isToday ? "lesson.doneToday" : "lesson.done"))}</span>
         <button class="btn small-btn" data-undo="${esc(x.id)}" data-date="${esc(day.date)}">${esc(tr("lesson.undo"))}</button></div>
+        <p class="done-what">${esc(tr("lesson.markedWhat", { date: niceDate(day.date) }))} ${day.to >= day.from ? portionLine(sefer, comms, day) : ""}${(day.places || []).map((pl) => esc(nm(pl))).join(", ")}</p>
         <label class="minutes-box"><span>${esc(tr("today.addTime"))}</span>
           <input type="number" inputmode="numeric" min="1" max="600" step="1" data-minutes="${esc(x.id)}" data-date="${esc(day.date)}" value="${day.minutes || ""}" placeholder="—"></label>` : `<p class="next-line">${esc(tr("lesson.noLearning"))}</p>`}
       ${next && !cycle ? `<p class="next-line">${esc(tr("lesson.next", { date: niceDate(next.date) }))} ${next.to >= next.from ? portionLine(sefer, comms, next) : ""}</p>
@@ -1294,7 +1325,7 @@
       learningDays,
       lighterDays: wiz.lighter !== "" && learningDays.includes(+wiz.lighter) ? [+wiz.lighter] : [],
       daysOff: wiz.daysOff.slice(),
-      ...($("skipYomTov").checked ? { skipYomTov: true, israel: S.inIsrael(timeZone()) } : {}),
+      ...($("skipYomTov").checked ? { skipYomTov: true, israel: yomTovPlace() === "il" } : {}),
     };
     if (mode() === "finish") settings.endDate = $("endDate").value;
     else if (mode() === "amount") settings.dailyPieces = +$("amount").value;
@@ -1330,6 +1361,7 @@
       $("wizNext").disabled = false;
       $("create").disabled = false;
       if (wiz.step === 3) {
+        const big = !window.LearnSync.accountText({ id: "x", ...S.toSaved(plan, sefer) });
         const commNames = comms.map((id) => nm(sefer.commentaries.find((c) => c.id === id)));
         const days = plan.learningDays.map((d) => DAYS[d]).join(", ");
         $("review").innerHTML = `<div class="panel review-hero">
@@ -1345,7 +1377,8 @@
             <div><span>${esc(tr("add.starting"))}</span><b>${esc(niceDate(first, true))}</b></div>
             ${plan.daysOff.length ? `<div><span>${esc(tr("add.daysOff"))}</span><b>${plan.daysOff.length}</b></div>` : ""}
           </div>
-          <div class="panel review-first"><small>${esc(tr("add.firstDay", { date: niceDate(first) }))}</small>${portionLine(sefer, comms, learning[0])}</div>`;
+          <div class="panel review-first"><small>${esc(tr("add.firstDay", { date: niceDate(first) }))}</small>${portionLine(sefer, comms, learning[0])}</div>
+          ${big ? `<p class="panel too-big" role="alert">${esc(tr("add.tooBig"))}</p>` : ""}`;
       }
     } catch (err) {
       if (ticket !== updating) return;
@@ -1369,8 +1402,9 @@
   ["endDate", "amount", "minutes", "startDate", "fromPiece", "toPiece"].forEach((id) => on(id, "input", update));
   on("amount", "input", () => { $("amountUnit").textContent = unitName(entryOf(wiz.chosen[0]), +$("amount").value); });
   on("commentaries", "change", update);
-  on("skipYomTov", "change", () => {
-    $("yomTovHint").textContent = $("skipYomTov").checked ? tr(S.inIsrael(timeZone()) ? "add.yomTovIsrael" : "add.yomTovOutside") : "";
+  on("skipYomTov", "change", async () => {
+    if ($("skipYomTov").checked && !(await askPlace())) $("skipYomTov").checked = false;
+    $("yomTovHint").textContent = $("skipYomTov").checked ? tr(yomTovPlace() === "il" ? "add.yomTovIsrael" : "add.yomTovOutside") : "";
     update();
   });
   on("days", "change", update);
@@ -1430,6 +1464,22 @@
       toast(err.message);
     }
   });
+
+  // ---- Israel or outside Israel (for Yom Tov), asked once ------------------------------------
+
+  const PLACE = "learning-calendar-yomtov-place";
+  const yomTovPlace = () => { try { return localStorage.getItem(PLACE); } catch (e) { return null; } };
+  function setPlace(v) { try { localStorage.setItem(PLACE, v); } catch (e) { /* asked again next time */ } markPlace(); }
+  function markPlace() { document.querySelectorAll('input[name="yomTovPlace"]').forEach((r) => { r.checked = r.value === yomTovPlace(); }); }
+  // "il" or "out"; asked the first time it matters, then kept (Settings can change it)
+  async function askPlace() {
+    if (yomTovPlace()) return yomTovPlace();
+    const v = await choose(`<p><b>${esc(tr("place.ask"))}</b></p><p class="note">${esc(tr("place.note"))}</p>`,
+      [{ value: "out", label: tr("place.outside") }, { value: "il", label: tr("place.israel") }]);
+    if (v) setPlace(v);
+    return v || null;
+  }
+  document.querySelectorAll('input[name="yomTovPlace"]').forEach((r) => r.addEventListener("change", () => { setPlace(r.value); toast(tr("place.saved")); }));
 
   // ---- Kol HaTorah in a year: one group of plans with the same dates ------------------------
 
@@ -1498,7 +1548,9 @@
       const items = kolChoices().filter((k) => kol.picked.has(k.key)).map((k) => ({ ids: k.ids, comms: k.comms }))
         .concat(kol.extra.map((id) => ({ ids: [id], comms: entryOf(id).commentaries.filter((c) => c.default).map((c) => c.id) })));
       const made = [];
-      for (const it of items) {
+      for (const [i, it] of items.entries()) {
+        btn.textContent = tr("kol.preparingN", { n: i + 1, all: items.length });
+        $("kolSummary").textContent = tr("kol.loading", { name: nm(nameFor(it.ids) || entryOf(it.ids[0])) });
         const name = nameFor(it.ids), sefer = await loadCombined(it.ids, name);
         const comms = it.comms.filter((c) => sefer.commentaries.some((k) => k.id === c));
         const plan = S.buildPlan({ ...(it.ids.length === 1 ? { seferId: it.ids[0] } : { seferIds: it.ids, name }),
@@ -1506,6 +1558,11 @@
           learningDays: [0, 1, 2, 3, 4, 5], lighterDays: [], daysOff: [] }, sefer);
         plan.group = group;
         made.push({ sefer, plan });
+      }
+      const tooBig = made.filter((m) => !window.LearnSync.accountText({ id: "x", ...S.toSaved(m.plan, m.sefer) }));
+      if (tooBig.length && !(await ask(tr("kol.tooBig", { names: tooBig.map((m) => nm(m.plan.name || m.sefer)).join(", ") }), tr("kol.createAnyway")))) {
+        renderKol();
+        return;
       }
       for (const m of made) {
         m.plan.createdAt = new Date().toISOString();
@@ -1718,7 +1775,8 @@
     const evening = h >= 12;
     const days = learnDays.filter((d) => d !== 6 && !(evening && d === 5));
     if (!days.length) return null;
-    const skip = new Set(S.noReminderDates(todayIso(), end, { israel: S.inIsrael(zone), evening }));
+    const place = yomTovPlace();
+    const skip = new Set(S.noReminderDates(todayIso(), end, { israel: place ? place === "il" : S.inIsrael(zone), evening }));
     // the first learning day from today at that time (today if it has not passed)
     const now = new Date();
     let first = null;
@@ -1749,9 +1807,10 @@
     try { localStorage.setItem(REMINDER_TIME, $("reminderTime").value); } catch (e) { /* fine */ }
     for (const fn of reminderListeners) fn({ reminderTime: $("reminderTime").value, timeZone: timeZone() });
   });
-  on("addReminder", "click", () => {
+  on("addReminder", "click", async () => {
     const end = reminderEnd();
     if (!end) return toast(tr("reminder.addSeferFirst"));
+    await askPlace();   // which days of Yom Tov to leave out
     const ics = reminderIcs($("reminderTime").value || "20:00", reminderDays(), end);
     if (!ics) return toast(tr("reminder.noDays"));
     // iPhone and iPad show "Add to Calendar" when the file is opened, not saved
@@ -1881,8 +1940,6 @@
       dlg.showModal();
     });
   }
-  // a real button (reachable with the keyboard) opens the file chooser
-  on("restoreBtn", "click", () => $("restore").click());
   on("restore", "change", async (e) => {
     const file = e.target.files[0];
     e.target.value = "";

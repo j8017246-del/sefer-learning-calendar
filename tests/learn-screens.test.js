@@ -228,7 +228,8 @@ function serve() {
   await page.click('#settings [data-go="privacy"]');
   assert.match(await page.textContent("#privacy"), /your email address, a display name if you choose one, and your learning plans/);
   assert.match(await page.textContent("#privacy"), /counts of how many people learn each sefer, never who they are/);
-  assert.match(await page.textContent("#privacy"), /only show your name or what you are learning to other learners if you turn on/);
+  assert.match(await page.textContent("#privacy"), /Showing your name or what you are learning to other learners is coming later/);
+  assert.match(await page.textContent("#privacy"), /What is saved[\s\S]*Who can see it[\s\S]*Outside services[\s\S]*Google Firebase[\s\S]*Google Fonts[\s\S]*jsDelivr/);
   assert.match(await page.textContent("#privacy"), /Nothing is sold/);
   await page.click('#privacy [data-go="settings"]');
   ok("without an account the app works on the phone, and the privacy page says what is kept");
@@ -437,7 +438,10 @@ function serve() {
   // a daily reminder in the phone's own calendar: one repeating event on the learning days
   await page.click('.tabbar [data-go="settings"]');
   await page.fill("#reminderTime", "20:15");
-  const [download] = await Promise.all([page.waitForEvent("download"), page.click("#addReminder")]);
+  // asked once first: Israel or outside Israel (which days of Yom Tov to leave out)
+  await page.click("#addReminder");
+  await page.waitForSelector("#choose[open]");
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click('#chooseButtons button[value="out"]')]);
   assert.match(download.suggestedFilename(), /\.ics$/);
   const ics = fs.readFileSync(await download.path(), "utf8");
   assert.match(ics, /BEGIN:VCALENDAR\r\n/);

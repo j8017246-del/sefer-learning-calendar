@@ -345,7 +345,23 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   `stopped: true`), and deleting is allowed only with the account's deletion mark. Tested with the
   real 21d1ca0 version of the app (`OLD_APP=<folder> ... learn-safety.test.js`). When a later
   change needs older phones to stop writing, raise `APP_V` in accounts.js and the `v >= 2` in the rules.
-  Part C is next.
+- **Safety audit, Part C (10-08)**, tests: feature tests 12-13, safety case 10, screen tests:
+  - One quiet line on Today says where today's learning is saved: "Saved to your account
+    (email)", "Saved on this phone, waiting for a connection", "Needs attention: tap here"
+    (opens the reason or a backup), or "Saved on this phone only" (the preview).
+  - A phone new to the account says "Your N plans and your learning up to <date> are here",
+    with "Something is missing?" (right account, other phone offline, Stopped plans, backups).
+  - Settings shows the account with "Sign out of this phone" beside it.
+  - Done shows exactly which portion was marked, with Undo beside it.
+  - A plan whose sefer did not load stays with "Could not load… Retry" and is in backups (from Part A/B).
+  - Kol HaTorah shows "Preparing n of N…" and which sefer it loads, and warns before starting
+    plans too big for the account; the add steps warn too.
+  - "Where do you keep Yom Tov?" (Israel one day / outside two) is asked once, the first time it
+    matters (the Yom Tov switch, the reminder), and can be changed in Settings; never guessed.
+  - The privacy page: what is saved, who can see it, outside services (Firebase, Google Fonts,
+    jsDelivr, Sefaria only on tap; no ads, no tracking), deleting. The sharing switch says "coming later".
+  - "Import a file" is the file box itself (keyboard: Tab, then Space).
+- **Next**: Hudi's tests by hand (the list in the audit), on test accounts only.
 
 ## Left out (told Hudi)
 

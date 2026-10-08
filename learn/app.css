@@ -519,3 +519,19 @@ body.gated .tabbar { display: none; }
 .conflict .btn { align-self: flex-start; }
 .preview-list { margin: 8px 0; padding-inline-start: 18px; max-height: 40vh; overflow: auto; text-align: start; font-size: .9rem; }
 .preview-list li { margin: 4px 0; }
+
+/* ---- where today's learning is saved: one quiet line ---- */
+.save-state { display: block; margin: -2px 0 10px; padding: 0; border: 0; background: none; font: inherit; font-size: .8rem; color: var(--faint); text-align: start; cursor: pointer; min-height: 0; }
+.save-state::before { content: "●"; margin-inline-end: 6px; font-size: .7em; vertical-align: 1px; }
+.save-state.account::before { color: var(--ok); }
+.save-state.waiting::before { color: var(--faint); }
+.save-state.attention { color: var(--warn); font-weight: 600; }
+.save-state.attention::before { color: var(--warn); }
+.welcome { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; margin-bottom: 12px; }
+.welcome p { margin: 0; }
+.done-what { margin: 6px 0 0; font-size: .86rem; color: var(--muted); }
+.too-big { padding: 12px 14px; color: var(--warn); }
+/* the file box is reachable with the keyboard (Tab, then Enter or Space) but drawn as its button */
+.file-btn { position: relative; }
+.file-input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.file-btn:focus-within { outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent); outline-offset: 2px; }

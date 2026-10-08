@@ -76,6 +76,7 @@
   on("gateClose", "click", () => gate(false, false));
   function unavailable(why) {
     canSignIn = false;
+    Store.setSaveState("phone");
     note(why);
     $("googleSignIn").disabled = $("sendLink").disabled = true;
     $("signedOutNote").textContent = `Not signed in. ${why}`;
@@ -219,6 +220,7 @@
     // was not yet sent aside for that account, and take everything of it off the screen
     // (an account just deleted keeps nothing aside)
     const leaving = before && (!u || before !== u.uid) ? holdAside(before, before === deletedUid) : Promise.resolve();
+    Store.setSaveState(u ? "waiting" : null, u ? u.email : "");
     if (u) {
       $("accountEmail").textContent = u.email || tr("account.yours");
       note("");
@@ -284,8 +286,10 @@
       try { return Sync.unpack(JSON.parse(d.data().data)); } catch (e) { return null; }
     }).filter((r) => r && r.id);
     last = new Map(remote.map((r) => [r.id, JSON.stringify(r)]));
+    let newHere = false;
     if (!synced) {
       if (get(OWNER) !== user.uid) {
+        newHere = true;
         // first sign-in on this phone: plans made before signing in join the account
         put(OWNER, user.uid);
         setBase({});
@@ -310,6 +314,12 @@
     write(res.upload, res.remove, my);
     if (firstUpload && res.upload.length) Store.toast(tr(firstUpload > 1 ? "account.uploadedMany" : "account.uploadedOne", { n: firstUpload }));
     if (res.conflicts.length) Store.toast(tr("sync.conflict"));
+    // a phone new to this account: say what arrived, with "Something is missing?"
+    if (newHere && res.show.length) {
+      const last = res.show.flatMap((r) => (r.portions || []).filter((p) => p.done).map((p) => p.date)).sort().pop();
+      Store.welcome(res.show.length, last);
+    }
+    if (!res.upload.length && !res.remove.length && !unsent().any) Store.setSaveState("account", user.email);
     shared(Store.records());
     checkJoin();
   }
@@ -330,6 +340,7 @@
   Store.onSave((records) => {
     if (!user || get(OWNER) !== user.uid || deleting) return;
     put(UNSYNCED, "1");
+    Store.setSaveState("waiting", user.email);
     if (!synced) return;                                  // sent once the account is read
     write(Sync.changes(last, records), Store.deletions(), session);
     shared(records);
@@ -347,7 +358,7 @@
       return t;
     });
     const send = records.filter((r, i) => texts[i]);
-    if (tooBig.length) Store.syncWarn(tr("sync.tooBig", { n: tooBig.length }));
+    if (tooBig.length) { Store.syncWarn(tr("sync.tooBig", { n: tooBig.length })); Store.setSaveState("attention", user.email); }
     if (!send.length && !removeIds.length) {
       if (!tooBig.length && !Store.deletions().length) { put(UNSYNCED, null); Store.syncWarn(null); }
       return Promise.resolve(!tooBig.length);
@@ -366,7 +377,8 @@
       if (!tooBig.length) {
         if (!Store.deletions().length) put(UNSYNCED, null);
         Store.syncWarn(null);
-      }
+        Store.setSaveState(unsent().any ? "waiting" : "account", user.email);
+      } else Store.setSaveState("attention", user.email);
       return !tooBig.length;
     }).catch((e) => {
       if (my === session) {
@@ -374,6 +386,7 @@
         // refused by the account's rules: most often an older version of the app; reloading updates it
         const refused = e && e.code === "permission-denied";
         Store.syncWarn(tr(refused ? "sync.updateApp" : "sync.notSaved"), refused);
+        Store.setSaveState("attention", user && user.email);
       }
       return false;
     });
@@ -434,6 +447,7 @@
     const ids = records.slice(0, 450).map((r) => r.id);
     batch.commit().then(() => {
       Store.eventsSent(ids);
+      if (my === session && user && !unsent().any) Store.setSaveState("account", user.email);
       if (my === session && records.length > 450) sendDays(records.slice(450));
     }).catch(() => { /* kept on the phone, sent later */ });
   }

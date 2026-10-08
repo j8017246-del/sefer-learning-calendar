@@ -315,6 +315,10 @@ function serve() {
     assert(!(await page.isChecked("#skipYomTov")), "off unless chosen");
     const before = parseInt(await page.textContent("#preview"));
     await page.check("#skipYomTov");
+    // asked once: Israel or outside Israel
+    await page.waitForSelector("#choose[open]");
+    assert.match(await page.textContent("#chooseText"), /Where do you keep Yom Tov/);
+    await page.click('#chooseButtons button[value="out"]');
     await page.waitForFunction((n) => parseInt(document.querySelector("#preview").textContent) < n, before);
     assert.match(await page.textContent("#yomTovHint"), /Chol HaMoed stays a learning day/);
     await page.click("#wizNext");
@@ -416,7 +420,7 @@ function serve() {
     await page.waitForSelector("#backupBox:not([hidden])");
     const good = JSON.parse(await page.inputValue("#backupText"));
     assert.strictEqual(good.version, 2);
-    assert.deepStrictEqual(good.plans.map((p) => p.id).sort().slice(-1), ["cannot-load"], "the plan that did not load is in the backup");
+    assert(good.plans.some((p) => p.id === "cannot-load"), "the plan that did not load is in the backup");
     assert.strictEqual(good.plans.length, 2);
     assert(good.events.some((e) => e.type === "done"), "the history of days is in it");
     assert.match(await page.textContent("#backupSummary"), /2 plans with 2 days done/);
@@ -521,11 +525,76 @@ function serve() {
     await page.click("#exportBox > summary");
     await page.focus("#backup");
     await page.keyboard.press("Tab");
-    assert.strictEqual(await page.evaluate(() => document.activeElement.id), "restoreBtn", "Tab reaches Import a file");
-    const [chooser] = await Promise.all([page.waitForEvent("filechooser"), page.keyboard.press("Enter")]);
-    assert(chooser, "Enter opens the file chooser");
+    assert.strictEqual(await page.evaluate(() => document.activeElement.id), "restore", "Tab reaches Import a file");
+    const [chooser] = await Promise.all([page.waitForEvent("filechooser"), page.keyboard.press("Space")]);
+    assert(chooser, "the keyboard opens the file chooser");
     await context.close();
     ok("Import a file can be reached and opened with the keyboard");
+  }
+
+
+  // ---- 13. Part C: Done shows what was marked; Israel asked once; too big is said first; Kol shows progress ----
+  {
+    const { context, page } = await phone("2026-10-11");
+    await addSefer(page, "tanakh/ruth", "2026-10-17");
+    await page.click(".lesson [data-done]");
+    await page.waitForSelector(".done-what");
+    const what = await page.textContent(".done-what");
+    assert.match(what, /Marked done for Sun, Oct 11/);
+    assert.match(what, /Rus 1:1/, "exactly which portion");
+    assert(await page.isVisible(".done-row [data-undo]"), "Undo right beside it");
+    // the save line: this phone only (no account can be reached here)
+    assert.match(await page.textContent("#saveState"), /Saved on this phone only/);
+    // Israel or outside Israel: asked the first time, then kept and shown in Settings
+    await page.click('.tabbar [data-go="settings"]');
+    assert(!(await page.isChecked('input[name="yomTovPlace"][value="il"]')) && !(await page.isChecked('input[name="yomTovPlace"][value="out"]')), "not guessed");
+    await page.click("#addReminder").catch(() => {});
+    await page.waitForSelector("#choose[open]");
+    await page.click('#chooseButtons button[value="il"]');
+    await page.waitForTimeout(500);
+    assert(await page.isChecked('input[name="yomTovPlace"][value="il"]'));
+    await page.click('#today [data-go="add"]').catch(() => {});
+    await page.click('.tabbar [data-go="today"]');
+    await page.click('#today [data-go="add"]');
+    await page.click('#wizCols [data-col="tanakh"]');
+    await page.check('#wizList input[value="tanakh/jonah"]');
+    await page.click("#wizNext");
+    await page.check("#skipYomTov");
+    await page.waitForTimeout(300);
+    assert(!(await page.$("#choose[open]")), "not asked a second time");
+    assert.match(await page.textContent("#yomTovHint"), /one day as in Israel/);
+    // a plan too big for the account is said on the last step, before it is started
+    await page.evaluate(() => { window.LearnSync.accountText = () => null; });
+    await page.fill("#endDate", "2027-01-08");
+    await page.waitForFunction(() => /days/.test(document.querySelector("#preview").textContent));
+    await page.click("#wizNext");
+    await page.waitForSelector(".too-big");
+    assert.match(await page.textContent(".too-big"), /too big to save to your account/);
+    await context.close();
+    ok("Done shows exactly what was marked, Israel is asked once, and a plan too big for the account is said first");
+  }
+  {
+    const { context, page } = await phone("2026-10-11");
+    await page.click('#today [data-go="add"]');
+    await page.click('#step1 [data-go="kol"]');
+    await page.waitForSelector("#kolList [data-kol]");
+    for (const k of ["bavli", "mishnah", "rambam", "shulchan-aruch"]) await page.uncheck(`#kolList [data-kol="${k}"]`);
+    await page.click("#kol .inline-details summary");
+    await page.fill("#kolSearch", "Mesillas");
+    await page.click("#kolFound [data-kol-add]");
+    // slow data: the button says how far it is
+    await page.route(/\/data\/.*\.json(\?|$)/, async (r) => { await new Promise((ok2) => setTimeout(ok2, 150)); r.continue().catch(() => {}); });
+    await page.evaluate(() => { window.LearnSync.accountText = () => null; });
+    await page.click("#kolCreate");
+    await page.waitForFunction(() => /Preparing \d of 2/.test(document.querySelector("#kolCreate").textContent));
+    // and it warns before starting plans too big for the account
+    await page.waitForSelector("#ask[open]", { timeout: 90000 });
+    assert.match(await page.textContent("#askText"), /too big to save to your account/);
+    await page.click('#ask button[value="no"]');
+    assert.strictEqual(await page.evaluate(() => (JSON.parse(localStorage.getItem("learning-calendar-v1") || "{\"plans\":[]}").plans || []).length), 0, "nothing started");
+    await page.unroute(/\/data\/.*\.json(\?|$)/);
+    await context.close();
+    ok("Kol HaTorah shows its progress while preparing, and warns before plans too big for the account");
   }
 
   assert.deepStrictEqual(errors, []);
