@@ -92,7 +92,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 39 engine, 31 screen, 5 sync, 6 rules and 8 account tests, all passing.
+- **Tests**: 41 engine, 32 screen, 5 sync, 6 rules and 8 account tests, all passing.
 
 - **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
   fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
@@ -203,6 +203,19 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   `displayName` and `shareLearning` (off by default). Privacy page says counts
   may be shown, never who; names/learning only if the switch is on. Rules
   still owner-only.
+
+- **Groundwork for "Kol HaTorah in a year" and the life-learning chart**
+  (Hudi, 10-08; neither is built): plans may carry `group` ({id, name}) and
+  `paused`; history may hold entries entered by hand for learning before the
+  app (`type: "learned-before"`, `byHand: true`, `node` in the tree or
+  from/until addresses, optional `year`, `note`; `LearnStore.addPastLearning`,
+  no screen yet); `data/tree.json` (built with the data): Kol HaTorah →
+  collections → Sefaria's sections (Torah/Prophets/Writings, Sedarim, the
+  Rambam's books) → sefarim → perakim / dafim / simanim / sections, with real
+  letters `n` and per-commentary letters `c` at every node, and each leaf's
+  stop range `r`, so any day saved by addresses counts up every layer.
+  Privacy (Hudi asked): plain fields are for the app to count; nobody else can
+  read anyone's plans; a statistics chart would publish only totals.
 
 ## Left out (told Hudi)
 

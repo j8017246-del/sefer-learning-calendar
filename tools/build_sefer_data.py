@@ -1036,6 +1036,126 @@ def catalog_entry(record):
     return entry
 
 
+# ---- one tree of everything ------------------------------------------------
+#
+# data/tree.json: Kol HaTorah, then the collections, then sections where
+# Sefaria has them (Torah / Prophets / Writings, the Sedarim, the Rambam's
+# books), then each sefer, then its perakim (dafim in Shas, simanim in the Tur
+# and Shulchan Aruch, named sections elsewhere). Every node keeps its real size:
+# `n` letters of the text, and `c` the letters of each commentary on it, so
+# progress can be measured by real size anywhere and added up the layers, and
+# each commentary has its own progress (for example Ibn Ezra on all of
+# Tanach). A leaf's `r` is its first and last stopping point in the sefer's
+# data file, so a day learned (saved by lasting addresses) counts toward every
+# layer above it. Node ids are the sefer's standard id and the place's label,
+# which do not change when the data is rebuilt.
+
+SEFARIA_PREFIX = {   # where each collection sits in Sefaria's own category tree
+    "tanakh": ["Tanakh"], "mishnah": ["Mishnah"], "bavli": ["Talmud", "Bavli"],
+    "rambam": ["Halakhah", "Mishneh Torah"], "shulchan-aruch": ["Halakhah", "Shulchan Arukh"],
+    "tur": ["Halakhah", "Tur"], "halacha": ["Halakhah"], "mussar": ["Jewish Thought"], "midrash": ["Midrash"],
+}
+SECTION_HE = {
+    "Torah": "תורה", "Prophets": "נביאים", "Writings": "כתובים",
+    "Seder Zeraim": "סדר זרעים", "Seder Moed": "סדר מועד", "Seder Nashim": "סדר נשים",
+    "Seder Nezikin": "סדר נזיקין", "Seder Kodashim": "סדר קדשים", "Seder Tahorot": "סדר טהרות",
+    "Sefer Madda": "ספר המדע", "Sefer Ahavah": "ספר אהבה", "Sefer Zemanim": "ספר זמנים", "Sefer Nashim": "ספר נשים",
+    "Sefer Kedushah": "ספר קדושה", "Sefer Haflaah": "ספר הפלאה", "Sefer Zeraim": "ספר זרעים",
+    "Sefer Avodah": "ספר עבודה", "Sefer Korbanot": "ספר קרבנות", "Sefer Taharah": "ספר טהרה",
+    "Sefer Nezikim": "ספר נזיקין", "Sefer Kinyan": "ספר קנין", "Sefer Mishpatim": "ספר משפטים", "Sefer Shoftim": "ספר שופטים",
+}
+
+
+def tree_leaves(rec):
+    """A sefer's leaves: (label, first stop, last stop, letters, {commentary: letters})."""
+    stops, w = rec["stops"], rec["weights"]
+    piece_first, k = [], 0
+    for n in stops:
+        piece_first.append(k)
+        k += n
+    groups = []                                   # (label, first piece, last piece)
+    if rec["shape"] == "chapters":
+        p = 0
+        for i, n in enumerate(rec["chapters"]):
+            groups.append((str(i + 1), p, p + n - 1))
+            p += n
+    elif rec["shape"] == "daf":
+        cur = None
+        for i in range(len(stops)):
+            daf = (rec["firstAmud"] + i) // 2 + 1
+            if cur and cur[0] == str(daf):
+                cur[2] = i
+            else:
+                cur = [str(daf), i, i]
+                groups.append(cur)
+    elif rec["shape"] == "named":
+        groups = [(lab, i, i) for i, lab in enumerate(rec["labels"])]
+    else:                                         # "list": the Tur's simanim
+        groups = [(str(rec.get("first", 1) + i), i, i) for i in range(len(stops))]
+    total = len(w)
+    stop_leaf = [0] * total
+    leaves = []
+    for g, (label, a, b) in enumerate(groups):
+        s0 = piece_first[a] if a < len(piece_first) else total
+        s1 = (piece_first[b + 1] - 1) if b + 1 < len(piece_first) else total - 1
+        for s in range(s0, s1 + 1):
+            stop_leaf[s] = g
+        leaves.append([label, s0, s1, sum(w[s0:s1 + 1]), {}])
+    for c in rec.get("commentaries", []):
+        for after, n in zip(c["after"], c["weights"]):
+            if 0 <= after < total:
+                d = leaves[stop_leaf[after]][4]
+                d[c["id"]] = d.get(c["id"], 0) + n
+    return leaves
+
+
+def add_up(node):
+    n, c = node.get("n", 0), dict(node.get("c", {}))
+    for k in node.get("k", []):
+        add_up(k)
+        n += k["n"]
+        for cid, v in k.get("c", {}).items():
+            c[cid] = c.get(cid, 0) + v
+    if node.get("k"):
+        node["n"], node["c"] = n, c
+    return node
+
+
+def build_tree(ex, records):
+    root = {"id": "kol-hatorah", "en": "Kol HaTorah", "he": "כל התורה", "k": [], "commentaries": {}}
+    cols = {}
+    for col in COLLECTIONS:
+        cols[col["id"]] = {"id": col["id"], "en": col["en"], "he": col["he"], "k": []}
+        root["k"].append(cols[col["id"]])
+    sections = {}
+    for rec in records:
+        col = cols[rec["collection"]]
+        books = ex.versions.get(rec["sefaria"], [])
+        cats = books[0].get("categories", []) if books else []
+        prefix = SEFARIA_PREFIX.get(rec["collection"], [])
+        parent = col
+        if cats[:len(prefix)] == prefix and len(cats) > len(prefix) and rec["collection"] in ("tanakh", "mishnah", "bavli", "rambam"):
+            name = cats[len(prefix)]
+            key = (rec["collection"], name)
+            if key not in sections:
+                sections[key] = {"id": f"{rec['collection']}:{slug(name)}", "en": name, "he": SECTION_HE.get(name, name),
+                                 "sefaria": "/".join(cats[:len(prefix) + 1]), "k": []}
+                col["k"].append(sections[key])
+            parent = sections[key]
+        leaves = tree_leaves(rec)
+        sefer = {"id": rec["id"], "en": rec["en"], "he": rec["he"], "sefaria": rec["sefaria"],
+                 "v": rec.get("dataVersion"), "part": rec["unit"] if rec["shape"] != "daf" else "daf",
+                 "k": [{"id": f"{rec['id']}#{lab}", "en": lab, "r": [s0, s1], "n": n, "c": c} for lab, s0, s1, n, c in leaves]}
+        if rec["shape"] == "chapters":
+            sefer["part"] = "perek" if rec["collection"] != "shulchan-aruch" else "siman"
+        parent["k"].append(sefer)
+        for c in rec.get("commentaries", []):
+            root["commentaries"][c["id"]] = {"en": c["en"], "he": c["he"]}
+    add_up(root)
+    (OUT / "tree.json").write_text(json.dumps(root, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    return root
+
+
 def write_sources(records):
     lines = ["# Sources and licenses", "",
              "Generated by `tools/build_sefer_data.py`. Every number and every few-word",
@@ -1079,6 +1199,7 @@ def main():
                "seforim": [catalog_entry(r) for r in records]}
     (OUT / "catalog.json").write_text(json.dumps(catalog, ensure_ascii=False, indent=1) + "\n",
                                       encoding="utf-8")
+    build_tree(ex, records)
     if args.only == ",".join(BUILDERS):
         write_sources(records)
     old = sorted(MID_SENTENCE.items(), key=lambda kv: -kv[1])

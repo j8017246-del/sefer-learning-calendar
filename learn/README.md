@@ -17,6 +17,10 @@ work stands.
   names, in nine collections. All data together is about 29 MB; one sefer
   loads at a time.
 - `data/<collection>/<sefer>.json`: one sefer (format below).
+- `data/tree.json`: one tree of everything (Kol HaTorah → collections →
+  Sefaria's sections → sefarim → perakim/dafim/simanim), with the letters of
+  the text (`n`) and of each commentary (`c`) at every level, and each leaf's
+  range of stopping points (`r`), for measuring progress at any layer.
 - `data/SOURCES.md`: the edition and license of every text used, and what
   was left out.
 - `engine/sefer.js`: names places, writes a day's portion the way printed

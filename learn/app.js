@@ -210,6 +210,16 @@
     records: allRecords,
     onSave(fn) { saveListeners.push(fn); },
     onEvent(fn) { eventListeners.push(fn); },
+    // Learning done before the app, entered by hand (no screen for it yet): `node` is a
+    // place in data/tree.json ("bavli/berakhot", "mishnah:seder-moed", "tanakh/genesis#3"),
+    // or `from`/`until` lasting addresses; `year` is optional.
+    addPastLearning({ node = null, from = null, until = null, year = null, note = "" } = {}) {
+      const rec = { id: uid(), type: "learned-before", byHand: true, node, from, until, at: new Date().toISOString(),
+        year: Number.isInteger(year) ? year : null, note: String(note).slice(0, 200), seferIds: node && node.includes("/") ? [node.split("#")[0]] : [] };
+      try { localStorage.setItem(EVENTS, JSON.stringify(pendingEvents().concat(rec))); } catch (e) { /* sent below if signed in */ }
+      for (const fn of eventListeners) fn([rec]);
+      return rec;
+    },
     pendingEvents,
     eventsSent(ids) {
       const sent = new Set(ids);

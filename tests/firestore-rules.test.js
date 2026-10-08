@@ -49,6 +49,7 @@ const { doc, setDoc, getDoc, deleteDoc, collection, getDocs } = require("firebas
     at: "2026-10-11T20:00:00Z", from: "Berakhot 2a:1@0", until: "Berakhot 2b:3@0" };
   await assertSucceeds(setDoc(doc(alice, "users/alice/days/d1"), day));
   await assertFails(setDoc(doc(alice, "users/alice/days/d1"), { ...day, type: "missed" }));
+  await assertSucceeds(setDoc(doc(alice, "users/alice/days/d9"), { type: "learned-before", byHand: true, node: "bavli/berakhot", year: 2019, note: "Finished Berakhot", at: "2026-10-08T10:00:00Z", seferIds: ["bavli/berakhot"] }));
   await assertFails(setDoc(doc(alice, "users/alice/days/d2"), { ...day, secret: 1 }));
   await assertFails(getDoc(doc(bob, "users/alice/days/d1")));
   await assertFails(setDoc(doc(bob, "users/alice/days/d3"), day));

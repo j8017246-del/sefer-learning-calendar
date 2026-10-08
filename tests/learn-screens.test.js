@@ -169,6 +169,10 @@ function serve() {
   const missedRec = records.find((e) => e.type === "missed");
   assert(missedRec.date && /@\d+$/.test(missedRec.from) && /@\d+$/.test(missedRec.until) && missedRec.choice === "push");
   ok("each day done, missed or moved is kept as its own record, with its places");
+  const past = await page.evaluate(() => window.LearnStore.addPastLearning({ node: "bavli/berakhot", year: 2019, note: "I finished Masechet Berakhot" }));
+  const queued = await page.evaluate(() => JSON.parse(localStorage.getItem("learning-calendar-events")).find((e) => e.type === "learned-before"));
+  assert.deepStrictEqual([queued.byHand, queued.node, queued.year, queued.id], [true, "bavli/berakhot", 2019, past.id]);
+  ok("learning done before the app can be kept, marked as entered by hand, with a year");
 
   // the sefer's own screen: calendar and every day
   await page.click('.tabbar [data-go="library"]');

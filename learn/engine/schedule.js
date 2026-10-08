@@ -445,7 +445,7 @@
   // ---- saving -----------------------------------------------------------
 
   const SETTINGS = ["seferId", "seferIds", "name", "createdAt", "commentaries", "startDate", "endDate", "dailyPieces",
-    "minutesPerDay", "pace", "learningDays", "lighterDays", "lighterWeight", "daysOff", "history"];
+    "minutesPerDay", "pace", "group", "paused", "learningDays", "lighterDays", "lighterWeight", "daysOff", "history"];
 
   // A plan as it is kept on the phone and in the backup file: every stop by
   // its lasting address. A day is saved as where it starts and where the next

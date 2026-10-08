@@ -271,12 +271,15 @@
       startDate: n(r.startDate), createdAt: n(r.createdAt),
       finishBy: n(r.endDate), dailyAmount: n(r.dailyPieces), minutesPerDay: n(r.minutesPerDay), pace: n(r.pace),
       learningDays: r.learningDays || [], lighterDays: r.lighterDays || [], commentaries: r.commentaries || [],
+      group: r.group || null,                    // { id, name } when created together with other plans
+      paused: !!r.paused,
     };
   }
 
   // ---- the history of every day ----------------------------------------------------------
   const daysRef = () => db.collection("users").doc(user.uid).collection("days");
-  const DAY_FIELDS = ["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate"];
+  const DAY_FIELDS = ["planId", "seferIds", "type", "date", "doneOn", "at", "from", "until", "choice", "toDate", "stoppedAt", "finishDate",
+    "byHand", "node", "year", "note"];
   function sendDays(records) {
     if (!user || get(OWNER) !== user.uid || !synced || !records.length) return;
     const batch = db.batch();

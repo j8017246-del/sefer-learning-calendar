@@ -671,6 +671,40 @@ test("doing only part of a day: done up to where I stopped, the rest moves to th
   assert(r2.portions.filter((p) => p.to >= p.from).length === learning.length + 1);
 });
 
+test("one tree of Kol HaTorah with the real size at every level, and every commentary counted on its own", () => {
+  const tree = JSON.parse(fs.readFileSync(path.join(DATA, "tree.json"), "utf8"));
+  const find = (node, id) => node.id === id ? node : (node.k || []).reduce((f, k) => f || find(k, id), null);
+  const sum = (node) => (node.k ? node.k.reduce((a, k) => a + sum(k), 0) : node.n);
+  assert.strictEqual(tree.n, sum(tree), "every layer adds up to the layer above");
+  const torah = find(tree, "tanakh:torah"), gen = find(tree, "tanakh/genesis");
+  assert(torah.k.some((k) => k.id === "tanakh/genesis"), "Bereishis is under Torah, as in Sefaria's tree");
+  assert.strictEqual(gen.k.length, 50, "Bereishis has 50 perakim");
+  assert.strictEqual(gen.n, genesis.weights.reduce((a, b) => a + b, 0), "real size: the letters of the text");
+  // Ibn Ezra on all of Tanach = Ibn Ezra in every sefer of Tanach
+  let ibnEzra = 0;
+  for (const e of catalog.seforim.filter((x) => x.collection === "tanakh")) {
+    const c = load(e.id).commentaries.find((k) => k.id === "ibn-ezra");
+    if (c) ibnEzra += c.weights.reduce((a, b) => a + b, 0);
+  }
+  assert.strictEqual(find(tree, "tanakh").c["ibn-ezra"], ibnEzra);
+  // a day learned, saved by lasting addresses, falls in the right leaf (Berakhot 2a-2b: daf 2)
+  const ber = find(tree, "bavli/berakhot");
+  const s = Pieces.stopAt(berakhot, "Berakhot 2b:3@0");
+  const leaf = ber.k.find((l) => l.r[0] <= s && s <= l.r[1]);
+  assert.strictEqual(leaf.id, "bavli/berakhot#2");
+  // every stopping point is in exactly one leaf
+  let next = 0;
+  for (const l of ber.k) { assert.strictEqual(l.r[0], next); next = l.r[1] + 1; }
+  assert.strictEqual(next, berakhot.weights.length);
+});
+
+test("plans can belong to a named group and be paused, and keep it when saved", () => {
+  const plan = S.buildPlan({ ...sample, group: { id: "kol-hatorah-5787", name: "Kol HaTorah in a year" }, paused: false }, berakhot);
+  const back = S.fromSaved(JSON.parse(JSON.stringify(S.toSaved(plan, berakhot))), berakhot);
+  assert.deepStrictEqual(back.group, { id: "kol-hatorah-5787", name: "Kol HaTorah in a year" });
+  assert.strictEqual(back.paused, false);
+});
+
 test("names are Hebrew with English alongside", () => {
   for (const e of catalog.seforim) {
     assert(/[א-ת]/.test(e.he), `${e.id} has no Hebrew name`);
