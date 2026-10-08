@@ -361,7 +361,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   - The privacy page: what is saved, who can see it, outside services (Firebase, Google Fonts,
     jsDelivr, Sefaria only on tap; no ads, no tracking), deleting. The sharing switch says "coming later".
   - "Import a file" is the file box itself (keyboard: Tab, then Space).
-- **Next**: Hudi's tests by hand (the list in the audit), on test accounts only.
+- **Next**: Hudi's tests by hand (the list in the audit), on test accounts only. A step-by-step checklist page for them: https://claude.ai/artifact/KAR1Xc87oJvNzNZwhp5oQw (private to Hudi).
 
 ## Left out (told Hudi)
 
