@@ -530,12 +530,6 @@
     else show(st.view === "plan" || st.view === "library" ? "today" : st.view, true);
   });
 
-  // the add screen leaves room under its list for the Next bar, however tall the bar grows
-  if (window.ResizeObserver) {
-    const foot = document.querySelector(".wiz-foot");
-    if (foot) new ResizeObserver(() => document.documentElement.style.setProperty("--foot-h", foot.offsetHeight + "px")).observe(foot);
-  }
-
   function show(view, fromHistory = false) {
     if (view === "library") view = "today"; // the Seforim screen is now part of Today
     if (!fromHistory) remember({ view });
@@ -1280,7 +1274,8 @@
         <input type="checkbox" value="${e.id}" ${wiz.chosen.includes(e.id) ? "checked" : ""}>
         <span class="names"><span class="en">${esc(e.en)}${q ? ` · ${esc(collectionOf(e.collection).en)}` : ""}</span><span class="he" lang="he" dir="rtl">${esc(e.he)}</span></span>
         <span class="check">${icon("check")}</span></label>`).join("") + (list.length ? "" : `<p class="note" style="padding:16px">${esc(tr("add.nothingMatches"))}</p>`)
-      + `<p class="soon-more">${esc(tr("soon.moreSefarim"))}</p>`;
+      + `<div class="soon-more"><span class="soon-badge">${icon("books")}</span>
+          <span><b>${esc(tr("soon.moreSefarim"))}</b><small>${esc(tr("soon.moreSefarimNote"))}</small></span></div>`;
     $("wizAll").hidden = !!q;
   }
 
