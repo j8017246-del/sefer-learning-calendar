@@ -33,6 +33,7 @@
     <p class="gate-pasuk" lang="he" data-t="app.pasuk"></p>
     <p class="gate-sub" data-t="gate.signInToStart"></p>
     <button class="btn primary wide" id="googleSignIn" disabled data-t="gate.continueWithGoogle"></button>
+    <button class="btn wide soon" inert><span data-t="soon.smsBtn"></span> <span class="pill soon-pill" data-t="soon.label"></span></button>
     <form id="linkForm" class="link-form">
       <label class="field" for="linkEmail" data-t="gate.orGetASign"></label>
       <input type="email" id="linkEmail" autocomplete="email" required data-t-placeholder="gate.youExampleCom">
@@ -59,6 +60,11 @@
   </header>
   <nav class="week" id="week" data-t-aria-label="today.thisWeek"></nav>
   <p class="day-status" id="dayStatus"></p>
+  <div class="panel soon sponsor-soon" inert>
+    <div class="soon-head"><b data-t="soon.sponsorTitle"></b> <span class="pill soon-pill" data-t="soon.label"></span></div>
+    <p class="muted" data-t="soon.sponsorSample"></p>
+    <button class="btn" data-t="soon.sponsorBtn"></button>
+  </div>
   <button type="button" class="save-state" id="saveState" hidden></button>
   <div class="panel welcome" id="welcome" hidden>
     <p id="welcomeText"></p>
@@ -81,6 +87,16 @@
     <button class="icon-btn" data-go="add" data-t-aria-label="today.addASefer"><svg data-icon="plus"></svg></button>
   </header>
   <div id="libraryList" class="list"></div>
+  <div class="panel soon life-soon" inert>
+    <div class="soon-head"><b data-t="soon.lifeTitle"></b> <span class="pill soon-pill" data-t="soon.label"></span></div>
+    <div class="soon-bars" aria-hidden="true"><i style="height:30%"></i><i style="height:45%"></i><i style="height:38%"></i><i style="height:60%"></i><i style="height:72%"></i><i style="height:55%"></i><i style="height:85%"></i></div>
+    <p class="note" data-t="soon.lifeNote"></p>
+    <button class="btn" data-t="soon.addBefore"></button>
+  </div>
+  <div class="panel soon" inert>
+    <div class="soon-head"><b data-t="soon.statsTitle"></b> <span class="pill soon-pill" data-t="soon.label"></span></div>
+    <div class="soon-stats"><div><b>—</b><span data-t="soon.statDays"></span></div><div><b>—</b><span data-t="soon.statMinutes"></span></div><div><b>—</b><span data-t="soon.statFinished"></span></div></div>
+  </div>
   <div id="libraryEmpty" class="empty" hidden>
     <h2 data-t="library.nothingYet"></h2>
     <p data-t="library.seforimYouLearnWill"></p>
@@ -140,6 +156,17 @@
     <p class="note" data-t="share.howTo"></p>
     <input id="shareLink" readonly>
     <div class="two"><button class="btn primary" id="shareSend" data-t="share.send"></button><button class="btn" id="shareCopy" data-t="share.copy"></button></div>
+  </div>
+  <div class="panel soon" inert>
+    <div class="soon-head"><b data-t="soon.learnersTitle"></b> <span class="pill soon-pill" data-t="soon.label"></span></div>
+    <div class="soon-avatars" aria-hidden="true"><i></i><i></i><i></i><i></i><span>+</span></div>
+    <p class="note" data-t="soon.learnersNote"></p>
+    <div class="two"><button class="btn" data-t="soon.findChavrusa"></button><button class="btn" data-t="soon.chat"></button></div>
+    <button class="btn" data-t="soon.divide"></button>
+  </div>
+  <div class="panel soon" inert>
+    <div class="soon-head"><b data-t="soon.printTitle"></b> <span class="pill soon-pill" data-t="soon.label"></span></div>
+    <p class="note" data-t="soon.printNote"></p>
   </div>
   <button class="btn" id="exportPlan" data-t="export.button"></button>
   <p class="note" data-t="export.note"></p>
@@ -216,6 +243,7 @@
     <p class="note" data-t="settings.aReminderFromYour"></p>
     <label class="row-link"><span data-t="settings.time"></span> <input type="time" id="reminderTime" value="20:00" class="row-date"></label>
     <p class="note" id="reminderDays"></p>
+    <label class="switch-row soon" inert><input type="checkbox"> <span data-t="soon.notifyRow"></span> <span class="pill soon-pill" data-t="soon.label"></span></label>
     <button class="btn primary wide" id="addReminder" data-t="settings.addToMyCalendar"></button>
     <p class="note" id="reminderHelp" data-t="settings.onIphoneAndIpad"></p>
   </div>
@@ -257,21 +285,6 @@
     </details>
   </details>
 
-  <h3 class="group-title" data-t="soon.title"></h3>
-  <div class="panel list-rows" id="comingSoon">
-    <p class="soon-row"><span data-t="soon.sponsor"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.partners"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.chat"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.popular"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.divide"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.stats"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.life"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.notify"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.sms"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.scan"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-    <p class="soon-row"><span data-t="soon.stores"></span> <span class="pill" data-t="settings.comingLater"></span></p>
-  </div>
-
   <div class="panel list-rows">
     <button class="row-link" data-go="about"><span data-t="settings.aboutAndSources"></span> <svg data-icon="next"></svg></button>
   </div>
@@ -310,6 +323,9 @@
     <p class="credit" data-t-html="about.theGemaraSText"></p>
     <p class="credit" data-t-html="about.yerushalmi"></p>
     <p><a href="data/SOURCES.md" target="_blank" data-t="about.everyEditionAndIts"></a></p>
+    <h2 data-t="soon.storesTitle"></h2>
+    <div class="two soon" inert><span class="btn" data-t="soon.appStore"></span><span class="btn" data-t="soon.googlePlay"></span></div>
+    <p><span class="pill soon-pill" data-t="soon.label"></span></p>
   </div>
 </section>
 
@@ -354,6 +370,7 @@
     <div class="quick-starts">
       <button type="button" class="panel quick" data-go="kol"><b data-t="kol.title"></b><span data-t="kol.short"></span></button>
       <button type="button" class="panel quick" data-go="cycles"><b data-t="cycles.title"></b><span data-t="cycles.short"></span></button>
+      <div class="panel quick soon" inert><b data-t="soon.popularTitle"></b><span data-t="soon.popularShort"></span><span class="pill soon-pill" data-t="soon.label"></span></div>
     </div>
     <div class="search"><svg data-icon="search"></svg><input type="search" id="wizSearch" autocomplete="off" data-t-placeholder="add.searchInEnglishOr"></div>
     <div class="chips-scroll" id="wizCols" role="tablist" data-t-aria-label="add.collections"></div>

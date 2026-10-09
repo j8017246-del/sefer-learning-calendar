@@ -406,14 +406,15 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    a contact address and short
    terms of use, and a deploy by someone signed in to Firebase.
 
-## Coming soon list (Hudi, 10-09)
+## Coming soon, drawn in place (Hudi, 10-09)
 
-Settings shows a "Coming soon" list (`soon.*` strings, `#comingSoon`) of every feature discussed but not
-built: sponsoring a day for the whole app (one sponsor dedicates everyone's learning that day; needs a
-payment account; private dedications stay as they are), finding a chavrusa, chat, what most people learn and
-suggestions, dividing a sefer for a siyum, statistics, the life-learning chart with past learning, reminders
-sent by the app, text-message sign-in, scans of your own sefer, App Store and Google Play. Remove a line
-when its feature is built.
+Features discussed but not built are drawn where they will live, grayed out and `inert`, with a "Coming soon"
+pill (`.soon`, `soon.*` strings): Today, sponsoring the day for everyone (one sponsor dedicates all the app's
+learning that day; needs a payment account; private dedications stay); Seforim, the life-learning chart with
+learning from before, and statistics; one sefer, learners on this sefer, find a chavrusa, chat, divide for a
+siyum, and "My print" (scans); Add a sefer, what most people learn; Settings reminder, notifications from the
+app; sign-in screen, text-message sign-in; About, App Store and Google Play. When a feature is built, replace
+its grayed block with the real one.
 
 ## Second address shaashuai.web.app (Hudi, 10-09)
 
