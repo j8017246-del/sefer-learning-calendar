@@ -566,3 +566,7 @@ body.gated .tabbar { display: none; }
   background-color: color-mix(in srgb, currentColor 8%, transparent);
 }
 .text-btn:disabled:hover { outline: none; background-color: transparent; }
+
+/* the end of the collections row and of each list of sefarim: more are coming */
+.soon-chip { flex: none; align-self: center; padding: 8px 14px; border-radius: 99px; border: 1.5px dashed var(--faint); color: var(--muted); font-size: .88rem; white-space: nowrap; }
+.soon-more { margin: 0; padding: 14px 16px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: .88rem; }

@@ -1244,7 +1244,8 @@
 
   function renderCols() {
     $("wizCols").innerHTML = catalog.collections.map((c) =>
-      `<button type="button" role="tab" data-col="${c.id}" aria-selected="${c.id === wiz.col}">${esc(nm(c))}</button>`).join("");
+      `<button type="button" role="tab" data-col="${c.id}" aria-selected="${c.id === wiz.col}">${esc(nm(c))}</button>`).join("")
+      + `<span class="soon-chip">${esc(tr("soon.moreCollections"))}</span>`;
   }
 
   // What each collection leaves out (no Public Domain edition) or estimates.
@@ -1259,7 +1260,8 @@
     $("wizList").innerHTML = list.map((e) => `<label class="pick-row">
         <input type="checkbox" value="${e.id}" ${wiz.chosen.includes(e.id) ? "checked" : ""}>
         <span class="names"><span class="en">${esc(e.en)}${q ? ` · ${esc(collectionOf(e.collection).en)}` : ""}</span><span class="he" lang="he" dir="rtl">${esc(e.he)}</span></span>
-        <span class="check">${icon("check")}</span></label>`).join("") || `<p class="note" style="padding:16px">${esc(tr("add.nothingMatches"))}</p>`;
+        <span class="check">${icon("check")}</span></label>`).join("") + (list.length ? "" : `<p class="note" style="padding:16px">${esc(tr("add.nothingMatches"))}</p>`)
+      + `<p class="soon-more">${esc(tr("soon.moreSefarim"))}</p>`;
     $("wizAll").hidden = !!q;
   }
 
