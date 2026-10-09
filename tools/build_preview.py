@@ -34,7 +34,7 @@ def main(out, pack=False):
         body = body.replace(tag, "<script>\n" + code + "\n</script>")
     head = src[:src.index("<body>")]
     fonts = "\n".join(line.strip() for line in head.splitlines() if "fonts.googleapis.com" in line)
-    page = ("<title>Learning Calendar</title>\n<meta name=\"theme-color\" content=\"#1f3a5f\">\n" + fonts + "\n<style>\n"
+    page = ("<title>שעשועי</title>\n<meta name=\"theme-color\" content=\"#1f3a5f\">\n" + fonts + "\n<style>\n"
             + (LEARN / "app.css").read_text(encoding="utf-8") + "\n</style>\n" + body)
     Path(out).write_text(page, encoding="utf-8")
     print(f"{out}: {len(page.encode()) / 1e6:.1f} MB" + (f", {len(packed)} data files packed" if pack else ", data files separate"))
