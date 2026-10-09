@@ -20,7 +20,7 @@
   --pasuk: #1e2a4f;
   --accent-ink: #ffffff;
   --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
-  --ok: #1f9d55;
+  --ok: #7d5f1c;            /* done and on schedule: deep gold, like the logo */
   --ok-soft: color-mix(in srgb, var(--ok) 14%, transparent);
   --warn: #b86e00;
   --warn-soft: color-mix(in srgb, var(--warn) 14%, transparent);
@@ -47,7 +47,7 @@
   --line: rgba(241, 233, 210, .09);
   --gold-text: linear-gradient(180deg, #fbeec3 0%, #d6b25e 55%, #a8812f 100%);
   --pasuk: #e6ddc3;
-  --ok: #34c472;
+  --ok: #d6b25e;
   --warn: #f0a32b;
   --danger: #ff5a5f;
   --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -16px rgba(0, 0, 0, .7);
@@ -756,3 +756,7 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 .lesson .btn.ext svg { width: 18px; height: 18px; }
 .source.shiur .source-name { flex-direction: column; align-items: flex-start; gap: 2px; }
 .source.shiur small { color: var(--muted); font-size: .84rem; }
+
+/* finished days shine in gold foil, not green */
+.cal-grid button.done, .k-done, .btn.ticked { background: var(--foil); box-shadow: var(--foil-edge); color: #3b2a0b; }
+.week .all-done i { background: var(--foil); }
