@@ -552,3 +552,6 @@ body.gated .tabbar { display: none; }
 .soon-avatars i, .soon-avatars span { width: 34px; height: 34px; border-radius: 50%; background: var(--raised); border: 2px solid var(--surface); margin-inline-end: -8px; display: grid; place-items: center; color: var(--muted); }
 .quick.soon .pill { align-self: flex-start; margin-top: 4px; }
 .sponsor-soon { margin-top: 0; }
+
+/* the buttons under a sefer's dedication: full width, with room between them */
+#reviewPlan, #sharePlan, #exportPlan { display: flex; width: 100%; margin-top: 12px; }
