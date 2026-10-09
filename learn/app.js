@@ -880,13 +880,13 @@
       : st.behind ? `<span class="pill behind">${esc(tr(st.behind > 1 ? "status.behindMany" : "status.behindOne", { n: st.behind }))}</span>`
       : `<span class="pill ok">${esc(st.ahead ? tr("status.ahead", { n: st.ahead }) : tr("status.onSchedule"))}</span>`;
     const kind = plan.kind === "review" ? `<span class="pill review">${esc(tr("review.pill"))}</span>` : cycle ? `<span class="pill">${esc(tr("cycle.pill"))}</span>` : "";
-    const head = `<div class="lesson-head">
+    const head = `<div class="lesson-top" data-plan-top="${esc(x.id)}"><div class="lesson-head">
         <div><button class="lesson-open" data-open="${esc(x.id)}"><h2 class="he-title" lang="he" dir="rtl">${esc(name.he)}</h2></button>
           <div class="lesson-sub">${kind}${[sub(name), commNames.length ? tr("lesson.with", { names: commNames.join(" & ") }) : "", col ? nm(col) : ""].filter(Boolean).map(esc).join(" · ")}</div></div>
         ${p ? `<div class="count"><b>${learning.indexOf(p) + 1}<span class="muted">/${learning.length}</span></b>${esc(tr("lesson.day"))}</div>` : ""}
-      </div>${progressHtml(x)}${conflictHtml(x)}${dedicationHtml(plan)}${chavrusaHtml(plan, today)}`;
+      </div>${progressHtml(x)}</div>${conflictHtml(x)}${dedicationHtml(plan)}${chavrusaHtml(plan, today)}`;
     const foot = `<div class="lesson-foot">${status}<span>${esc(tr("lesson.finishing", { date: st.finishDate ? niceDate(st.finishDate, true) : "—" }))}</span></div>
-      <div class="lesson-foot"><button class="text-btn" data-open="${esc(x.id)}">${esc(tr("lesson.wholeSchedule"))}</button>
+      <div class="lesson-foot">
         ${isToday && !st.finished && !cycle && !plan.paused ? (st.behind ? `<button class="text-btn" data-missed="${esc(x.id)}">${esc(tr("lesson.catchUp"))}</button>` : `<button class="text-btn" data-cant="${esc(x.id)}">${esc(tr("lesson.cantToday"))}</button>`) : ""}</div>`;
     if (plan.paused) {
       return `<article class="panel lesson is-done">${head}<p class="next-line">${esc(tr("plan.pausedSince", { date: niceDate(plan.paused) }))}</p>
@@ -1189,6 +1189,10 @@
   document.addEventListener("click", (e) => {
     const n = e.target.closest("[data-notes]");
     if (n && !e.target.closest("dialog")) { e.preventDefault(); return openNotes(n.dataset.notes, n.dataset.date); }
+  });
+  document.addEventListener("click", (e) => {
+    const top = e.target.closest("[data-plan-top]");
+    if (top && !e.target.closest("[data-open]")) openPlan(top.dataset.planTop);
   });
   document.addEventListener("keydown", (e) => {
     const n = e.key === "Enter" && e.target.closest && e.target.closest("article[data-notes]");

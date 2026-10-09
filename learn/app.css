@@ -760,3 +760,8 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 /* finished days shine in gold foil, not green */
 .cal-grid button.done, .k-done, .btn.ticked { background: var(--foil); box-shadow: var(--foil-edge); color: #3b2a0b; }
 .week .all-done i { background: var(--foil); }
+
+/* the top of a card (name, day count, progress) opens the sefer's page */
+.lesson-top { cursor: pointer; margin: -6px -8px 0; padding: 6px 8px 2px; border-radius: var(--r-md); transition: background-color .15s; }
+.lesson-top:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.lesson-top:active { background: color-mix(in srgb, var(--accent) 10%, transparent); }

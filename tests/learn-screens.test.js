@@ -194,7 +194,7 @@ function serve() {
 
   // each sefer on the home screen shows how far along it is, and its name opens it
   assert.match(await page.textContent("#cards .lesson-progress"), /1 of 78 days/);
-  await page.click("#cards .lesson-open");
+  await page.click("#cards .lesson-progress");   // anywhere on the top of the card opens it
   await page.waitForSelector("#plan:not([hidden]) #calGrid button.done");
   assert.match(await page.textContent("#calMonth"), /^October 2026תשרי – חשוון תשפ״ז$/, "the month with its Hebrew months");
   await page.click('[data-cal="2026-10-15"]');
