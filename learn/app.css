@@ -447,6 +447,7 @@ dialog.sheet .muted { text-align: center; margin: 0 0 6px; }
   display: flex; align-items: center; justify-content: center; padding: 24px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
 .gate-box { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
 .gate-box .empty-art { align-self: center; }
+.gate-pasuk { color: var(--muted); margin: -4px 0 10px; font-size: 1.1rem; }
 .gate-sub { color: var(--muted); margin: 0 0 6px; }
 .gate .link-form { text-align: start; margin-top: 6px; }
 .gate-privacy { text-align: start; color: var(--muted); font-size: .9rem; }

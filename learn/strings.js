@@ -13,7 +13,8 @@
   "use strict";
   const STRINGS = { en: {
     // app
-    "app.learningCalendar": "Sha’ashu’ai",
+    "app.learningCalendar": "שעשועי",
+    "app.pasuk": "ואהיה שעשועים יום יום",
     "app.notSavedOnThis": "Not saved on this phone. The phone's storage may be full or blocked; your latest changes will be lost when the app closes.",
     "app.notSavedToAn": "Not saved to an account yet.",
     "app.signIn": "Sign in",
@@ -553,6 +554,7 @@
   // Hebrew: the same keys (a key missing here shows in English)
   he: {
     "app.learningCalendar": "שעשועי",
+    "app.pasuk": "ואהיה שעשועים יום יום",
     "app.notSavedOnThis": "לא נשמר בטלפון. ייתכן שהזיכרון מלא או חסום; השינויים האחרונים יאבדו כשהאפליקציה תיסגר.",
     "app.notSavedToAn": "עדיין לא נשמר בחשבון.",
     "app.signIn": "כניסה",
