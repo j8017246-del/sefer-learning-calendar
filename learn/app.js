@@ -1544,7 +1544,7 @@
     btn.textContent = tr("kol.making");
     try {
       const start = $("kolStart").value, end = $("kolEnd").value;
-      const group = { id: uid().replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24), name: "Kol HaTorah", he: "כל התורה" };
+      const group = { id: uid().replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24), name: "Kol HaTorah Kulah", he: "כל התורה כולה" };
       const items = kolChoices().filter((k) => kol.picked.has(k.key)).map((k) => ({ ids: k.ids, comms: k.comms }))
         .concat(kol.extra.map((id) => ({ ids: [id], comms: entryOf(id).commentaries.filter((c) => c.default).map((c) => c.id) })));
       const made = [];
