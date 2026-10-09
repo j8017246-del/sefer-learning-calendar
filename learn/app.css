@@ -790,3 +790,8 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 .cal-grid button.today::after { display: none; }
 .cal-key i { border-radius: 3px; }
 .cal-key .k-plan { box-shadow: none; background: color-mix(in srgb, var(--accent) 22%, var(--surface)); }
+/* room between the dedication box and the buttons under it (Hudi, 10-09) */
+#reviewPlan, #sharePlan { margin-top: 24px; }
+#reviewPlan:not([hidden]) + #sharePlan { margin-top: 12px; }
+#shareBox { margin-top: 12px; }
+.soon .two .btn { white-space: nowrap; padding-inline: 10px; }
