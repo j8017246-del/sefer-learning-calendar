@@ -1,6 +1,6 @@
 {
-  "name": "Learning Calendar",
-  "short_name": "Learning",
+  "name": "שעשועי",
+  "short_name": "שעשועי",
   "description": "Where to start and stop in your own sefer, each day.",
   "start_url": "./",
   "scope": "./",

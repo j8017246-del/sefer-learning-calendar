@@ -439,7 +439,7 @@ function serve() {
     for (const d of damaged) {
       await page.fill("#pasteBackup", JSON.stringify(d));
       await page.click("#loadPasted");
-      await page.waitForFunction(() => /cannot be used|not a learning calendar backup/.test(document.querySelector("#toast").textContent), null, { timeout: 8000 }).catch(async (e) => { console.error("damaged", damaged.indexOf(d), await page.textContent("#toast"), await page.$("#ask[open]") ? await page.textContent("#askText") : ""); throw e; });
+      await page.waitForFunction(() => /cannot be used|not a שעשועי backup/.test(document.querySelector("#toast").textContent), null, { timeout: 8000 }).catch(async (e) => { console.error("damaged", damaged.indexOf(d), await page.textContent("#toast"), await page.$("#ask[open]") ? await page.textContent("#askText") : ""); throw e; });
       await page.evaluate(() => { document.querySelector("#toast").textContent = ""; });
       assert(!(await page.$("#ask[open]")), "no preview for a damaged backup");
       assert.strictEqual(await page.evaluate(() => localStorage.getItem("learning-calendar-v1")), before, "nothing changed");
