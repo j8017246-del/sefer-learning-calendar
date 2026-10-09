@@ -474,5 +474,8 @@ never sent in a share link. Where: a Notes button with a count on each card, a s
 sefer font, direction from the first letter), the sefer's page (list + gold dot in the calendar), and All my notes
 (Settings, with search). Sharing and voice/photo notes are shown as coming soon.
 
+## Calendar look (10-09)
+The plan calendar shows days as soft rounded tiles (Hudi chose "B1"): gold foil for done, a light tint for days to learn, an outline for today.
+
 ## Week strip slides open (10-09)
 On the home screen, slide the week strip down (or tap the small gold handle under it) to see the whole month, with arrows for other months; slide up or tap again to go back to the week. The closed strip shows the week of the chosen day. Code: `renderWeek`/`setWeekOpen` in app.js, styles at the end of app.css.

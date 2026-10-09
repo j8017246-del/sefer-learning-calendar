@@ -779,3 +779,14 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 .week-handle span { display: block; width: 38px; height: 5px; margin: 0 auto; border-radius: 3px; background: var(--foil, var(--accent)); opacity: .75; transition: transform .2s; }
 .week-handle:hover span, .week-handle:focus-visible span { opacity: 1; transform: scaleX(1.2); }
 .week[hidden] + .week-handle { display: none; }
+
+/* ---- calendar days as soft rounded tiles (Hudi chose B1, 10-09) ---- */
+.cal-grid { gap: 5px; }
+.cal-grid button { border-radius: 12px; aspect-ratio: 1 / 1.05; }
+.cal-grid button.plan { box-shadow: none; background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
+.cal-grid button.done { border-radius: 12px; box-shadow: none; }
+.cal-grid button.off, .cal-grid button.none { background: none; }
+.cal-grid button.today { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.cal-grid button.today::after { display: none; }
+.cal-key i { border-radius: 3px; }
+.cal-key .k-plan { box-shadow: none; background: color-mix(in srgb, var(--accent) 22%, var(--surface)); }
