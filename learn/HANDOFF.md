@@ -406,6 +406,12 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    a contact address and short
    terms of use, and a deploy by someone signed in to Firebase.
 
+## Logo and colors (Hudi, 10-09)
+
+The icons (icon-192/512, apple-touch-icon, icon-dark-512 for the sign-in screen in dark mode) are cut from Hudi's
+logo picture (about 330 px, so a larger original would be sharper). Light: parchment #ece3c9, navy ink #1e2a4f,
+gold #9a7128. Dark: #171a24, parchment ink #f1e9d2, gold #d6b25e. Gold is the first swatch (lighter in dark mode).
+
 ## Coming soon, drawn in place (Hudi, 10-09)
 
 Features discussed but not built are drawn where they will live, grayed out and `inert`, with a "Coming soon"

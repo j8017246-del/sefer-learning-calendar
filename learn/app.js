@@ -391,7 +391,9 @@
 
   // ---- appearance -------------------------------------------------------------------
 
-  const SWATCHES = ["#2952cc", "#0a7cff", "#0f8f80", "#2f9e44", "#c77700", "#c2334d", "#7a4fd1", "#3d4450"];
+  // the first is the logo's gold (lighter in dark mode, see applyLook)
+  const SWATCHES = ["#9a7128", "#1e2a4f", "#2952cc", "#0f8f80", "#2f9e44", "#c2334d", "#7a4fd1", "#3d4450"];
+  const GOLD = SWATCHES[0], GOLD_DARK = "#d6b25e";
   let look = { theme: "auto", style: "glass", accent: SWATCHES[0] };
   try { look = { ...look, ...JSON.parse(localStorage.getItem(LOOK_STORE) || "{}") }; } catch (e) { /* defaults */ }
   const darkQuery = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : { matches: false, addEventListener() {} };
@@ -406,9 +408,10 @@
     const dark = look.theme === "dark" || (look.theme === "auto" && darkQuery.matches);
     root.dataset.theme = dark ? "dark" : "light";
     root.dataset.style = look.style;
-    root.style.setProperty("--accent", look.accent);
+    const accent = dark && look.accent === GOLD ? GOLD_DARK : look.accent;
+    root.style.setProperty("--accent", accent);
     // text on the color: whichever of white or near-black has more contrast
-    const L = luminance(look.accent), onWhite = 1.05 / (L + 0.05), onDark = (L + 0.05) / (luminance("#111215") + 0.05);
+    const L = luminance(accent), onWhite = 1.05 / (L + 0.05), onDark = (L + 0.05) / (luminance("#111215") + 0.05);
     root.style.setProperty("--accent-ink", onWhite >= onDark ? "#ffffff" : "#111215");
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = getComputedStyle(root).getPropertyValue("--bg").trim();

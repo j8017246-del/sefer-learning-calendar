@@ -7,14 +7,17 @@
  * (solid/glass) and --accent from Settings.
  */
 :root {
-  --bg: #f4f5f7;            /* page */
-  --surface: #ffffff;       /* panels and cards */
-  --raised: #f0f1f4;        /* fields and quiet buttons inside panels */
-  --ink: #111215;
-  --muted: #6b6f78;
-  --faint: #a3a7af;
-  --line: rgba(17, 18, 21, .08);
-  --accent: #2952cc;        /* techeiles blue; the person can change it */
+  /* light: parchment, deep gold, navy (the שעשועי logo) */
+  --bg: #ece3c9;            /* page: parchment */
+  --surface: #f8f3e5;       /* panels and cards */
+  --raised: #efe6cf;        /* fields and quiet buttons inside panels */
+  --ink: #1e2a4f;           /* navy, like the pasuk under the logo */
+  --muted: #6a6450;
+  --faint: #a69c80;
+  --line: rgba(30, 42, 79, .10);
+  --accent: #9a7128;        /* deep gold; the person can change it */
+  --gold-text: linear-gradient(180deg, #c9a256 0%, #9a7128 55%, #775622 100%);
+  --pasuk: #1e2a4f;
   --accent-ink: #ffffff;
   --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
   --ok: #1f9d55;
@@ -22,7 +25,7 @@
   --warn: #b86e00;
   --warn-soft: color-mix(in srgb, var(--warn) 14%, transparent);
   --danger: #d1343a;
-  --shadow: 0 1px 2px rgba(17, 18, 21, .04), 0 8px 24px -14px rgba(17, 18, 21, .18);
+  --shadow: 0 1px 2px rgba(60, 45, 10, .05), 0 8px 24px -14px rgba(60, 45, 10, .22);
   --blur: none;
   --panel-edge: transparent;
 
@@ -35,13 +38,15 @@
   color-scheme: light;
 }
 :root[data-theme="dark"] {
-  --bg: #0d0e11;
-  --surface: #17181c;
-  --raised: #222328;
-  --ink: #f2f3f5;
-  --muted: #9b9fa8;
-  --faint: #5d6169;
-  --line: rgba(255, 255, 255, .08);
+  --bg: #171a24;            /* navy-black */
+  --surface: #1f2331;
+  --raised: #2a2f40;
+  --ink: #f1e9d2;            /* cream */
+  --muted: #aaa38d;
+  --faint: #6d6a5a;
+  --line: rgba(241, 233, 210, .09);
+  --gold-text: linear-gradient(180deg, #fbeec3 0%, #d6b25e 55%, #a8812f 100%);
+  --pasuk: #e6ddc3;
   --ok: #34c472;
   --warn: #f0a32b;
   --danger: #ff5a5f;
@@ -50,8 +55,8 @@
 }
 /* Glass: panels are frosted and the page has a faint wash of the chosen color */
 :root[data-style="glass"] {
-  --surface: rgba(255, 255, 255, .62);
-  --raised: rgba(17, 18, 21, .05);
+  --surface: rgba(250, 245, 232, .66);
+  --raised: rgba(30, 42, 79, .05);
   --blur: blur(28px) saturate(180%);
   --panel-edge: rgba(255, 255, 255, .75);
 }
@@ -447,7 +452,6 @@ dialog.sheet .muted { text-align: center; margin: 0 0 6px; }
   display: flex; align-items: center; justify-content: center; padding: 24px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
 .gate-box { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
 .gate-box .empty-art { align-self: center; }
-.gate-pasuk { color: var(--muted); margin: -4px 0 10px; font-size: 1.1rem; }
 .gate-sub { color: var(--muted); margin: 0 0 6px; }
 .gate .link-form { text-align: start; margin-top: 6px; }
 .gate-privacy { text-align: start; color: var(--muted); font-size: .9rem; }
@@ -570,3 +574,12 @@ body.gated .tabbar { display: none; }
 /* the end of the collections row and of each list of sefarim: more are coming */
 .soon-chip { flex: none; align-self: center; padding: 8px 14px; border-radius: 99px; border: 1.5px dashed var(--faint); color: var(--muted); font-size: .88rem; white-space: nowrap; }
 .soon-more { margin: 0; padding: 14px 16px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: .88rem; }
+
+/* the logo on the sign-in screen: the light or dark icon, gold name, the pasuk under a gold rule */
+.logo-icon { align-self: center; width: 112px; height: 112px; border-radius: 26px; box-shadow: var(--shadow); }
+.logo-icon.dark, :root[data-theme="dark"] .logo-icon.light { display: none; }
+:root[data-theme="dark"] .logo-icon.dark { display: block; }
+#gateTitle { font: 700 2.8rem/1.1 var(--book); background: var(--gold-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.gate-pasuk { color: var(--pasuk); font-family: var(--book); font-size: 1.2rem; margin: -6px 0 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.gate-pasuk::before { content: ""; width: 180px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+.eyebrow[data-t="app.learningCalendar"] { font-family: var(--book); font-weight: 700; font-size: 1.05rem; background: var(--gold-text); -webkit-background-clip: text; background-clip: text; color: transparent; }

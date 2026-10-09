@@ -7,8 +7,8 @@
  * list): a rebuilt file has a new address, is fetched, and the older copy of
  * the same file is removed, so old data is never mixed with newer places.
  */
-const CACHE = "shaashuai-v5";
-const SHELL = ["./", "index.html", "app.css", "app.js", "accounts.js", "strings.js", "engine/sefer.js", "engine/schedule.js", "engine/sync.js", "engine/cycles.js", "suggestions.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "apple-touch-icon.png", "data/catalog.json"];
+const CACHE = "shaashuai-v6";
+const SHELL = ["./", "index.html", "app.css", "app.js", "accounts.js", "strings.js", "engine/sefer.js", "engine/schedule.js", "engine/sync.js", "engine/cycles.js", "suggestions.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-dark-512.png", "apple-touch-icon.png", "data/catalog.json"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
