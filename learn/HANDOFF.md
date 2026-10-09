@@ -406,6 +406,15 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    a contact address and short
    terms of use, and a deploy by someone signed in to Firebase.
 
+## Coming soon list (Hudi, 10-09)
+
+Settings shows a "Coming soon" list (`soon.*` strings, `#comingSoon`) of every feature discussed but not
+built: sponsoring a day for the whole app (one sponsor dedicates everyone's learning that day; needs a
+payment account; private dedications stay as they are), finding a chavrusa, chat, what most people learn and
+suggestions, dividing a sefer for a siyum, statistics, the life-learning chart with past learning, reminders
+sent by the app, text-message sign-in, scans of your own sefer, App Store and Google Play. Remove a line
+when its feature is built.
+
 ## Second address shaashuai.web.app (Hudi, 10-09)
 
 `firebase.json` publishes the same files to two Hosting sites: `main` (sefer-calendar.web.app) and
