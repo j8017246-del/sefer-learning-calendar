@@ -175,10 +175,9 @@ function serve() {
   ok("learning done before the app can be kept, marked as entered by hand, with a year");
 
   // the sefer's own screen: calendar and every day
-  await page.click('.tabbar [data-go="library"]');
-  await page.waitForSelector(".plan-row");
-  assert.match(await page.textContent(".plan-row"), /1 of 78 days/);
-  await page.click(".plan-row");
+  // each sefer on the home screen shows how far along it is, and its name opens it
+  assert.match(await page.textContent("#cards .lesson-progress"), /1 of 78 days/);
+  await page.click("#cards .lesson-open");
   await page.waitForSelector("#plan:not([hidden]) #calGrid button.done");
   assert.match(await page.textContent("#calMonth"), /^October 2026תשרי – חשוון תשפ״ז$/, "the month with its Hebrew months");
   await page.click('[data-cal="2026-10-15"]');
@@ -195,24 +194,31 @@ function serve() {
   await shot("learn-plan.png");
 
   // about and sources credit Wikisource
-  await page.click('.tabbar [data-go="settings"]');
+  await page.click('.appbar .gear');
   await page.click('[data-go="about"]');
   assert.match(await page.textContent("#about"), /Wikisource Talmud Bavli/);
   ok("About credits the Wikisource Gemara");
 
   // Settings: theme, style, color; remembered
-  await page.click('.tabbar [data-go="settings"]');
+  await page.click('#about .back');
   await page.check('input[name="theme"][value="dark"]');
   assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.theme), "dark");
   await page.check('input[name="style"][value="solid"]');
   assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.style), "solid");
-  await page.click('[data-swatch="#0f8f80"]');
-  assert.strictEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()), "#0f8f80");
+  // a royal color: in dark mode the page takes a deep shade of it, lit with gold foil
+  await page.click('[data-swatch="#0f6a4b"]');
+  const css = (name) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
+  assert.strictEqual(await css("--accent"), "#d6b25e");
+  assert.notStrictEqual(await css("--bg"), "#171a24", "the page takes the emerald's shade");
+  assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.gold), "foil");
+  await page.check('input[name="theme"][value="light"]');
+  assert.strictEqual(await css("--accent"), "#0f6a4b", "in light mode the color itself is used");
+  await page.check('input[name="theme"][value="dark"]');
   await page.reload();
   await page.waitForSelector(".lesson");
   assert.strictEqual(await page.evaluate(() => document.documentElement.dataset.theme), "dark", "the theme is remembered");
   await shot("learn-today-dark.png", false);
-  await page.click('.tabbar [data-go="settings"]');
+  await page.click('.appbar .gear');
   await shot("learn-settings.png");
   await page.check('input[name="theme"][value="light"]');
   await page.check('input[name="style"][value="glass"]');
@@ -242,7 +248,7 @@ function serve() {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector("#empty:not([hidden])");
-  await page.click('.tabbar [data-go="settings"]');
+  await page.click('.appbar .gear');
   await page.click("#exportBox > summary");
   await page.click("#exportBox details.inline-details > summary");
   await page.fill("#pasteBackup", backup);
@@ -261,11 +267,11 @@ function serve() {
   assert(await page.isVisible("#plan"));
   await page.click("#deletePlan");
   await page.click("#askYes");
-  await page.waitForSelector("#libraryEmpty:not([hidden])");
+  await page.waitForSelector("#empty:not([hidden])");
   ok("stopping a sefer asks first, inside the page");
 
   // two masechtos of Mishnah as one plan, crossing from one into the next
-  await page.click('#libraryEmpty [data-go="add"]');
+  await page.click('#empty [data-go="add"]');
   await page.click('#wizCols [data-col="mishnah"]');
   await page.check('#wizList input[value="mishnah/berakhot"]');
   await page.check('#wizList input[value="mishnah/peah"]');
@@ -325,7 +331,7 @@ function serve() {
   await page.waitForSelector(".lesson");
   const ruthCard = () => page.locator(".lesson", { hasText: "רות" });
   // 8: a day's done can be changed from the whole schedule, and the last day keeps Undo
-  await ruthCard().locator("[data-open]").click();
+  await ruthCard().locator(".lesson-open").click();
   await page.click("#plan .all-days summary");
   for (let i = 0; i < 10; i++) {
     const open = page.locator('#planDays [data-toggle][aria-pressed="false"]');
@@ -333,7 +339,7 @@ function serve() {
     await open.first().click();
   }
   assert.strictEqual(await page.locator('#planDays [data-toggle][aria-pressed="false"]').count(), 0);
-  await page.click('.tabbar [data-go="today"]');
+  await page.click('.appbar .brand');
   await ruthCard().locator("[data-undo]").waitFor();
   assert.match(await ruthCard().textContent(), /Mazal tov/);
   await ruthCard().locator("[data-undo]").click();
@@ -347,7 +353,7 @@ function serve() {
   ok("Today moves to the new day after midnight");
 
   // 12 and 13: what is missing is said before choosing; Hebrew search with nikud and quote marks
-  await page.click('#today [data-go="add"]');
+  await page.click('#today [data-go="add"]:visible');
   await page.click('#wizCols [data-col="rambam"]');
   assert.match(await page.textContent("#colNote"), /Tzitzis/);
   assert.match(await page.textContent("#wizAll"), /Select all available/);
@@ -374,19 +380,19 @@ function serve() {
   await page.click('#picker button[value="cancel"]');
   await page.click("#wizBack");
   await page.click("#wizBack");
-  await page.click('.tabbar [data-go="settings"]');
+  await page.click('.appbar .gear');
   await page.evaluate(() => { const i = document.querySelector("#accentCustom"); i.value = "#888888"; i.dispatchEvent(new Event("change", { bubbles: true })); });
   assert.strictEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent-ink").trim()), "#111215",
     "dark text on a mid-grey button");
   assert.strictEqual(await page.getAttribute("#accentCustom", "aria-checked"), "true");
-  await page.click('[data-swatch="#2952cc"]');
+  await page.click('[data-swatch="#1f418f"]');
   ok("large text wraps, targets are 44 by 44, and colored buttons pick readable text");
 
   // 16: the phone's Back button moves between screens; catch-up choices show the new finish date
   await page.click('[data-go="about"]');
   await page.goBack();
   await page.waitForSelector("#settings:not([hidden])");
-  await page.click('.tabbar [data-go="today"]');
+  await page.click('.appbar .brand');
   await page.locator("[data-cant]").first().click();
   assert.match(await page.textContent('#missed button[value="push"]'), /finish(es|ing) .*20\d\d/i);
   await page.click('#missed button[value="cancel"]');
@@ -436,7 +442,7 @@ function serve() {
   ok("the app opens without errors inside a locked-down frame");
 
   // a daily reminder in the phone's own calendar: one repeating event on the learning days
-  await page.click('.tabbar [data-go="settings"]');
+  await page.click('.appbar .gear');
   await page.fill("#reminderTime", "20:15");
   // asked once first: Israel or outside Israel (which days of Yom Tov to leave out)
   await page.click("#addReminder");
@@ -467,7 +473,7 @@ function serve() {
   // only part of a day: say where I stopped
   const doneCount = () => page.evaluate(() => JSON.parse(localStorage.getItem("learning-calendar-v1")).plans
     .reduce((n, p) => n + p.portions.filter((d) => d.done).length, 0));
-  await page.click('.tabbar [data-go="today"]');
+  await page.click('.appbar .brand');
   const before = await doneCount();
   await page.locator(".lesson [data-part]").first().click();
   assert.match(await page.textContent("#pickerTitle"), /Where did you stop/);
@@ -483,7 +489,7 @@ function serve() {
   await page3.goto(url);
   await page3.waitForSelector(".lesson");
   assert.match(await page3.textContent("#week"), /Shabbos/);
-  await page3.click('#today [data-go="add"]');
+  await page3.click('#today [data-go="add"]:visible');
   await page3.check('#wizList input[value="tanakh/genesis"]');
   await page3.click("#wizNext");
   const oneYear = await page3.evaluate(() => {
@@ -499,11 +505,11 @@ function serve() {
   ok("the finish date starts at one Hebrew year, and Shabbos is called Shabbos");
 
   // the color spectrum stays open while choosing; space above About and sources
-  await page.click('.tabbar [data-go="settings"]');
+  await page.click('.appbar .gear');
   const picker = await page.$("#accentCustom");
   await picker.evaluate((i) => { i.value = "#336699"; i.dispatchEvent(new Event("input", { bubbles: true })); i.dispatchEvent(new Event("change", { bubbles: true })); });
   assert(await picker.evaluate((i) => i.isConnected), "the color box is not replaced while it is open");
-  await page.click('[data-swatch="#2952cc"]');
+  await page.click('[data-swatch="#1f418f"]');
   const gap = await page.evaluate(() => {
     const row = document.querySelector('#settings [data-go="about"]').closest(".panel");
     return row.getBoundingClientRect().top - row.previousElementSibling.getBoundingClientRect().bottom;

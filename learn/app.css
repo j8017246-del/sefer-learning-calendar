@@ -1,7 +1,7 @@
 /*
  * Learning Calendar styles.
  *
- * Layout: one phone-width column; a floating bar of three tabs at the bottom;
+ * Layout: one phone-width column under the app's bar (full logo, Settings gear);
  * adding a sefer is a three-step screen with its action pinned to the bottom.
  * Colors are tokens. app.js sets data-theme (light/dark), data-style
  * (solid/glass) and --accent from Settings.
@@ -85,7 +85,7 @@ body, .gate {
   background:
     radial-gradient(110% 55% at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
     radial-gradient(100% 60% at 100% 100%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
-    linear-gradient(180deg, #252a3b 0%, var(--bg) 50%, #0f1118 100%);
+    linear-gradient(180deg, var(--bg-top, #252a3b) 0%, var(--bg) 50%, var(--bg-bottom, #0f1118) 100%);
   background-attachment: fixed;
 }
 [lang="he"] { font-family: var(--book); }
@@ -99,7 +99,7 @@ h2 { font-size: 1.2rem; font-weight: 650; letter-spacing: -.01em; margin: 0; }
 svg[data-icon] { width: 22px; height: 22px; flex: none; }
 
 /* ---- page frame ---- */
-.view { max-width: 620px; margin: 0 auto; padding: 14px 16px 120px; }
+.view { max-width: 620px; margin: 0 auto; padding: 14px 16px 48px; }
 .topbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 8px 0 14px; }
 .navbar { padding: 4px 0 8px; }
 .back { display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; color: var(--accent); padding-block: 6px; padding-inline: 0 4px; font-size: 1rem; cursor: pointer; }
@@ -376,19 +376,6 @@ details[open] > summary svg { transform: rotate(180deg); }
 .credit { padding: 14px 16px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow); }
 .error-box { margin: 10px 0; padding: 12px 14px; border-radius: var(--r-md); background: var(--warn-soft); color: var(--warn); }
 
-/* ---- bottom bar ---- */
-.tabbar {
-  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 5;
-  width: min(420px, calc(100% - 32px)); display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px; gap: 4px;
-  border-radius: 999px; background: color-mix(in srgb, var(--surface) 82%, transparent); box-shadow: 0 8px 30px -10px rgba(0, 0, 0, .3);
-  border: 1px solid var(--panel-edge);
-  backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
-}
-:root[data-style="glass"] .tabbar { background: color-mix(in srgb, var(--surface) 70%, transparent); }
-.tabbar button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; border: 0; border-radius: 999px; background: none;
-  color: var(--muted); font-size: .7rem; font-weight: 600; cursor: pointer; }
-.tabbar button[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
-body.in-wizard .tabbar { display: none; }
 
 /* ---- sheets ---- */
 dialog.sheet {
@@ -465,7 +452,6 @@ dialog.sheet .muted { text-align: center; margin: 0 0 6px; }
 .gate-privacy { text-align: start; color: var(--muted); font-size: .9rem; }
 .gate-privacy summary { cursor: pointer; }
 body.gated { overflow: hidden; }
-body.gated .tabbar { display: none; }
 .save-warn.soft { background: var(--raised); color: var(--ink); font-weight: 500; }
 .save-warn .text-btn { padding: 0 4px; font-weight: 600; }
 .switch-row { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: .95rem; color: var(--ink); cursor: pointer; }
@@ -592,13 +578,13 @@ body.gated .tabbar { display: none; }
 .gate-pasuk::before { content: ""; width: 180px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
 .eyebrow[data-t="app.learningCalendar"] { font-family: var(--book); font-weight: 700; font-size: 1.05rem; background: var(--gold-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
-/* ---- gold foil: when the color is the logo's gold, gold surfaces and the name shine like foil ---- */
-:root[data-gold="foil"] {
+/* ---- gold foil: the trim on every screen, in every color; with the logo's gold, gold surfaces shine like foil too ---- */
+:root {
   --foil: linear-gradient(115deg, #8a6424 0%, #b98f3c 18%, #e9cf86 34%, #fff2c4 42%, #d9b45c 52%, #a77c2c 68%, #d8b866 84%, #9a7128 100%);
   --foil-edge: inset 0 1px 0 rgba(255, 249, 225, .7), inset 0 -1px 0 rgba(90, 62, 15, .35);
   --gold-text: linear-gradient(115deg, #7d5a1e 0%, #b48a37 22%, #e7c977 38%, #f8e6a8 46%, #c9a04a 56%, #8f6a25 74%, #c39a45 100%);
 }
-:root[data-gold="foil"][data-theme="dark"] {
+:root[data-theme="dark"] {
   --foil: linear-gradient(115deg, #a8812f 0%, #d6b25e 20%, #f6e2a2 36%, #fffbe6 44%, #e8c977 54%, #b8903e 70%, #e3c472 86%, #c49c4a 100%);
   --foil-edge: inset 0 1px 0 rgba(255, 252, 235, .75), inset 0 -1px 0 rgba(70, 50, 12, .4);
   --gold-text: linear-gradient(115deg, #b8903e 0%, #e2c06c 24%, #fbeec3 42%, #fffbe6 48%, #e6c674 58%, #b48a37 78%, #e3c472 100%);
@@ -618,12 +604,45 @@ body.gated .tabbar { display: none; }
 :root[data-gold="foil"] .btn.primary { text-shadow: 0 1px 0 rgba(255, 248, 220, .45); }
 :root[data-gold="foil"] .gate-pasuk::before { background: linear-gradient(90deg, transparent, #c9a04a, #f3dc9a, #c9a04a, transparent); }
 
-/* the logo in the top corner of every screen; tapping it goes to Today */
-.topbar, .navbar { display: flex; align-items: center; gap: 12px; }
-.topbar > div { flex: 1; min-width: 0; }
-.brand { flex: none; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid color-mix(in srgb, var(--accent) 75%, transparent); border-radius: 50%; background: var(--surface); cursor: pointer; box-shadow: 0 1px 3px rgba(30,42,79,.16); overflow: hidden; transition: transform .15s ease, box-shadow .15s ease; }
-.brand img { width: 100%; height: 100%; display: block; transform: scale(1.12); }
-.brand img.dark, :root[data-theme="dark"] .brand img.light { display: none; }
-:root[data-theme="dark"] .brand img.dark { display: block; }
-.brand:hover, .brand:focus-visible { box-shadow: 0 2px 10px rgba(30,42,79,.22), 0 0 0 1.5px var(--accent); outline: none; }
-.brand:active { transform: scale(.94); }
+
+
+/* one home screen: settings is the gear in the top corner, and each sefer's name opens its plan */
+.icon-btn.gear { background: none; color: var(--muted); }
+.icon-btn.gear:hover, .icon-btn.gear:focus-visible { color: var(--accent); background: var(--accent-soft); }
+.lesson-open { padding: 0; border: 0; background: none; color: inherit; text-align: start; cursor: pointer; }
+.lesson-open:hover .he-title { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent); text-underline-offset: 5px; }
+.lesson-progress { display: flex; align-items: center; gap: 10px; margin: 2px 0 4px; font-size: .82rem; }
+.lesson-progress .progress { flex: 1; height: 4px; }
+.lesson-progress .muted { flex: none; }
+.add-sefer { display: flex; width: 100%; margin-top: 14px; gap: 8px; }
+.add-sefer svg { width: 20px; height: 20px; }
+.home-soon { margin-top: 14px; }
+
+/* the app's bar: the full logo in one top corner (goes to Today), Settings in the other */
+.appbar { max-width: 620px; margin: 0 auto; padding: 12px 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+body.gated .appbar, body.in-wizard .appbar { display: none; }
+.brand { display: inline-flex; align-items: center; gap: 10px; padding: 3px 12px 3px 3px; padding-inline: 3px 12px; border: 0; border-radius: 999px; background: none; cursor: pointer; color: inherit; transition: background-color .15s ease; }
+.brand:hover, .brand:focus-visible { background: color-mix(in srgb, var(--accent) 10%, transparent); outline: none; }
+.brand:active { transform: scale(.97); }
+.brand-mark { flex: none; width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 75%, transparent); background: var(--surface); box-shadow: 0 1px 3px rgba(30,42,79,.16); }
+.brand-mark img { width: 100%; height: 100%; display: block; transform: scale(1.12); }
+.brand-mark img.dark, :root[data-theme="dark"] .brand-mark img.light { display: none; }
+:root[data-theme="dark"] .brand-mark img.dark { display: block; }
+.brand-name { font-family: var(--book); font-weight: 700; font-size: 1.45rem; line-height: 1; background: var(--gold-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.view { padding-top: 4px; }
+
+/* gold-foil trim, whatever the color: a fine foil edge on every panel, and a foil rule under the app's bar */
+.panel { position: relative; }
+.panel::after {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: var(--foil); opacity: .85;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.panel.soon::after { opacity: .5; }
+.appbar { position: relative; padding-bottom: 10px; }
+.appbar::after { content: ""; position: absolute; inset-inline: 16px; bottom: 0; height: 1.5px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #b8903e 12%, #f3dc9a 38%, #fff4cc 50%, #d9b45c 64%, #a77c2c 86%, transparent); }
+.brand-mark { border: 0; padding: 1.5px; background: var(--foil); }
+.brand-mark img { clip-path: circle(44.6%); }
+.icon-btn.gear { color: var(--accent); }

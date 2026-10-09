@@ -185,10 +185,10 @@ function serve() {
     });
     // phone 2 had not changed it: it leaves phone 2 too, with a copy kept there
     await until(two.page, () => !document.querySelector(".lesson"));
-    await two.page.click('.tabbar [data-go="settings"]');
+    await two.page.click('.appbar .gear');
     await two.page.waitForSelector("#stoppedBox:not([hidden]) [data-bring]", { state: "attached" });
     // brought back on phone 1, with its finished day
-    await one.page.click('.tabbar [data-go="settings"]');
+    await one.page.click('.appbar .gear');
     await one.page.click("#stoppedBox summary");
     await one.page.click("#stoppedList [data-bring]");
     await until(one.page, async () => {
@@ -328,7 +328,7 @@ function serve() {
     await until(one.page, () => !document.querySelector("#syncWarn").hidden);
     assert.strictEqual(await one.page.evaluate(() => localStorage.getItem("learning-calendar-unsynced")), "1");
     // signing out with something unsent: asked first; "anyway" keeps it on this phone for this account
-    await one.page.click('.tabbar [data-go="settings"]');
+    await one.page.click('.appbar .gear');
     await one.page.click("#signOut");
     await one.page.waitForSelector("#choose[open]");
     assert.match(await one.page.textContent("#chooseText"), /1 plans and 1 days are not yet saved/);
@@ -363,14 +363,14 @@ function serve() {
     await signIn(two.page, "nine@example.com");
     await until(two.page, () => document.querySelectorAll(".lesson").length === 1);
     const uid = await uidOf(two.page);
-    await one.page.click('.tabbar [data-go="settings"]');
+    await one.page.click('.appbar .gear');
     await one.page.click("#deleteAccount");
     await one.page.waitForSelector("#choose[open]");
     assert.match(await one.page.textContent("#chooseText"), /Save a backup first/);
     await one.page.click('#chooseButtons button[value="delete"]');
     await until(one.page, () => /were deleted/.test(document.querySelector("#toast").textContent));
     // the other phone, still open, cannot write the plan back
-    await two.page.click('.tabbar [data-go="today"]').catch(() => {});
+    await two.page.click('.appbar .brand').catch(() => {});
     if (await two.page.$(".lesson [data-done]")) await two.page.click(".lesson [data-done]");
     await two.page.waitForTimeout(3000);
     const left = await two.page.evaluate(async (id) => {
@@ -409,7 +409,7 @@ function serve() {
       await window.firebase.firestore().collection("deleted").doc(u.uid).delete();
     });
     // the account shown in Settings, with "Sign out of this phone" beside it
-    await one.page.click('.tabbar [data-go="settings"]');
+    await one.page.click('.appbar .gear');
     assert.match(await one.page.textContent(".account-who"), /ten@example.com/);
     assert.strictEqual((await one.page.textContent("#signOut")).trim(), "Sign out of this phone");
     // a new phone for this account: what arrived, and "Something is missing?"

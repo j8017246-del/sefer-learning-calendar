@@ -59,7 +59,7 @@ function serve() {
   }
   // add one sefer through the three steps
   async function addSefer(page, id, endDate, step3) {
-    await page.click('#today [data-go="add"]');
+    await page.click('#today [data-go="add"]:visible');
     await page.fill("#wizSearch", "");
     await page.waitForSelector("#wizList .pick-row");
     const entry = await page.evaluate(async (i) => (await (await fetch("data/catalog.json")).json()).seforim.find((e) => e.id === i).collection, id);
@@ -156,7 +156,7 @@ function serve() {
     await page.check('input[name="editDedKind"][value="refuah-shleimah"]');
     await page.fill("#editDedName", "Ploni ben Plonis");
     await page.click('#dedEdit button[type="submit"]');
-    await page.click('.tabbar [data-go="today"]');
+    await page.click('.appbar .brand');
     assert.match(await page.textContent(".lesson .dedication"), /לרפואה שלמה Ploni ben Plonis/);
     await context.close();
     ok("Hebrew dates beside dates, an optional minutes box after Done saved with the day, and a dedication on the card");
@@ -192,7 +192,7 @@ function serve() {
   // ---- 5. public cycles ----
   {
     const { context, page } = await phone("2026-10-08");
-    await page.click('#today [data-go="add"]');
+    await page.click('#today [data-go="add"]:visible');
     await page.click('#step1 [data-go="cycles"]');
     await page.waitForSelector("#cycleList [data-join]");
     assert.match(await page.textContent("#cycleList"), /Today: Bechoros 20/);
@@ -224,7 +224,7 @@ function serve() {
   // ---- 6. Kol HaTorah in a year ----
   {
     const { context, page } = await phone("2026-10-11");
-    await page.click('#today [data-go="add"]');
+    await page.click('#today [data-go="add"]:visible');
     await page.click('#step1 [data-go="kol"]');
     await page.waitForSelector("#kolList [data-kol]");
     const on = await page.$$eval("#kolList [data-kol]", (b) => b.map((x) => [x.dataset.kol, x.checked]));
@@ -306,7 +306,7 @@ function serve() {
   // ---- 8. Leave out Yom Tov, a printable week, every day in the calendar ----
   {
     const { context, page } = await phone("2026-09-20");
-    await page.click('#today [data-go="add"]');
+    await page.click('#today [data-go="add"]:visible');
     await page.click('#wizCols [data-col="tanakh"]');
     await page.check('#wizList input[value="tanakh/ruth"]');
     await page.click("#wizNext");
@@ -338,7 +338,7 @@ function serve() {
     assert.match(sheet, /רות/);
     assert.match(sheet, /Rus 1:1/);
     await page.emulateMedia({ media: "print" });
-    assert(await page.isVisible("#printSheet table") && await page.isHidden(".tabbar"), "only the sheet prints");
+    assert(await page.isVisible("#printSheet table") && await page.isHidden(".appbar .gear"), "only the sheet prints");
     await page.emulateMedia({ media: "screen" });
     // every day of the plan in the phone's calendar
     await page.click("[data-open]");
@@ -366,15 +366,15 @@ function serve() {
     await page.goto(url);
     await page.waitForSelector("#empty:not([hidden])");
     // chosen in Settings
-    await page.click('.tabbar [data-go="settings"]');
+    await page.click('.appbar .gear');
     await Promise.all([page.waitForEvent("load"), page.check('input[name="lang"][value="he"]')]);
     await page.waitForSelector("#empty:not([hidden])");
     assert.strictEqual(await page.getAttribute("html", "dir"), "rtl");
     assert.strictEqual(await page.textContent("#empty h2"), "התחילו את הספר הראשון");
-    assert.strictEqual(await page.textContent('.tabbar [data-go="settings"]'), "הגדרות");
+    assert.strictEqual(await page.getAttribute('.appbar .gear', "aria-label"), "הגדרות");
     const same = await page.evaluate(() => Object.keys(window.STRINGS.en).filter((k) => !(k in window.STRINGS.he)));
     assert.deepStrictEqual(same, [], "every text has its Hebrew");
-    await page.click('#today [data-go="add"]');
+    await page.click('#today [data-go="add"]:visible');
     await page.click('#wizCols [data-col="bavli"]');
     await page.check('#wizList input[value="bavli/berakhot"]');
     await page.click("#wizNext");
@@ -413,7 +413,7 @@ function serve() {
     });
     await page.reload();
     await page.waitForSelector(".load-failed");
-    await page.click('.tabbar [data-go="settings"]');
+    await page.click('.appbar .gear');
     await page.click("#exportBox > summary");
     assert.match(await page.textContent("#lastBackup"), /No backup made yet/);
     await page.click("#backup");
@@ -445,10 +445,10 @@ function serve() {
       assert.strictEqual(await page.evaluate(() => localStorage.getItem("learning-calendar-v1")), before, "nothing changed");
     }
     // a good, older backup: preview first, a copy of the plans as they are now, and nothing finished is lost
-    await page.click('.tabbar [data-go="today"]');
+    await page.click('.appbar .brand');
     await page.click(".lesson [data-done]");                       // day 2 done after the backup was made
     await page.waitForTimeout(700);
-    await page.click('.tabbar [data-go="settings"]');
+    await page.click('.appbar .gear');
     const old = { ...good, version: 1, events: undefined, plans: [good.plans[0], { ...good.plans[0], id: "from-backup" }] };
     await page.fill("#pasteBackup", JSON.stringify(old));
     await page.click("#loadPasted");
@@ -465,7 +465,7 @@ function serve() {
     assert(after.some((p) => p.id === "from-backup") && after.some((p) => p.id === "cannot-load"), "nothing of the phone's is removed");
     assert(await page.evaluate(() => !!localStorage.getItem("learning-calendar-recovery")), "a copy of the plans before loading is kept");
     // and it can be undone
-    await page.click('.tabbar [data-go="settings"]');
+    await page.click('.appbar .gear');
     await page.evaluate(() => { document.querySelector("#exportBox").open = true; });
     await page.click("#undoRestore");
     await page.click("#askYes");
@@ -521,7 +521,7 @@ function serve() {
   // ---- 12. loading a backup file works from the keyboard ----
   {
     const { context, page } = await phone("2026-10-11");
-    await page.click('.tabbar [data-go="settings"]');
+    await page.click('.appbar .gear');
     await page.click("#exportBox > summary");
     await page.focus("#backup");
     await page.keyboard.press("Tab");
@@ -546,16 +546,16 @@ function serve() {
     // the save line: this phone only (no account can be reached here)
     assert.match(await page.textContent("#saveState"), /Saved on this phone only/);
     // Israel or outside Israel: asked the first time, then kept and shown in Settings
-    await page.click('.tabbar [data-go="settings"]');
+    await page.click('.appbar .gear');
     assert(!(await page.isChecked('input[name="yomTovPlace"][value="il"]')) && !(await page.isChecked('input[name="yomTovPlace"][value="out"]')), "not guessed");
     await page.click("#addReminder").catch(() => {});
     await page.waitForSelector("#choose[open]");
     await page.click('#chooseButtons button[value="il"]');
     await page.waitForTimeout(500);
     assert(await page.isChecked('input[name="yomTovPlace"][value="il"]'));
-    await page.click('#today [data-go="add"]').catch(() => {});
-    await page.click('.tabbar [data-go="today"]');
-    await page.click('#today [data-go="add"]');
+    await page.click('#today [data-go="add"]:visible').catch(() => {});
+    await page.click('.appbar .brand');
+    await page.click('#today [data-go="add"]:visible');
     await page.click('#wizCols [data-col="tanakh"]');
     await page.check('#wizList input[value="tanakh/jonah"]');
     await page.click("#wizNext");
@@ -575,7 +575,7 @@ function serve() {
   }
   {
     const { context, page } = await phone("2026-10-11");
-    await page.click('#today [data-go="add"]');
+    await page.click('#today [data-go="add"]:visible');
     await page.click('#step1 [data-go="kol"]');
     await page.waitForSelector("#kolList [data-kol]");
     for (const k of ["bavli", "mishnah", "rambam", "shulchan-aruch"]) await page.uncheck(`#kolList [data-kol="${k}"]`);

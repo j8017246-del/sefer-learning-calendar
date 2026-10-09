@@ -412,6 +412,14 @@ The icons (icon-192/512, apple-touch-icon, icon-dark-512 for the sign-in screen 
 logo picture (about 330 px, so a larger original would be sharper). Light: parchment #ece3c9, navy ink #1e2a4f,
 gold #9a7128. Dark: #171a24, parchment ink #f1e9d2, gold #d6b25e. Gold is the first swatch (lighter in dark mode).
 
+Royal colors (ROYAL in app.js): gold, navy, burgundy, emerald, sapphire, royal purple, deep teal, onyx. Every color
+gets gold-foil trim (a foil edge on each .panel, a foil rule under the app's bar). In dark mode a royal color tints the
+page (--bg, --surface, --raised, --bg-top, --bg-bottom set by applyLook) and the accent becomes foil gold.
+
+One home screen (Hudi, 10-09): the Seforim screen and the bottom bar are gone. The app's bar (.appbar, above the
+views) has the full logo with the name (goes to Today) and a gear (Settings). Each card on Today shows its progress,
+and its name opens the plan. Add a sefer is a button under the cards.
+
 ## Coming soon, drawn in place (Hudi, 10-09)
 
 Features discussed but not built are drawn where they will live, grayed out and `inert`, with a "Coming soon"

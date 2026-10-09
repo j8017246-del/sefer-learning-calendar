@@ -59,7 +59,7 @@ function serve() {
   const one = await phone();
   // the website: nothing can be used before signing in
   await one.page.waitForSelector("#gate:not([hidden])");
-  assert(await one.page.isHidden(".tabbar"), "the app is covered until signing in");
+  assert(await one.page.isHidden(".appbar .gear"), "the app is covered until signing in");
   assert(await one.page.isHidden("#gateClose"), "the sign-in screen cannot be closed");
   ok("the website asks to sign in before anything else");
   await one.page.evaluate(async () => {
@@ -119,7 +119,7 @@ function serve() {
   assert.deepStrictEqual([ground.plan.kind, ground.plan.members, ground.plan.dedication], ["personal", [], null]);
   assert.strictEqual(ground.me.reminderTime, "20:00");
   assert(typeof ground.me.timeZone === "string" && ground.me.timeZone.length, "the time zone is saved");
-  await one.page.click('.tabbar [data-go="settings"]');
+  await one.page.click('.appbar .gear');
   await one.page.fill("#displayName", "Hudi");
   await one.page.press("#displayName", "Tab");
   await one.page.check("#shareLearning");
@@ -135,7 +135,7 @@ function serve() {
     return (await window.firebase.firestore().collection("users").doc(u.uid).get({ source: "server" })).data().reminderTime === "21:30";
   }, null, { timeout: 15000, polling: 500 });
   await one.page.uncheck("#shareLearning");
-  await one.page.click('.tabbar [data-go="today"]');
+  await one.page.click('.appbar .brand');
   ok("each plan is kept in plain fields, each day as its own record, and the profile with sharing off by default");
 
   // phone 2: the same account shows the same plan, with the day done
@@ -159,7 +159,7 @@ function serve() {
   await one.page.waitForSelector("#shareBox:not([hidden])", { timeout: 15000 });
   const link = await one.page.inputValue("#shareLink");
   assert.match(link, /#join=[A-Za-z0-9]{15}$/);
-  await one.page.click('.tabbar [data-go="today"]');
+  await one.page.click('.appbar .brand');
   await one.page.waitForFunction(() => /waiting for them to join/.test(document.querySelector(".lesson").textContent), null, { timeout: 15000 });
   const three = await phone();
   await three.page.goto(link);
@@ -181,7 +181,7 @@ function serve() {
   ok("a chavrusa joins from a link with the same schedule, and each sees how far the other is");
 
   // signing out on phone 2 takes the plan off that phone
-  await two.page.click('.tabbar [data-go="settings"]');
+  await two.page.click('.appbar .gear');
   await two.page.click("#signOut");
   await two.page.waitForSelector("#gate:not([hidden])");
   await two.page.waitForFunction(() => !document.querySelector("#empty").hidden || !document.querySelector(".lesson"));
@@ -189,7 +189,7 @@ function serve() {
   ok("signing out leaves the plans in the account, not on the phone, and asks to sign in again");
 
   // deleting the account on phone 1 removes everything
-  await one.page.click('.tabbar [data-go="settings"]');
+  await one.page.click('.appbar .gear');
   await one.page.click("#deleteAccount");
   // a backup is offered first; then delete
   await one.page.waitForSelector("#choose[open]");

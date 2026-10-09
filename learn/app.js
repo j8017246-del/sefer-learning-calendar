@@ -266,8 +266,7 @@
       if (quiet) { try { localStorage.setItem(STORE, JSON.stringify({ version: 1, plans: allRecords() })); } catch (e) { /* shown on next save */ } }
       else save();
       renderToday();
-      if (!$("library").hidden) renderLibrary();
-      else if (!$("plan").hidden && !findPlan(current)) show("library");
+      if (!$("plan").hidden && !findPlan(current)) show("today");
       return true;
     },
     // deletions the person made, for the account; copies of plans deleted on another phone
@@ -392,8 +391,21 @@
   // ---- appearance -------------------------------------------------------------------
 
   // the first is the logo's gold (lighter in dark mode, see applyLook)
-  const SWATCHES = ["#9a7128", "#1e2a4f", "#2952cc", "#0f8f80", "#2f9e44", "#c2334d", "#7a4fd1", "#3d4450"];
+  // Rich, royal colors, each with gold-foil trim (app.css). In dark mode the page takes a
+  // deep shade of the color and is lit with gold.
+  const ROYAL = [
+    { hex: "#9a7128", tint: "#1e2a4f", name: "gold" },
+    { hex: "#1e2a4f", tint: "#1e2a4f", name: "navy" },
+    { hex: "#7a1f35", tint: "#5e1528", name: "burgundy" },
+    { hex: "#0f6a4b", tint: "#0b4a35", name: "emerald" },
+    { hex: "#1f418f", tint: "#17306b", name: "sapphire" },
+    { hex: "#5a2a84", tint: "#43205f", name: "purple" },
+    { hex: "#0e5862", tint: "#0b434b", name: "teal" },
+    { hex: "#2c2e35", tint: "#24262c", name: "onyx" },
+  ];
+  const SWATCHES = ROYAL.map((c) => c.hex);
   const GOLD = SWATCHES[0], GOLD_DARK = "#d6b25e";
+  const mix = (a, b, t) => "#" + [16, 8, 0].map((sh) => Math.round(((parseInt(a.slice(1), 16) >> sh) & 255) * t + ((parseInt(b.slice(1), 16) >> sh) & 255) * (1 - t)).toString(16).padStart(2, "0")).join("");
   let look = { theme: "auto", style: "glass", accent: SWATCHES[0] };
   try { look = { ...look, ...JSON.parse(localStorage.getItem(LOOK_STORE) || "{}") }; } catch (e) { /* defaults */ }
   const darkQuery = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : { matches: false, addEventListener() {} };
@@ -408,14 +420,23 @@
     const dark = look.theme === "dark" || (look.theme === "auto" && darkQuery.matches);
     root.dataset.theme = dark ? "dark" : "light";
     root.dataset.style = look.style;
-    const accent = dark && look.accent === GOLD ? GOLD_DARK : look.accent;
+    const royal = ROYAL.find((c) => c.hex === look.accent);
+    // dark mode: the page is a deep shade of the color, lit with gold (like burgundy and gold)
+    const goldLead = dark && !!royal;
+    const accent = goldLead ? GOLD_DARK : look.accent;
     root.style.setProperty("--accent", accent);
+    // dark mode: the page is a deep shade of the chosen color
+    const tint = royal ? royal.tint : (luminance(look.accent) < 0.2 ? look.accent : "#1e2a4f");
+    const shades = { "--bg": mix(tint, "#0d0e13", .32), "--surface": mix(tint, "#171920", .36), "--raised": mix(tint, "#22252f", .36),
+      "--bg-top": mix(tint, "#1a1c25", .62), "--bg-bottom": mix(tint, "#08090c", .2) };
+    for (const [k, v] of Object.entries(shades)) { if (dark) root.style.setProperty(k, v); else root.style.removeProperty(k); }
     // text on the color: whichever of white or near-black has more contrast
     const L = luminance(accent), onWhite = 1.05 / (L + 0.05), onDark = (L + 0.05) / (luminance("#111215") + 0.05);
     root.style.setProperty("--accent-ink", onWhite >= onDark ? "#ffffff" : "#111215");
     // the logo's gold is drawn as gold foil (app.css, data-gold), with navy text on it
-    root.dataset.gold = look.accent === GOLD ? "foil" : "";
-    if (look.accent === GOLD) root.style.setProperty("--accent-ink", dark ? "#171a24" : "#1e2a4f");
+    const foil = look.accent === GOLD || goldLead;
+    root.dataset.gold = foil ? "foil" : "";
+    if (foil) root.style.setProperty("--accent-ink", dark ? shades["--bg"] : "#1e2a4f");
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = getComputedStyle(root).getPropertyValue("--bg").trim();
   }
@@ -456,7 +477,7 @@
     document.querySelectorAll('input[name="style"]').forEach((r) => { r.checked = r.value === look.style; });
     document.querySelectorAll('input[name="names"]').forEach((r) => { r.checked = r.value === sectionNames; });
     const custom = !SWATCHES.includes(look.accent);
-    $("swatches").innerHTML = SWATCHES.map((h) => `<button type="button" role="radio" data-swatch="${h}" style="background:${h}" aria-label="${esc(tr("settings.colorN", { color: h }))}" aria-checked="${h === look.accent}"></button>`).join("")
+    $("swatches").innerHTML = SWATCHES.map((h) => `<button type="button" role="radio" data-swatch="${h}" style="background:${h}" aria-label="${esc(tr("color." + ROYAL[SWATCHES.indexOf(h)].name))}" title="${esc(tr("color." + ROYAL[SWATCHES.indexOf(h)].name))}" aria-checked="${h === look.accent}"></button>`).join("")
       + `<label title="${esc(tr("settings.anyColor"))}"><input type="color" role="radio" id="accentCustom" value="${look.accent}" aria-label="${esc(tr("settings.anyColor"))}" aria-checked="${custom}"></label>`;
   }
   document.addEventListener("change", (e) => {
@@ -496,7 +517,6 @@
 
   // ---- screens ------------------------------------------------------------------------
 
-  const TAB_OF = { today: "today", library: "library", plan: "library", settings: "settings", about: "settings", privacy: "settings", kol: "today", cycles: "today" };
   // Each screen is a step in the browser's history, so the phone's Back button
   // returns to the screen before.
   function remember(state) {
@@ -507,19 +527,16 @@
   window.addEventListener("popstate", (e) => {
     const st = e.state || { view: "today" };
     if (st.view === "plan" && findPlan(st.id)) openPlan(st.id, true);
-    else show(st.view === "plan" ? "library" : st.view, true);
+    else show(st.view === "plan" || st.view === "library" ? "today" : st.view, true);
   });
 
   function show(view, fromHistory = false) {
+    if (view === "library") view = "today"; // the Seforim screen is now part of Today
     if (!fromHistory) remember({ view });
     document.querySelectorAll(".view").forEach((v) => { v.hidden = v.id !== view; });
-    document.querySelectorAll(".tabbar [data-go]").forEach((b) => {
-      if (b.dataset.go === TAB_OF[view]) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
-    });
     document.body.classList.toggle("in-wizard", view === "add");
     if (view !== "add" && view !== "kol" && view !== "cycles") reviewOf = null;
     if (view === "today") renderToday();
-    if (view === "library") renderLibrary();
     if (view === "settings") { renderSettings(); renderReminder(); }
     if (view === "add") openWizard();
     if (view === "kol") openKol();
@@ -559,6 +576,7 @@
     $("empty").hidden = plans.length + unloaded.length > 0;
     $("week").hidden = !plans.length;
     $("printWeek").hidden = !plans.length;
+    $("addSefer").hidden = !plans.length;
 
     // the week around today
     const first = S.addDays(today, -dateOf(today).getDay());
@@ -704,10 +722,10 @@
       : `<span class="pill ok">${esc(st.ahead ? tr("status.ahead", { n: st.ahead }) : tr("status.onSchedule"))}</span>`;
     const kind = plan.kind === "review" ? `<span class="pill review">${esc(tr("review.pill"))}</span>` : cycle ? `<span class="pill">${esc(tr("cycle.pill"))}</span>` : "";
     const head = `<div class="lesson-head">
-        <div><h2 class="he-title" lang="he" dir="rtl">${esc(name.he)}</h2>
+        <div><button class="lesson-open" data-open="${esc(x.id)}"><h2 class="he-title" lang="he" dir="rtl">${esc(name.he)}</h2></button>
           <div class="lesson-sub">${kind}${[sub(name), commNames.length ? tr("lesson.with", { names: commNames.join(" & ") }) : "", col ? nm(col) : ""].filter(Boolean).map(esc).join(" · ")}</div></div>
         ${p ? `<div class="count"><b>${learning.indexOf(p) + 1}<span class="muted">/${learning.length}</span></b>${esc(tr("lesson.day"))}</div>` : ""}
-      </div>${conflictHtml(x)}${dedicationHtml(plan)}${chavrusaHtml(plan, today)}`;
+      </div>${progressHtml(x)}${conflictHtml(x)}${dedicationHtml(plan)}${chavrusaHtml(plan, today)}`;
     const foot = `<div class="lesson-foot">${status}<span>${esc(tr("lesson.finishing", { date: st.finishDate ? niceDate(st.finishDate, true) : "—" }))}</span></div>
       <div class="lesson-foot"><button class="text-btn" data-open="${esc(x.id)}">${esc(tr("lesson.wholeSchedule"))}</button>
         ${isToday && !st.finished && !cycle && !plan.paused ? (st.behind ? `<button class="text-btn" data-missed="${esc(x.id)}">${esc(tr("lesson.catchUp"))}</button>` : `<button class="text-btn" data-cant="${esc(x.id)}">${esc(tr("lesson.cantToday"))}</button>`) : ""}</div>`;
@@ -742,6 +760,13 @@
       ${next && !cycle ? `<p class="next-line">${esc(tr("lesson.next", { date: niceDate(next.date) }))} ${next.to >= next.from ? portionLine(sefer, comms, next) : ""}</p>
         <button class="btn" data-done="${esc(x.id)}" data-date="${esc(next.date)}">${esc(tr("lesson.learnAhead", { date: niceDate(next.date) }))}</button>` : ""}
       ${foot}</article>`;
+  }
+
+  // How far along a plan is, under its name on the home screen.
+  function progressHtml(x) {
+    const learning = learningOf(x.plan), done = learning.filter((p) => p.done).length, percent = pct(x.plan);
+    return `<div class="lesson-progress"><span class="progress"><i style="width:${percent}%"></i></span>
+      <span class="muted">${esc(tr("library.daysDone", { n: done, all: learning.length }))} · ${percent}%</span></div>`;
   }
 
   // Plans made together (Kol HaTorah in a year) are shown together, under one
@@ -1049,24 +1074,7 @@
     plans = plans.concat(loaded);
     unloaded = failed;
     if (failed.length) toast(tr("load.still"));
-    if (!$("library").hidden) renderLibrary(); else renderToday();
-  }
-
-  // ---- Seforim ----------------------------------------------------------------------------
-
-  function renderLibrary() {
-    const today = todayIso();
-    $("libraryEmpty").hidden = plans.length + unloaded.length > 0;
-    $("libraryList").innerHTML = plans.map((x) => {
-      const st = S.status(x.plan, x.sefer, today), learning = learningOf(x.plan);
-      const done = learning.filter((p) => p.done).length, percent = pct(x.plan);
-      return `<button class="panel plan-row" data-open="${esc(x.id)}">
-        <span class="plan-row-top"><span class="he-title" lang="he" dir="rtl">${esc(planName(x).he)}</span><span class="muted">${percent}%</span></span>
-        <span class="muted">${x.plan.kind === "review" ? `${esc(tr("review.pill"))} · ` : ""}${esc(sub(planName(x)))}${x.plan.group ? ` · ${esc(hebrewUI ? x.plan.group.he || x.plan.group.name : x.plan.group.name)}` : ""}</span>
-        <span class="progress"><i style="width:${percent}%"></i></span>
-        <span class="plan-row-meta"><span>${esc(tr("library.daysDone", { n: done, all: learning.length }))}${st.behind ? ` · ${esc(tr("library.behind", { n: st.behind }))}` : ""}</span><span>${esc(tr("lesson.finishing", { date: st.finishDate ? niceDate(st.finishDate, true) : "—" }))}</span></span>
-      </button>`;
-    }).join("") + unloadedHtml();
+    renderToday();
   }
 
   // ---- one sefer --------------------------------------------------------------------------
@@ -1078,7 +1086,6 @@
     const x = findPlan(id), first = x.plan.portions[0].date, today = todayIso();
     calMonth = (first > today ? first : today).slice(0, 7);
     document.querySelectorAll(".view").forEach((v) => { v.hidden = v.id !== "plan"; });
-    document.querySelectorAll(".tabbar [data-go]").forEach((b) => { if (b.dataset.go === "library") b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
     renderPlan();
     window.scrollTo(0, 0);
   }
@@ -1195,7 +1202,7 @@
     logDay(x, "stopped", null);
     recordDeletion({ id: x.id, ...S.toSaved(x.plan, x.sefer) });
     plans = plans.filter((p) => p.id !== current);
-    save(); show("library");
+    save(); show("today");
   });
 
   // ---- a list to choose from, in a sheet --------------------------------------------------
@@ -1970,7 +1977,6 @@
     if (selectedDate === lastToday) selectedDate = t;
     lastToday = t;
     if (!$("today").hidden) renderToday();
-    else if (!$("library").hidden) renderLibrary();
   }
   setInterval(checkNewDay, 30000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) checkNewDay(); });
