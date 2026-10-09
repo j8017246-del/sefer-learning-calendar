@@ -1,1 +1,1 @@
-{ "projects": { "default": "sefer-calendar" } }
+{"projects": {"default": "sefer-calendar"}, "targets": {"sefer-calendar": {"hosting": {"main": ["sefer-calendar"], "shaashuai": ["shaashuai"]}}}}

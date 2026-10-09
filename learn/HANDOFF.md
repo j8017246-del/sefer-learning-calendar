@@ -406,6 +406,15 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    a contact address and short
    terms of use, and a deploy by someone signed in to Firebase.
 
+## Second address shaashuai.web.app (Hudi, 10-09)
+
+`firebase.json` publishes the same files to two Hosting sites: `main` (sefer-calendar.web.app) and
+`shaashuai` (shaashuai.web.app). The first time, someone signed in to Firebase runs
+`firebase hosting:sites:create shaashuai --project sefer-calendar`, then adds `shaashuai.web.app` under
+Authentication, Settings, Authorized domains (otherwise sign-in fails there). Each address keeps its own
+phone-only plans; signed-in plans are the same on both. The reminder link (APP_URL) still points to
+sefer-calendar.web.app.
+
 ## Accounts: tests with the Firebase emulators
 
 ```bash
