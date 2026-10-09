@@ -555,3 +555,14 @@ body.gated .tabbar { display: none; }
 
 /* the buttons under a sefer's dedication: full width, with room between them */
 #reviewPlan, #sharePlan, #exportPlan { display: flex; width: 100%; margin-top: 12px; }
+
+/* text-only buttons get a frame under the mouse (and while pressed on a phone), so they read as buttons */
+.text-btn, .back, .save-state { border-radius: 10px; transition: background-color .15s; }
+.lesson-foot .text-btn, .behind-bar .text-btn, .part-btn, .save-state, .save-warn .text-btn { padding-inline: 8px; }
+.back { padding-inline: 6px 10px; }
+.text-btn:hover, .back:hover, .save-state:hover,
+.text-btn:active, .back:active, .save-state:active {
+  outline: 1.5px solid currentColor; outline-offset: -1.5px;
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+.text-btn:disabled:hover { outline: none; background-color: transparent; }
