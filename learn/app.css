@@ -754,3 +754,5 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 .source.soon { opacity: .55; filter: grayscale(.6); }
 .source-more { text-align: center; }
 .lesson .btn.ext svg { width: 18px; height: 18px; }
+.source.shiur .source-name { flex-direction: column; align-items: flex-start; gap: 2px; }
+.source.shiur small { color: var(--muted); font-size: .84rem; }

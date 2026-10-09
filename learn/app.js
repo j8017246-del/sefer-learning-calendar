@@ -713,6 +713,7 @@
     $("textSources").innerHTML = `<a class="source" href="${esc(P.sefariaUrl(x.sefer, p.from, p.to))}" target="_blank" rel="noopener">
         <span class="source-name"><b>Sefaria</b> ${he("ספריא")}</span><span class="source-go">${esc(tr("text.open"))} ${icon("ext")}</span></a>`
       + TEXT_SOON.map(([k, h]) => `<div class="source soon" inert><span class="source-name"><b>${esc(tr(k))}</b> ${he(h)}</span><span class="pill soon-pill">${esc(tr("soon.label"))}</span></div>`).join("")
+      + `<div class="source soon shiur" inert><span class="source-name"><b>${esc(tr("text.shiur"))}</b><small>${esc(tr("text.shiurNote"))}</small></span><span class="pill soon-pill">${esc(tr("soon.label"))}</span></div>`
       + `<p class="note source-more">${esc(tr("text.more"))}</p>`;
     $("textSheet").showModal();
   }

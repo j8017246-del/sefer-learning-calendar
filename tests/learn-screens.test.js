@@ -131,7 +131,7 @@ function serve() {
   // "View today's text" opens a drawer: Sefaria works now, other libraries are coming soon
   await page.click(".lesson .btn.ext");
   await page.waitForSelector("#textSheet[open]");
-  assert.strictEqual(await page.locator("#textSources .source.soon").count(), 3);
+  assert.strictEqual(await page.locator("#textSources .source.soon").count(), 4);
   const href = await page.getAttribute("#textSources a.source", "href");
   await page.click('#textSheet button[value="close"]');
   assert.match(href, /^https:\/\/www\.sefaria\.org\/Berakhot\.2a-2b\.\d+$/);
