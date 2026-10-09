@@ -416,6 +416,16 @@
     const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
     return 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
   }
+  // A color taken down to a very dark shade of itself, keeping its hue and richness.
+  function deepInk(hex) {
+    const n = parseInt(hex.slice(1), 16), [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => c / 255);
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
+    const s = d ? d / (1 - Math.abs(2 * l - 1)) : 0;
+    const h = !d ? 0 : max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    const L = Math.min(l, 0.12), S = Math.min(1, s * 1.15), C = (1 - Math.abs(2 * L - 1)) * S, X = C * (1 - Math.abs((h % 2) - 1)), m = L - C / 2;
+    const [R, G, B] = [[C, X, 0], [X, C, 0], [0, C, X], [0, X, C], [X, 0, C], [C, 0, X]][Math.floor(h) % 6];
+    return "#" + [R, G, B].map((c) => Math.round((c + m) * 255).toString(16).padStart(2, "0")).join("");
+  }
   function applyLook() {
     const root = document.documentElement;
     const dark = look.theme === "dark" || (look.theme === "auto" && darkQuery.matches);
@@ -435,6 +445,9 @@
     const L = luminance(accent), onWhite = 1.05 / (L + 0.05), onDark = (L + 0.05) / (luminance("#111215") + 0.05);
     root.style.setProperty("--accent-ink", onWhite >= onDark ? "#ffffff" : "#111215");
     // the logo's gold is drawn as gold foil (app.css, data-gold), with navy text on it
+    // light mode: the text is the chosen color made very dark (still that color), as navy is to gold
+    if (!dark && look.accent !== GOLD && look.accent !== SWATCHES[1]) root.style.setProperty("--ink", deepInk(look.accent));
+    else root.style.removeProperty("--ink");
     const foil = look.accent === GOLD || goldLead;
     root.dataset.gold = foil ? "foil" : "";
     if (foil) root.style.setProperty("--accent-ink", dark ? shades["--bg"] : "#1e2a4f");
