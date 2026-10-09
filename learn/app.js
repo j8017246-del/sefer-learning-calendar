@@ -124,6 +124,7 @@
     search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
     today: '<rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M8 2.5v4M16 2.5v4M3.5 9.5h17"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/>',
     books: '<path d="M5 4h4v16H5zM10 4h4v16h-4z"/><path d="m15.5 5 3.6-.9 2.6 15.5-3.6.9z"/>',
+    pen: '<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
     gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
@@ -541,6 +542,7 @@
     if (view === "add") openWizard();
     if (view === "kol") openKol();
     if (view === "cycles") renderCycles();
+    if (view === "notes") renderAllNotes();
     window.scrollTo(0, 0);
   }
 
@@ -564,6 +566,127 @@
   function portionLine(sefer, comms, p) {
     return esc(P.describeRange(sefer, p.from, p.to, comms)).replace(/([“„])([^”]*)”/g, (_, q, w) => `${q}<bdi lang="he" dir="rtl">${w}</bdi>”`);
   }
+
+  // ---- Notes ------------------------------------------------------------------------------
+  //
+  // A person's thoughts and chiddushim on a day's learning. Each note is kept in its plan with
+  // the day's date and lasting address (sefer + place), so it survives a rebuild of the data
+  // and travels with the plan to the account and the backup file. A deleted note stays as
+  // { id, deletedAt } so the deletion reaches every phone.
+
+  const liveNotes = (plan) => (plan.notes || []).filter((n) => !n.deletedAt && n.text);
+  const notesOn = (plan, date) => liveNotes(plan).filter((n) => n.date === date).sort((a, b) => a.createdAt - b.createdAt);
+  const notesCount = (n) => (n === 1 ? tr("notes.countOne") : tr("notes.countMany", { n }));
+  // Hebrew words are set in the sefer font and kept in their own direction, so a Hebrew
+  // phrase inside an English note (or the reverse) reads in the right order
+  const HEBREW_RUN = /[\u0590-\u05FF\uFB1D-\uFB4F]+(?:["'][\u0590-\u05FF]+)*(?:[ \u00A0]+[\u0590-\u05FF\uFB1D-\uFB4F]+(?:["'][\u0590-\u05FF]+)*)*/g;
+  function noteHtml(text) {
+    let out = "", last = 0;
+    for (const m of String(text).matchAll(HEBREW_RUN)) {
+      out += esc(text.slice(last, m.index)) + `<bdi lang="he" dir="rtl">${esc(m[0])}</bdi>`;
+      last = m.index + m[0].length;
+    }
+    return out + esc(String(text).slice(last));
+  }
+  const scriptOf = (text) => { const m = /[A-Za-z\u00C0-\u024F\u0590-\u05FF]/.exec(text || ""); return m && /[\u0590-\u05FF]/.test(m[0]) ? "he" : "en"; };
+  // the note's own direction, from its first letter (the Hebrew is set apart, so the browser cannot tell)
+  const dirOf = (text) => (scriptOf(text) === "he" ? "rtl" : "ltr");
+  function notesButtonHtml(x, date) {
+    const n = notesOn(x.plan, date).length;
+    return `<button class="notes-btn" data-notes="${esc(x.id)}" data-date="${esc(date)}">${icon("pen")}<span>${esc(tr("notes.button"))}</span>${n ? `<span class="notes-count">${esc(notesCount(n))}</span>` : ""}</button>`;
+  }
+  function noteCardHtml(x, n, withSefer) {
+    const p = x.plan.portions.find((q) => q.date === n.date);
+    const where = p && p.to >= p.from ? portionLine(x.sefer, x.plan.commentaries || [], p) : "";
+    return `<article class="note-card" data-notes="${esc(x.id)}" data-date="${esc(n.date)}" tabindex="0">
+      ${withSefer ? `<p class="note-sefer">${he(planName(x).he)} <span class="muted">${esc(sub(planName(x)))}</span></p>` : ""}
+      <p class="note-when">${esc(niceDate(n.date, true))}${where ? ` · ${where}` : ""}</p>
+      ${n.words ? `<p class="note-words">${esc(tr("notes.onWords", { words: "" }))}<span dir="${dirOf(n.words)}">${noteHtml(n.words)}</span></p>` : ""}
+      <p class="note-text" dir="${dirOf(n.text)}">${noteHtml(n.text)}</p>
+    </article>`;
+  }
+
+  let notesFor = null;   // { id, date, editing }
+  function openNotes(id, date) {
+    if (!findPlan(id)) return;
+    notesFor = { id, date, editing: null };
+    $("noteWords").value = ""; $("noteText").value = "";
+    renderNotesSheet();
+    const dlg = $("notesSheet");
+    if (!dlg.open) dlg.showModal();
+  }
+  function renderNotesSheet() {
+    const x = findPlan(notesFor.id), { sefer, plan } = x, date = notesFor.date;
+    const p = plan.portions.find((q) => q.date === date);
+    $("notesTitle").textContent = planName(x).he;
+    $("notesWhere").innerHTML = `${esc(niceDate(date, true))}${p && p.to >= p.from ? `<br>${portionLine(sefer, plan.commentaries || [], p)}` : ""}`;
+    $("notesList").innerHTML = notesOn(plan, date).map((n) => `<div class="note-item${notesFor.editing === n.id ? " editing" : ""}">
+        ${n.words ? `<p class="note-words">${esc(tr("notes.onWords", { words: "" }))}<span dir="${dirOf(n.words)}">${noteHtml(n.words)}</span></p>` : ""}
+        <p class="note-text" dir="${dirOf(n.text)}">${noteHtml(n.text)}</p>
+        <div class="note-actions"><button type="button" class="text-btn" data-note-edit="${esc(n.id)}">${esc(tr("notes.edit"))}</button>
+          <button type="button" class="text-btn" data-note-delete="${esc(n.id)}">${esc(tr("notes.delete"))}</button></div>
+      </div>`).join("");
+    $("noteSave").textContent = tr(notesFor.editing ? "notes.saveEdit" : "notes.save");
+    $("noteCancel").hidden = !notesFor.editing;
+    for (const id of ["noteText", "noteWords"]) $(id).dataset.script = scriptOf($(id).value);
+  }
+  function changeNotes(x, fn) {
+    x.plan = { ...x.plan, notes: fn((x.plan.notes || []).slice()) };
+    save();
+    if (!$("today").hidden) renderToday();
+    if (!$("plan").hidden && current === x.id) renderPlan();
+    if (!$("notes").hidden) renderAllNotes();
+  }
+  for (const id of ["noteText", "noteWords"]) on(id, "input", () => { $(id).dataset.script = scriptOf($(id).value); });
+  on("noteSave", "click", () => {
+    const x = findPlan(notesFor.id), text = $("noteText").value.trim(), words = $("noteWords").value.trim();
+    if (!text) { $("noteText").focus(); return toast(tr("notes.empty")); }
+    const now = Date.now(), editing = notesFor.editing;
+    changeNotes(x, (notes) => {
+      if (editing) return notes.map((n) => (n.id === editing ? { ...n, text, words, updatedAt: now } : n));
+      const p = x.plan.portions.find((q) => q.date === notesFor.date);
+      let at = null;
+      try { at = p ? P.address(x.sefer, p.from) : null; } catch (e) { /* a day at the very end */ }
+      return notes.concat({ id: uid(), date: notesFor.date, ...(at ? { at } : {}), ...(words ? { words } : {}), text, createdAt: now, updatedAt: now });
+    });
+    notesFor.editing = null;
+    $("noteText").value = ""; $("noteWords").value = "";
+    renderNotesSheet();
+    toast(tr("notes.saved"));
+  });
+  on("noteCancel", "click", () => { notesFor.editing = null; $("noteText").value = ""; $("noteWords").value = ""; renderNotesSheet(); });
+  on("notesList", "click", async (e) => {
+    const x = findPlan(notesFor.id);
+    const ed = e.target.closest("[data-note-edit]"), del = e.target.closest("[data-note-delete]");
+    if (ed) {
+      const n = liveNotes(x.plan).find((q) => q.id === ed.dataset.noteEdit);
+      notesFor.editing = n.id;
+      $("noteText").value = n.text; $("noteWords").value = n.words || "";
+      renderNotesSheet();
+      $("noteText").focus();
+    } else if (del) {
+      if (!(await ask(tr("notes.deleteAsk"), tr("notes.delete")))) return;
+      const id = del.dataset.noteDelete;
+      changeNotes(x, (notes) => notes.map((n) => (n.id === id ? { id, deletedAt: Date.now() } : n)));
+      if (notesFor.editing === id) { notesFor.editing = null; $("noteText").value = ""; $("noteWords").value = ""; }
+      renderNotesSheet();
+      toast(tr("notes.deleted"));
+    }
+  });
+
+  // All my notes: every note from every sefer, newest first, with a search box.
+  function renderAllNotes() {
+    const q = ($("notesSearch").value || "").trim().toLowerCase();
+    const all = [];
+    for (const x of plans) for (const n of liveNotes(x.plan)) all.push({ x, n });
+    all.sort((a, b) => b.n.date.localeCompare(a.n.date) || b.n.createdAt - a.n.createdAt);
+    const name = (x) => `${planName(x).he || ""} ${planName(x).en || ""}`.toLowerCase();
+    const shown = q ? all.filter(({ x, n }) => `${n.text} ${n.words || ""} ${name(x)}`.toLowerCase().includes(q)) : all;
+    $("allNotes").innerHTML = shown.length ? shown.map(({ x, n }) => noteCardHtml(x, n, true)).join("")
+      : `<p class="note empty-note">${esc(tr(all.length ? "notes.noMatch" : "notes.none"))}</p>`;
+  }
+  on("notesSearch", "input", renderAllNotes);
+  on("notesBack", "click", () => { if (history.length > 1 && history.state) history.back(); else show("today"); });
 
   // ---- Today -----------------------------------------------------------------------------
 
@@ -657,7 +780,8 @@
     if (info.mine) return false;
     const name = nm(saved.name || entryOf(saved.seferId || saved.seferIds[0]) || { en: "" });
     if (!(await ask(tr("share.joinAsk", { who: info.ownerName, name }), tr("share.join")))) return false;
-    const { loaded, failed } = await loadPlans([{ ...saved, id: uid() }]);
+    const { notes, ...theirs } = saved;   // never someone else's notes
+    const { loaded, failed } = await loadPlans([{ ...theirs, id: uid() }]);
     if (failed.length || !loaded.length) { toast(tr("load.failed")); return false; }
     const x = loaded[0];
     x.plan.share = { id: info.id };
@@ -677,7 +801,8 @@
     if (!shareMaker) return toast(tr("share.signInFirst"));
     try {
       $("sharePlan").disabled = true;
-      const { id, link } = await shareMaker({ id: x.id, ...S.toSaved(x.plan, x.sefer), share: x.plan.share });
+      const { notes, ...saved } = S.toSaved(x.plan, x.sefer);   // notes stay private
+      const { id, link } = await shareMaker({ id: x.id, ...saved, share: x.plan.share });
       if (!x.plan.share) { x.plan = { ...x.plan, share: { id } }; save(); }
       $("shareLink").value = link;
       $("shareBox").hidden = false;
@@ -736,7 +861,7 @@
     if (st.finished && isToday) {
       const lastDone = learning.filter((q) => q.done).sort((a, b) => a.date.localeCompare(b.date)).pop();
       return `<article class="panel lesson is-done">${head}<p class="done-mark">${icon("check")} ${esc(tr("lesson.siyum"))}</p>
-        ${lastDone ? `<button class="text-btn" data-undo="${esc(x.id)}" data-date="${esc(lastDone.date)}">${esc(tr("lesson.undoLast"))}</button>` : ""}${foot}</article>`;
+        ${lastDone ? `<button class="text-btn" data-undo="${esc(x.id)}" data-date="${esc(lastDone.date)}">${esc(tr("lesson.undoLast"))}</button>${notesButtonHtml(x, lastDone.date)}` : ""}${foot}</article>`;
     }
     if (p && !p.done) {
       const hasText = p.to >= p.from;
@@ -747,7 +872,7 @@
           <button class="btn primary" data-done="${esc(x.id)}" data-date="${esc(p.date)}">${esc(tr("lesson.markDone"))}</button>
           ${hasText ? `<a class="btn ext" href="${esc(P.sefariaUrl(sefer, p.from, p.to))}" target="_blank" rel="noopener" aria-label="${esc(tr("lesson.openSefaria"))}">Sefaria ${icon("ext")}</a>` : ""}
         </div>
-        ${hasText && p.to > p.from && !cycle ? `<button class="text-btn part-btn" data-part="${esc(x.id)}" data-date="${esc(p.date)}">${esc(tr("lesson.onlyPart"))}</button>` : ""}${foot}</article>`;
+        ${hasText && p.to > p.from && !cycle ? `<button class="text-btn part-btn" data-part="${esc(x.id)}" data-date="${esc(p.date)}">${esc(tr("lesson.onlyPart"))}</button>` : ""}${notesButtonHtml(x, p.date)}${foot}</article>`;
     }
     const day = learning.find((q) => q.date === selectedDate);
     const next = isToday ? st.next : null;
@@ -759,7 +884,7 @@
           <input type="number" inputmode="numeric" min="1" max="600" step="1" data-minutes="${esc(x.id)}" data-date="${esc(day.date)}" value="${day.minutes || ""}" placeholder="—"></label>` : `<p class="next-line">${esc(tr("lesson.noLearning"))}</p>`}
       ${next && !cycle ? `<p class="next-line">${esc(tr("lesson.next", { date: niceDate(next.date) }))} ${next.to >= next.from ? portionLine(sefer, comms, next) : ""}</p>
         <button class="btn" data-done="${esc(x.id)}" data-date="${esc(next.date)}">${esc(tr("lesson.learnAhead", { date: niceDate(next.date) }))}</button>` : ""}
-      ${foot}</article>`;
+      ${day ? notesButtonHtml(x, day.date) : ""}${foot}</article>`;
   }
 
   // How far along a plan is, under its name on the home screen.
@@ -1028,6 +1153,14 @@
   }
 
   document.addEventListener("click", (e) => {
+    const n = e.target.closest("[data-notes]");
+    if (n && !e.target.closest("dialog")) { e.preventDefault(); return openNotes(n.dataset.notes, n.dataset.date); }
+  });
+  document.addEventListener("keydown", (e) => {
+    const n = e.key === "Enter" && e.target.closest && e.target.closest("article[data-notes]");
+    if (n) openNotes(n.dataset.notes, n.dataset.date);
+  });
+  document.addEventListener("click", (e) => {
     const t = e.target.closest("button, [data-go]");
     if (!t) return;
     if (t.dataset.go) { e.preventDefault(); return show(t.dataset.go); }
@@ -1115,6 +1248,10 @@
     document.querySelectorAll('input[name="editDedKind"]').forEach((r) => { r.checked = r.value === (ded.kind || ""); });
     $("editDedName").value = ded.name || "";
     renderCalendar(x, today);
+    // this sefer's notes, newest first
+    const mine = liveNotes(plan).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+    $("planNotes").innerHTML = (mine.length ? mine.map((n) => noteCardHtml(x, n, false)).join("") : `<p class="note">${esc(tr("notes.nonePlan"))}</p>`)
+      + `<button class="btn" data-go="notes">${icon("pen")} ${esc(tr("notes.all"))}</button>`;
   }
 
   // The days of the month shown in the calendar, each with a button to mark it
@@ -1134,6 +1271,7 @@
   function renderCalendar(x, today) {
     const { sefer, plan } = x, comms = plan.commentaries || [];
     const byDate = new Map(plan.portions.map((p) => [p.date, p]));
+    const noted = new Set(liveNotes(plan).map((n) => n.date));
     const [y, m] = calMonth.split("-").map(Number);
     const firstDay = new Date(y, m - 1, 1, 12), days = new Date(y, m, 0).getDate();
     // the month, with the Hebrew months it falls in
@@ -1146,13 +1284,13 @@
     let html = DAYS.map((d) => `<span class="dow">${d[0]}</span>`).join("") + "<span></span>".repeat(firstDay.getDay());
     for (let d = 1; d <= days; d++) {
       const iso = `${calMonth}-${String(d).padStart(2, "0")}`, p = byDate.get(iso);
-      const cls = !p ? "none" : !S.hasLearning(p) ? "off" : p.done ? "done" : "plan";
+      const cls = (!p ? "none" : !S.hasLearning(p) ? "off" : p.done ? "done" : "plan") + (noted.has(iso) ? " has-note" : "");
       html += `<button class="${cls} ${iso === today ? "today" : ""}" data-cal="${iso}" aria-pressed="${iso === calPick}" aria-label="${esc(niceDate(iso))}">${d}<small class="hd" lang="he">${hebrewDay(iso)}</small></button>`;
     }
     $("calGrid").innerHTML = html;
     const p = calPick && byDate.get(calPick);
     renderMonthDays(x, today);
-    $("calDetail").innerHTML = !calPick ? "" : `<b>${esc(niceDate(calPick, true))}${p && p.done ? ` · ${esc(tr("cal.done"))}` : ""}</b>${!p ? esc(tr("cal.notInPlan")) : !S.hasLearning(p) ? esc(tr("cal.noNew")) : `${p.to >= p.from ? portionLine(sefer, comms, p) : ""}${(p.places || []).map((x) => esc(nm(x))).join(", ")}`}`;
+    $("calDetail").innerHTML = !calPick ? "" : `<b>${esc(niceDate(calPick, true))}${p && p.done ? ` · ${esc(tr("cal.done"))}` : ""}</b>${!p ? esc(tr("cal.notInPlan")) : !S.hasLearning(p) ? esc(tr("cal.noNew")) : `${p.to >= p.from ? portionLine(sefer, comms, p) : ""}${(p.places || []).map((x) => esc(nm(x))).join(", ")}`}${p && calPick <= today ? notesButtonHtml(x, calPick) : ""}`;
   }
 
   on("calGrid", "click", (e) => {

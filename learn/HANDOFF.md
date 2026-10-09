@@ -463,3 +463,13 @@ NODE_PATH=$(npm root -g) node tests/learn-features.test.js   # the 10-08 feature
 python3 tools/build_sefer_data.py --only yerushalmi   # rebuild one collection (SEFARIA_CACHE=dir for the download cache)
 python3 tools/build_sefer_data.py              # rebuild learn/data from Sefaria's export
 ```
+
+## Notes (Hudi, 10-09)
+
+A person can write notes (thoughts, chiddushim) on any day's learning, several a day, today or an earlier day
+(from the sefer's calendar). Notes live in the plan record as `notes` (in SETTINGS, schedule.js), each with the
+day's date and lasting address, so they go to the account and the backup with the plan. A deleted note stays as
+`{ id, deletedAt }`; `LearnSync.mergeNotes` combines two phones' notes (later edit or deletion wins). Notes are
+never sent in a share link. Where: a Notes button with a count on each card, a sheet to write (Hebrew in the
+sefer font, direction from the first letter), the sefer's page (list + gold dot in the calendar), and All my notes
+(Settings, with search). Sharing and voice/photo notes are shown as coming soon.

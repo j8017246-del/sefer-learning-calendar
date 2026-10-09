@@ -486,7 +486,10 @@
     "minutesPerDay", "pace", "group", "paused", "learningDays", "lighterDays", "lighterWeight", "daysOff", "skipYomTov", "israel", "share", "conflictOf", "history",
     // groundwork for later: who owns the plan and who learns it too, a dedication, the part
     // assigned to one person when a sefer is divided, and the kind of plan
-    "owner", "members", "dedication", "assignment", "kind", "cycle"];
+    "owner", "members", "dedication", "assignment", "kind", "cycle",
+    // the person's notes on their learning: { id, date, at (the day's lasting address), words, text, createdAt, updatedAt },
+    // or { id, deletedAt } once deleted, so a deletion reaches every phone
+    "notes"];
   const KINDS = ["personal", "cycle", "review"];
 
   // A plan as it is kept on the phone and in the backup file: every stop by

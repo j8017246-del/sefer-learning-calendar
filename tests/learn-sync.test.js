@@ -174,4 +174,15 @@ test("a plan is packed for the account and read back exactly; a ten-year Rambam 
   assert.strictEqual(Sync.unpack(r), r, "an unpacked record stays as it is");
 });
 
+test("notes written on two phones are all kept; a later edit or a deletion wins", () => {
+  const a = { ...plan("n"), notes: [{ id: "1", date: "2026-10-11", text: "first", createdAt: 1, updatedAt: 1 }, { id: "2", date: "2026-10-11", text: "old", createdAt: 1, updatedAt: 1 }] };
+  const b = { ...plan("n"), notes: [{ id: "2", date: "2026-10-11", text: "edited", createdAt: 1, updatedAt: 5 }, { id: "3", date: "2026-10-12", text: "other phone", createdAt: 2, updatedAt: 2 }, { id: "1", deletedAt: 9 }] };
+  const m = Sync.mergePlan(a, b);
+  const by = Object.fromEntries(m.notes.map((n) => [n.id, n]));
+  assert.deepStrictEqual(Object.keys(by).sort(), ["1", "2", "3"]);
+  assert.strictEqual(by["1"].deletedAt, 9, "the deletion reaches this phone");
+  assert.strictEqual(by["2"].text, "edited", "the later edit wins");
+  assert.strictEqual(by["3"].text, "other phone");
+});
+
 console.log(`${passed} sync tests passed`);

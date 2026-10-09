@@ -175,6 +175,18 @@ function serve() {
   ok("learning done before the app can be kept, marked as entered by hand, with a year");
 
   // the sefer's own screen: calendar and every day
+  // notes on the day's learning: written from the card, counted on it, kept after reopening
+  await page.click("#cards .notes-btn");
+  await page.fill("#noteText", "A thought on the words בראשית ברא");
+  await page.click("#noteSave");
+  assert.match(await page.textContent("#notesList"), /A thought/);
+  await page.click('#notesSheet button[value="close"]');
+  assert.match(await page.textContent("#cards .notes-count"), /^1 note$/);
+  await page.reload();
+  await page.waitForSelector(".lesson");
+  assert.match(await page.textContent("#cards .notes-count"), /^1 note$/, "the note is kept");
+  ok("a note is written from the day's card, counted there, and kept");
+
   // each sefer on the home screen shows how far along it is, and its name opens it
   assert.match(await page.textContent("#cards .lesson-progress"), /1 of 78 days/);
   await page.click("#cards .lesson-open");

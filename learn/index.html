@@ -125,6 +125,9 @@
     <div class="cal-detail" id="calDetail"></div>
   </div>
 
+  <h3 class="group-title" data-t="notes.title"></h3>
+  <div class="panel plan-notes" id="planNotes"></div>
+
   <h3 class="group-title" data-t="plan.changeThePlan"></h3>
   <form class="panel form-rows" id="planEdit">
     <label class="field"><span data-t="plan.finishBy"></span> <input type="date" id="editEnd"></label>
@@ -285,8 +288,19 @@
   </details>
 
   <div class="panel list-rows">
+    <button class="row-link" data-go="notes"><span data-t="notes.all"></span> <svg data-icon="next"></svg></button>
+  </div>
+  <div class="panel list-rows">
     <button class="row-link" data-go="about"><span data-t="settings.aboutAndSources"></span> <svg data-icon="next"></svg></button>
   </div>
+</section>
+
+<!-- ===== All my notes ===== -->
+<section id="notes" class="view" hidden>
+  <header class="navbar"><button class="back" id="notesBack"><svg data-icon="back"></svg><span data-t="add.back"></span></button></header>
+  <h1 data-t="notes.all"></h1>
+  <label class="search notes-search"><svg data-icon="search"></svg><input type="search" id="notesSearch" dir="auto" autocomplete="off" data-t-placeholder="notes.search"></label>
+  <div id="allNotes" class="stack all-notes"></div>
 </section>
 
 <!-- ===== Privacy ===== -->
@@ -513,6 +527,26 @@
     <p id="askText"></p>
     <button value="yes" class="btn danger" id="askYes" data-t="ask.yes"></button>
     <button value="no" class="btn" data-t="add.cancel"></button>
+  </form>
+</dialog>
+
+<dialog id="notesSheet" class="sheet notes-sheet">
+  <form method="dialog">
+    <h2 class="he-title" id="notesTitle" lang="he" dir="rtl"></h2>
+    <p class="muted" id="notesWhere"></p>
+    <div id="notesList" class="notes-list"></div>
+    <div class="note-paper">
+      <input id="noteWords" dir="auto" maxlength="120" autocomplete="off" data-t-placeholder="notes.wordsPlaceholder">
+      <textarea id="noteText" dir="auto" rows="5" maxlength="5000" data-t-placeholder="notes.placeholder"></textarea>
+    </div>
+    <button type="button" class="btn primary" id="noteSave" data-t="notes.save"></button>
+    <button type="button" class="text-btn center" id="noteCancel" hidden data-t="notes.cancelEdit"></button>
+    <div class="panel soon notes-soon" inert>
+      <div class="soon-head"><b data-t="notes.shareTitle"></b> <span class="pill soon-pill" data-t="soon.label"></span></div>
+      <div class="two"><button type="button" class="btn" data-t="notes.shareChavrusa"></button><button type="button" class="btn" data-t="notes.shareEveryone"></button></div>
+      <button type="button" class="btn" data-t="notes.voicePhoto"></button>
+    </div>
+    <button value="close" class="btn" data-t="notes.done"></button>
   </form>
 </dialog>
 

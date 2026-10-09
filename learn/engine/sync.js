@@ -49,7 +49,22 @@
   // with the settings of `a` (this phone's). Null when the schedules differ.
   function mergePlan(a, b) {
     if (scheduleOf(a) !== scheduleOf(b)) return null;
-    return { ...a, portions: a.portions.map((p, i) => mergeDay(p, b.portions[i])) };
+    const out = { ...a, portions: a.portions.map((p, i) => mergeDay(p, b.portions[i])) };
+    const notes = mergeNotes(a.notes, b.notes);
+    if (notes.length) out.notes = notes; else delete out.notes;
+    return out;
+  }
+  // Notes from two copies: every note is kept; the same note edited on both keeps the later
+  // edit, and a deletion (kept as { id, deletedAt }) wins over an older edit.
+  function mergeNotes(a = [], b = []) {
+    const when = (n) => n.deletedAt || n.updatedAt || n.createdAt || 0;
+    const byId = new Map();
+    for (const n of [...a, ...b]) {
+      if (!n || typeof n.id !== "string") continue;
+      const had = byId.get(n.id);
+      if (!had || when(n) > when(had)) byId.set(n.id, n);
+    }
+    return [...byId.values()];
   }
 
   // Does `b` keep every day finished in `a`? (the same places done in b, or undone there later)
@@ -236,7 +251,7 @@
     return { ok: !problems.length, plans: data.plans, events: Array.isArray(events) ? events : [], problems };
   }
 
-  const api = { pack, unpack, accountText, ACCOUNT_LIMIT, checkBackup, planProblems, reconcile, mergePlan, mergeDay, keepsFinished, changes, fingerprint, scheduleOf, doneDays };
+  const api = { pack, unpack, accountText, ACCOUNT_LIMIT, checkBackup, planProblems, reconcile, mergePlan, mergeNotes, mergeDay, keepsFinished, changes, fingerprint, scheduleOf, doneDays };
   global.LearnSync = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : globalThis);
