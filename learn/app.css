@@ -447,6 +447,7 @@ dialog.sheet .muted { text-align: center; margin: 0 0 6px; }
   display: flex; align-items: center; justify-content: center; padding: 24px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
 .gate-box { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
 .gate-box .empty-art { align-self: center; }
+.gate-pasuk { color: var(--muted); margin: -4px 0 10px; font-size: 1.1rem; }
 .gate-sub { color: var(--muted); margin: 0 0 6px; }
 .gate .link-form { text-align: start; margin-top: 6px; }
 .gate-privacy { text-align: start; color: var(--muted); font-size: .9rem; }
@@ -535,3 +536,22 @@ body.gated .tabbar { display: none; }
 .file-btn { position: relative; }
 .file-input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .file-btn:focus-within { outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent); outline-offset: 2px; }
+
+/* ---- coming soon: features not built yet, drawn where they will be, grayed out ---- */
+.soon { opacity: .55; filter: grayscale(1); user-select: none; }
+.panel.soon { display: flex; flex-direction: column; gap: 10px; padding: 16px; margin: 10px 0; }
+.soon-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.soon-pill { flex: none; }
+.soon p { margin: 0; }
+.soon-bars { display: flex; align-items: flex-end; gap: 8px; height: 70px; }
+.soon-bars i { flex: 1; border-radius: 6px 6px 2px 2px; background: var(--accent); }
+.soon-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.soon-stats b { display: block; font-size: 1.3rem; }
+.soon-stats span { font-size: .78rem; color: var(--muted); }
+.soon-avatars { display: flex; align-items: center; }
+.soon-avatars i, .soon-avatars span { width: 34px; height: 34px; border-radius: 50%; background: var(--raised); border: 2px solid var(--surface); margin-inline-end: -8px; display: grid; place-items: center; color: var(--muted); }
+.quick.soon .pill { align-self: flex-start; margin-top: 4px; }
+.sponsor-soon { margin-top: 0; }
+
+/* the buttons under a sefer's dedication: full width, with room between them */
+#reviewPlan, #sharePlan, #exportPlan { display: flex; width: 100%; margin-top: 12px; }

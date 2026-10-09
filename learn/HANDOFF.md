@@ -397,7 +397,33 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    `python3 tools/build_preview.py OUT.html`, publish with `learn/data/*` as files).
 2. Later, only on Hudi's word: reminders sent by the app (needs a paid Firebase
    plan), dividing a sefer among people, the statistics and life-learning charts.
-3. Make the data files smaller before release (Kol HaTorah loads all of them).
+3. Data size (checked 10-09): learn/data is 35 MB, but Firebase Hosting sends it compressed;
+   the default Kol HaTorah set is about 5.4 MB on the first download, then kept on the phone.
+   Sefarim joined into one plan (all of Shas, all of Rambam) now load side by side, not one by one.
+4. Public release (Hudi, 10-09: website first, app stores later). The name שעשועי is in the app
+   (Hebrew screens; English screens say Sha’ashu’ai; tab title, sign-in screen, Settings header, home-screen name (Hebrew), About, privacy, reminder, print,
+   backups); Hudi sets it as Firebase's "Public-facing name" for sign-in emails. Still needed: Hudi's hand tests,
+   a contact address and short
+   terms of use, and a deploy by someone signed in to Firebase.
+
+## Coming soon, drawn in place (Hudi, 10-09)
+
+Features discussed but not built are drawn where they will live, grayed out and `inert`, with a "Coming soon"
+pill (`.soon`, `soon.*` strings): Today, sponsoring the day for everyone (one sponsor dedicates all the app's
+learning that day; needs a payment account; private dedications stay); Seforim, the life-learning chart with
+learning from before, and statistics; one sefer, learners on this sefer, find a chavrusa, chat, divide for a
+siyum, and "My print" (scans); Add a sefer, what most people learn; Settings reminder, notifications from the
+app; sign-in screen, text-message sign-in; About, App Store and Google Play. When a feature is built, replace
+its grayed block with the real one.
+
+## Second address shaashuai.web.app (Hudi, 10-09)
+
+`firebase.json` publishes the same files to two Hosting sites: `main` (sefer-calendar.web.app) and
+`shaashuai` (shaashuai.web.app). The first time, someone signed in to Firebase runs
+`firebase hosting:sites:create shaashuai --project sefer-calendar`, then adds `shaashuai.web.app` under
+Authentication, Settings, Authorized domains (otherwise sign-in fails there). Each address keeps its own
+phone-only plans; signed-in plans are the same on both. The reminder link (APP_URL) still points to
+sefer-calendar.web.app.
 
 ## Accounts: tests with the Firebase emulators
 

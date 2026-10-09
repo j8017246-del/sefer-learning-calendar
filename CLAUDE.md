@@ -38,6 +38,8 @@ LEAVE ROOM FOR SCANS LATER
 Later, a person will be able to upload a scan of their own sefer, and the app will point to the exact page and line in their print. Build for that now: give every stop a lasting address (sefer + Sefaria reference + position inside it) that does not change when the data is rebuilt, and save each person's plan and progress by those addresses, not by list positions. A later "edition" layer can then add a printed page and line to each address without breaking saved plans.
 
 WHAT IS DECIDED
+- The app's name is שעשועי (from ואהיה שעשועים יום יום), chosen by Hudi on 10-09. Show it everywhere the app shows its name. The title (tab, sign-in screen, Settings) is always the Hebrew שעשועי, even on English screens, with the pasuk ואהיה שעשועים יום יום under it on the sign-in screen. English spelling (Hudi, 10-09): Sha’ashu’ai in English sentences, shaashuai in file and code names. The web address sefer-calendar.web.app and the Firebase project sefer-calendar stay. Saved-data names on phones (learning-calendar-*) and the backup format name stay, so nothing already saved is lost. The current icon stays until Hudi sends a logo.
+- Release as a website first; app stores later (Hudi, 10-09).
 - A website that works well on phones. No app store yet.
 - First sefarim: Tanach; Mishnah with Bartenura; Shas with Rashi and Tosafot; Rambam; Shulchan Aruch with Mishnah Berurah; Tur.
 - The app shows where to learn (with the few words that name each stop) and a Sefaria link, never the day's text (Hudi chose this on 10-05).
@@ -46,7 +48,6 @@ WHAT IS DECIDED
 
 STILL OPEN (ask Hudi only when it matters, one word to answer)
 - The only Public Domain Mishnah Berurah lacks simanim 1 to 186. Leave those out or estimate, and tell Hudi which in one line.
-- Putting the site online for other people: later, only on Hudi's word.
 
 RULES THAT MUST NOT BE BROKEN
 - This repository is public. Never add PDFs, scans, page images, or any text from books Hudi scanned or bought.
