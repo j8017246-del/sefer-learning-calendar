@@ -474,7 +474,7 @@
     if (e.target.id === "accentCustom") { look.accent = e.target.value; applyLook(); }
   });
 
-  // The language of the screens: English or Hebrew (strings.js reads it when the page opens).
+  // The language of the screens: English, Hebrew or Spanish (strings.js reads it when the page opens).
   document.querySelectorAll('input[name="lang"]').forEach((r) => {
     r.checked = r.value === LearnText.language();
     r.addEventListener("change", () => {

@@ -43,7 +43,7 @@ WHAT IS DECIDED
 - A website that works well on phones. No app store yet.
 - First sefarim: Tanach; Mishnah with Bartenura; Shas with Rashi and Tosafot; Rambam; Shulchan Aruch with Mishnah Berurah; Tur.
 - The app shows where to learn (with the few words that name each stop) and a Sefaria link, never the day's text (Hudi chose this on 10-05).
-- Screens in English or Hebrew, chosen in Settings (English unless chosen; Hudi asked for the Hebrew screen on 10-08). Sefarim's names are always shown in Hebrew too.
+- Screens in English, Hebrew or Spanish, chosen in Settings (English unless chosen; Hudi asked for the Hebrew screen on 10-08 and Spanish on 10-09). A text missing in a language shows in English. Sefarim's names are always shown in Hebrew too.
 - This chat is paid from Hudi's cloud credit (checked: usage type ccr_promotional).
 
 STILL OPEN (ask Hudi only when it matters, one word to answer)
