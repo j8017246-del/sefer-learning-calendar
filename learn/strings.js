@@ -32,6 +32,7 @@
     // today
     "today.loading": "Loading…",
     "today.today": "Today",
+    "app.home": "Sha’ashu’ai: go to Today",
     "today.addASefer": "Add a sefer",
     "today.thisWeek": "This week",
     "today.startYourFirstSefer": "Start your first sefer",
@@ -597,6 +598,7 @@
     "gate.notNow": "לא עכשיו",
     "today.loading": "טוען…",
     "today.today": "היום",
+    "app.home": "שעשועי: חזרה להיום",
     "today.addASefer": "הוספת ספר",
     "today.thisWeek": "השבוע",
     "today.startYourFirstSefer": "התחילו את הספר הראשון",
@@ -1141,6 +1143,7 @@
     "gate.notNow": "Ahora no",
     "today.loading": "Cargando…",
     "today.today": "Hoy",
+    "app.home": "Sha’ashu’ai: ir a Hoy",
     "today.addASefer": "Añadir un sefer",
     "today.thisWeek": "Esta semana",
     "today.startYourFirstSefer": "Empieza tu primer sefer",

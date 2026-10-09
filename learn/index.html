@@ -52,7 +52,7 @@
 
 <!-- ===== Today ===== -->
 <section id="today" class="view">
-  <header class="topbar">
+  <header class="topbar"><button class="brand" data-go="today" data-t-aria-label="app.home"><img class="light" src="icon-192.png" alt=""><img class="dark" src="icon-dark-512.png" alt=""></button>
     <div>
       <p class="eyebrow" id="todayDate" data-t="today.loading"></p>
       <h1 id="todayTitle" data-t="today.today"></h1>
@@ -83,7 +83,7 @@
 
 <!-- ===== My seforim ===== -->
 <section id="library" class="view" hidden>
-  <header class="topbar">
+  <header class="topbar"><button class="brand" data-go="today" data-t-aria-label="app.home"><img class="light" src="icon-192.png" alt=""><img class="dark" src="icon-dark-512.png" alt=""></button>
     <div><p class="eyebrow" data-t="library.learningNow"></p><h1 data-t="library.seforim"></h1></div>
     <button class="icon-btn" data-go="add" data-t-aria-label="today.addASefer"><svg data-icon="plus"></svg></button>
   </header>
@@ -107,7 +107,7 @@
 
 <!-- ===== One sefer ===== -->
 <section id="plan" class="view" hidden>
-  <header class="navbar">
+  <header class="navbar"><button class="brand" data-go="today" data-t-aria-label="app.home"><img class="light" src="icon-192.png" alt=""><img class="dark" src="icon-dark-512.png" alt=""></button>
     <button class="back" data-go="library"><svg data-icon="back"></svg><span data-t="library.seforim"></span></button>
   </header>
   <div class="plan-head">
@@ -182,7 +182,7 @@
 
 <!-- ===== Settings ===== -->
 <section id="settings" class="view" hidden>
-  <header class="topbar"><div><p class="eyebrow" lang="he" data-t="app.learningCalendar"></p><h1 data-t="settings.settings"></h1></div></header>
+  <header class="topbar"><button class="brand" data-go="today" data-t-aria-label="app.home"><img class="light" src="icon-192.png" alt=""><img class="dark" src="icon-dark-512.png" alt=""></button><div><p class="eyebrow" lang="he" data-t="app.learningCalendar"></p><h1 data-t="settings.settings"></h1></div></header>
 
   <h3 class="group-title" data-t="settings.account"></h3>
   <div class="panel form-rows" id="account">
@@ -294,7 +294,7 @@
 
 <!-- ===== Privacy ===== -->
 <section id="privacy" class="view" hidden>
-  <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg><span data-t="settings.settings"></span></button></header>
+  <header class="navbar"><button class="brand" data-go="today" data-t-aria-label="app.home"><img class="light" src="icon-192.png" alt=""><img class="dark" src="icon-dark-512.png" alt=""></button><button class="back" data-go="settings"><svg data-icon="back"></svg><span data-t="settings.settings"></span></button></header>
   <h1 data-t="settings.privacy"></h1>
   <div class="prose">
     <h2 data-t="privacy.savedTitle"></h2>
@@ -316,7 +316,7 @@
 
 <!-- ===== About ===== -->
 <section id="about" class="view" hidden>
-  <header class="navbar"><button class="back" data-go="settings"><svg data-icon="back"></svg><span data-t="settings.settings"></span></button></header>
+  <header class="navbar"><button class="brand" data-go="today" data-t-aria-label="app.home"><img class="light" src="icon-192.png" alt=""><img class="dark" src="icon-dark-512.png" alt=""></button><button class="back" data-go="settings"><svg data-icon="back"></svg><span data-t="settings.settings"></span></button></header>
   <h1 data-t="about.about"></h1>
   <div class="prose">
     <p data-t="about.eachDayTheApp"></p>
@@ -333,7 +333,7 @@
 
 <!-- ===== Kol HaTorah in a year ===== -->
 <section id="kol" class="view" hidden>
-  <header class="navbar"><button class="back" data-go="add"><svg data-icon="back"></svg><span data-t="add.back"></span></button></header>
+  <header class="navbar"><button class="brand" data-go="today" data-t-aria-label="app.home"><img class="light" src="icon-192.png" alt=""><img class="dark" src="icon-dark-512.png" alt=""></button><button class="back" data-go="add"><svg data-icon="back"></svg><span data-t="add.back"></span></button></header>
   <h1 data-t="kol.title"></h1>
   <p class="muted" data-t="kol.intro"></p>
   <div class="panel pick-rows" id="kolList"></div>
@@ -352,7 +352,7 @@
 
 <!-- ===== Public cycles ===== -->
 <section id="cycles" class="view" hidden>
-  <header class="navbar"><button class="back" data-go="add"><svg data-icon="back"></svg><span data-t="add.back"></span></button></header>
+  <header class="navbar"><button class="brand" data-go="today" data-t-aria-label="app.home"><img class="light" src="icon-192.png" alt=""><img class="dark" src="icon-dark-512.png" alt=""></button><button class="back" data-go="add"><svg data-icon="back"></svg><span data-t="add.back"></span></button></header>
   <h1 data-t="cycles.title"></h1>
   <p class="muted" data-t="cycles.intro"></p>
   <div id="cycleList" class="stack"></div>
