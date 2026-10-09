@@ -448,6 +448,7 @@
     // light mode: the text is the chosen color made very dark (still that color), as navy is to gold
     if (!dark && look.accent !== GOLD && look.accent !== SWATCHES[1]) root.style.setProperty("--ink", deepInk(look.accent));
     else root.style.removeProperty("--ink");
+    root.dataset.pick = look.accent === GOLD ? "gold" : "";   // in dark mode gold and navy look the same: navy stands for both
     const foil = look.accent === GOLD || goldLead;
     root.dataset.gold = foil ? "foil" : "";
     if (foil) root.style.setProperty("--accent-ink", dark ? shades["--bg"] : "#1e2a4f");
@@ -491,7 +492,7 @@
     document.querySelectorAll('input[name="style"]').forEach((r) => { r.checked = r.value === look.style; });
     document.querySelectorAll('input[name="names"]').forEach((r) => { r.checked = r.value === sectionNames; });
     const custom = !SWATCHES.includes(look.accent);
-    $("swatches").innerHTML = SWATCHES.map((h) => `<button type="button" role="radio" data-swatch="${h}" style="background:${h}" aria-label="${esc(tr("color." + ROYAL[SWATCHES.indexOf(h)].name))}" title="${esc(tr("color." + ROYAL[SWATCHES.indexOf(h)].name))}" aria-checked="${h === look.accent}"></button>`).join("")
+    $("swatches").innerHTML = SWATCHES.map((h) => `<button type="button" role="radio" data-swatch="${h}" style="--sw:${h}" aria-label="${esc(tr("color." + ROYAL[SWATCHES.indexOf(h)].name))}" title="${esc(tr("color." + ROYAL[SWATCHES.indexOf(h)].name))}" aria-checked="${h === look.accent}"></button>`).join("")
       + `<label title="${esc(tr("settings.anyColor"))}"><input type="color" role="radio" id="accentCustom" value="${look.accent}" aria-label="${esc(tr("settings.anyColor"))}" aria-checked="${custom}"></label>`;
   }
   document.addEventListener("change", (e) => {

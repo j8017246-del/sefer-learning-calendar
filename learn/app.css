@@ -725,3 +725,17 @@ body.gated .appbar, body.in-wizard .appbar { display: none; }
 .empty-note { text-align: center; padding: 24px 8px; }
 .cal-grid button.has-note::before { content: ""; position: absolute; top: 4px; inset-inline-end: 4px; width: 6px; height: 6px; border-radius: 50%; background: var(--foil); box-shadow: 0 0 0 1px rgba(90, 62, 15, .25); }
 .cal-detail .notes-btn { margin-top: 8px; }
+
+/* the color choices shine the way the buttons will: gold as foil, the others glossy with a gold rim */
+.swatches [data-swatch] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .42) 0%, rgba(255, 255, 255, .1) 46%, rgba(0, 0, 0, .08) 54%, rgba(0, 0, 0, .25) 100%),
+    linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, .22) 45%, transparent 60%),
+    var(--sw);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -1px 1px rgba(0, 0, 0, .3), 0 0 0 1.5px #c9a04a, 0 3px 8px -3px rgba(0, 0, 0, .35);
+}
+.swatches [data-swatch="#9a7128"] { background: var(--foil); }
+.swatches [data-swatch][aria-checked="true"] { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -1px 1px rgba(0, 0, 0, .3), 0 0 0 1.5px #c9a04a, 0 0 0 3.5px var(--bg), 0 0 0 5.5px var(--ink); }
+/* dark mode: gold looks just like navy there, so only navy is offered (and shows as chosen for gold) */
+:root[data-theme="dark"] .swatches [data-swatch="#9a7128"] { display: none; }
+:root[data-theme="dark"][data-pick="gold"] .swatches [data-swatch="#1e2a4f"] { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -1px 1px rgba(0, 0, 0, .3), 0 0 0 1.5px #c9a04a, 0 0 0 3.5px var(--bg), 0 0 0 5.5px var(--ink); }
