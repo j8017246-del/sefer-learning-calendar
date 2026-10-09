@@ -208,8 +208,8 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin-inline-start: aut
 .stop .place { font-weight: 600; }
 .words { font-family: var(--book); font-size: 1.12em; font-weight: 500; }
 .comm { margin: 0; padding: 10px 12px; border-radius: var(--r-sm); background: var(--raised); color: var(--muted); font-size: .86rem; }
-.lesson-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-.lesson-actions .btn.ext { padding: 0 14px; }
+.lesson-actions { display: grid; grid-template-columns: 1fr; gap: 10px; }   /* Mark as done, then View today’s text, each the full width */
+.lesson-actions .btn.ext { padding: 0 14px; gap: 8px; }
 .lesson-actions svg { width: 18px; height: 18px; }
 .lesson-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); }
 .lesson-foot .text-btn { padding: 4px 0; }
@@ -739,3 +739,18 @@ body.gated .appbar, body.in-wizard .appbar { display: none; }
 /* dark mode: gold looks just like navy there, so only navy is offered (and shows as chosen for gold) */
 :root[data-theme="dark"] .swatches [data-swatch="#9a7128"] { display: none; }
 :root[data-theme="dark"][data-pick="gold"] .swatches [data-swatch="#1e2a4f"] { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -1px 1px rgba(0, 0, 0, .3), 0 0 0 1.5px #c9a04a, 0 0 0 3.5px var(--bg), 0 0 0 5.5px var(--ink); }
+
+/* where to read the day's text */
+.sources { display: flex; flex-direction: column; gap: 10px; margin: 6px 0; }
+.source { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: var(--r-md);
+  background: var(--surface); box-shadow: var(--shadow); color: var(--ink); text-decoration: none; }
+a.source::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; background: var(--foil);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
+.source-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.source-name [lang="he"] { font-size: 1.1rem; color: var(--muted); }
+.source-go { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 600; }
+.source-go svg { width: 18px; height: 18px; }
+.source.soon { opacity: .55; filter: grayscale(.6); }
+.source-more { text-align: center; }
+.lesson .btn.ext svg { width: 18px; height: 18px; }

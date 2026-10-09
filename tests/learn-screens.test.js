@@ -128,7 +128,12 @@ function serve() {
   assert.match(card, /Stop\s*2b, until the words/);
   assert.match(card, /Rashi through/);
   assert.match(card, /Tosafot through/);
-  const href = await page.getAttribute(".lesson a.ext", "href");
+  // "View today's text" opens a drawer: Sefaria works now, other libraries are coming soon
+  await page.click(".lesson .btn.ext");
+  await page.waitForSelector("#textSheet[open]");
+  assert.strictEqual(await page.locator("#textSources .source.soon").count(), 3);
+  const href = await page.getAttribute("#textSources a.source", "href");
+  await page.click('#textSheet button[value="close"]');
   assert.match(href, /^https:\/\/www\.sefaria\.org\/Berakhot\.2a-2b\.\d+$/);
   ok("today's card shows where to start and stop, the commentaries, and the Sefaria link");
   await shot("learn-today.png", false);

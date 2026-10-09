@@ -702,6 +702,25 @@
   on("notesSearch", "input", renderAllNotes);
   on("notesBack", "click", () => { if (history.length > 1 && history.state) history.back(); else show("today"); });
 
+  // ---- Where to read the day's text: Sefaria now; other libraries shown as coming soon ----
+
+  const TEXT_SOON = [["text.otzar", "אוצר החכמה"], ["text.barIlan", "פרויקט השו״ת"], ["text.mercava", "מרכבה"]];
+  function openText(id, date) {
+    const x = findPlan(id), p = x && x.plan.portions.find((q) => q.date === date);
+    if (!p || p.to < p.from) return;
+    $("textTitle").textContent = planName(x).he;
+    $("textWhere").innerHTML = `${esc(niceDate(date, true))}<br>${portionLine(x.sefer, x.plan.commentaries || [], p)}`;
+    $("textSources").innerHTML = `<a class="source" href="${esc(P.sefariaUrl(x.sefer, p.from, p.to))}" target="_blank" rel="noopener">
+        <span class="source-name"><b>Sefaria</b> ${he("ספריא")}</span><span class="source-go">${esc(tr("text.open"))} ${icon("ext")}</span></a>`
+      + TEXT_SOON.map(([k, h]) => `<div class="source soon" inert><span class="source-name"><b>${esc(tr(k))}</b> ${he(h)}</span><span class="pill soon-pill">${esc(tr("soon.label"))}</span></div>`).join("")
+      + `<p class="note source-more">${esc(tr("text.more"))}</p>`;
+    $("textSheet").showModal();
+  }
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-text]");
+    if (t) { e.preventDefault(); openText(t.dataset.text, t.dataset.date); }
+  });
+
   // ---- Today -----------------------------------------------------------------------------
 
   function renderToday() {
@@ -884,7 +903,7 @@
         ${hasText ? routeHtml(sefer, comms, p) : ""}${placesHtml(p)}
         <div class="lesson-actions">
           <button class="btn primary" data-done="${esc(x.id)}" data-date="${esc(p.date)}">${esc(tr("lesson.markDone"))}</button>
-          ${hasText ? `<a class="btn ext" href="${esc(P.sefariaUrl(sefer, p.from, p.to))}" target="_blank" rel="noopener" aria-label="${esc(tr("lesson.openSefaria"))}">Sefaria ${icon("ext")}</a>` : ""}
+          ${hasText ? `<button class="btn ext" data-text="${esc(x.id)}" data-date="${esc(p.date)}">${icon("books")} ${esc(tr(p.date === today ? "text.viewToday" : "text.view"))}</button>` : ""}
         </div>
         ${hasText && p.to > p.from && !cycle ? `<button class="text-btn part-btn" data-part="${esc(x.id)}" data-date="${esc(p.date)}">${esc(tr("lesson.onlyPart"))}</button>` : ""}${notesButtonHtml(x, p.date)}${foot}</article>`;
     }
