@@ -735,14 +735,7 @@
     $("printWeek").hidden = !plans.length;
     $("addSefer").hidden = !plans.length;
 
-    // the week around today
-    const first = S.addDays(today, -dateOf(today).getDay());
-    $("week").innerHTML = DAYS.map((name, i) => {
-      const iso = S.addDays(first, i);
-      const due = plans.filter((x) => !x.plan.paused).map((x) => x.plan.portions.find((p) => p.date === iso && S.hasLearning(p))).filter(Boolean);
-      const cls = [iso === today ? "is-today" : "", due.length ? "has" : "", due.length && due.every((p) => p.done) ? "all-done" : ""].join(" ");
-      return `<button class="${cls}" data-day="${iso}" aria-pressed="${iso === selectedDate}" aria-label="${niceDate(iso)}">${name}<b>${dateOf(iso).getDate()}</b><small class="hd" lang="he">${hebrewDay(iso)}</small><i></i></button>`;
-    }).join("");
+    renderWeek(today);
 
     const due = plans.filter((x) => !x.plan.paused && x.plan.portions.some((p) => p.date === selectedDate && S.hasLearning(p)));
     const doneCount = due.filter((x) => x.plan.portions.find((p) => p.date === selectedDate && S.hasLearning(p)).done).length;
@@ -755,6 +748,68 @@
       localStorage.setItem(TODAY_STORE, JSON.stringify({ date: today, selected: selectedDate, title: $("todayTitle").textContent,
         when: $("todayDate").innerHTML, status: $("dayStatus").textContent, week: $("week").innerHTML, cards: $("cards").innerHTML }));
     } catch (e) { /* only a convenience */ }
+  }
+
+  // The week of the chosen day; slid down, the whole month (slid up again, back to the week).
+  let weekOpen = false, weekMonth = null;
+  function renderWeek(today) {
+    const dayBtn = (iso, name, out) => {
+      const due = plans.filter((x) => !x.plan.paused).map((x) => x.plan.portions.find((p) => p.date === iso && S.hasLearning(p))).filter(Boolean);
+      const cls = [iso === today ? "is-today" : "", due.length ? "has" : "", due.length && due.every((p) => p.done) ? "all-done" : "", out ? "out" : ""].join(" ");
+      return `<button class="${cls}" data-day="${iso}" aria-pressed="${iso === selectedDate}" aria-label="${niceDate(iso)}">${name}<b>${dateOf(iso).getDate()}</b><small class="hd" lang="he">${hebrewDay(iso)}</small><i></i></button>`;
+    };
+    const week = $("week");
+    week.classList.toggle("open", weekOpen);
+    $("weekHandle").setAttribute("aria-expanded", weekOpen);
+    $("weekHandle").setAttribute("aria-label", tr(weekOpen ? "today.showWeek" : "today.showMonth"));
+    if (!weekOpen) {
+      const first = S.addDays(selectedDate, -dateOf(selectedDate).getDay());
+      week.innerHTML = DAYS.map((name, i) => dayBtn(S.addDays(first, i), name)).join("");
+      return;
+    }
+    const ym = weekMonth || selectedDate.slice(0, 7), start = S.addDays(`${ym}-01`, -dateOf(`${ym}-01`).getDay());
+    let html = `<div class="week-month"><button class="icon-btn small" data-week-month="-1" aria-label="${esc(tr("plan.previousMonth"))}">${icon("back")}</button>
+      <h3>${monthTitleHtml(ym)}</h3><button class="icon-btn small" data-week-month="1" aria-label="${esc(tr("plan.nextMonth"))}">${icon("next")}</button></div>`
+      + DAYS.map((d) => `<span class="dow">${esc(d)}</span>`).join("");
+    for (let iso = start; iso.slice(0, 7) <= ym || dateOf(iso).getDay() !== 0; iso = S.addDays(iso, 1)) html += dayBtn(iso, "", iso.slice(0, 7) !== ym);
+    week.innerHTML = html;
+  }
+  // slide the week open or closed, with the height easing between the two
+  function setWeekOpen(open) {
+    if (open === weekOpen) return;
+    const week = $("week"), from = week.offsetHeight;
+    weekOpen = open; weekMonth = null;
+    renderWeek(todayIso());
+    const to = week.offsetHeight;
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches && week.animate)
+      week.animate([{ height: `${from}px`, overflow: "hidden" }, { height: `${to}px`, overflow: "hidden" }], { duration: 260, easing: "cubic-bezier(.2,.8,.2,1)" });
+  }
+  {
+    let y0 = null, moved = false;
+    const down = (e) => { y0 = e.clientY; moved = false; };
+    const move = (e) => { if (y0 != null && Math.abs(e.clientY - y0) > 10) moved = true; };
+    const up = (e) => {
+      if (y0 == null) return;
+      const dy = e.clientY - y0; y0 = null;
+      if (dy > 30) setWeekOpen(true); else if (dy < -30) setWeekOpen(false);
+    };
+    for (const el of [$("week"), $("weekHandle")]) {
+      el.addEventListener("pointerdown", down);
+      el.addEventListener("pointermove", move);
+      el.addEventListener("pointerup", up);
+      el.addEventListener("pointercancel", () => { y0 = null; });
+    }
+    // a slide is not a tap on a day
+    $("week").addEventListener("click", (e) => { if (moved) { e.stopPropagation(); moved = false; } }, true);
+    $("weekHandle").addEventListener("click", () => { if (!moved) setWeekOpen(!weekOpen); moved = false; });
+    $("week").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-week-month]");
+      if (!b) return;
+      e.stopPropagation();
+      const [y, m] = (weekMonth || selectedDate.slice(0, 7)).split("-").map(Number), d = new Date(y, m - 1 + Number(b.dataset.weekMonth), 1, 12);
+      weekMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      renderWeek(todayIso());
+    });
   }
 
   // The name a plan is shown by: a cycle's or a group's own name, else the sefer's.
@@ -1306,19 +1361,24 @@
       || `<li class="off"><span class="t">${esc(tr("plan.noDaysThisMonth"))}</span></li>`;
   }
 
+  // A month's name, with the Hebrew months it falls in ("2026-10" -> October 2026 / תשרי – חשון תשפ״ז)
+  function monthTitleHtml(ym) {
+    const [y, m] = ym.split("-").map(Number), days = new Date(y, m, 0).getDate();
+    const hm = (iso) => hebrewDate(iso, true).split(" ").slice(1).join(" ");
+    const hFirst = hm(`${ym}-01`), hLast = hm(S.addDays(`${ym}-01`, days - 1));
+    const yearOf = (h) => h.split(" ").pop(), monthOf = (h) => h.split(" ").slice(0, -1).join(" ");
+    const hebrewMonths = !hFirst ? "" : hFirst === hLast ? hFirst
+      : yearOf(hFirst) === yearOf(hLast) ? `${monthOf(hFirst)} – ${hLast}` : `${hFirst} – ${hLast}`;
+    return `${esc(new Date(y, m - 1, 1, 12).toLocaleDateString(LearnText.locale(), { month: "long", year: "numeric" }))}${hebrewMonths ? `<small>${he(hebrewMonths)}</small>` : ""}`;
+  }
+
   function renderCalendar(x, today) {
     const { sefer, plan } = x, comms = plan.commentaries || [];
     const byDate = new Map(plan.portions.map((p) => [p.date, p]));
     const noted = new Set(liveNotes(plan).map((n) => n.date));
     const [y, m] = calMonth.split("-").map(Number);
     const firstDay = new Date(y, m - 1, 1, 12), days = new Date(y, m, 0).getDate();
-    // the month, with the Hebrew months it falls in
-    const lastDay = S.addDays(`${calMonth}-01`, days - 1), hm = (iso) => hebrewDate(iso, true).split(" ").slice(1).join(" ");
-    const hFirst = hm(`${calMonth}-01`), hLast = hm(lastDay);
-    const yearOf = (h) => h.split(" ").pop(), monthOf = (h) => h.split(" ").slice(0, -1).join(" ");
-    const hebrewMonths = !hFirst ? "" : hFirst === hLast ? hFirst
-      : yearOf(hFirst) === yearOf(hLast) ? `${monthOf(hFirst)} – ${hLast}` : `${hFirst} – ${hLast}`;
-    $("calMonth").innerHTML = `${esc(firstDay.toLocaleDateString(LearnText.locale(), { month: "long", year: "numeric" }))}${hebrewMonths ? `<small>${he(hebrewMonths)}</small>` : ""}`;
+    $("calMonth").innerHTML = monthTitleHtml(calMonth);
     let html = DAYS.map((d) => `<span class="dow">${d[0]}</span>`).join("") + "<span></span>".repeat(firstDay.getDay());
     for (let d = 1; d <= days; d++) {
       const iso = `${calMonth}-${String(d).padStart(2, "0")}`, p = byDate.get(iso);
