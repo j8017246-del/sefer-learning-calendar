@@ -163,8 +163,8 @@
   async function loadCombined(ids, name, cache = seforim, joined = combined) {
     const key = ids.join("+") + "|" + (name ? name.en : "");
     if (!joined.has(key)) {
-      const list = [];
-      for (const id of ids) list.push(await loadSefer(id, cache));
+      // fetched side by side (all of Shas is 37 files), joined in order
+      const list = await Promise.all(ids.map((id) => loadSefer(id, cache)));
       joined.set(key, P.combine(list, name ? { id: ids.join("+"), en: name.en, he: name.he } : {}));
     }
     return joined.get(key);

@@ -397,7 +397,12 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    `python3 tools/build_preview.py OUT.html`, publish with `learn/data/*` as files).
 2. Later, only on Hudi's word: reminders sent by the app (needs a paid Firebase
    plan), dividing a sefer among people, the statistics and life-learning charts.
-3. Make the data files smaller before release (Kol HaTorah loads all of them).
+3. Data size (checked 10-09): learn/data is 35 MB, but Firebase Hosting sends it compressed;
+   the default Kol HaTorah set is about 5.4 MB on the first download, then kept on the phone.
+   Sefarim joined into one plan (all of Shas, all of Rambam) now load side by side, not one by one.
+4. Public release (Hudi, 10-09: website first, app stores later). Still needed: Hudi's hand tests,
+   the app's name (app, manifest, Firebase "Public-facing name"), a contact address and short
+   terms of use, and a deploy by someone signed in to Firebase.
 
 ## Accounts: tests with the Firebase emulators
 
