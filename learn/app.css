@@ -583,3 +583,29 @@ body.gated .tabbar { display: none; }
 .gate-pasuk { color: var(--pasuk); font-family: var(--book); font-size: 1.2rem; margin: -6px 0 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .gate-pasuk::before { content: ""; width: 180px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
 .eyebrow[data-t="app.learningCalendar"] { font-family: var(--book); font-weight: 700; font-size: 1.05rem; background: var(--gold-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ---- gold foil: when the color is the logo's gold, gold surfaces and the name shine like foil ---- */
+:root[data-gold="foil"] {
+  --foil: linear-gradient(115deg, #8a6424 0%, #b98f3c 18%, #e9cf86 34%, #fff2c4 42%, #d9b45c 52%, #a77c2c 68%, #d8b866 84%, #9a7128 100%);
+  --foil-edge: inset 0 1px 0 rgba(255, 249, 225, .7), inset 0 -1px 0 rgba(90, 62, 15, .35);
+  --gold-text: linear-gradient(115deg, #7d5a1e 0%, #b48a37 22%, #e7c977 38%, #f8e6a8 46%, #c9a04a 56%, #8f6a25 74%, #c39a45 100%);
+}
+:root[data-gold="foil"][data-theme="dark"] {
+  --foil: linear-gradient(115deg, #a8812f 0%, #d6b25e 20%, #f6e2a2 36%, #fffbe6 44%, #e8c977 54%, #b8903e 70%, #e3c472 86%, #c49c4a 100%);
+  --foil-edge: inset 0 1px 0 rgba(255, 252, 235, .75), inset 0 -1px 0 rgba(70, 50, 12, .4);
+  --gold-text: linear-gradient(115deg, #b8903e 0%, #e2c06c 24%, #fbeec3 42%, #fffbe6 48%, #e6c674 58%, #b48a37 78%, #e3c472 100%);
+}
+:root[data-gold="foil"] .btn.primary,
+:root[data-gold="foil"] .week [aria-pressed="true"].is-today,
+:root[data-gold="foil"] .stop.end::before,
+:root[data-gold="foil"] .progress i,
+:root[data-gold="foil"] .wiz-steps i.on,
+:root[data-gold="foil"] .pick-row:has(input:checked) .check,
+:root[data-gold="foil"] .pick-row[aria-selected="true"] .check,
+:root[data-gold="foil"] .toggles label:has(input:checked),
+:root[data-gold="foil"] .day-toggles label:has(input:checked),
+:root[data-gold="foil"] .soon-bars i {
+  background: var(--foil); background-size: 100% 100%; box-shadow: var(--foil-edge);
+}
+:root[data-gold="foil"] .btn.primary { text-shadow: 0 1px 0 rgba(255, 248, 220, .45); }
+:root[data-gold="foil"] .gate-pasuk::before { background: linear-gradient(90deg, transparent, #c9a04a, #f3dc9a, #c9a04a, transparent); }

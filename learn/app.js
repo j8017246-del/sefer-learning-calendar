@@ -413,6 +413,9 @@
     // text on the color: whichever of white or near-black has more contrast
     const L = luminance(accent), onWhite = 1.05 / (L + 0.05), onDark = (L + 0.05) / (luminance("#111215") + 0.05);
     root.style.setProperty("--accent-ink", onWhite >= onDark ? "#ffffff" : "#111215");
+    // the logo's gold is drawn as gold foil (app.css, data-gold), with navy text on it
+    root.dataset.gold = look.accent === GOLD ? "foil" : "";
+    if (look.accent === GOLD) root.style.setProperty("--accent-ink", dark ? "#171a24" : "#1e2a4f");
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = getComputedStyle(root).getPropertyValue("--bg").trim();
   }
