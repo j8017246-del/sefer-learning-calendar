@@ -13,7 +13,7 @@
   "use strict";
   const STRINGS = { en: {
     // app
-    "app.learningCalendar": "שעשועי",
+    "app.learningCalendar": "Sha’ashu’ai",
     "app.notSavedOnThis": "Not saved on this phone. The phone's storage may be full or blocked; your latest changes will be lost when the app closes.",
     "app.notSavedToAn": "Not saved to an account yet.",
     "app.signIn": "Sign in",
@@ -101,7 +101,7 @@
     "settings.aboutAndSources": "About and sources",
 
     // privacy
-    "privacy.ifYouSignIn": "If you sign in to שעשועי, we store your email address, a display name if you choose one, and your learning plans: which seforim, your settings, and a record of each day you learned, missed or moved.",
+    "privacy.ifYouSignIn": "If you sign in to Sha’ashu’ai, we store your email address, a display name if you choose one, and your learning plans: which seforim, your settings, and a record of each day you learned, missed or moved.",
     "privacy.weKeepThemOnly": "We keep them only to show them back to you, on any phone or computer where you sign in. Nothing is sold, and nothing is shared with anyone.",
     "privacy.theyAreKeptWith": "They are kept with Google Firebase, the service that runs the sign-in and the saving. Each account can reach only its own plans.",
     "privacy.ifYouDoNot": "If you do not sign in, nothing leaves your phone: your plans are kept in this browser only.",
@@ -110,8 +110,8 @@
     "privacy.youCanDeleteYour": "You can delete your account and all your plans at any time: Settings, then Delete account.",
 
     // about
-    "about.about": "About שעשועי",
-    "about.eachDayTheApp": "Each day שעשועי shows where to start and where to stop in your own printed sefer, named the way printed learning calendars name it: the amud, mishnah, pasuk, halacha, se'if or siman, and the first few words where the day stops. Days are sized by your settings, counting the commentaries you learn together with the text.",
+    "about.about": "About Sha’ashu’ai",
+    "about.eachDayTheApp": "Each day Sha’ashu’ai shows where to start and where to stop in your own printed sefer, named the way printed learning calendars name it: the amud, mishnah, pasuk, halacha, se'if or siman, and the first few words where the day stops. Days are sized by your settings, counting the commentaries you learn together with the text.",
     "about.sources": "Sources",
     "about.theSizesOfThe": "The sizes of the days and the few words that name each place come from texts published by <a href=\"https://www.sefaria.org\" target=\"_blank\" rel=\"noopener\">Sefaria</a>, using only Public Domain editions, except these two:",
     "about.theGemaraSText": "The Gemara's text: <b>Wikisource Talmud Bavli</b> (<bdi lang=\"he\" dir=\"rtl\">תלמוד בבלי, ויקיטקסט</bdi>), licensed <a href=\"https://creativecommons.org/licenses/by-sa/3.0/\" target=\"_blank\" rel=\"noopener\">CC BY-SA</a>, from <a href=\"https://he.wikisource.org/wiki/%D7%AA%D7%9C%D7%9E%D7%95%D7%93_%D7%91%D7%91%D7%9C%D7%99\" target=\"_blank\" rel=\"noopener\">he.wikisource.org</a>. The app keeps only the first few words of each place in it.",
@@ -172,7 +172,7 @@
     "today.addTime": "How many minutes did it take? (optional)",
     "today.timeSaved": "Saved with this day",
     "reminder.title": "Time to learn",
-    "reminder.description": "Open שעשועי to see today's place: {url}",
+    "reminder.description": "Open Sha’ashu’ai to see today's place: {url}",
     "reminder.noDays": "No days left for a reminder: only Shabbos, Yom Tov or Friday evenings",
     "day.0": "Sun",
     "day.1": "Mon",
@@ -289,7 +289,7 @@
     "reminder.addSeferFirst": "Add a sefer first",
     "backup.copied": "Backup copied",
     "backup.selectAndCopy": "Select the text and copy it",
-    "backup.notBackup": "This is not a שעשועי backup.",
+    "backup.notBackup": "This is not a Sha’ashu’ai backup.",
     "backup.replaceAsk": "Replace the {n} plans on this phone with the {m} in the backup?",
     "backup.replace": "Replace",
     "backup.partFailed": "Part of this backup could not be read. Nothing was changed.",
@@ -442,7 +442,7 @@
     "print.button": "Print this week",
     "print.title": "Learning for {from} – {to}",
     "print.nothing": "No learning",
-    "print.foot": "From שעשועי, sefer-calendar.web.app. Tick each box when done.",
+    "print.foot": "From Sha’ashu’ai, sefer-calendar.web.app. Tick each box when done.",
     "share.button": "Learn with a chavrusa",
     "share.again": "Send the chavrusa link again",
     "share.howTo": "Send this link. Your chavrusa opens it, signs in, and gets the same schedule. You each see how far the other is.",

@@ -1,5 +1,5 @@
 /*
- * Learning Calendar screens.
+ * Sha’ashu’ai screens.
  *
  * Plans are kept in this browser's localStorage, each saved by address
  * (LearningSchedule.toSaved), and read back against the sefer's data file
@@ -1689,7 +1689,7 @@
   }
   function planIcs(x) {
     const name = planName(x), stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
-    const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Learning Calendar//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+    const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Shaashuai//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
       `X-WR-CALNAME:${icsText(`${name.en} · ${name.he}`)}`];
     learningOf(x.plan).forEach((p, i, all) => {
       const d = p.date.replace(/-/g, ""), next = S.addDays(p.date, 1).replace(/-/g, "");
@@ -1790,7 +1790,7 @@
     const hm = `T${String(h).padStart(2, "0")}${String(m).padStart(2, "0")}00`;
     const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
     const except = [...skip].filter((iso) => iso > first && days.includes(dateOf(iso).getDay())).map((iso) => `EXDATE:${iso.replace(/-/g, "")}${hm}`);
-    return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Learning Calendar//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+    return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Shaashuai//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
       "BEGIN:VEVENT", `UID:daily-learning-${reminderId()}@sefer-calendar.web.app`, `SEQUENCE:${Math.floor(Date.now() / 1000)}`, `DTSTAMP:${stamp}`,
       `DTSTART:${first.replace(/-/g, "")}${hm}`, "DURATION:PT15M", `RRULE:FREQ=WEEKLY;BYDAY=${days.map((d) => ICS_DAYS[d]).join(",")};UNTIL=${end.replace(/-/g, "")}T235959`,
       ...except,
@@ -1838,7 +1838,7 @@
     try {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
-      a.download = `learning-calendar-backup-${todayIso()}.json`;
+      a.download = `shaashuai-backup-${todayIso()}.json`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     } catch (e) { /* some browsers block saving files; the text below still works */ }

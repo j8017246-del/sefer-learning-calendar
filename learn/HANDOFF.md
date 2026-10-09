@@ -401,7 +401,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
    the default Kol HaTorah set is about 5.4 MB on the first download, then kept on the phone.
    Sefarim joined into one plan (all of Shas, all of Rambam) now load side by side, not one by one.
 4. Public release (Hudi, 10-09: website first, app stores later). The name שעשועי is in the app
-   (tab title, sign-in screen, Settings header, home-screen name, About, privacy, reminder, print,
+   (Hebrew screens; English screens say Sha’ashu’ai; tab title, sign-in screen, Settings header, home-screen name (Hebrew), About, privacy, reminder, print,
    backups); Hudi sets it as Firebase's "Public-facing name" for sign-in emails. Still needed: Hudi's hand tests,
    a contact address and short
    terms of use, and a deploy by someone signed in to Firebase.
