@@ -35,15 +35,14 @@
     <img class="logo-icon dark" src="icon-dark-512.png" alt="" width="112" height="112">
     <h1 id="gateTitle" lang="he" data-t="app.learningCalendar"></h1>
     <p class="gate-pasuk" lang="he" data-t="app.pasuk"></p>
-    <p class="gate-sub" data-t="gate.signInToStart"></p>
     <button class="btn primary wide" id="googleSignIn" disabled data-t="gate.continueWithGoogle"></button>
-    <button class="btn wide soon" inert><span data-t="soon.smsBtn"></span> <span class="pill soon-pill" data-t="soon.label"></span></button>
     <form id="linkForm" class="link-form">
       <label class="field" for="linkEmail" data-t="gate.orGetASign"></label>
       <input type="email" id="linkEmail" autocomplete="email" required data-t-placeholder="gate.youExampleCom">
       <button class="btn wide" id="sendLink" disabled data-t="gate.emailMeASign"></button>
       <button type="button" class="text-btn" id="sendAnother" hidden data-t="gate.sendAnother"></button>
     </form>
+    <button class="btn wide soon" inert><span data-t="soon.smsBtn"></span> <span class="pill soon-pill" data-t="soon.label"></span></button>
     <p class="note" id="accountNote" role="status"></p>
     <details class="gate-privacy">
       <summary data-t="gate.whatWeKeep"></summary>

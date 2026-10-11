@@ -829,3 +829,11 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 /* the sefarim list scrolls inside its frame, so the frame's gold edge stays put (Hudi, 10-11) */
 .wiz-frame { overflow: visible; }
 #wizList { border-radius: inherit; overscroll-behavior: auto; }
+
+/* the Add a sefer bar: the page's own color, nothing showing through, a foil rule under it (Hudi, 10-11) */
+.wiz-bar { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.wiz-bar::after { content: ""; position: absolute; inset-inline: 16px; bottom: 0; height: 1.5px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #b8903e 12%, #f3dc9a 38%, #fff4cc 50%, #d9b45c 64%, #a77c2c 86%, transparent); }
+
+/* the sign-in logo at full size: the round ש alone, no square tile behind it (Hudi, 10-11) */
+.gate .logo-icon { width: 168px; height: 168px; border-radius: 50%; clip-path: circle(47.5%); box-shadow: none; margin: 4px 0 0; }

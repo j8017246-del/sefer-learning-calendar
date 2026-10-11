@@ -20,7 +20,6 @@
     "app.signIn": "Sign in",
 
     // gate
-    "gate.signInToStart": "Sign in to start. Your plans and progress are saved to your account after every change, and are the same on every phone and computer.",
     "gate.continueWithGoogle": "Continue with Google",
     "gate.orGetASign": "Or get a sign-in link by email",
     "gate.youExampleCom": "you@example.com",
@@ -637,7 +636,6 @@
     "app.notSavedOnThis": "לא נשמר בטלפון. ייתכן שהזיכרון מלא או חסום; השינויים האחרונים יאבדו כשהאפליקציה תיסגר.",
     "app.notSavedToAn": "עדיין לא נשמר בחשבון.",
     "app.signIn": "כניסה",
-    "gate.signInToStart": "היכנסו כדי להתחיל. התוכניות וההתקדמות נשמרות בחשבון אחרי כל שינוי, והן זהות בכל טלפון ומחשב.",
     "gate.continueWithGoogle": "המשך עם Google",
     "gate.orGetASign": "או קבלו קישור כניסה במייל",
     "gate.youExampleCom": "you@example.com",
@@ -1231,7 +1229,6 @@
     "app.notSavedOnThis": "No se guardó en este teléfono. El almacenamiento puede estar lleno o bloqueado; tus últimos cambios se perderán al cerrar la app.",
     "app.notSavedToAn": "Aún no guardado en una cuenta.",
     "app.signIn": "Iniciar sesión",
-    "gate.signInToStart": "Inicia sesión para empezar. Tus planes y tu progreso se guardan en tu cuenta tras cada cambio, y son los mismos en todos tus teléfonos y computadoras.",
     "gate.continueWithGoogle": "Continuar con Google",
     "gate.orGetASign": "O recibe un enlace de acceso por correo",
     "gate.youExampleCom": "tu@ejemplo.com",
