@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://sefer-calendar.web.app/sitemap.xml
+Sitemap: https://shaashuai.web.app/sitemap.xml

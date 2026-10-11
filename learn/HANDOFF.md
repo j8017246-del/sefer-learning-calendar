@@ -442,8 +442,8 @@ its grayed block with the real one.
 `shaashuai` (shaashuai.web.app). The first time, someone signed in to Firebase runs
 `firebase hosting:sites:create shaashuai --project sefer-calendar`, then adds `shaashuai.web.app` under
 Authentication, Settings, Authorized domains (otherwise sign-in fails there). Each address keeps its own
-phone-only plans; signed-in plans are the same on both. The reminder link (APP_URL) still points to
-sefer-calendar.web.app.
+phone-only plans; signed-in plans are the same on both. shaashuai.web.app is the main address (Hudi, 10-11): the reminder link (APP_URL), the
+canonical link, robots.txt and sitemap.xml point to it.
 
 ## Accounts: tests with the Firebase emulators
 

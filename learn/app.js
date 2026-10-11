@@ -2013,7 +2013,7 @@
     if (!id) { id = uid(); try { localStorage.setItem("learning-calendar-reminder-id", id); } catch (e) { /* fine */ } }
     return id;
   }
-  const APP_URL = "https://sefer-calendar.web.app/";
+  const APP_URL = "https://shaashuai.web.app/";
   function reminderDays() {
     const set = new Set();
     for (const x of plans) for (const d of x.plan.learningDays || []) set.add(d);
