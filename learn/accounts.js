@@ -77,7 +77,7 @@
   function unavailable(why) {
     canSignIn = false;
     Store.setSaveState("phone");
-    note(why);
+    // the reason is told in Settings → Account, not on the sign-in screen (kept clean, Hudi 10-11)
     $("googleSignIn").disabled = $("sendLink").disabled = true;
     $("signedOutNote").textContent = `${tr("account.notSignedIn")} ${why}`;
     gate(false, false);

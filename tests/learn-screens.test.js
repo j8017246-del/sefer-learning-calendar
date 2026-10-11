@@ -242,7 +242,8 @@ function serve() {
   ok("Settings: theme, style and color can be changed and are remembered");
 
   // without signing in, the account says what it needs and the app keeps working
-  await page.waitForFunction(() => /needs a connection/.test(document.querySelector("#accountNote").textContent));
+  await page.waitForFunction(() => /needs a connection/.test(document.querySelector("#signedOutNote").textContent));
+  assert.strictEqual(await page.textContent("#accountNote"), "", "the sign-in screen itself stays clean");
   assert(await page.isDisabled("#googleSignIn"));
   // signing in cannot work here (no connection), so the app is not locked, and says plans are not saved yet
   assert(await page.isHidden("#gate"), "no sign-in screen when signing in cannot work");

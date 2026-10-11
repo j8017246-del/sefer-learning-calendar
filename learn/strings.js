@@ -24,8 +24,6 @@
     "gate.orGetASign": "Or get a sign-in link by email",
     "gate.youExampleCom": "you@example.com",
     "gate.emailMeASign": "Email me a sign-in link",
-    "gate.whatWeKeep": "What we keep",
-    "gate.yourEmailAddressAnd": "Your email address and your learning plans, only to show them to you. Nothing is sold or shared. We may show counts of how many people learn each sefer, never who they are. Your name or learning is shown to others only if you turn that on in Settings. You can delete your account and everything in it from Settings.",
     "gate.notNow": "Not now",
 
     // today
@@ -640,8 +638,6 @@
     "gate.orGetASign": "או קבלו קישור כניסה במייל",
     "gate.youExampleCom": "you@example.com",
     "gate.emailMeASign": "שלחו לי קישור כניסה",
-    "gate.whatWeKeep": "מה נשמר",
-    "gate.yourEmailAddressAnd": "כתובת המייל ותוכניות הלימוד שלכם, רק כדי להציג אותן לכם. שום דבר אינו נמכר או משותף. ייתכן שנציג כמה אנשים לומדים כל ספר, לעולם לא מי הם. השם או הלימוד שלכם מוצגים לאחרים רק אם תפעילו זאת בהגדרות. אפשר למחוק את החשבון וכל מה שבו מההגדרות.",
     "gate.notNow": "לא עכשיו",
     "today.loading": "טוען…",
     "today.today": "היום",
@@ -1233,8 +1229,6 @@
     "gate.orGetASign": "O recibe un enlace de acceso por correo",
     "gate.youExampleCom": "tu@ejemplo.com",
     "gate.emailMeASign": "Envíame un enlace de acceso",
-    "gate.whatWeKeep": "Qué guardamos",
-    "gate.yourEmailAddressAnd": "Tu correo y tus planes de estudio, solo para mostrártelos. No se vende ni se comparte nada. Podemos mostrar cuántas personas estudian cada sefer, nunca quiénes son. Tu nombre o tu estudio se muestran a otros solo si lo activas en Ajustes. Puedes borrar tu cuenta y todo su contenido desde Ajustes.",
     "gate.notNow": "Ahora no",
     "today.loading": "Cargando…",
     "today.today": "Hoy",
