@@ -36,9 +36,9 @@
     <h1 id="gateTitle" lang="he" data-t="app.learningCalendar"></h1>
     <p class="gate-pasuk" lang="he" data-t="app.pasuk"></p>
     <button class="btn primary wide" id="googleSignIn" disabled data-t="gate.continueWithGoogle"></button>
-    <form id="linkForm" class="link-form">
-      <label class="field" for="linkEmail" data-t="gate.orGetASign"></label>
-      <input type="email" id="linkEmail" autocomplete="email" required data-t-placeholder="gate.youExampleCom">
+    <button class="btn wide" id="emailOpen" type="button" disabled data-t="gate.continueWithEmail"></button>
+    <form id="linkForm" class="link-form" hidden>
+      <input type="email" id="linkEmail" autocomplete="email" required data-t-placeholder="gate.youExampleCom" data-t-aria-label="gate.orGetASign">
       <button class="btn wide" id="sendLink" disabled data-t="gate.emailMeASign"></button>
       <button type="button" class="text-btn" id="sendAnother" hidden data-t="gate.sendAnother"></button>
     </form>

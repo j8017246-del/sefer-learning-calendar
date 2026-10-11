@@ -285,6 +285,7 @@ function serve() {
   // ---- 7. a sign-in link opened on another phone, and a link that is too old ----
   await run("7. sign-in links", async () => {
     const a = await phone();
+    await a.page.click("#emailOpen");
     await a.page.fill("#linkEmail", "link@example.com");
     await a.page.click("#sendLink");
     await until(a.page, () => /We sent a sign-in link/.test(document.querySelector("#accountNote").textContent));

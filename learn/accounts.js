@@ -78,7 +78,7 @@
     canSignIn = false;
     Store.setSaveState("phone");
     // the reason is told in Settings → Account, not on the sign-in screen (kept clean, Hudi 10-11)
-    $("googleSignIn").disabled = $("sendLink").disabled = true;
+    $("googleSignIn").disabled = $("sendLink").disabled = $("emailOpen").disabled = true;
     $("signedOutNote").textContent = `${tr("account.notSignedIn")} ${why}`;
     gate(false, false);
     $("notSavedBar").hidden = false;
@@ -104,7 +104,7 @@
     canSignIn = true;
     const fb = window.firebase;
     fb.initializeApp(CONFIG);
-    $("googleSignIn").disabled = $("sendLink").disabled = false;
+    $("googleSignIn").disabled = $("sendLink").disabled = $("emailOpen").disabled = false;
     auth = fb.auth();
     db = fb.firestore();
     // tests only: talk to the Firebase emulators on this computer, never the real project
@@ -139,8 +139,16 @@
   // A sign-in link opened on a phone that did not ask for it (no email kept here): typing
   // the email finishes signing in with that link; "Send another link" is its own button.
   let openedLink = null;
+  // "Continue with email" opens the email box (Hudi, 10-11: like most apps)
+  function openEmail() {
+    $("emailOpen").hidden = true;
+    $("linkForm").hidden = false;
+    $("linkEmail").focus();
+  }
+  on("emailOpen", "click", openEmail);
   function linkMode(link) {
     openedLink = link;
+    if (link) { $("emailOpen").hidden = true; $("linkForm").hidden = false; }
     $("sendLink").textContent = tr(link ? "gate.finishLink" : "gate.emailMeASign");
     $("sendAnother").hidden = !link;
   }
