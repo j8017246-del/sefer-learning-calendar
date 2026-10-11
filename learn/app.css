@@ -832,8 +832,12 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 
 /* the Add a sefer bar: the page's own color, nothing showing through, a foil rule under it (Hudi, 10-11) */
 .wiz-bar { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
-.wiz-bar::after { content: ""; position: absolute; inset-inline: 16px; bottom: 0; height: 1.5px; border-radius: 2px;
-  background: linear-gradient(90deg, transparent, #b8903e 12%, #f3dc9a 38%, #fff4cc 50%, #d9b45c 64%, #a77c2c 86%, transparent); }
+/* a round-edged bar with a foil ring, like the panels; the page color above it hides the list scrolling past (Hudi, 10-11) */
+.wiz-bar { top: 8px; margin: -6px -4px 10px; border-radius: var(--r-lg); box-shadow: 0 -16px 0 var(--bg), var(--shadow); }
+.wiz-bar::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: var(--foil); opacity: .85;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 
 /* the sign-in logo: the round ש at full size (no square tile), and the name under it as wide as the buttons (Hudi, 10-11) */
 .gate .logo-icon { width: 168px; height: 168px; border-radius: 50%; clip-path: circle(47.5%); box-shadow: none; margin: 4px 0 0; }

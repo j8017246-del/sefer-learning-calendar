@@ -490,7 +490,7 @@ The account tests (learn-accounts, learn-safety, firestore-rules) need the Fireb
 - Sign-in screen (Hudi, 10-11): the round ש logo at full size (no square tile), the name שעשועי under it as wide as the
   buttons, no intro sentence, no "What we keep" (it is under Settings → privacy), no reason line when signing in
   cannot work (Settings → Account says why), a "Continue with email" button (above the coming-soon
-  text message) that opens just the email box and send button when tapped, like most apps. The Add a sefer bar is the page color with a foil rule under it.
+  text message) that opens just the email box and send button when tapped, like most apps. The Add a sefer bar is a round-edged bar in the page color with a foil ring.
 
 ## Notes (Hudi, 10-09)
 
