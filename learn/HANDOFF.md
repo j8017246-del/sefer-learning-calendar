@@ -175,6 +175,12 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
   (needs a Firebase sign-in for the project; this session used a CI token kept
   outside the repository). Settings: `learn/firebase.json`, `learn/.firebaserc`.
   The Firestore rules are published from `learn/firebase/firestore.rules`.
+- **Publishes by itself (10-11)**: every push to learning-calendar-part-1 that changes `learn/`
+  runs `.github/workflows/publish-website.yml` on GitHub: the engine tests, then a Hosting deploy to
+  sefer-calendar.web.app (and shaashuai.web.app, allowed to fail until that site exists). It uses the
+  GitHub secret `FIREBASE_SERVICE_ACCOUNT` (the JSON key from Firebase console, Project settings,
+  Service accounts). Without the secret it skips publishing with a warning. Firestore rules are not
+  published automatically; deploy them by hand when `firestore.rules` changes.
 - **Daily reminder** (Hudi asked): Settings → Daily reminder → Add to my
   calendar makes a calendar file with one event repeating on the learning
   days at the chosen time, with an alert and a link to the app. iPhone/iPad

@@ -1,0 +1,65 @@
+# Publishes learn/ to Firebase Hosting (sefer-calendar.web.app, and shaashuai.web.app
+# once that site exists) every time the learning-calendar-part-1 branch gets a push.
+# Needs one GitHub secret, FIREBASE_SERVICE_ACCOUNT: the whole JSON key file from
+# Firebase console > Project settings > Service accounts > Generate new private key.
+name: Publish website
+
+on:
+  push:
+    branches: [learning-calendar-part-1]
+    paths:
+      - "learn/**"
+      - ".github/workflows/publish-website.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: publish-website
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run the engine tests
+        run: |
+          node tests/learn-schedule.test.js
+          node tests/learn-cycles.test.js
+          node tests/learn-sync.test.js
+
+      - name: Check the Firebase key is saved
+        id: key
+        env:
+          KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::warning::FIREBASE_SERVICE_ACCOUNT is not saved yet, so the website was not published."
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          else
+            printf '%s' "$KEY" > "$RUNNER_TEMP/firebase-key.json"
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish sefer-calendar.web.app
+        if: steps.key.outputs.ready == 'yes'
+        working-directory: learn
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-key.json
+        run: npx --yes firebase-tools@14 deploy --only hosting:main --project sefer-calendar --non-interactive
+
+      - name: Publish shaashuai.web.app
+        if: steps.key.outputs.ready == 'yes'
+        continue-on-error: true
+        working-directory: learn
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-key.json
+        run: npx --yes firebase-tools@14 deploy --only hosting:shaashuai --project sefer-calendar --non-interactive
+
+      - name: Remove the key file
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-key.json"
