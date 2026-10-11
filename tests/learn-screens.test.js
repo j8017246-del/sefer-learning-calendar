@@ -1,5 +1,5 @@
 // Drives the learning calendar screens in a phone-sized browser.
-// Needs Playwright (MIT); fails when it is not installed.
+// Needs Playwright (Apache-2.0); fails when it is not installed.
 const assert = require("assert");
 const http = require("http");
 const fs = require("fs");
@@ -38,7 +38,7 @@ function serve() {
 (async () => {
   const server = await serve();
   const url = `http://127.0.0.1:${server.address().port}/`;
-  const browser = await chromium.launch(process.env.PLAYWRIGHT_BROWSERS_PATH ? {} : { executablePath: "/opt/pw-browsers/chromium" });
+  const browser = await chromium.launch(require("fs").existsSync("/opt/pw-browsers/chromium") && !process.env.PLAYWRIGHT_BROWSERS_PATH ? { executablePath: "/opt/pw-browsers/chromium" } : {});
   // the offline helper (service worker) is tested on its own below; here it would
   // answer requests the tests block on purpose
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, serviceWorkers: "block" });

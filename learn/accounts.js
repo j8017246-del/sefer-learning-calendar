@@ -79,7 +79,7 @@
     Store.setSaveState("phone");
     note(why);
     $("googleSignIn").disabled = $("sendLink").disabled = true;
-    $("signedOutNote").textContent = `Not signed in. ${why}`;
+    $("signedOutNote").textContent = `${tr("account.notSignedIn")} ${why}`;
     gate(false, false);
     $("notSavedBar").hidden = false;
   }

@@ -107,7 +107,7 @@ its sefer's id (`mussar/mesillas-yesharim|Mesillat Yesharim, Introduction:1@0`).
 sure every saved place is the start of a stopping point in the current data
 (splitting one if a rebuild moved it), so days already learned stay exactly
 where they were, and a later edition layer can add a printed page and line to
-each address. Plans are kept in the browser's storage (accounts are planned).
+each address. Plans are kept on the phone and, after signing in, in the person's account (accounts.js).
 
 ## Rebuilding the data
 

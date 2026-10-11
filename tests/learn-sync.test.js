@@ -185,4 +185,16 @@ test("notes written on two phones are all kept; a later edit or a deletion wins"
   assert.strictEqual(by["3"].text, "other phone");
 });
 
+test("a backup carries the stopped plans, and a broken one is caught", () => {
+  const good = { format: "learning-calendar-backup", version: 2, plans: [plan("a")], events: [],
+    stopped: [{ id: "s", at: "2026-10-01T10:00:00.000Z", record: plan("s", [0]) }] };
+  const r = Sync.checkBackup(good);
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.stopped.length, 1);
+  assert.strictEqual(r.stopped[0].record.portions[0].done, true, "its days done come back with it");
+  assert.strictEqual(Sync.checkBackup({ ...good, stopped: [{ id: "s", at: "x", record: { id: "s" } }] }).ok, false);
+  assert.strictEqual(Sync.checkBackup({ ...good, stopped: "x" }).ok, false);
+  assert.deepStrictEqual(Sync.checkBackup({ ...good, stopped: undefined }).stopped, [], "an older backup has none");
+});
+
 console.log(`${passed} sync tests passed`);

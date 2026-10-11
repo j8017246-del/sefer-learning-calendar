@@ -92,7 +92,7 @@ Branch `learning-calendar-part-1`. Read `/CLAUDE.md` first.
     (8 colors or any color), Section names, Backup, About and sources.
     Stored in `learning-calendar-appearance`.
   - The phone's own font; sefer names in Frank Ruhl Libre.
-- **Tests**: 41 engine, 32 screen, 5 sync, 6 rules and 8 account tests, all passing.
+- **Tests** (at the time; see "How to run" below for today's counts): 41 engine, 32 screen, 5 sync, 6 rules and 8 account tests.
 
 - **Stops only at the end of a sentence or paragraph** (Hudi, 10-07: a stop
   fell mid-sentence in Chovos HaLevavos). Cause: the builder also cut at every
@@ -463,6 +463,22 @@ NODE_PATH=$(npm root -g) node tests/learn-features.test.js   # the 10-08 feature
 python3 tools/build_sefer_data.py --only yerushalmi   # rebuild one collection (SEFARIA_CACHE=dir for the download cache)
 python3 tools/build_sefer_data.py              # rebuild learn/data from Sefaria's export
 ```
+
+Counts on 10-11: schedule 45, cycles 6, sync 16, screens 33, features 17, all passing.
+The screen and feature tests need Playwright (Apache-2.0): `npm install -g playwright && npx playwright install chromium`
+on a new computer. They use /opt/pw-browsers/chromium when it exists (cloud sessions), else Playwright's own browser.
+The account tests (learn-accounts, learn-safety, firestore-rules) need the Firebase emulator and are run separately.
+
+## Codex audit fixes (10-11)
+
+- Stopped plans are never dropped for being old (before, only the last 30 were kept). If the phone cannot store
+  the copy, the plan is not stopped and the person is told. Backups now carry the stopped plans (`stopped` in the
+  file), and loading one puts them under Stopped plans. The stop question says the plan is kept there.
+- Fits a 320px phone and large text (grid tracks `minmax(0,1fr)`, wrapping rows); every control is at least 44px
+  to tap; text people read uses `--muted` (4.5:1), `--faint` stays only for decoration and days off.
+- Wording: "Not signed in." translated; the Yom Tov note says it follows the person's Yom Tov setting; singular
+  and neutral wording where "1 plans" or "Faltan 1 de 1" showed; the Spanish and Hebrew corrections from the audit.
+- Not done by request: the account and security testing the audit left out.
 
 ## Notes (Hudi, 10-09)
 

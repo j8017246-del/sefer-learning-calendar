@@ -248,7 +248,14 @@
     });
     const events = data.events === undefined ? [] : data.events;
     if (!Array.isArray(events) || !events.every((e) => e && typeof e === "object" && typeof e.id === "string")) problems.push("broken history");
-    return { ok: !problems.length, plans: data.plans, events: Array.isArray(events) ? events : [], problems };
+    // stopped plans (kept to bring back): each must be a good plan too
+    const stopped = data.stopped === undefined ? [] : data.stopped;
+    if (!Array.isArray(stopped)) problems.push("broken stopped plans");
+    else stopped.forEach((d, i) => {
+      const p = !d || typeof d !== "object" || typeof d.at !== "string" ? ["not a stopped plan"] : planProblems(d.record);
+      if (p.length) problems.push(`stopped plan ${i + 1}: ${p.join(", ")}`);
+    });
+    return { ok: !problems.length, plans: data.plans, events: Array.isArray(events) ? events : [], stopped: Array.isArray(stopped) ? stopped : [], problems };
   }
 
   const api = { pack, unpack, accountText, ACCOUNT_LIMIT, checkBackup, planProblems, reconcile, mergePlan, mergeNotes, mergeDay, keepsFinished, changes, fingerprint, scheduleOf, doneDays };

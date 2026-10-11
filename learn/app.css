@@ -795,3 +795,33 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 #reviewPlan:not([hidden]) + #sharePlan { margin-top: 12px; }
 #shareBox { margin-top: 12px; }
 .soon .two .btn { white-space: nowrap; padding-inline: 10px; }
+
+/* ---- text people read is never faint: at least 4.5:1 (audit 10-11); faint stays for decoration and days off ---- */
+.cal-grid .dow, .week .dow, .week button small.hd, .cal-grid button small.hd, .save-state, .day-list li.off .t { color: var(--muted); }
+.cal-grid button.off small.hd, .cal-grid button.none small.hd, .week .out small.hd { color: inherit; }
+
+/* ---- fits a 320px phone and large text: grid tracks may shrink, the day list is the roomy alternative (audit 10-11) ---- */
+.cal-grid, .week { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.cal-grid > *, .week > * { min-width: 0; }
+.cal-grid button { aspect-ratio: auto; min-height: 44px; }
+@media (max-width: 360px) {
+  .calendar { padding-inline: 8px; }
+  .cal-grid { gap: 3px; }
+}
+.row-link, .setting-row, .lesson-head, .lesson-top { min-width: 0; }
+.row-link > *, .setting-row > *, .lesson-head > * { min-width: 0; overflow-wrap: anywhere; }
+.pill, .badge { white-space: normal; }
+
+/* ---- every control at least 44px to tap (audit 10-11) ---- */
+.icon-btn, .icon-btn.gear { min-width: 44px; min-height: 44px; }
+.notes-btn, .chips-scroll button, .lesson-open { min-height: 44px; }
+.week-handle { height: 44px; margin: -10px 0 -6px; }
+.save-state { display: flex; align-items: center; min-height: 44px; margin: -12px 0 -2px; }
+.soon-head { flex-wrap: wrap; }
+.soon-head > b { min-width: 0; }
+.switch-row { flex-wrap: wrap; }
+.switch-row > span { min-width: 0; flex: 1 1 8em; }
+.soon-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.soon-stats > * { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
+.week button { overflow: hidden; overflow-wrap: anywhere; line-height: 1.1; }
+@media (max-width: 360px) { .week button { font-size: .6rem; letter-spacing: -.02em; } }

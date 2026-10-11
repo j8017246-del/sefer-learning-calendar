@@ -31,7 +31,7 @@ function serve() {
 (async () => {
   const server = await serve();
   const url = `http://127.0.0.1:${server.address().port}/`;
-  const browser = await chromium.launch(process.env.PLAYWRIGHT_BROWSERS_PATH ? {} : { executablePath: "/opt/pw-browsers/chromium" });
+  const browser = await chromium.launch(require("fs").existsSync("/opt/pw-browsers/chromium") && !process.env.PLAYWRIGHT_BROWSERS_PATH ? { executablePath: "/opt/pw-browsers/chromium" } : {});
   let passed = 0, failed = 0;
   const ok = (name) => { passed++; console.log("ok -", name); };
   // each case on its own: a failure is reported and the next case still runs

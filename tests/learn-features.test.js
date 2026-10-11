@@ -1,7 +1,7 @@
 // The features of 10-08 on the screens: Kol HaTorah in a year, public cycles,
 // review (chazara), dedications, Hebrew dates, minutes after Done, suggestions
 // before Yom Tov, the translation file, right-to-left screens and installing.
-// Needs Playwright (MIT). Run: node tests/learn-features.test.js
+// Needs Playwright (Apache-2.0). Run: node tests/learn-features.test.js
 const assert = require("assert");
 const http = require("http");
 const fs = require("fs");
@@ -37,7 +37,7 @@ function serve() {
 (async () => {
   const server = await serve();
   const url = `http://127.0.0.1:${server.address().port}/`;
-  const browser = await chromium.launch(process.env.PLAYWRIGHT_BROWSERS_PATH ? {} : { executablePath: "/opt/pw-browsers/chromium" });
+  const browser = await chromium.launch(require("fs").existsSync("/opt/pw-browsers/chromium") && !process.env.PLAYWRIGHT_BROWSERS_PATH ? { executablePath: "/opt/pw-browsers/chromium" } : {});
   const errors = [];
   let passed = 0;
   const ok = (name) => { passed++; console.log("ok -", name); };
@@ -423,7 +423,7 @@ function serve() {
     assert(good.plans.some((p) => p.id === "cannot-load"), "the plan that did not load is in the backup");
     assert.strictEqual(good.plans.length, 2);
     assert(good.events.some((e) => e.type === "done"), "the history of days is in it");
-    assert.match(await page.textContent("#backupSummary"), /2 plans with 2 days done/);
+    assert.match(await page.textContent("#backupSummary"), /Plans: 2 · Days done: 2 · Stopped plans: 0/);
     assert.match(await page.textContent("#lastBackup"), /Last backup: Sun, Oct 11, 2026/);
     const before = await page.evaluate(() => localStorage.getItem("learning-calendar-v1"));
     // damaged backups: each is refused, and nothing changes
@@ -454,7 +454,7 @@ function serve() {
     await page.click("#loadPasted");
     await page.waitForSelector("#ask[open] .preview-list");
     const preview = await page.textContent("#askText");
-    assert.match(preview, /This backup has 2 plans/);
+    assert.match(preview, /Plans in this backup: 2/);
     assert.match(preview, /combined with yours/);
     assert.match(preview, /new/);
     await page.click("#askYes");
@@ -595,6 +595,72 @@ function serve() {
     await page.unroute(/\/data\/.*\.json(\?|$)/);
     await context.close();
     ok("Kol HaTorah shows its progress while preparing, and warns before plans too big for the account");
+  }
+
+  // ---- stopped plans are never dropped for being old, and they go into the backup ----
+  {
+    const { context, page } = await phone("2026-10-11");
+    await addSefer(page, "tanakh/genesis", "2027-09-30");
+    // 34 earlier stopped plans, then one stopped on screen
+    await page.evaluate(() => {
+      const r = window.LearnStore.records()[0];
+      window.LearnStore.keepCopies(Array.from({ length: 34 }, (_, i) => ({ ...r, id: `old-${i}` })));
+    });
+    await page.click(".lesson-progress");
+    await page.click("#deletePlan");
+    assert.match(await page.textContent("#askText"), /kept in Settings → Stopped plans/);
+    await page.click("#askYes");
+    await page.waitForSelector("#empty:not([hidden])");
+    const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("learning-calendar-deleted")).filter((d) => d.record).map((d) => d.id));
+    assert.strictEqual(kept.length, 35, "all 35 stopped plans are kept");
+    assert(kept.includes("old-0"), "the oldest one too");
+    await page.click(".appbar .gear");
+    assert.strictEqual(await page.locator("#stoppedList [data-bring]").count(), 35);
+    // the backup file holds them
+    await page.click("#exportBox > summary");
+    await page.click("#backup");
+    await page.waitForSelector("#backupBox:not([hidden])");
+    const data = JSON.parse(await page.inputValue("#backupText"));
+    assert.strictEqual(data.stopped.length, 35);
+    // and loading it on a fresh phone brings them back under Stopped plans
+    const fresh = await phone("2026-10-11");
+    await fresh.page.click('#empty [data-go="settings"], .appbar .gear');
+    await fresh.page.click("#exportBox > summary");
+    await fresh.page.setInputFiles("#restore", { name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(data)) });
+    await fresh.page.click("#askYes");
+    await fresh.page.waitForFunction(() => (JSON.parse(localStorage.getItem("learning-calendar-deleted") || "[]")).filter((d) => d.record).length === 35);
+    await fresh.context.close();
+    await context.close();
+    ok("stopped plans are all kept (more than 30), and a backup carries them to another phone");
+  }
+
+  // ---- a 320px phone and large text: nothing wider than the screen; every control 44px to tap ----
+  {
+    const { context, page } = await phone("2026-10-11");
+    await addSefer(page, "tanakh/genesis", "2027-09-30");
+    for (const [w, size] of [[320, "100%"], [390, "200%"]]) {
+      await page.setViewportSize({ width: w, height: 800 });
+      await page.evaluate((f) => { document.documentElement.style.fontSize = f; }, size);
+      for (const go of [null, ".lesson-progress", ".appbar .gear"]) {
+        if (go) await page.click(go);
+        await page.waitForTimeout(150);
+        assert.strictEqual(await page.evaluate(() => document.documentElement.scrollWidth), w, `fits ${w}px at ${size} (${go || "home"})`);
+      }
+      await page.click(".appbar .brand");
+    }
+    await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
+    await page.setViewportSize({ width: 390, height: 844 });
+    for (const sel of ["#weekHandle", ".appbar .gear", ".appbar .brand", ".notes-btn", ".save-state", ".lesson-open"]) {
+      const r = await page.locator(sel).first().boundingBox();
+      assert(r.width >= 44 && r.height >= 44, `${sel} is ${Math.round(r.width)}x${Math.round(r.height)}`);
+    }
+    // the Spanish screen has no English, also in messages made while the app runs
+    await page.evaluate(() => localStorage.setItem("learning-calendar-language", "es"));
+    await page.reload();
+    await page.click(".appbar .gear");
+    assert.doesNotMatch(await page.textContent("#settings"), /Not signed in/);
+    await context.close();
+    ok("fits a 320px phone and large text, every control is 44px to tap, and no English on the Spanish screen");
   }
 
   assert.deepStrictEqual(errors, []);

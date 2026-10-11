@@ -231,9 +231,18 @@
   // and a copy of each is kept here so it can be brought back.
   const DELETED = "learning-calendar-deleted";
   function deletedList() { try { return JSON.parse(localStorage.getItem(DELETED)) || []; } catch (e) { return []; } }
-  function putDeleted(list) { try { localStorage.setItem(DELETED, JSON.stringify(list.slice(-30))); } catch (e) { /* kept in memory until next save */ } }
+  // Every stopped plan is kept (never dropped for being old); only bare notes that the
+  // account was already told of a deletion, with no plan in them, are trimmed. Returns false
+  // when the phone could not save it.
+  function putDeleted(list) {
+    const bare = list.filter((d) => !d.record && d.sent);
+    const drop = new Set(bare.slice(0, Math.max(0, bare.length - 200)));
+    try { localStorage.setItem(DELETED, JSON.stringify(list.filter((d) => !drop.has(d)))); return true; } catch (e) { return false; }
+  }
+  // the stopped plans of whoever uses this phone now, with a copy to bring back
+  const stoppedRecords = () => deletedList().filter((d) => d.record && (!d.owner || d.owner === ownerNow()));
   function recordDeletion(record, sent = false) {
-    putDeleted(deletedList().filter((d) => d.id !== record.id).concat({ id: record.id, at: new Date().toISOString(), owner: ownerNow(), sent, record }));
+    return putDeleted(deletedList().filter((d) => d.id !== record.id).concat({ id: record.id, at: new Date().toISOString(), owner: ownerNow(), sent, record }));
   }
   const portionOn = (x, date) => x.plan.portions.find((q) => q.date === date && S.hasLearning(q));
 
@@ -1435,8 +1444,9 @@
   on("deletePlan", "click", async () => {
     const x = findPlan(current);
     if (!(await ask(tr("plan.stopAsk", { name: nm(planName(x)) }), tr("plan.stopYes")))) return;
+    // keep the copy first; if the phone cannot store it, the plan stays where it is
+    if (!recordDeletion({ id: x.id, ...S.toSaved(x.plan, x.sefer) })) return toast(tr("plan.stopFailed"));
     logDay(x, "stopped", null);
-    recordDeletion({ id: x.id, ...S.toSaved(x.plan, x.sefer) });
     plans = plans.filter((p) => p.id !== current);
     save(); show("today");
   });
@@ -1609,7 +1619,7 @@
       const perDay = plan.minutesPerDay && !plan.endDate ? plan.minutesPerDay : Math.max(1, Math.round(hours * 60 / learning.length));
       $("timeHint").textContent = tr("add.timeHint", { n: hours < 10 ? hours.toFixed(1) : Math.round(hours) });
       box.classList.remove("error");
-      box.innerHTML = wiz.step === 2 ? esc(tr("add.summary", { n: learning.length, date: niceDate(last, true) })).replace(/^\d+/, "<b>$&</b>") : "";
+      box.innerHTML = wiz.step === 2 ? esc(tr(learning.length === 1 ? "add.summaryOne" : "add.summary", { n: learning.length, date: niceDate(last, true) })).replace(/^\d+/, "<b>$&</b>") : "";
       $("wizNext").disabled = false;
       $("create").disabled = false;
       if (wiz.step === 3) {
@@ -2071,9 +2081,9 @@
 
   // ---- backup -------------------------------------------------------------------------------
 
-  // A backup holds every saved plan (also those whose sefer did not load), the history of
-  // every day (from the account when signed in, and what is not yet sent), and the
-  // deletions not yet sent.
+  // A backup holds every saved plan (also those whose sefer did not load), the plans the
+  // person stopped (to bring back), the history of every day (from the account when signed
+  // in, and what is not yet sent), and the deletions not yet sent.
   const LAST_BACKUP = "learning-calendar-last-backup", RECOVERY = "learning-calendar-recovery";
   let historyProvider = null;   // accounts.js: the account's day records
   async function backupData() {
@@ -2081,7 +2091,8 @@
     if (historyProvider) { try { history = await historyProvider(); } catch (e) { /* the phone's records below */ } }
     const byId = new Map(history.concat(pendingEvents()).map((e) => [e.id, e]));
     return { format: "learning-calendar-backup", version: 2, savedAt: new Date().toISOString(),
-      plans: allRecords(), events: [...byId.values()], unsent: { deletions: window.LearnStore.deletions(), dayRecords: pendingEvents().length } };
+      plans: allRecords(), stopped: stoppedRecords().map(({ id, at, record }) => ({ id, at, record })),
+      events: [...byId.values()], unsent: { deletions: window.LearnStore.deletions(), dayRecords: pendingEvents().length } };
   }
   const daysDoneIn = (records) => records.reduce((n, r) => n + (r.portions || []).filter((p) => p.done).length, 0);
   on("backup", "click", async () => {
@@ -2096,7 +2107,7 @@
     } catch (e) { /* some browsers block saving files; the text below still works */ }
     $("backupText").value = text;
     $("backupBox").hidden = false;
-    $("backupSummary").textContent = tr("backup.holds", { plans: data.plans.length, days: daysDoneIn(data.plans), records: data.events.length });
+    $("backupSummary").textContent = tr("backup.holds", { plans: data.plans.length, days: daysDoneIn(data.plans), stopped: (data.stopped || []).length, records: data.events.length });
     try { localStorage.setItem(LAST_BACKUP, data.savedAt); } catch (e) { /* only for the note */ }
     renderBackupNote();
   });
@@ -2154,6 +2165,11 @@
       if (m) result[i] = m;
       else result.push({ ...r, id: `${r.id.slice(0, 54)}-b${Date.now().toString(36).slice(-4)}`, conflictOf: r.id });
     }
+    // stopped plans in the backup come back under Stopped plans (not onto Today)
+    const have = deletedList(), live = new Set(result.map((r) => r.id));
+    const add = check.stopped.filter((d) => !live.has(d.record.id) && !have.some((x) => x.id === d.record.id && x.at === d.at))
+      .map((d) => ({ id: d.record.id, at: d.at, owner: ownerNow(), sent: true, record: d.record }));
+    if (add.length && !putDeleted(have.concat(add))) toast(tr("save.notOnPhone"));
     const done = await window.LearnStore.replace(result);
     renderBackupNote();
     if (done && !saveFailed) { show("today"); toast(tr("backup.loaded")); }

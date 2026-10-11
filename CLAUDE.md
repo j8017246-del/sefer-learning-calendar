@@ -47,7 +47,7 @@ WHAT IS DECIDED
 - This chat is paid from Hudi's cloud credit (checked: usage type ccr_promotional).
 
 STILL OPEN (ask Hudi only when it matters, one word to answer)
-- The only Public Domain Mishnah Berurah lacks simanim 1 to 186. Leave those out or estimate, and tell Hudi which in one line.
+- The only Public Domain Mishnah Berurah lacks simanim 1 to 186. As built, their size is estimated and they are named by se'if katan number, and the app says so (learn/HANDOFF.md). Change this only if Hudi asks to leave them out.
 
 RULES THAT MUST NOT BE BROKEN
 - This repository is public. Never add PDFs, scans, page images, or any text from books Hudi scanned or bought.
