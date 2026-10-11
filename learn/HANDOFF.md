@@ -487,7 +487,8 @@ The account tests (learn-accounts, learn-safety, firestore-rules) need the Fireb
 - Not done by request: the account and security testing the audit left out.
 - The sefarim list in Add a sefer scrolls inside a fixed frame (`.wiz-frame` around `#wizList`), so the frame's gold edge stays put
   (Hudi, 10-11: the bottom edge had scrolled away with the list since the 10-09 scroll change).
-- Sign-in screen (Hudi, 10-11): the round ש logo at full size (no square tile), no intro sentence, the email link
+- Sign-in screen (Hudi, 10-11): the round ש logo at full size (no square tile), the name שעשועי under it as wide as the
+  buttons, no intro sentence, the email link
   above the coming-soon text message. The Add a sefer bar is the page color with a foil rule under it.
 
 ## Notes (Hudi, 10-09)

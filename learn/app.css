@@ -835,5 +835,8 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 .wiz-bar::after { content: ""; position: absolute; inset-inline: 16px; bottom: 0; height: 1.5px; border-radius: 2px;
   background: linear-gradient(90deg, transparent, #b8903e 12%, #f3dc9a 38%, #fff4cc 50%, #d9b45c 64%, #a77c2c 86%, transparent); }
 
-/* the sign-in logo at full size: the round ש alone, no square tile behind it (Hudi, 10-11) */
+/* the sign-in logo: the round ש at full size (no square tile), and the name under it as wide as the buttons (Hudi, 10-11) */
 .gate .logo-icon { width: 168px; height: 168px; border-radius: 50%; clip-path: circle(47.5%); box-shadow: none; margin: 4px 0 0; }
+.gate-box { container-type: inline-size; }
+.gate #gateTitle { font-size: 36.2cqw; line-height: 1.1; margin: -4px 0 0; }
+.gate { align-items: flex-start; } .gate-box { margin-block: auto; }  /* centered, but a tall sign-in box scrolls from its top instead of being cut off */
