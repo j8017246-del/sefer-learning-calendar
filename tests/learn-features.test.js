@@ -663,6 +663,22 @@ function serve() {
     ok("fits a 320px phone and large text, every control is 44px to tap, and no English on the Spanish screen");
   }
 
+  // ---- the sefarim list scrolls inside its frame; the frame (with its gold edge) does not move ----
+  {
+    const { context, page } = await phone("2026-10-11");
+    await page.click('#today [data-go="add"]:visible');
+    await page.waitForSelector("#wizList .pick-row");
+    const frame = () => page.evaluate(() => { const f = document.querySelector(".wiz-frame"), r = f.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, scroll: f.scrollTop, scrolls: getComputedStyle(f).overflowY !== "visible" }; });
+    const before = await frame();
+    await page.evaluate(() => { document.getElementById("wizList").scrollTop = 300; });
+    const after = await frame();
+    assert(await page.evaluate(() => document.getElementById("wizList").scrollTop) > 0, "the list scrolled");
+    assert.deepStrictEqual(after, before, "the frame stayed where it was");
+    assert.strictEqual(before.scrolls, false, "the frame itself never scrolls");
+    await context.close();
+    ok("the sefarim list scrolls inside its frame, and the frame's edge stays put");
+  }
+
   assert.deepStrictEqual(errors, []);
   ok("no errors in the page");
   await browser.close();

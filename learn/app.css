@@ -825,3 +825,7 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 .soon-stats > * { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
 .week button { overflow: hidden; overflow-wrap: anywhere; line-height: 1.1; }
 @media (max-width: 360px) { .week button { font-size: .6rem; letter-spacing: -.02em; } }
+
+/* the sefarim list scrolls inside its frame, so the frame's gold edge stays put (Hudi, 10-11) */
+.wiz-frame { overflow: visible; }
+#wizList { border-radius: inherit; overscroll-behavior: auto; }

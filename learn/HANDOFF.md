@@ -485,6 +485,8 @@ The account tests (learn-accounts, learn-safety, firestore-rules) need the Fireb
 - Wording: "Not signed in." translated; the Yom Tov note says it follows the person's Yom Tov setting; singular
   and neutral wording where "1 plans" or "Faltan 1 de 1" showed; the Spanish and Hebrew corrections from the audit.
 - Not done by request: the account and security testing the audit left out.
+- The sefarim list in Add a sefer scrolls inside a fixed frame (`.wiz-frame` around `#wizList`), so the frame's gold edge stays put
+  (Hudi, 10-11: the bottom edge had scrolled away with the list since the 10-09 scroll change).
 
 ## Notes (Hudi, 10-09)
 
