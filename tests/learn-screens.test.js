@@ -158,6 +158,26 @@ function serve() {
   assert.match(await page.textContent(".lesson"), /3\/78/);
   ok("the week strip shows another day's place");
 
+  // the week is one line that slides on and on, and tapping a day leaves it where it was slid to
+  const line = await page.evaluate(() => {
+    const w = document.getElementById("week"), r = w.getBoundingClientRect(), b = [...w.children];
+    return { tops: new Set(b.map((c) => Math.round(c.getBoundingClientRect().top))).size, inView: b.filter((c) => { const x = c.getBoundingClientRect(); return x.left >= r.left - 1 && x.right <= r.right + 1; }).length };
+  });
+  assert.strictEqual(line.tops, 1, "one line");
+  assert.strictEqual(line.inView, 7, "seven days in view");
+  for (let i = 0; i < 12; i++) { await page.evaluate(() => { const w = document.getElementById("week"); w.scrollLeft += w.clientWidth; }); await page.waitForTimeout(250); }
+  const far = await page.evaluate(() => [...document.querySelectorAll("#week button")].map((b) => b.dataset.day).includes("2027-01-31"));
+  assert(far, "more weeks are drawn on the way");
+  const slidTo = await page.evaluate((() => { const w = document.getElementById("week"), r = w.getBoundingClientRect(); return [...w.children].find((c) => c.getBoundingClientRect().left >= r.left - 2).dataset.day; }));
+  const pick = await page.evaluate(() => { const w = document.getElementById("week"), r = w.getBoundingClientRect(); return [...w.children].find((c) => c.getBoundingClientRect().left >= r.left + 40).dataset.day; });
+  await page.click(`#week [data-day="${pick}"]`);
+  await page.waitForFunction((d) => document.querySelector(`#week [data-day="${d}"]`).getAttribute("aria-pressed") === "true", pick);
+  assert.strictEqual(await page.evaluate((() => { const w = document.getElementById("week"), r = w.getBoundingClientRect(); return [...w.children].find((c) => c.getBoundingClientRect().left >= r.left - 2).dataset.day; })), slidTo, "stays where it was slid to");
+  await page.screenshot({ path: process.env.WEEK_SHOT || "/dev/null", clip: { x: 0, y: 0, width: 390, height: 330 } }).catch(() => {});
+  await page.click('#week [data-day="' + pick + '"]');
+  await page.evaluate(() => { document.getElementById("week").scrollLeft = 0; });
+  ok("the week is one line that slides left and right without end");
+
   // three days later, two days missed
   await page.clock.setFixedTime(new Date("2026-10-14T09:00:00"));
   await page.reload();

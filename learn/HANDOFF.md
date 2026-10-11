@@ -506,4 +506,4 @@ sefer font, direction from the first letter), the sefer's page (list + gold dot 
 The plan calendar shows days as soft rounded tiles (Hudi chose "B1"): gold foil for done, a light tint for days to learn, an outline for today.
 
 ## Week strip slides open (10-09)
-On the home screen, slide the week strip down (or tap the small gold handle under it) to see the whole month, with arrows for other months; slide up or tap again to go back to the week. The closed strip shows the week of the chosen day. Code: `renderWeek`/`setWeekOpen` in app.js, styles at the end of app.css.
+On the home screen, the week line slides left and right through the days without end (one line, seven days in view, a day at a time; Hudi, 10-11: no month view). It opens on the chosen day's week; nearing either end it draws more weeks around where the person is. Code: `renderWeek`/`drawWeek` in app.js, styles at the end of app.css.

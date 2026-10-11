@@ -759,66 +759,52 @@
     } catch (e) { /* only a convenience */ }
   }
 
-  // The week of the chosen day; slid down, the whole month (slid up again, back to the week).
-  let weekOpen = false, weekMonth = null;
+  // One line of days that slides left and right without end (Hudi, 10-11); it opens on the chosen day's week.
+  // Weeks around the place in view are drawn; nearing either end, more are drawn around where the person is.
+  const WEEK_SPAN = 8;
+  let weekFirst = null, weekScrolled = false;
   function renderWeek(today) {
-    const dayBtn = (iso, name, out) => {
-      const due = plans.filter((x) => !x.plan.paused).map((x) => x.plan.portions.find((p) => p.date === iso && S.hasLearning(p))).filter(Boolean);
-      const cls = [iso === today ? "is-today" : "", due.length ? "has" : "", due.length && due.every((p) => p.done) ? "all-done" : "", out ? "out" : ""].join(" ");
-      return `<button class="${cls}" data-day="${iso}" aria-pressed="${iso === selectedDate}" aria-label="${niceDate(iso)}">${name}<b>${dateOf(iso).getDate()}</b><small class="hd" lang="he">${hebrewDay(iso)}</small><i></i></button>`;
-    };
-    const week = $("week");
-    week.classList.toggle("open", weekOpen);
-    $("weekHandle").setAttribute("aria-expanded", weekOpen);
-    $("weekHandle").setAttribute("aria-label", tr(weekOpen ? "today.showWeek" : "today.showMonth"));
-    if (!weekOpen) {
-      const first = S.addDays(selectedDate, -dateOf(selectedDate).getDay());
-      week.innerHTML = DAYS.map((name, i) => dayBtn(S.addDays(first, i), name)).join("");
-      return;
-    }
-    const ym = weekMonth || selectedDate.slice(0, 7), start = S.addDays(`${ym}-01`, -dateOf(`${ym}-01`).getDay());
-    let html = `<div class="week-month"><button class="icon-btn small" data-week-month="-1" aria-label="${esc(tr("plan.previousMonth"))}">${icon("back")}</button>
-      <h3>${monthTitleHtml(ym)}</h3><button class="icon-btn small" data-week-month="1" aria-label="${esc(tr("plan.nextMonth"))}">${icon("next")}</button></div>`
-      + DAYS.map((d) => `<span class="dow">${esc(d)}</span>`).join("");
-    for (let iso = start; iso.slice(0, 7) <= ym || dateOf(iso).getDay() !== 0; iso = S.addDays(iso, 1)) html += dayBtn(iso, "", iso.slice(0, 7) !== ym);
-    week.innerHTML = html;
+    const week = $("week"), keep = weekScrolled && weekFirst ? firstShownDay() : null;
+    drawWeek(today, keep || S.addDays(selectedDate, -dateOf(selectedDate).getDay()));
+    if (!keep) weekScrolled = false;
   }
-  // slide the week open or closed, with the height easing between the two
-  function setWeekOpen(open) {
-    if (open === weekOpen) return;
-    const week = $("week"), from = week.offsetHeight;
-    weekOpen = open; weekMonth = null;
-    renderWeek(todayIso());
-    const to = week.offsetHeight;
-    if (!matchMedia("(prefers-reduced-motion: reduce)").matches && week.animate)
-      week.animate([{ height: `${from}px`, overflow: "hidden" }, { height: `${to}px`, overflow: "hidden" }], { duration: 260, easing: "cubic-bezier(.2,.8,.2,1)" });
+  function drawWeek(today, from) {
+    const week = $("week"), start = S.addDays(from, -7 * WEEK_SPAN - dateOf(from).getDay());
+    let html = "";
+    for (let i = 0; i < 7 * (2 * WEEK_SPAN + 1); i++) {
+      const iso = S.addDays(start, i);
+      const due = plans.filter((x) => !x.plan.paused).map((x) => x.plan.portions.find((p) => p.date === iso && S.hasLearning(p))).filter(Boolean);
+      const cls = [iso === today ? "is-today" : "", due.length ? "has" : "", due.length && due.every((p) => p.done) ? "all-done" : ""].join(" ");
+      html += `<button class="${cls}" data-day="${iso}" aria-pressed="${iso === selectedDate}" aria-label="${niceDate(iso)}">${DAYS[dateOf(iso).getDay()]}<b>${dateOf(iso).getDate()}</b><small class="hd" lang="he">${hebrewDay(iso)}</small><i></i></button>`;
+    }
+    week.innerHTML = html;
+    weekFirst = start;
+    showWeekFrom(from);
+  }
+  // put a day at the start of the line (the right edge on Hebrew screens)
+  function showWeekFrom(iso) {
+    const week = $("week"), b = week.querySelector(`[data-day="${iso}"]`);
+    if (!b || week.hidden) return;
+    const w = week.getBoundingClientRect(), r = b.getBoundingClientRect();
+    week.scrollLeft += getComputedStyle(week).direction === "rtl" ? r.right - w.right : r.left - w.left;
+  }
+  function firstShownDay() {
+    const week = $("week"), w = week.getBoundingClientRect(), rtl = getComputedStyle(week).direction === "rtl";
+    const b = [...week.children].find((c) => { const r = c.getBoundingClientRect(); return rtl ? r.right <= w.right + 2 : r.left >= w.left - 2; });
+    return b ? b.dataset.day : null;
   }
   {
-    let y0 = null, moved = false;
-    const down = (e) => { y0 = e.clientY; moved = false; };
-    const move = (e) => { if (y0 != null && Math.abs(e.clientY - y0) > 10) moved = true; };
-    const up = (e) => {
-      if (y0 == null) return;
-      const dy = e.clientY - y0; y0 = null;
-      if (dy > 30) setWeekOpen(true); else if (dy < -30) setWeekOpen(false);
-    };
-    for (const el of [$("week"), $("weekHandle")]) {
-      el.addEventListener("pointerdown", down);
-      el.addEventListener("pointermove", move);
-      el.addEventListener("pointerup", up);
-      el.addEventListener("pointercancel", () => { y0 = null; });
-    }
-    // a slide is not a tap on a day
-    $("week").addEventListener("click", (e) => { if (moved) { e.stopPropagation(); moved = false; } }, true);
-    $("weekHandle").addEventListener("click", () => { if (!moved) setWeekOpen(!weekOpen); moved = false; });
-    $("week").addEventListener("click", (e) => {
-      const b = e.target.closest("[data-week-month]");
-      if (!b) return;
-      e.stopPropagation();
-      const [y, m] = (weekMonth || selectedDate.slice(0, 7)).split("-").map(Number), d = new Date(y, m - 1 + Number(b.dataset.weekMonth), 1, 12);
-      weekMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      renderWeek(todayIso());
-    });
+    let t = null;
+    $("week").addEventListener("scroll", () => {
+      weekScrolled = true;
+      clearTimeout(t);
+      t = setTimeout(() => {
+        const week = $("week"), first = firstShownDay();
+        if (!first) return;
+        const at = [...week.children].findIndex((c) => c.dataset.day === first);
+        if (at < 7 || at > week.children.length - 14) drawWeek(todayIso(), first);
+      }, 160);
+    }, { passive: true });
   }
 
   // The name a plan is shown by: a cycle's or a group's own name, else the sefer's.
@@ -2246,6 +2232,7 @@
     $("todayDate").innerHTML = saved.when;
     $("dayStatus").textContent = saved.status;
     $("week").innerHTML = saved.week;
+    showWeekFrom(S.addDays(saved.date, -dateOf(saved.date).getDay()));
     $("cards").innerHTML = saved.cards.replace(/class="panel lesson/g, 'class="panel lesson from-cache');
     $("empty").hidden = true;
   }

@@ -650,7 +650,7 @@ function serve() {
     }
     await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
     await page.setViewportSize({ width: 390, height: 844 });
-    for (const sel of ["#weekHandle", ".appbar .gear", ".appbar .brand", ".notes-btn", ".save-state", ".lesson-open"]) {
+    for (const sel of [".appbar .gear", ".appbar .brand", ".notes-btn", ".save-state", ".lesson-open"]) {
       const r = await page.locator(sel).first().boundingBox();
       assert(r.width >= 44 && r.height >= 44, `${sel} is ${Math.round(r.width)}x${Math.round(r.height)}`);
     }

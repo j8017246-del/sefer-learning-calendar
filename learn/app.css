@@ -766,19 +766,6 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 .lesson-top:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .lesson-top:active { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 
-/* ---- the week strip slides open to the whole month ---- */
-#week { touch-action: pan-x; }
-#week.open { touch-action: auto; row-gap: 2px; }
-.week .week-month { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 6px; }
-.week .week-month h3 { margin: 0; text-align: center; font-size: 1rem; color: var(--ink); }
-.week .week-month h3 small { display: block; font: 500 .72rem/1.3 var(--book); color: var(--muted); }
-.week .dow { text-align: center; font-size: .7rem; font-weight: 600; color: var(--muted); padding-bottom: 2px; }
-.week.open button { padding: 6px 0 5px; gap: 2px; }
-.week .out { opacity: .38; }
-.week-handle { display: block; width: 100%; height: 22px; margin: -4px 0 2px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; }
-.week-handle span { display: block; width: 38px; height: 5px; margin: 0 auto; border-radius: 3px; background: var(--foil, var(--accent)); opacity: .75; transition: transform .2s; }
-.week-handle:hover span, .week-handle:focus-visible span { opacity: 1; transform: scaleX(1.2); }
-.week[hidden] + .week-handle { display: none; }
 
 /* ---- calendar days as soft rounded tiles (Hudi chose B1, 10-09) ---- */
 .cal-grid { gap: 5px; }
@@ -797,11 +784,11 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 .soon .two .btn { white-space: nowrap; padding-inline: 10px; }
 
 /* ---- text people read is never faint: at least 4.5:1 (audit 10-11); faint stays for decoration and days off ---- */
-.cal-grid .dow, .week .dow, .week button small.hd, .cal-grid button small.hd, .save-state, .day-list li.off .t { color: var(--muted); }
-.cal-grid button.off small.hd, .cal-grid button.none small.hd, .week .out small.hd { color: inherit; }
+.cal-grid .dow, .week button small.hd, .cal-grid button small.hd, .save-state, .day-list li.off .t { color: var(--muted); }
+.cal-grid button.off small.hd, .cal-grid button.none small.hd { color: inherit; }
 
 /* ---- fits a 320px phone and large text: grid tracks may shrink, the day list is the roomy alternative (audit 10-11) ---- */
-.cal-grid, .week { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.cal-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .cal-grid > *, .week > * { min-width: 0; }
 .cal-grid button { aspect-ratio: auto; min-height: 44px; }
 @media (max-width: 360px) {
@@ -815,7 +802,6 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 /* ---- every control at least 44px to tap (audit 10-11) ---- */
 .icon-btn, .icon-btn.gear { min-width: 44px; min-height: 44px; }
 .notes-btn, .chips-scroll button, .lesson-open { min-height: 44px; }
-.week-handle { height: 44px; margin: -10px 0 -6px; }
 .save-state { display: flex; align-items: center; min-height: 44px; margin: -12px 0 -2px; }
 .soon-head { flex-wrap: wrap; }
 .soon-head > b { min-width: 0; }
@@ -844,3 +830,9 @@ a.source:hover { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
 .gate-box { container-type: inline-size; }
 .gate #gateTitle { font-size: 36.2cqw; line-height: 1.1; margin: -4px 0 0; }
 .gate { align-items: flex-start; } .gate-box { margin-block: auto; }  /* centered, but a tall sign-in box scrolls from its top instead of being cut off */
+
+/* the week line slides left and right, a day at a time, seven days in view (Hudi, 10-11) */
+.week { display: grid; grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: calc((100% - 24px) / 7);
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; margin: 0 -6px 6px; padding: 2px 0 6px; }
+.week::-webkit-scrollbar { display: none; }
+.week button { scroll-snap-align: start; }
